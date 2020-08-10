@@ -8,3 +8,4 @@ run.sh
 VulkanRenderEngine.exe
 CMakeFiles/
 *.spv
+__pycache__
