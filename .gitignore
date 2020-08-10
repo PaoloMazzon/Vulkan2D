@@ -9,3 +9,4 @@ VulkanRenderEngine.exe
 CMakeFiles/
 *.spv
 __pycache__
+html/

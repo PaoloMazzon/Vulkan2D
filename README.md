@@ -9,7 +9,8 @@ the tool I wrote to generate the blobs header file, its a super simple ~100 line
 
 Documentation
 =============
-Every file in VK2D is properly documented for doxygen.
+Every file in VK2D is properly documented for doxygen, just run `doxygen Doxyconfig` and an html
+folder will be created containing the documentation.
 
 Usage
 =====

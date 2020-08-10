@@ -3,19 +3,28 @@
 /// \brief Declares all the types (and build options) the renderer needs
 #pragma once
 
-///< Maximum number of frames to be processed at once
+/// Maximum number of frames to be processed at once
 #define VK2D_MAX_FRAMES_IN_FLIGHT 3
 
-///< Whether or not to enable validation layers/debugging callbacks
+/// Whether or not to enable validation layers/debugging callbacks
 #define VK2D_ENABLE_DEBUG
 
-///< Whether or not to enable printing logs to stdout
+/// Whether or not to enable printing logs to stdout
 #define VK2D_STDOUT_LOGGING
 
+/// \brief Abstraction to make managing pointers easer for VK2DRenderer
 typedef struct VK2DRenderer *VK2DRenderer;
+
+/// \brief Abstraction to make managing pointers easer for VK2DImage
 typedef struct VK2DImage *VK2DImage;
+
+/// \brief Abstraction to make managing pointers easer for VK2DLogicalDevice
 typedef struct VK2DLogicalDevice *VK2DLogicalDevice;
+
+/// \brief Abstraction to make managing pointers easer for VK2DPhysicalDevice
 typedef struct VK2DPhysicalDevice *VK2DPhysicalDevice;
+
+/// \brief Abstraction to make managing pointers easer for VK2DBuffer
 typedef struct VK2DBuffer *VK2DBuffer;
 
 /// \brief 2D vector of floats
