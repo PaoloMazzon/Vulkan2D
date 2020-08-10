@@ -10,3 +10,4 @@ CMakeFiles/
 *.spv
 __pycache__
 html/
+doxygen_sqlite3.db
