@@ -19,7 +19,7 @@ struct VK2DPhysicalDevice {
 
 /// \brief Finds and returns a physical device or NULL
 /// \param instance Vulkan instance
-/// \param preferredDevice Either a preferred physical device index or VK2D_DEVICE_BEST_FIT
+/// \param preferredDevice Either a preferred physical device index selected with vk2dPhysicalDeviceGetList or VK2D_DEVICE_BEST_FIT
 /// \return Returns the specified device or NULL if it fails
 ///
 /// Even though this is a high performance renderer, VK2D still only supports one GPU
@@ -34,7 +34,7 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 
 /// \brief Returns a list of device properties should you want to pick one specifically
 /// \param instance Vulkan instance
-/// \param size A pointer to a uint32_t where the size of the returned vector will be stored
+/// \param size Pointer to a uint32_t where the size of the returned vector will be stored
 /// \return Returns a vector of VkPhysicalDeviceProperties that will need to be freed
 VkPhysicalDeviceProperties *vk2dPhysicalDeviceGetList(VkInstance instance, uint32_t *size);
 

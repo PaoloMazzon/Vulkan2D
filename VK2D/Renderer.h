@@ -13,4 +13,5 @@ struct VK2DRenderer {
 	VkInstance vk;         ///< Core vulkan instance
 
 	// TODO: Stick swapchain stuff in its own file
+	// TODO: Abtract pipelines into their own file
 };
