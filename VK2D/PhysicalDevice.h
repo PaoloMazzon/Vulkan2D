@@ -2,7 +2,8 @@
 /// \author Paolo Mazzon
 /// \brief Tools for managing VkPhysicalDevice
 #pragma once
-#include "VK2D/Types.h"
+#include "VK2D/Structs.h"
+#include <vulkan/vulkan.h>
 
 /// \brief Groups up a couple things related to VkPhysicalDevice
 struct VK2DPhysicalDevice {
@@ -20,6 +21,15 @@ struct VK2DPhysicalDevice {
 /// \param instance Vulkan instance
 /// \param preferredDevice Either a preferred physical device index or VK2D_DEVICE_BEST_FIT
 /// \return Returns the specified device or NULL if it fails
+///
+/// Even though this is a high performance renderer, VK2D still only supports one GPU
+/// at a time because the benefit is very minimal for 2D games at an extremely high cost
+/// in complexity. If you want to specify a GPU, use vk2dPhysicalDeviceGetList to get the
+/// list of device information (which contains their name and some other things). Should
+/// you choose not to specify a device, VK2D will either use the only available GPU or
+/// the first dedicated graphics card it finds (for example, it would choose a GTX 1080
+/// over Intel HD 4600). GPUs are still arbitrary, however, and for example if you had a
+/// GTX 2080ti and 1060 in your system but it finds the 1060 first, it will choose the 1060.
 VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferredDevice);
 
 /// \brief Returns a list of device properties should you want to pick one specifically

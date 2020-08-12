@@ -2,7 +2,7 @@
 /// \author Paolo Mazzon
 /// \brief Initializes Vulkan structs
 #pragma once
-#include "VK2D/Types.h"
+#include "VK2D/Structs.h"
 #include <vulkan/vulkan.h>
 
 VkApplicationInfo vk2dInitApplicationInfo(VK2DConfiguration *info);

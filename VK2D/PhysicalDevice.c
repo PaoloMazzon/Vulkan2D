@@ -4,6 +4,7 @@
 #include "VK2D/Initializers.h"
 #include "VK2D/Validation.h"
 #include <malloc.h>
+#include "VK2D/Constants.h"
 
 static VkPhysicalDevice* _getPhysicalDevices(VkInstance instance, uint32_t *size) {
 	VkPhysicalDevice *devices;
@@ -79,7 +80,7 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 	VkPhysicalDeviceProperties choiceProps;
 
 	// Attempt to find a good non-integrated gpu
-	if (vk2dPointerCheck(devs) && vk2dPointerCheck(out)) {
+	if (vk2dPointerCheck(devs) && vk2dPointerCheck(out) && preferredDevice == VK2D_DEVICE_BEST_FIT) {
 		uint32_t i;
 		for (i = 0; i < devCount && !foundPrimary; i++) {
 			vkGetPhysicalDeviceProperties(devs[i], &choiceProps);
@@ -88,6 +89,19 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 					foundPrimary = true;
 				choice = devs[i];
 			}
+		}
+	}
+
+	// Use preferred device after checking its valid
+	if (preferredDevice != VK2D_DEVICE_BEST_FIT) {
+		if (preferredDevice < devCount && devCount >= 0) {
+			choice = devs[preferredDevice];
+			vkGetPhysicalDeviceProperties(choice, &choiceProps);
+		} else {
+			vk2dErrorCheck(-1);
+			vk2dLogMessage("Device \"%i\" out of range.", preferredDevice);
+			free(out);
+			out = NULL;
 		}
 	}
 

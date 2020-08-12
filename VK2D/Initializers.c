@@ -1,7 +1,8 @@
 /// \file Initializers.c
 /// \author Paolo Mazzon
 #include "VK2D/Initializers.h"
-#include "VK2D/Types.h"
+#include "VK2D/BuildOptions.h"
+#include "VK2D/Structs.h"
 #include <SDL2/SDL_vulkan.h>
 
 #ifdef VK2D_ENABLE_DEBUG

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <stdarg.h>
-#include "VK2D/Types.h"
+#include "VK2D/BuildOptions.h"
 #include <assert.h>
 
 bool _vk2dErrorRaise(VkResult result, const char* function, int line, const char* varname) {
