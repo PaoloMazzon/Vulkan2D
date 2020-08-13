@@ -2,7 +2,7 @@
 /// \author Paolo Mazzon
 /// \brief Forward declares struct typedefs
 #pragma once
-#include <inttypes.h>
+#include <vulkan/vulkan.h>
 
 /// \brief Abstraction to make managing pointers easer for VK2DRenderer
 typedef struct VK2DRenderer *VK2DRenderer;
@@ -50,6 +50,22 @@ typedef struct {
 	mat4 view;  ///< View matrix
 	mat4 proj;  ///< Projection matrix
 } VK2DUniformBufferObject;
+
+/// \brief Multisampling detail
+///
+/// While Vulkan does technically support 64 samples per pixel,
+/// there exists no device in the hardware database that supports
+/// it. Higher values look smoother but have a bigger impact on
+/// performance. Should you request an msaa larger than the device
+/// supports the maximum supported msaa is used.
+typedef enum {
+	msaa_1x = VK_SAMPLE_COUNT_1_BIT,   ///< 1 sample per pixel
+	msaa_2x = VK_SAMPLE_COUNT_2_BIT,   ///< 2 samples per pixel
+	msaa_4x = VK_SAMPLE_COUNT_4_BIT,   ///< 4 samples per pixel
+	msaa_8x = VK_SAMPLE_COUNT_8_BIT,   ///< 8 samples per pixel
+	msaa_16x = VK_SAMPLE_COUNT_16_BIT, ///< 16 samples per pixel
+	msaa_32x = VK_SAMPLE_COUNT_32_BIT, ///< 32 samples per pixel
+} VK2DMSAA;
 
 /// \brief How to present images
 typedef enum {

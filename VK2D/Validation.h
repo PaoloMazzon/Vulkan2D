@@ -24,4 +24,4 @@ void vk2dLogMessage(const char* fmt, ...);
 #define vk2dErrorInline(vkresult) (vkresult) < 0 ? _vk2dErrorRaise(vkresult, __FUNCTION__, __LINE__, #vkresult) : true
 
 /// \brief Used internally to handle debugging callbacks
-VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dVulkanRenderEngineDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data);
+VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data);

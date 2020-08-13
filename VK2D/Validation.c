@@ -53,7 +53,7 @@ void vk2dLogMessage(const char* fmt, ...) {
 #endif // VK2D_STDOUT_LOGGING
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dVulkanRenderEngineDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data) {
+VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data) {
 	FILE* output;
 	if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
 		output = stderr;

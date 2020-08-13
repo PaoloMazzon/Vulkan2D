@@ -7,7 +7,7 @@ const int32_t VK2D_DEVICE_BEST_FIT = -1;
 
 /// Default configuration of this renderer
 const VkApplicationInfo VK2D_DEFAULT_CONFIG = {
-		VK_NULL_HANDLE,
+		VK_STRUCTURE_TYPE_APPLICATION_INFO,
 		VK_NULL_HANDLE,
 		"VK2D",
 		VK_MAKE_VERSION(1, 0, 0),
