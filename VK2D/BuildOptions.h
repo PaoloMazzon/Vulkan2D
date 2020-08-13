@@ -1,4 +1,4 @@
-/// \file Types.h
+/// \file BuildOptions.h
 /// \author Paolo Mazzon
 /// \brief Declares all the types (and build options) the renderer needs
 #pragma once
