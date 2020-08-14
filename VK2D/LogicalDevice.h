@@ -47,8 +47,35 @@ void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer b
 /// \brief Gets a command buffer created with the single use flag
 /// \param dev Logical device to use
 /// \param pool Which command pool to make the buffer from
-/// \return Returns a new command buffer ready to have commands recorded to it
+/// \return Returns a new command buffer in the recording state
 VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev, uint32_t pool);
 
 /// \brief Submits a single use command buffer
+/// \param dev Device it belongs to
+/// \param buffer Command buffer to submit
+/// \param pool Pool the buffer came from
+///
+/// To be more specific, this will submit the command buffer then wait for the queue
+/// to idle. After that it will free the buffer.
 void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer, uint32_t pool);
+
+/// \brief Grabs a fence from a logical device
+/// \param dev Logical device to get the fence from
+/// \param flags Flags to use when creating the fence (Refer to Vulkan spec)
+/// \return Returns a new fence
+VkFence vk2dLogicalDeviceGetFence(VK2DLogicalDevice dev, VkFenceCreateFlagBits flags);
+
+/// \brief Frees a fence
+/// \param dev Device that the fence came from
+/// \param fence Fence to free
+void vk2dLogicalDeviceFreeFence(VK2DLogicalDevice dev, VkFence fence);
+
+/// \brief Grabs a semaphore from a logical device
+/// \param dev Device to get the semaphore from
+/// \return Returns the new semaphore
+VkSemaphore vk2dLogicalDeviceGetSemaphore(VK2DLogicalDevice dev);
+
+/// \brief Frees a semaphore
+/// \param dev Device the semaphore came from
+/// \param semaphore Semaphore to free
+void vk2dLogicalDeviceFreeSemaphore(VK2DLogicalDevice dev, VkSemaphore semaphore);

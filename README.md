@@ -7,6 +7,12 @@ As to prevent additional baggage, default shaders are SPIR-V binary blobs in `VK
 If you don't trust binary blobs, feel free to run `shaders/genblobs.py` yourself (that being
 the tool I wrote to generate the blobs header file, its a super simple ~100 line python script).
 
+Right now, my goal is to have lots of nice little abstractions for the renderer that still
+expose the Vulkan API, and the VK2D renderer itself require no Vulkan interaction at all. This
+means that if you wish to use the abstractions like `VK2DLogicalDevice` or `VK2DImage` you
+would still be required to use Vulkan, but ideally `VK2DRenderer` would not have the user touch
+the Vulkan API at all.
+
 Documentation
 =============
 Every file in VK2D is properly documented for doxygen, just run `doxygen Doxyconfig` and an html
