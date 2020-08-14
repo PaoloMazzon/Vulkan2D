@@ -3,6 +3,7 @@
 /// \brief Forward declares struct typedefs
 #pragma once
 #include <vulkan/vulkan.h>
+#include <stdbool.h>
 
 /// \brief Abstraction to make managing pointers easer for VK2DRenderer
 typedef struct VK2DRenderer *VK2DRenderer;
