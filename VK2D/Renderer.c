@@ -94,11 +94,39 @@ static void _vk2dRendererDestroyWindowSurface() {
 int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK2DScreenMode screenMode, VK2DMSAA msaa) {
 	gRenderer = calloc(1, sizeof(struct VK2DRenderer));
 	int32_t errorCode = 0;
+	uint32_t totalExtensionCount, i, sdlExtensions;
+	const char** totalExtensions;
+
+	// Print all available layers
+	VkLayerProperties *systemLayers;
+	uint32_t systemLayerCount;
+	vkEnumerateInstanceLayerProperties(&systemLayerCount, VK_NULL_HANDLE);
+	systemLayers = malloc(sizeof(VkLayerProperties) * systemLayerCount);
+	vkEnumerateInstanceLayerProperties(&systemLayerCount, systemLayers);
+	vk2dLogMessage("Available layers: ");
+	for (i = 0; i < systemLayerCount; i++)
+		vk2dLogMessage("  - %s", systemLayers[i].layerName);
+	vk2dLogMessage("");
+	free(systemLayers);
+
+	// Find number of total number of extensions
+	SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, VK_NULL_HANDLE);
+	totalExtensionCount = sdlExtensions + EXTENSION_COUNT;
+	totalExtensions = malloc(totalExtensionCount * sizeof(char*));
 
 	if (vk2dPointerCheck(gRenderer)) {
+		// Load extensions
+		SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, totalExtensions);
+		for (i = sdlExtensions; i < totalExtensionCount; i++) totalExtensions[i] = EXTENSIONS[i - sdlExtensions];
+
+		// Log all used extensions
+		vk2dLogMessage("Vulkan Enabled Extensions: ");
+		for (i = 0; i < totalExtensionCount; i++)
+			vk2dLogMessage(" - %s", totalExtensions[i]);
+		vk2dLogMessage(""); // Newline
+
 		// Create instance, physical, and logical device
-		// TODO: Load SDL required extensions into instance
-		VkInstanceCreateInfo instanceCreateInfo = vk2dInitInstanceCreateInfo((void*)&VK2D_DEFAULT_CONFIG, LAYERS, LAYER_COUNT, EXTENSIONS, EXTENSION_COUNT);
+		VkInstanceCreateInfo instanceCreateInfo = vk2dInitInstanceCreateInfo((void*)&VK2D_DEFAULT_CONFIG, LAYERS, LAYER_COUNT, totalExtensions, totalExtensionCount);
 		vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
 		gRenderer->pd = vk2dPhysicalDeviceFind(gRenderer->vk, VK2D_DEVICE_BEST_FIT);
 		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true);

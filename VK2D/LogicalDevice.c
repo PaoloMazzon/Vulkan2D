@@ -13,7 +13,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 
 	if (vk2dPointerCheck(ldev)) {
 		// Assemble the required features
-		VkPhysicalDeviceFeatures feats;
+		VkPhysicalDeviceFeatures feats = {};
 		if (enableAllFeatures) {
 			feats = dev->feats;
 		} else {
