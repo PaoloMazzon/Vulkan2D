@@ -41,7 +41,7 @@ VkPhysicalDeviceProperties *vk2dPhysicalDeviceGetList(VkInstance instance, uint3
 /// \brief Finds and returns the highest available MSAA available on a given device
 /// \param physicalDevice Device to find the MSAA max for
 /// \return Returns VkSampleCountFlagBits representing the max MSAA (its just an int like 1, 2, 4, 8...)
-VkSampleCountFlagBits vk2dPhysicalDeviceGetMSAA(VK2DPhysicalDevice physicalDevice);
+VK2DMSAA vk2dPhysicalDeviceGetMSAA(VK2DPhysicalDevice physicalDevice);
 
 /// \brief Frees a physical device
 /// \param dev Device to be freed

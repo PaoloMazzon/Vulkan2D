@@ -122,16 +122,15 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 	return out;
 }
 
-VkSampleCountFlagBits vk2dPhysicalDeviceGetMSAA(VK2DPhysicalDevice physicalDevice) {
+VK2DMSAA vk2dPhysicalDeviceGetMSAA(VK2DPhysicalDevice physicalDevice) {
 	VkSampleCountFlags counts = physicalDevice->props.limits.framebufferColorSampleCounts & physicalDevice->props.limits.framebufferDepthSampleCounts;
-	if (counts & VK_SAMPLE_COUNT_64_BIT) { return VK_SAMPLE_COUNT_64_BIT; }
-	if (counts & VK_SAMPLE_COUNT_32_BIT) { return VK_SAMPLE_COUNT_32_BIT; }
-	if (counts & VK_SAMPLE_COUNT_16_BIT) { return VK_SAMPLE_COUNT_16_BIT; }
-	if (counts & VK_SAMPLE_COUNT_8_BIT) { return VK_SAMPLE_COUNT_8_BIT; }
-	if (counts & VK_SAMPLE_COUNT_4_BIT) { return VK_SAMPLE_COUNT_4_BIT; }
-	if (counts & VK_SAMPLE_COUNT_2_BIT) { return VK_SAMPLE_COUNT_2_BIT; }
+	if (counts & VK_SAMPLE_COUNT_32_BIT) { return msaa_32x; }
+	if (counts & VK_SAMPLE_COUNT_16_BIT) { return msaa_16x; }
+	if (counts & VK_SAMPLE_COUNT_8_BIT) { return msaa_8x; }
+	if (counts & VK_SAMPLE_COUNT_4_BIT) { return msaa_4x; }
+	if (counts & VK_SAMPLE_COUNT_2_BIT) { return msaa_2x; }
 
-	return VK_SAMPLE_COUNT_1_BIT;
+	return msaa_1x;
 }
 
 void vk2dPhysicalDeviceFree(VK2DPhysicalDevice dev) {

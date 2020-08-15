@@ -1,11 +1,14 @@
 /// \file Renderer.c
 /// \author Paolo Mazzon
+#include <vulkan/vulkan.h>
+#include <SDL2/SDL_vulkan.h>
 #include "VK2D/Renderer.h"
 #include "VK2D/BuildOptions.h"
 #include "VK2D/Validation.h"
 #include "VK2D/Initializers.h"
 #include "VK2D/Constants.h"
 #include "VK2D/PhysicalDevice.h"
+#include "VK2D/LogicalDevice.h"
 
 /******************************* Globals *******************************/
 
@@ -56,6 +59,36 @@ static void _vk2dRendererDestroyDebug() {
 #endif // VK2D_ENABLE_DEBUG
 }
 
+static void _vk2dRendererCreateWindowSurface() {
+	VkSurfaceFormatKHR* surfaceFormatVector;
+	uint32_t surfaceFormatCount, i;
+	uint32_t foundIdeal = UINT32_MAX;
+	
+	// Create the surface then load up surface relevant values
+	vk2dErrorCheck(SDL_Vulkan_CreateSurface(gRenderer->window, gRenderer->vk, &gRenderer->surface) == SDL_TRUE ? VK_SUCCESS : -1);
+	vk2dErrorCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->presentModeCount, VK_NULL_HANDLE));
+	gRenderer->presentModes = malloc(sizeof(VkPresentModeKHR) * gRenderer->presentModeCount);
+
+	if (vk2dPointerCheck(gRenderer->presentModes)) {
+		vk2dErrorCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->presentModeCount, gRenderer->presentModes));
+		vk2dErrorCheck(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->surfaceCapabilities));
+		// You may want to search for a different format, but according to the Vulkan hardware database, 100% of systems support VK_FORMAT_B8G8R8A8_SRGB
+		gRenderer->surfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
+
+		if (gRenderer->surfaceCapabilities.currentExtent.width == UINT32_MAX || gRenderer->surfaceCapabilities.currentExtent.height == UINT32_MAX) {
+			SDL_Vulkan_GetDrawableSize(gRenderer->window, (void*)&gRenderer->surfaceWidth, (void*)&gRenderer->surfaceHeight);
+		} else {
+			gRenderer->surfaceWidth = gRenderer->surfaceCapabilities.currentExtent.width;
+			gRenderer->surfaceHeight = gRenderer->surfaceCapabilities.currentExtent.height;
+		}
+	}
+}
+
+static void _vk2dRendererDestroyWindowSurface() {
+	vkDestroySurfaceKHR(gRenderer->vk, gRenderer->surface, VK_NULL_HANDLE);
+	free(gRenderer->presentModes);
+}
+
 /******************************* User-visible functions *******************************/
 
 int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK2DScreenMode screenMode, VK2DMSAA msaa) {
@@ -64,13 +97,21 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 
 	if (vk2dPointerCheck(gRenderer)) {
 		// Create instance, physical, and logical device
+		// TODO: Load SDL required extensions into instance
 		VkInstanceCreateInfo instanceCreateInfo = vk2dInitInstanceCreateInfo((void*)&VK2D_DEFAULT_CONFIG, LAYERS, LAYER_COUNT, EXTENSIONS, EXTENSION_COUNT);
 		vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
 		gRenderer->pd = vk2dPhysicalDeviceFind(gRenderer->vk, VK2D_DEVICE_BEST_FIT);
+		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true);
+		gRenderer->window = window;
 
+		// Assign user settings, except for screen mode which will be handled later
+		VK2DMSAA maxMSAA = vk2dPhysicalDeviceGetMSAA(gRenderer->pd);
+		gRenderer->msaa = maxMSAA >= msaa ? msaa : maxMSAA;
+		gRenderer->texDetail = textureDetail;
 
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();
+		_vk2dRendererCreateWindowSurface();
 	} else {
 		errorCode = -1;
 	}
@@ -82,8 +123,16 @@ void vk2dRendererQuit() {
 	if (gRenderer != NULL) {
 		// Destroy subsystems
 		_vk2dRendererDestroyDebug();
+		_vk2dRendererDestroyWindowSurface();
 
+		// Destroy core bits
+		vk2dLogicalDeviceFree(gRenderer->ld);
+		vk2dPhysicalDeviceFree(gRenderer->pd);
 		free(gRenderer);
 		gRenderer = NULL;
 	}
+}
+
+VK2DRenderer vk2dRendererGetPointer() {
+	return gRenderer;
 }

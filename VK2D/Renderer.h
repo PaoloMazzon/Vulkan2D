@@ -18,6 +18,17 @@ struct VK2DRenderer {
 	VK2DMSAA msaa;               ///< Current MSAA
 	VK2DTextureDetail texDetail; ///< Current texture detail level
 	VK2DScreenMode screenMode;   ///< Current screen mode
+
+	// KHR Surface
+	SDL_Window *window;                           ///< Window this renderer belongs to
+	VkSurfaceKHR surface;                         ///< Window surface
+	VkSurfaceCapabilitiesKHR surfaceCapabilities; ///< Capabilities of the surface
+	VkPresentModeKHR *presentModes;               ///< All available present modes
+	uint32_t presentModeCount;                    ///< Number of present modes
+	VkFormat surfaceFormat;                       ///< Window surface format
+	uint32_t surfaceWidth;                        ///< Width of the surface
+	uint32_t surfaceHeight;                       ///< Height of the surface
+
 	// TODO: Stick swapchain stuff in its own file
 	// TODO: Abtract pipelines into their own file
 };
@@ -36,3 +47,10 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 
 /// \brief Frees resources used by the renderer
 void vk2dRendererQuit();
+
+/// \brief Gets the internal renderer's pointer
+/// \return Returns the internal VK2DRenderer pointer (can be NULL)
+///
+/// This is meant to be more control and configuration for those who are comfortable
+/// with Vulkan. It is not recommended that you use this function unless necessary.
+VK2DRenderer vk2dRendererGetPointer();
