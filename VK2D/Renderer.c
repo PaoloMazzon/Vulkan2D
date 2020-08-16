@@ -59,6 +59,15 @@ static void _vk2dRendererDestroyDebug() {
 #endif // VK2D_ENABLE_DEBUG
 }
 
+// Grabs a preferred present mode if available returning FIFO if its unavailable
+static VkPresentModeKHR _vk2dRendererGetPresentMode(VkPresentModeKHR mode) {
+	uint32_t i;
+	for (i = 0; i < gRenderer->presentModeCount; i++)
+		if (gRenderer->presentModes[i] == mode)
+			return mode;
+	return VK_PRESENT_MODE_FIFO_KHR;
+}
+
 static void _vk2dRendererGetSurfaceSize() {
 	if (gRenderer->surfaceCapabilities.currentExtent.width == UINT32_MAX || gRenderer->surfaceCapabilities.currentExtent.height == UINT32_MAX) {
 		SDL_Vulkan_GetDrawableSize(gRenderer->window, (void*)&gRenderer->surfaceWidth, (void*)&gRenderer->surfaceHeight);
@@ -78,7 +87,8 @@ static void _vk2dRendererCreateWindowSurface() {
 		vk2dErrorCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->presentModeCount, gRenderer->presentModes));
 		vk2dErrorCheck(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->surfaceCapabilities));
 		// You may want to search for a different format, but according to the Vulkan hardware database, 100% of systems support VK_FORMAT_B8G8R8A8_SRGB
-		gRenderer->surfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
+		gRenderer->surfaceFormat.format = VK_FORMAT_B8G8R8A8_SRGB;
+		gRenderer->surfaceFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 		_vk2dRendererGetSurfaceSize();
 	}
 }
@@ -89,7 +99,21 @@ static void _vk2dRendererDestroyWindowSurface() {
 }
 
 static void _vk2dRendererCreateSwapchain() {
-
+	gRenderer->config.screenMode = (VK2DScreenMode)_vk2dRendererGetPresentMode((VkPresentModeKHR)gRenderer->config.screenMode);
+	VkSwapchainCreateInfoKHR  swapchainCreateInfoKHR = vk2dInitSwapchainCreateInfoKHR(
+			gRenderer->surface,
+			gRenderer->surfaceCapabilities,
+			gRenderer->surfaceFormat,
+			gRenderer->surfaceWidth,
+			gRenderer->surfaceHeight,
+			(VkPresentModeKHR)gRenderer->config.screenMode,
+			VK_NULL_HANDLE,
+			gRenderer->surfaceCapabilities.minImageCount + (gRenderer->config.screenMode == sm_TripleBuffer ? 1 : 0)
+			);
+	VkBool32 supported;
+	vkGetPhysicalDeviceSurfaceSupportKHR(gRenderer->pd->dev, gRenderer->pd->QueueFamily.graphicsFamily, gRenderer->surface, &supported);
+	if (vk2dErrorInline(supported != VK_TRUE ? -1 : VK_SUCCESS))
+		vkCreateSwapchainKHR(gRenderer->ld->dev, &swapchainCreateInfoKHR, VK_NULL_HANDLE, &gRenderer->swapchain);
 }
 
 static void _vk2dRendererDestroySwapchain() {
@@ -256,8 +280,8 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 
 		// Assign user settings, except for screen mode which will be handled later
 		VK2DMSAA maxMSAA = vk2dPhysicalDeviceGetMSAA(gRenderer->pd);
-		gRenderer->msaa = maxMSAA >= msaa ? msaa : maxMSAA;
-		gRenderer->texDetail = textureDetail;
+		gRenderer->config.msaa = maxMSAA >= msaa ? msaa : maxMSAA;
+		gRenderer->config.textureDetail = textureDetail;
 
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();

@@ -73,10 +73,16 @@ typedef enum {
 } VK2DMSAA;
 
 /// \brief How to present images
+///
+/// This is system dependent and its possible for a system to not support
+/// sm_Immediate or sm_TripleBuffer. While it is technically possible to not
+/// support VSync, the Vulkan spec states it must be supported and the hardware
+/// database agrees with that so VK2D assumes VSync is always supported. Should
+/// you request a mode that is not available, the option will default to sm_Vsync.
 typedef enum {
-	sm_Immediate = 0,   ///< Quickest mode, just plop to screen but may have screen tearing
-	sm_VSync = 1,       ///< Slower but prevents screen tearing
-	sm_TripleBuffer = 2 ///< Optimal for gaming but a bit slower than immediate (machines may not support this)
+	sm_Immediate = VK_PRESENT_MODE_IMMEDIATE_KHR, ///< Quickest mode, just plop to screen but may have screen tearing
+	sm_VSync = VK_PRESENT_MODE_FIFO_KHR,          ///< Slower but prevents screen tearing
+	sm_TripleBuffer = VK_PRESENT_MODE_MAILBOX_KHR ///< Optimal for gaming but a bit slower than immediate (machines may not support this)
 } VK2DScreenMode;
 
 /// \brief Level of detail for textures (what mip level to use)
@@ -87,7 +93,7 @@ typedef enum {
 	td_Minimum = 3 ///< Will look like absolute garbage, don't use this unless you hate graphics
 } VK2DTextureDetail;
 
-/// \brief Application information
+/// \brief User configurable settings
 typedef struct VK2DConfiguration {
 	const char* applicationName; ///< Name of this program
 	const char* engineName;      ///< Name of this engine
@@ -95,3 +101,10 @@ typedef struct VK2DConfiguration {
 	uint32_t engineVersion;      ///< Version of this engine
 	uint32_t apiVersion;         ///< Version of vulkan
 } VK2DConfiguration;
+
+/// \brief User configurable settings
+typedef struct VK2DRendererConfig {
+	VK2DMSAA msaa;                   ///< Current MSAA
+	VK2DScreenMode screenMode;       ///< Current screen mode
+	VK2DTextureDetail textureDetail; ///< Current texture detail
+} VK2DRendererConfig;

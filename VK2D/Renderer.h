@@ -19,10 +19,8 @@ struct VK2DRenderer {
 	VkDebugReportCallbackEXT dr; ///< Debug information
 
 	// Configurable options
-	VK2DMSAA msaa;               ///< Current MSAA
-	VK2DTextureDetail texDetail; ///< Current texture detail level
-	VK2DScreenMode screenMode;   ///< Current screen mode
-	bool resetSwapchain;         ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
+	VK2DRendererConfig config; ///< User config
+	bool resetSwapchain;       ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -30,11 +28,13 @@ struct VK2DRenderer {
 	VkSurfaceCapabilitiesKHR surfaceCapabilities; ///< Capabilities of the surface
 	VkPresentModeKHR *presentModes;               ///< All available present modes
 	uint32_t presentModeCount;                    ///< Number of present modes
-	VkFormat surfaceFormat;                       ///< Window surface format
+	VkSurfaceFormatKHR surfaceFormat;             ///< Window surface format
 	uint32_t surfaceWidth;                        ///< Width of the surface
 	uint32_t surfaceHeight;                       ///< Height of the surface
 
-	// TODO: Stick swapchain stuff in its own file
+	// Swapchain
+	VkSwapchainKHR swapchain; ///< Swapchain (manages images and presenting to screen)
+
 	// TODO: Abtract pipelines into their own file
 };
 

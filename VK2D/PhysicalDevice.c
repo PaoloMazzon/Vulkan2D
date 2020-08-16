@@ -3,10 +3,11 @@
 #include "VK2D/PhysicalDevice.h"
 #include "VK2D/Initializers.h"
 #include "VK2D/Validation.h"
-#include <malloc.h>
 #include "VK2D/Constants.h"
+#include <stdio.h>
+#include <malloc.h>
 
-static VkPhysicalDevice* _getPhysicalDevices(VkInstance instance, uint32_t *size) {
+static VkPhysicalDevice* _vk2dPhysicalDeviceGetPhysicalDevices(VkInstance instance, uint32_t *size) {
 	VkPhysicalDevice *devices;
 
 	// Find out how many devices we have, allocate that amount, then fill in the blanks
@@ -17,7 +18,7 @@ static VkPhysicalDevice* _getPhysicalDevices(VkInstance instance, uint32_t *size
 	return devices;
 }
 
-static bool _physicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhysicalDevice dev, VK2DPhysicalDevice out) {
+static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhysicalDevice dev, VK2DPhysicalDevice out) {
 	uint32_t queueFamilyCount = 0;
 	uint32_t i;
 	VkQueueFamilyProperties* queueList;
@@ -49,13 +50,13 @@ static bool _physicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhysical
 }
 
 // Checks if a device is supported, loading all the queue families if so
-static bool _physicalDeviceSupported(VkInstance instance, VkPhysicalDevice dev, VkPhysicalDeviceProperties *props, VK2DPhysicalDevice out) {
+static bool _vk2dPhysicalDeviceSupported(VkInstance instance, VkPhysicalDevice dev, VkPhysicalDeviceProperties *props, VK2DPhysicalDevice out) {
 	// You can add device requirements here
-	return _physicalDeviceSupportsQueueFamilies(instance, dev, out);
+	return _vk2dPhysicalDeviceSupportsQueueFamilies(instance, dev, out);
 }
 
 VkPhysicalDeviceProperties *vk2dPhysicalDeviceGetList(VkInstance instance, uint32_t *size) {
-	VkPhysicalDevice *devs = _getPhysicalDevices(instance, size);
+	VkPhysicalDevice *devs = _vk2dPhysicalDeviceGetPhysicalDevices(instance, size);
 	VkPhysicalDeviceProperties *props = NULL;
 
 	if (vk2dPointerCheck(devs)) {
@@ -71,22 +72,19 @@ VkPhysicalDeviceProperties *vk2dPhysicalDeviceGetList(VkInstance instance, uint3
 	return props;
 }
 
-VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferredDevice) {
-	VK2DPhysicalDevice out = malloc(sizeof(struct VK2DPhysicalDevice));
+static VkPhysicalDevice _vk2dPhysicalDeviceGetBestDevice(VkInstance instance, VK2DPhysicalDevice out, int32_t preferredDevice, bool *foundPrimary) {
 	uint32_t devCount;
-	VkPhysicalDevice *devs = _getPhysicalDevices(instance, &devCount);
-	bool foundPrimary = false;
-	VkPhysicalDevice choice = VK_NULL_HANDLE;
+	VkPhysicalDevice choice;
 	VkPhysicalDeviceProperties choiceProps;
-
-	// Attempt to find a good non-integrated gpu
-	if (vk2dPointerCheck(devs) && vk2dPointerCheck(out) && preferredDevice == VK2D_DEVICE_BEST_FIT) {
+	*foundPrimary = false;
+	VkPhysicalDevice *devs = _vk2dPhysicalDeviceGetPhysicalDevices(instance, &devCount);
+	if (vk2dPointerCheck(devs) && preferredDevice == VK2D_DEVICE_BEST_FIT) {
 		uint32_t i;
-		for (i = 0; i < devCount && !foundPrimary; i++) {
+		for (i = 0; i < devCount && !(*foundPrimary); i++) {
 			vkGetPhysicalDeviceProperties(devs[i], &choiceProps);
-			if (_physicalDeviceSupported(instance, devs[i], &choiceProps, out)) {
+			if (_vk2dPhysicalDeviceSupported(instance, devs[i], &choiceProps, out)) {
 				if (choiceProps.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
-					foundPrimary = true;
+					*foundPrimary = true;
 				choice = devs[i];
 			}
 		}
@@ -105,20 +103,35 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 		}
 	}
 
-	// Check if we found one and print if it was discrete (dedicated) or otherwise
-	if (choice != VK_NULL_HANDLE) {
-		vk2dLogMessage(foundPrimary ? "Found discrete device %s" : "Found integrated device %s", choiceProps.deviceName);
-		out->props = choiceProps;
-		out->dev = choice;
-		vkGetPhysicalDeviceFeatures(choice, &out->feats);
-		vkGetPhysicalDeviceMemoryProperties(choice, &out->mem);
-	} else {
-		free(out);
-		out = NULL;
-		vk2dErrorCheck(-1);
+	free(devs);
+	return choice;
+}
+
+VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferredDevice) {
+	VK2DPhysicalDevice out = malloc(sizeof(struct VK2DPhysicalDevice));
+	VkPhysicalDevice choice = VK_NULL_HANDLE;
+	VkPhysicalDeviceProperties choiceProps;
+	bool foundPrimary;
+
+	if (vk2dPointerCheck(out)) {
+		choice = _vk2dPhysicalDeviceGetBestDevice(instance, out, preferredDevice, &foundPrimary);
+		vkGetPhysicalDeviceProperties(choice, &choiceProps);
+
+		// Check if we found one and print if it was discrete (dedicated) or otherwise
+		if (choice != VK_NULL_HANDLE) {
+			vk2dLogMessage(foundPrimary ? "Found discrete device %s" : "Found integrated device %s.",
+						   choiceProps.deviceName);
+			out->props = choiceProps;
+			out->dev = choice;
+			vkGetPhysicalDeviceFeatures(choice, &out->feats);
+			vkGetPhysicalDeviceMemoryProperties(choice, &out->mem);
+		} else {
+			free(out);
+			out = NULL;
+			vk2dErrorCheck(-1);
+		}
 	}
 
-	free(devs);
 	return out;
 }
 
