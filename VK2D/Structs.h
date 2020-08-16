@@ -27,6 +27,9 @@ typedef struct VK2DBuffer *VK2DBuffer;
 /// \brief Abstraction to make managing pointers easier for VK2DPipeline
 typedef struct VK2DPipeline *VK2DPipeline;
 
+/// \brief Abstraction to make managing pointers easier for VK2DTexture
+typedef struct VK2DTexture *VK2DTexture;
+
 /// \brief 2D vector of floats
 typedef float vec2[2];
 

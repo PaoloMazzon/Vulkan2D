@@ -27,6 +27,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(&queueCreateInfo, 1, &feats);
 		VkCommandPoolCreateInfo commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 		vk2dErrorCheck(vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev));
+		ldev->pd = dev;
 		vkGetDeviceQueue(ldev->dev, queueFamily, 0, &ldev->queue);
 
 		for (i = 0; i < VK2D_DEVICE_COMMAND_POOLS; i++)

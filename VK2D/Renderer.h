@@ -33,9 +33,10 @@ struct VK2DRenderer {
 	uint32_t surfaceHeight;                       ///< Height of the surface
 
 	// Swapchain
-	VkSwapchainKHR swapchain;     ///< Swapchain (manages images and presenting to screen)
-	VK2DImage *swapchainImages;   ///< Images of the swapchain
-	uint32_t swapchainImageCount; ///< Number of images in the swapchain
+	VkSwapchainKHR swapchain;         ///< Swapchain (manages images and presenting to screen)
+	VkImage *swapchainImages;         ///< Images of the swapchain
+	VkImageView *swapchainImageViews; ///< Image views for the swapchain images
+	uint32_t swapchainImageCount;     ///< Number of images in the swapchain
 
 	// TODO: Abstract pipelines into their own file
 };

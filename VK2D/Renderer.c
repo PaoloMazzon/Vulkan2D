@@ -99,6 +99,8 @@ static void _vk2dRendererDestroyWindowSurface() {
 }
 
 static void _vk2dRendererCreateSwapchain() {
+	uint32_t i;
+
 	gRenderer->config.screenMode = (VK2DScreenMode)_vk2dRendererGetPresentMode((VkPresentModeKHR)gRenderer->config.screenMode);
 	VkSwapchainCreateInfoKHR  swapchainCreateInfoKHR = vk2dInitSwapchainCreateInfoKHR(
 			gRenderer->surface,
@@ -115,12 +117,26 @@ static void _vk2dRendererCreateSwapchain() {
 	if (vk2dErrorInline(supported != VK_TRUE ? -1 : VK_SUCCESS))
 		vkCreateSwapchainKHR(gRenderer->ld->dev, &swapchainCreateInfoKHR, VK_NULL_HANDLE, &gRenderer->swapchain);
 
-	// TODO: Get swapchain images
+	vk2dErrorCheck(vkGetSwapchainImagesKHR(gRenderer->ld->dev, gRenderer->swapchain, &gRenderer->swapchainImageCount, VK_NULL_HANDLE));
+	gRenderer->swapchainImageViews = malloc(gRenderer->swapchainImageCount * sizeof(VkImageView));
+	gRenderer->swapchainImages = malloc(gRenderer->swapchainImageCount * sizeof(VkImage));
+	if (vk2dPointerCheck(gRenderer->swapchainImageViews) && vk2dPointerCheck(gRenderer->swapchainImages)) {
+		vk2dErrorCheck(vkGetSwapchainImagesKHR(gRenderer->ld->dev, gRenderer->swapchain, &gRenderer->swapchainImageCount, gRenderer->swapchainImages));
+
+		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
+			VkImageViewCreateInfo imageViewCreateInfo = vk2dInitImageViewCreateInfo(gRenderer->swapchainImages[i], gRenderer->surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+			vk2dErrorCheck(vkCreateImageView(gRenderer->ld->dev, &imageViewCreateInfo, VK_NULL_HANDLE, &gRenderer->swapchainImageViews[i]));
+		}
+	}
 
 	vk2dLogMessage("Swapchain (%i images) initialized...", swapchainCreateInfoKHR.minImageCount);
 }
 
 static void _vk2dRendererDestroySwapchain() {
+	uint32_t i;
+	for (i = 0; i < gRenderer->swapchainImageCount; i++)
+		vkDestroyImageView(gRenderer->ld->dev, gRenderer->swapchainImageViews[i], VK_NULL_HANDLE);
+
 	vkDestroySwapchainKHR(gRenderer->ld->dev, gRenderer->swapchain, VK_NULL_HANDLE);
 }
 
