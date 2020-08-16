@@ -59,11 +59,16 @@ static void _vk2dRendererDestroyDebug() {
 #endif // VK2D_ENABLE_DEBUG
 }
 
+static void _vk2dRendererGetSurfaceSize() {
+	if (gRenderer->surfaceCapabilities.currentExtent.width == UINT32_MAX || gRenderer->surfaceCapabilities.currentExtent.height == UINT32_MAX) {
+		SDL_Vulkan_GetDrawableSize(gRenderer->window, (void*)&gRenderer->surfaceWidth, (void*)&gRenderer->surfaceHeight);
+	} else {
+		gRenderer->surfaceWidth = gRenderer->surfaceCapabilities.currentExtent.width;
+		gRenderer->surfaceHeight = gRenderer->surfaceCapabilities.currentExtent.height;
+	}
+}
+
 static void _vk2dRendererCreateWindowSurface() {
-	VkSurfaceFormatKHR* surfaceFormatVector;
-	uint32_t surfaceFormatCount, i;
-	uint32_t foundIdeal = UINT32_MAX;
-	
 	// Create the surface then load up surface relevant values
 	vk2dErrorCheck(SDL_Vulkan_CreateSurface(gRenderer->window, gRenderer->vk, &gRenderer->surface) == SDL_TRUE ? VK_SUCCESS : -1);
 	vk2dErrorCheck(vkGetPhysicalDeviceSurfacePresentModesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->presentModeCount, VK_NULL_HANDLE));
@@ -74,19 +79,136 @@ static void _vk2dRendererCreateWindowSurface() {
 		vk2dErrorCheck(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->surfaceCapabilities));
 		// You may want to search for a different format, but according to the Vulkan hardware database, 100% of systems support VK_FORMAT_B8G8R8A8_SRGB
 		gRenderer->surfaceFormat = VK_FORMAT_B8G8R8A8_SRGB;
-
-		if (gRenderer->surfaceCapabilities.currentExtent.width == UINT32_MAX || gRenderer->surfaceCapabilities.currentExtent.height == UINT32_MAX) {
-			SDL_Vulkan_GetDrawableSize(gRenderer->window, (void*)&gRenderer->surfaceWidth, (void*)&gRenderer->surfaceHeight);
-		} else {
-			gRenderer->surfaceWidth = gRenderer->surfaceCapabilities.currentExtent.width;
-			gRenderer->surfaceHeight = gRenderer->surfaceCapabilities.currentExtent.height;
-		}
+		_vk2dRendererGetSurfaceSize();
 	}
 }
 
 static void _vk2dRendererDestroyWindowSurface() {
 	vkDestroySurfaceKHR(gRenderer->vk, gRenderer->surface, VK_NULL_HANDLE);
 	free(gRenderer->presentModes);
+}
+
+static void _vk2dRendererCreateSwapchain() {
+
+}
+
+static void _vk2dRendererDestroySwapchain() {
+
+}
+
+static void _vk2dRendererCreateColourResources() {
+
+}
+
+static void _vk2dRendererDestroyColourResources() {
+
+}
+
+static void _vk2dRendererCreateDepthStencilImage() {
+
+}
+
+static void _vk2dRendererDestroyDepthStencilImage() {
+
+}
+
+static void _vk2dRendererCreateRenderPass() {
+
+}
+
+static void _vk2dRendererDestroyRenderPass() {
+
+}
+
+static void _vk2dRendererCreateDescriptorSetLayout() {
+
+}
+
+static void _vk2dRendererDestroyDescriptorSetLayout() {
+
+}
+
+static void _vk2dRendererCreatePipelines() {
+
+}
+
+static void _vk2dRendererDestroyPipelines() {
+
+}
+
+static void _vk2dRendererCreateFrameBuffer() {
+
+}
+
+static void _vk2dRendererDestroyFrameBuffer() {
+
+}
+
+static void _vk2dRendererCreateUniformBuffers() {
+
+}
+
+static void _vk2dRendererDestroyUniformBuffers() {
+
+}
+
+static void _vk2dRendererCreateDescriptorPool() {
+
+}
+
+static void _vk2dRendererDestroyDescriptorPool() {
+
+}
+
+static void _vk2dRendererCreateDescriptorSets() {
+
+}
+
+static void _vk2dRendererDestroyDescriptorSets() {
+
+}
+
+static void _vk2dRendererCreateSynchronization() {
+
+}
+
+static void _vk2dRendererDestroySynchronization() {
+
+}
+
+// If the window is resized or minimized or whatever
+static void _vk2dRendererResetSwapchain() {
+	// Hang while minimized
+	SDL_WindowFlags flags;
+	flags = SDL_GetWindowFlags(gRenderer->window);
+	while (flags & SDL_WINDOW_MINIMIZED) {
+		flags = SDL_GetWindowFlags(gRenderer->window);
+		SDL_PumpEvents();
+	}
+	vkDeviceWaitIdle(gRenderer->ld->dev);
+
+	// Free swapchain
+	_vk2dRendererDestroySwapchain();
+	_vk2dRendererDestroyColourResources();
+	_vk2dRendererDestroyDepthStencilImage();
+	_vk2dRendererDestroyRenderPass();
+	_vk2dRendererDestroyPipelines();
+	_vk2dRendererDestroyFrameBuffer();
+	_vk2dRendererDestroyUniformBuffers();
+	_vk2dRendererDestroyDescriptorPool();
+	_vk2dRendererDestroyDescriptorSets();
+
+	// Restart swapchain
+	_vk2dRendererGetSurfaceSize();
+	_vk2dRendererCreateSwapchain();
+	_vk2dRendererCreateColourResources();
+	_vk2dRendererCreateDepthStencilImage();
+	_vk2dRendererCreateRenderPass();
+	_vk2dRendererCreatePipelines();
+	_vk2dRendererCreateFrameBuffer();
+	_vk2dRendererCreateUniformBuffers();
+	_vk2dRendererCreateDescriptorPool();
+	_vk2dRendererCreateDescriptorSets();
 }
 
 /******************************* User-visible functions *******************************/
@@ -140,6 +262,17 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();
 		_vk2dRendererCreateWindowSurface();
+		_vk2dRendererCreateSwapchain();
+		_vk2dRendererCreateColourResources();
+		_vk2dRendererCreateDepthStencilImage();
+		_vk2dRendererCreateRenderPass();
+		_vk2dRendererCreateDescriptorSetLayout();
+		_vk2dRendererCreatePipelines();
+		_vk2dRendererCreateFrameBuffer();
+		_vk2dRendererCreateUniformBuffers();
+		_vk2dRendererCreateDescriptorPool();
+		_vk2dRendererCreateDescriptorSets();
+		_vk2dRendererCreateSynchronization();
 	} else {
 		errorCode = -1;
 	}
@@ -152,10 +285,22 @@ void vk2dRendererQuit() {
 		// Destroy subsystems
 		_vk2dRendererDestroyDebug();
 		_vk2dRendererDestroyWindowSurface();
+		_vk2dRendererDestroySwapchain();
+		_vk2dRendererDestroyColourResources();
+		_vk2dRendererDestroyDepthStencilImage();
+		_vk2dRendererDestroyRenderPass();
+		_vk2dRendererDestroyDescriptorSetLayout();
+		_vk2dRendererDestroyPipelines();
+		_vk2dRendererDestroyFrameBuffer();
+		_vk2dRendererDestroyUniformBuffers();
+		_vk2dRendererDestroyDescriptorPool();
+		_vk2dRendererDestroyDescriptorSets();
+		_vk2dRendererDestroySynchronization();
 
 		// Destroy core bits
 		vk2dLogicalDeviceFree(gRenderer->ld);
 		vk2dPhysicalDeviceFree(gRenderer->pd);
+
 		free(gRenderer);
 		gRenderer = NULL;
 	}
@@ -163,4 +308,8 @@ void vk2dRendererQuit() {
 
 VK2DRenderer vk2dRendererGetPointer() {
 	return gRenderer;
+}
+
+void vk2dRendererResetSwapchain() {
+	gRenderer->resetSwapchain = true;
 }

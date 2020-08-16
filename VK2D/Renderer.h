@@ -18,6 +18,7 @@ struct VK2DRenderer {
 	VK2DMSAA msaa;               ///< Current MSAA
 	VK2DTextureDetail texDetail; ///< Current texture detail level
 	VK2DScreenMode screenMode;   ///< Current screen mode
+	bool resetSwapchain;         ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -54,3 +55,9 @@ void vk2dRendererQuit();
 /// This is meant to be more control and configuration for those who are comfortable
 /// with Vulkan. It is not recommended that you use this function unless necessary.
 VK2DRenderer vk2dRendererGetPointer();
+
+/// \brief Resets the rendering pipeline after the next frame is rendered
+///
+/// This is automatically done when Vulkan detects the window is no longer suitable,
+/// but this is still available to do manually if you so desire.
+void vk2dRendererResetSwapchain();
