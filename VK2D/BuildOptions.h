@@ -5,6 +5,10 @@
 #include <vulkan/vulkan.h>
 #include <VK2D/Structs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Comment any of these out to disable the option
 
 /// Maximum number of frames to be processed at once
@@ -21,3 +25,7 @@
 
 /// Enables printing errors to a file
 #define VK2D_ERROR_FILE "vk2derror.log"
+
+#ifdef __cplusplus
+};
+#endif

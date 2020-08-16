@@ -6,6 +6,10 @@
 #include <vulkan/vulkan.h>
 #include <SDL2/SDL.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Core rendering data, don't modify values unless you know what you're doing
 struct VK2DRenderer {
 	// Devices/core functionality (these have short names because they're constantly referenced)

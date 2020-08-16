@@ -6,6 +6,10 @@
 #include "VK2D/Constants.h"
 #include "VK2D/Structs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Logical device that is essentially a wrapper of VkDevice
 struct VK2DLogicalDevice {
 	VkDevice dev;  ///< Logical device
@@ -79,3 +83,7 @@ VkSemaphore vk2dLogicalDeviceGetSemaphore(VK2DLogicalDevice dev);
 /// \param dev Device the semaphore came from
 /// \param semaphore Semaphore to free
 void vk2dLogicalDeviceFreeSemaphore(VK2DLogicalDevice dev, VkSemaphore semaphore);
+
+#ifdef __cplusplus
+};
+#endif

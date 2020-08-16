@@ -1,6 +1,9 @@
 /// \file Math.h
-/// \author Paolo Mazzon(?)
+/// \author Paolo Mazzon (Not really)
 /// \brief Defines some math things, only include once
+///
+/// Paolo Mazzon added the C++ include guards and comments, otherwise this
+/// is as it was originally
 
 /* This code was originall written by Ali Emre Gülcü under the MIT license 
  * (specifically the math in this file, it was originally in a differnt file).
@@ -34,6 +37,10 @@
 #pragma once
 #include <math.h>
 #include <malloc.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void directionVector(float v[], float t[])
 {
@@ -234,3 +241,7 @@ void perspectiveMatrix(float m[], float fov, float asp, float n, float f)
 
 	memcpy(m, k, sizeof(k));
 }
+
+#ifdef __cplusplus
+};
+#endif

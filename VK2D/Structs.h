@@ -5,6 +5,10 @@
 #include <vulkan/vulkan.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Abstraction to make managing pointers easer for VK2DRenderer
 typedef struct VK2DRenderer *VK2DRenderer;
 

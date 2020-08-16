@@ -5,6 +5,10 @@
 #include "VK2D/Structs.h"
 #include <vulkan/vulkan.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Groups up a couple things related to VkPhysicalDevice
 struct VK2DPhysicalDevice {
 	VkPhysicalDevice dev; ///< Internal vulkan pointer
@@ -46,3 +50,7 @@ VK2DMSAA vk2dPhysicalDeviceGetMSAA(VK2DPhysicalDevice physicalDevice);
 /// \brief Frees a physical device
 /// \param dev Device to be freed
 void vk2dPhysicalDeviceFree(VK2DPhysicalDevice dev);
+
+#ifdef __cplusplus
+};
+#endif

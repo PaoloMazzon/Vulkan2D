@@ -5,6 +5,10 @@
 #include "VK2D/Structs.h"
 #include <vulkan/vulkan.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 VkApplicationInfo vk2dInitApplicationInfo(VK2DConfiguration *info);
 VkInstanceCreateInfo vk2dInitInstanceCreateInfo(VkApplicationInfo *appInfo, const char **layers, int layerCount, const char **extensions, int extensionCount);
 VkDeviceQueueCreateInfo vk2dInitDeviceQueueCreateInfo(uint32_t queueFamilyIndex, float *priority);
@@ -45,3 +49,7 @@ VkDescriptorPoolCreateInfo vk2dInitDescriptorPoolCreateInfo(VkDescriptorPoolSize
 VkDescriptorSetAllocateInfo vk2dInitDescriptorSetAllocateInfo(VkDescriptorPool pool, uint32_t amount, VkDescriptorSetLayout *layouts);
 VkSamplerCreateInfo vk2dInitSamplerCreateInfo(VkBool32 linearFilter, float anisotropy, float mipLevels);
 VkWriteDescriptorSet vk2dInitWriteDescriptorSet(VkDescriptorType type, uint32_t binding, VkDescriptorSet dstSet, VkDescriptorBufferInfo *info, uint32_t descriptorCount, VkDescriptorImageInfo *images);
+
+#ifdef __cplusplus
+};
+#endif

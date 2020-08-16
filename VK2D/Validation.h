@@ -5,6 +5,10 @@
 #include <vulkan/vulkan.h>
 #include <stdbool.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Backend for the reErrorCheck macro
 bool _vk2dErrorRaise(VkResult result, const char* function, int line, const char* varname);
 
@@ -25,3 +29,7 @@ void vk2dLogMessage(const char* fmt, ...);
 
 /// \brief Used internally to handle debugging callbacks
 VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data);
+
+#ifdef __cplusplus
+};
+#endif
