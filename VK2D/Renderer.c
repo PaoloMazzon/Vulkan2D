@@ -9,6 +9,7 @@
 #include "VK2D/Constants.h"
 #include "VK2D/PhysicalDevice.h"
 #include "VK2D/LogicalDevice.h"
+#include "VK2D/Image.h"
 
 /******************************* Globals *******************************/
 
@@ -141,19 +142,66 @@ static void _vk2dRendererDestroySwapchain() {
 }
 
 static void _vk2dRendererCreateColourResources() {
-	vk2dLogMessage("Colour resources initialized...");
+	if (gRenderer->config.msaa != msaa_1x) {
+		gRenderer->msaaImage = vk2dImageCreate(
+				gRenderer->ld,
+				gRenderer->surfaceWidth,
+				gRenderer->surfaceHeight,
+				gRenderer->surfaceFormat.format,
+				VK_IMAGE_ASPECT_COLOR_BIT,
+				VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+				(VkSampleCountFlagBits) gRenderer->config.msaa);
+		vk2dLogMessage("Colour resources initialized...");
+	} else {
+		vk2dLogMessage("Colour resources not enabled...");
+	}
 }
 
 static void _vk2dRendererDestroyColourResources() {
-
+	if (gRenderer->msaaImage != NULL)
+		vk2dImageFree(gRenderer->msaaImage);
+	gRenderer->msaaImage = NULL;
 }
 
 static void _vk2dRendererCreateDepthStencilImage() {
-	vk2dLogMessage("Depth stencil image initialized...");
+	// First order of business - find a good stencil format
+	VkFormat formatAttempts[] = {
+			VK_FORMAT_D32_SFLOAT,
+			VK_FORMAT_D32_SFLOAT_S8_UINT,
+			VK_FORMAT_D24_UNORM_S8_UINT
+	};
+	const uint32_t count = 3;
+	uint32_t i;
+	gRenderer->dsiAvailable = false;
+
+	for (i = 0; i < count && !gRenderer->dsiAvailable; i++) {
+		VkFormatProperties formatProperties;
+		vkGetPhysicalDeviceFormatProperties(gRenderer->pd->dev, formatAttempts[i], &formatProperties);
+
+		if (formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+			gRenderer->dsiFormat = formatAttempts[i];
+			gRenderer->dsiAvailable = true;
+		}
+	}
+	if (vk2dErrorInline(gRenderer->dsiAvailable == false ? -1 : 0)) {
+		// Create the image itself
+		gRenderer->dsi = vk2dImageCreate(
+				gRenderer->ld,
+				gRenderer->surfaceWidth,
+				gRenderer->surfaceHeight,
+				gRenderer->dsiFormat,
+				VK_IMAGE_ASPECT_DEPTH_BIT,
+				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+				(VkSampleCountFlagBits)gRenderer->config.msaa);
+		vk2dLogMessage("Depth stencil image initialized...");
+	} else {
+		vk2dLogMessage("Depth stencil image unavailable...");
+	}
 }
 
 static void _vk2dRendererDestroyDepthStencilImage() {
-
+	if (gRenderer->dsiAvailable)
+		vk2dImageFree(gRenderer->dsi);
 }
 
 static void _vk2dRendererCreateRenderPass() {
@@ -328,19 +376,19 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 void vk2dRendererQuit() {
 	if (gRenderer != NULL) {
 		// Destroy subsystems
-		_vk2dRendererDestroyDebug();
-		_vk2dRendererDestroyWindowSurface();
-		_vk2dRendererDestroySwapchain();
-		_vk2dRendererDestroyColourResources();
-		_vk2dRendererDestroyDepthStencilImage();
-		_vk2dRendererDestroyRenderPass();
-		_vk2dRendererDestroyDescriptorSetLayout();
-		_vk2dRendererDestroyPipelines();
-		_vk2dRendererDestroyFrameBuffer();
-		_vk2dRendererDestroyUniformBuffers();
-		_vk2dRendererDestroyDescriptorPool();
-		_vk2dRendererDestroyDescriptorSets();
 		_vk2dRendererDestroySynchronization();
+		_vk2dRendererDestroyDescriptorSets();
+		_vk2dRendererDestroyDescriptorPool();
+		_vk2dRendererDestroyUniformBuffers();
+		_vk2dRendererDestroyFrameBuffer();
+		_vk2dRendererDestroyPipelines();
+		_vk2dRendererDestroyDescriptorSetLayout();
+		_vk2dRendererDestroyRenderPass();
+		_vk2dRendererDestroyDepthStencilImage();
+		_vk2dRendererDestroyColourResources();
+		_vk2dRendererDestroySwapchain();
+		_vk2dRendererDestroyWindowSurface();
+		_vk2dRendererDestroyDebug();
 
 		// Destroy core bits
 		vk2dLogicalDeviceFree(gRenderer->ld);

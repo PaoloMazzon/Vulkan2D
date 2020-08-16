@@ -21,6 +21,7 @@ struct VK2DRenderer {
 	// Configurable options
 	VK2DRendererConfig config; ///< User config
 	bool resetSwapchain;       ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
+	VK2DImage msaaImage;       ///< In case MSAA is enabled
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -37,6 +38,11 @@ struct VK2DRenderer {
 	VkImage *swapchainImages;         ///< Images of the swapchain
 	VkImageView *swapchainImageViews; ///< Image views for the swapchain images
 	uint32_t swapchainImageCount;     ///< Number of images in the swapchain
+
+	// Depth stencil image things
+	bool dsiAvailable;  ///< Whether or not the depth stencil image is available
+	VkFormat dsiFormat; ///< Format of the depth stencil image
+	VK2DImage dsi;      ///< Depth stencil image
 
 	// TODO: Abstract pipelines into their own file
 };
