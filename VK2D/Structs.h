@@ -9,20 +9,23 @@
 extern "C" {
 #endif
 
-/// \brief Abstraction to make managing pointers easer for VK2DRenderer
+/// \brief Abstraction to make managing pointers easier for VK2DRenderer
 typedef struct VK2DRenderer *VK2DRenderer;
 
-/// \brief Abstraction to make managing pointers easer for VK2DImage
+/// \brief Abstraction to make managing pointers easier for VK2DImage
 typedef struct VK2DImage *VK2DImage;
 
-/// \brief Abstraction to make managing pointers easer for VK2DLogicalDevice
+/// \brief Abstraction to make managing pointers easier for VK2DLogicalDevice
 typedef struct VK2DLogicalDevice *VK2DLogicalDevice;
 
-/// \brief Abstraction to make managing pointers easer for VK2DPhysicalDevice
+/// \brief Abstraction to make managing pointers easier for VK2DPhysicalDevice
 typedef struct VK2DPhysicalDevice *VK2DPhysicalDevice;
 
-/// \brief Abstraction to make managing pointers easer for VK2DBuffer
+/// \brief Abstraction to make managing pointers easier for VK2DBuffer
 typedef struct VK2DBuffer *VK2DBuffer;
+
+/// \brief Abstraction to make managing pointers easier for VK2DPipeline
+typedef struct VK2DPipeline *VK2DPipeline;
 
 /// \brief 2D vector of floats
 typedef float vec2[2];

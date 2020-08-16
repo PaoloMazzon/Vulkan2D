@@ -114,14 +114,18 @@ static void _vk2dRendererCreateSwapchain() {
 	vkGetPhysicalDeviceSurfaceSupportKHR(gRenderer->pd->dev, gRenderer->pd->QueueFamily.graphicsFamily, gRenderer->surface, &supported);
 	if (vk2dErrorInline(supported != VK_TRUE ? -1 : VK_SUCCESS))
 		vkCreateSwapchainKHR(gRenderer->ld->dev, &swapchainCreateInfoKHR, VK_NULL_HANDLE, &gRenderer->swapchain);
+
+	// TODO: Get swapchain images
+
+	vk2dLogMessage("Swapchain (%i images) initialized...", swapchainCreateInfoKHR.minImageCount);
 }
 
 static void _vk2dRendererDestroySwapchain() {
-
+	vkDestroySwapchainKHR(gRenderer->ld->dev, gRenderer->swapchain, VK_NULL_HANDLE);
 }
 
 static void _vk2dRendererCreateColourResources() {
-
+	vk2dLogMessage("Colour resources initialized...");
 }
 
 static void _vk2dRendererDestroyColourResources() {
@@ -129,7 +133,7 @@ static void _vk2dRendererDestroyColourResources() {
 }
 
 static void _vk2dRendererCreateDepthStencilImage() {
-
+	vk2dLogMessage("Depth stencil image initialized...");
 }
 
 static void _vk2dRendererDestroyDepthStencilImage() {
@@ -137,7 +141,7 @@ static void _vk2dRendererDestroyDepthStencilImage() {
 }
 
 static void _vk2dRendererCreateRenderPass() {
-
+	vk2dLogMessage("Render pass initialized...");
 }
 
 static void _vk2dRendererDestroyRenderPass() {
@@ -145,7 +149,7 @@ static void _vk2dRendererDestroyRenderPass() {
 }
 
 static void _vk2dRendererCreateDescriptorSetLayout() {
-
+	vk2dLogMessage("Descriptor set layout initialized...");
 }
 
 static void _vk2dRendererDestroyDescriptorSetLayout() {
@@ -153,7 +157,7 @@ static void _vk2dRendererDestroyDescriptorSetLayout() {
 }
 
 static void _vk2dRendererCreatePipelines() {
-
+	vk2dLogMessage("Pipelines initialized...");
 }
 
 static void _vk2dRendererDestroyPipelines() {
@@ -161,7 +165,7 @@ static void _vk2dRendererDestroyPipelines() {
 }
 
 static void _vk2dRendererCreateFrameBuffer() {
-
+	vk2dLogMessage("Framebuffers initialized...");
 }
 
 static void _vk2dRendererDestroyFrameBuffer() {
@@ -169,7 +173,7 @@ static void _vk2dRendererDestroyFrameBuffer() {
 }
 
 static void _vk2dRendererCreateUniformBuffers() {
-
+	vk2dLogMessage("UBO initialized...");
 }
 
 static void _vk2dRendererDestroyUniformBuffers() {
@@ -177,7 +181,7 @@ static void _vk2dRendererDestroyUniformBuffers() {
 }
 
 static void _vk2dRendererCreateDescriptorPool() {
-
+	vk2dLogMessage("Descriptor pool initialized...");
 }
 
 static void _vk2dRendererDestroyDescriptorPool() {
@@ -185,7 +189,7 @@ static void _vk2dRendererDestroyDescriptorPool() {
 }
 
 static void _vk2dRendererCreateDescriptorSets() {
-
+	vk2dLogMessage("Descriptor sets initialized...");
 }
 
 static void _vk2dRendererDestroyDescriptorSets() {
@@ -193,7 +197,7 @@ static void _vk2dRendererDestroyDescriptorSets() {
 }
 
 static void _vk2dRendererCreateSynchronization() {
-
+	vk2dLogMessage("Synchronization initialized...");
 }
 
 static void _vk2dRendererDestroySynchronization() {
@@ -282,6 +286,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 		VK2DMSAA maxMSAA = vk2dPhysicalDeviceGetMSAA(gRenderer->pd);
 		gRenderer->config.msaa = maxMSAA >= msaa ? msaa : maxMSAA;
 		gRenderer->config.textureDetail = textureDetail;
+		gRenderer->config.screenMode = screenMode;
 
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();
