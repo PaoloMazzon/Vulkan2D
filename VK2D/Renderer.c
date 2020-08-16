@@ -205,19 +205,95 @@ static void _vk2dRendererDestroyDepthStencilImage() {
 }
 
 static void _vk2dRendererCreateRenderPass() {
+	uint32_t attachCount;
+	if (gRenderer->config.msaa != 1) {
+		attachCount = 3; // Depth, colour, resolve
+	} else {
+		attachCount = 2; // Depth, colour
+	}
+	VkAttachmentReference resolveAttachment;
+	VkAttachmentDescription attachments[attachCount];
+	memset(attachments, 0, sizeof(VkAttachmentDescription) * attachCount);
+	attachments[0].format = gRenderer->dsiFormat;
+	attachments[0].samples = (VkSampleCountFlagBits)gRenderer->config.msaa;
+	attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[0].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[0].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[0].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	attachments[1].format = gRenderer->surfaceFormat.format;
+	attachments[1].samples = (VkSampleCountFlagBits)gRenderer->config.msaa;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[1].finalLayout = gRenderer->config.msaa > 1 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	if (gRenderer->config.msaa != 1) {
+		attachments[2].format = gRenderer->surfaceFormat.format;
+		attachments[2].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[2].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachments[2].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[2].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		attachments[2].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		resolveAttachment.attachment = 2;
+		resolveAttachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	}
+
+	// Set up subpass color attachment
+	const uint32_t colourAttachCount = 1;
+	VkAttachmentReference subpassColourAttachments0[colourAttachCount];
+	uint32_t i;
+	for (i = 0; i < colourAttachCount; i++) {
+		subpassColourAttachments0[i].attachment = 1;
+		subpassColourAttachments0[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	}
+
+	VkAttachmentReference subpassDepthStencilAttachment0 = {};
+	subpassDepthStencilAttachment0.attachment = 0;
+	subpassDepthStencilAttachment0.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+	// Set up subpass
+	const uint32_t subpassCount = 1;
+	VkSubpassDescription subpasses[1] = {};
+	subpasses[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpasses[0].colorAttachmentCount = colourAttachCount;
+	subpasses[0].pColorAttachments = subpassColourAttachments0;
+	subpasses[0].pDepthStencilAttachment = &subpassDepthStencilAttachment0;
+	subpasses[0].pResolveAttachments = gRenderer->config.msaa > 1 ? &resolveAttachment : VK_NULL_HANDLE;
+
+	// Subpass dependency
+	VkSubpassDependency subpassDependency = {};
+	subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	subpassDependency.dstSubpass = 0;
+	subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	subpassDependency.srcAccessMask = 0;
+	subpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+	VkRenderPassCreateInfo renderPassCreateInfo = vk2dInitRenderPassCreateInfo(attachments, attachCount, subpasses, subpassCount, &subpassDependency, 1);
+	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->renderPass));
+
 	vk2dLogMessage("Render pass initialized...");
 }
 
 static void _vk2dRendererDestroyRenderPass() {
-
+	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->renderPass, VK_NULL_HANDLE);
 }
 
 static void _vk2dRendererCreateDescriptorSetLayout() {
+	const uint32_t layoutCount = 2;
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBinding[layoutCount];
+	descriptorSetLayoutBinding[0] = vk2dInitDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
+	descriptorSetLayoutBinding[1] = vk2dInitDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
+	VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBinding, layoutCount);
+	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &descriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dusl));
 	vk2dLogMessage("Descriptor set layout initialized...");
 }
 
 static void _vk2dRendererDestroyDescriptorSetLayout() {
-
+	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dusl, VK_NULL_HANDLE);
 }
 
 static void _vk2dRendererCreatePipelines() {
@@ -396,6 +472,8 @@ void vk2dRendererQuit() {
 
 		free(gRenderer);
 		gRenderer = NULL;
+
+		vk2dLogMessage("VK2D has been uninitialized.");
 	}
 }
 

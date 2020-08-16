@@ -38,13 +38,20 @@ struct VK2DRenderer {
 	VkImage *swapchainImages;         ///< Images of the swapchain
 	VkImageView *swapchainImageViews; ///< Image views for the swapchain images
 	uint32_t swapchainImageCount;     ///< Number of images in the swapchain
+	VkRenderPass renderPass;          ///< The render pass
 
 	// Depth stencil image things
 	bool dsiAvailable;  ///< Whether or not the depth stencil image is available
 	VkFormat dsiFormat; ///< Format of the depth stencil image
 	VK2DImage dsi;      ///< Depth stencil image
 
-	// TODO: Abstract pipelines into their own file
+	// Pipelines
+	VkDescriptorSetLayout dusl; ///< Default uniform descriptor set layout
+	VK2DPipeline texPipe;       ///< Pipeline for rendering textures
+	VK2DPipeline primFillPipe;  ///< Pipeline for rendering filled shapes
+	VK2DPipeline primLinePipe;  ///< Pipeline for rendering shape outlines
+	VK2DPipeline *customPipes;  ///< User defined shaders/pipelines
+	uint32_t pipeCount;         ///< Number of user defined pipelines
 };
 
 /// \brief Initializes VK2D's renderer
