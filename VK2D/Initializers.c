@@ -286,10 +286,10 @@ VkPipelineViewportStateCreateInfo vk2dInitPipelineViewportStateCreateInfo(VkView
 	return pipelineViewportStateCreateInfo;
 }
 
-VkPipelineRasterizationStateCreateInfo vk2dInitPipelineRasterizationStateCreateInfo() {
+VkPipelineRasterizationStateCreateInfo vk2dInitPipelineRasterizationStateCreateInfo(bool fill) {
 	VkPipelineRasterizationStateCreateInfo pipelineRasterizationStateCreateInfo = {};
 	pipelineRasterizationStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-	pipelineRasterizationStateCreateInfo.polygonMode = VK_POLYGON_MODE_FILL;
+	pipelineRasterizationStateCreateInfo.polygonMode = fill ? VK_POLYGON_MODE_FILL : VK_POLYGON_MODE_LINE;
 	pipelineRasterizationStateCreateInfo.lineWidth = 1;
 	pipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 	pipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;

@@ -1,6 +1,6 @@
 /// \file Texture.h
 /// \author Paolo Mazzon
-/// \brief
+/// \brief Makes managing textures samplers and off-screen rendering simpler
 #pragma once
 
 #ifdef __cplusplus
