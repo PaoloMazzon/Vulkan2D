@@ -46,12 +46,14 @@ struct VK2DRenderer {
 	VK2DImage dsi;      ///< Depth stencil image
 
 	// Pipelines
-	VkDescriptorSetLayout dusl; ///< Default uniform descriptor set layout
-	VK2DPipeline texPipe;       ///< Pipeline for rendering textures
-	VK2DPipeline primFillPipe;  ///< Pipeline for rendering filled shapes
-	VK2DPipeline primLinePipe;  ///< Pipeline for rendering shape outlines
-	VK2DPipeline *customPipes;  ///< User defined shaders/pipelines
-	uint32_t pipeCount;         ///< Number of user defined pipelines
+	VkDescriptorSetLayout duslt;            ///< Default uniform descriptor set layout for textures
+	VkDescriptorSetLayout dusls;            ///< Default uniform descriptor set layout for shapes
+	VK2DPipeline texPipe;                   ///< Pipeline for rendering textures
+	VK2DPipeline primFillPipe;              ///< Pipeline for rendering filled shapes
+	VK2DPipeline primLinePipe;              ///< Pipeline for rendering shape outlines
+	VK2DPipeline *customPipes;              ///< User defined shaders/pipelines
+	uint32_t pipeCount;                     ///< Number of user defined pipelines
+	VK2DCustomPipelineInfo *customPipeInfo; ///< Information required to recreate user pipelines
 };
 
 /// \brief Initializes VK2D's renderer

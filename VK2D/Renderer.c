@@ -10,6 +10,8 @@
 #include "VK2D/PhysicalDevice.h"
 #include "VK2D/LogicalDevice.h"
 #include "VK2D/Image.h"
+#include "VK2D/Pipeline.h"
+#include "VK2D/Blobs.h"
 
 /******************************* Globals *******************************/
 
@@ -283,25 +285,117 @@ static void _vk2dRendererDestroyRenderPass() {
 }
 
 static void _vk2dRendererCreateDescriptorSetLayout() {
+	// For textures
 	const uint32_t layoutCount = 2;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBinding[layoutCount];
 	descriptorSetLayoutBinding[0] = vk2dInitDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
 	descriptorSetLayoutBinding[1] = vk2dInitDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBinding, layoutCount);
-	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &descriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dusl));
+	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &descriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->duslt));
+
+	// For shapes
+	const uint32_t shapeLayoutCount = 1;
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingShapes[shapeLayoutCount];
+	descriptorSetLayoutBindingShapes[0] = vk2dInitDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
+	VkDescriptorSetLayoutCreateInfo shapesDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBinding, layoutCount);
+	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &shapesDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dusls));
+
 	vk2dLogMessage("Descriptor set layout initialized...");
 }
 
 static void _vk2dRendererDestroyDescriptorSetLayout() {
-	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dusl, VK_NULL_HANDLE);
+	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->duslt, VK_NULL_HANDLE);
+	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dusls, VK_NULL_HANDLE);
 }
 
+VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
+VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState();
 static void _vk2dRendererCreatePipelines() {
+	uint32_t i;
+	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
+	VkPipelineVertexInputStateCreateInfo colourVertexInfo = _vk2dGetColourVertexInputState();
+
+	// Texture pipeline
+	gRenderer->texPipe = vk2dPipelineCreate(
+			gRenderer->ld,
+			gRenderer->renderPass,
+			gRenderer->surfaceWidth,
+			gRenderer->surfaceHeight,
+			(void*)VK2DVertTex,
+			sizeof(VK2DVertTex),
+			(void*)VK2DFragTex,
+			sizeof(VK2DFragTex),
+			gRenderer->duslt,
+			&textureVertexInfo,
+			true,
+			gRenderer->config.msaa);
+
+	// Polygon pipelines
+	gRenderer->primFillPipe = vk2dPipelineCreate(
+			gRenderer->ld,
+			gRenderer->renderPass,
+			gRenderer->surfaceWidth,
+			gRenderer->surfaceHeight,
+			(void*)VK2DVertColour,
+			sizeof(VK2DVertColour),
+			(void*)VK2DFragColour,
+			sizeof(VK2DFragColour),
+			gRenderer->dusls,
+			&colourVertexInfo,
+			true,
+			gRenderer->config.msaa);
+	gRenderer->primLinePipe = vk2dPipelineCreate(
+			gRenderer->ld,
+			gRenderer->renderPass,
+			gRenderer->surfaceWidth,
+			gRenderer->surfaceHeight,
+			(void*)VK2DVertColour,
+			sizeof(VK2DVertColour),
+			(void*)VK2DFragColour,
+			sizeof(VK2DFragColour),
+			gRenderer->dusls,
+			&colourVertexInfo,
+			false,
+			gRenderer->config.msaa);
+
+	if (gRenderer->customPipeInfo != NULL) {
+		for (i = 0; i < gRenderer->pipeCount; i++)
+			gRenderer->customPipes[i] = vk2dPipelineCreate(
+					gRenderer->ld,
+					gRenderer->renderPass,
+					gRenderer->surfaceWidth,
+					gRenderer->surfaceWidth,
+					gRenderer->customPipeInfo[i].vertBuffer,
+					gRenderer->customPipeInfo[i].vertBufferSize,
+					gRenderer->customPipeInfo[i].fragBuffer,
+					gRenderer->customPipeInfo[i].fragBufferSize,
+					gRenderer->customPipeInfo[i].descriptorSetLayout,
+					&gRenderer->customPipeInfo[i].vertexInfo,
+					gRenderer->customPipeInfo[i].fill,
+					gRenderer->config.msaa
+					);
+	}
+
 	vk2dLogMessage("Pipelines initialized...");
 }
 
-static void _vk2dRendererDestroyPipelines() {
+static void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
+	uint32_t i;
+	vk2dPipelineFree(gRenderer->primLinePipe);
+	vk2dPipelineFree(gRenderer->primFillPipe);
+	vk2dPipelineFree(gRenderer->texPipe);
 
+	for (i = 0; i < gRenderer->pipeCount; i++)
+		vk2dPipelineFree(gRenderer->customPipes[i]);
+
+	if (!preserveCustomPipes) {
+		for (i = 0; i < gRenderer->pipeCount; i++) {
+			free(gRenderer->customPipeInfo[i].fragBuffer);
+			free(gRenderer->customPipeInfo[i].vertBuffer);
+		}
+		free(gRenderer->customPipeInfo);
+		free(gRenderer->customPipes);
+	}
 }
 
 static void _vk2dRendererCreateFrameBuffer() {
@@ -360,7 +454,7 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererDestroyColourResources();
 	_vk2dRendererDestroyDepthStencilImage();
 	_vk2dRendererDestroyRenderPass();
-	_vk2dRendererDestroyPipelines();
+	_vk2dRendererDestroyPipelines(true);
 	_vk2dRendererDestroyFrameBuffer();
 	_vk2dRendererDestroyUniformBuffers();
 	_vk2dRendererDestroyDescriptorPool();
@@ -457,7 +551,7 @@ void vk2dRendererQuit() {
 		_vk2dRendererDestroyDescriptorPool();
 		_vk2dRendererDestroyUniformBuffers();
 		_vk2dRendererDestroyFrameBuffer();
-		_vk2dRendererDestroyPipelines();
+		_vk2dRendererDestroyPipelines(false);
 		_vk2dRendererDestroyDescriptorSetLayout();
 		_vk2dRendererDestroyRenderPass();
 		_vk2dRendererDestroyDepthStencilImage();

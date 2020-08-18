@@ -29,6 +29,7 @@ struct VK2DLogicalDevice {
 ///  - wideLines
 ///  - fillModeNonSolid
 ///  - samplerAnisotropy
+///  - logicOp
 ///
 /// samplerAnisotropy is for nice looking edges when it is so desired, and the others
 /// are for drawing shapes without being filled in (Something games often want to do).

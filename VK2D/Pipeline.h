@@ -16,6 +16,7 @@ struct VK2DPipeline {
 	VkPipelineLayout layout;    ///< Internal pipeline layout
 	VkRect2D rect;              ///< For setting up command buffers
 	VkClearValue clearValue[2]; ///< Clear values for the two attachments: colour and depth
+
 };
 
 /// \brief Creates a graphics pipeline
