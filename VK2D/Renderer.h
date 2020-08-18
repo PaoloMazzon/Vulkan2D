@@ -3,6 +3,7 @@
 /// \brief The main renderer that handles all rendering
 #pragma once
 #include "VK2D/Structs.h"
+#include "Constants.h"
 #include <vulkan/vulkan.h>
 #include <SDL2/SDL.h>
 
@@ -56,6 +57,12 @@ struct VK2DRenderer {
 	VK2DPipeline *customPipes;              ///< User defined shaders/pipelines
 	uint32_t pipeCount;                     ///< Number of user defined pipelines
 	VK2DCustomPipelineInfo *customPipeInfo; ///< Information required to recreate user pipelines
+
+	// One UBO per frame for testing
+	/* In the future this should be one view/projection matrix per frame
+	 * and one model matrix per instance, all of which set via push constants */
+	VK2DUniformBufferObject *ubos; ///< One ubo per swapchain image
+	VK2DBuffer *uboBuffers;        ///< Buffers in memory for the UBOs
 };
 
 /// \brief Initializes VK2D's renderer

@@ -12,6 +12,7 @@
 #include "VK2D/Image.h"
 #include "VK2D/Pipeline.h"
 #include "VK2D/Blobs.h"
+#include "VK2D/Buffer.h"
 
 /******************************* Globals *******************************/
 
@@ -433,11 +434,23 @@ static void _vk2dRendererDestroyFrameBuffer() {
 }
 
 static void _vk2dRendererCreateUniformBuffers() {
+	gRenderer->ubos = calloc(1, sizeof(VK2DUniformBufferObject) * gRenderer->swapchainImageCount);
+	gRenderer->uboBuffers = malloc(sizeof(VK2DBuffer) * gRenderer->swapchainImageCount);
+	uint32_t i;
+
+	if (vk2dPointerCheck(gRenderer->ubos) && vk2dPointerCheck(gRenderer->uboBuffers)) {
+		for (i = 0; i < gRenderer->swapchainImageCount; i++)
+			gRenderer->uboBuffers[i] = vk2dBufferCreate(sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, gRenderer->ld);
+	}
 	vk2dLogMessage("UBO initialized...");
 }
 
 static void _vk2dRendererDestroyUniformBuffers() {
-
+	uint32_t i;
+	for (i = 0; i < gRenderer->swapchainImageCount; i++)
+		vk2dBufferFree(gRenderer->uboBuffers[i]);
+	free(gRenderer->ubos);
+	free(gRenderer->uboBuffers);
 }
 
 static void _vk2dRendererCreateDescriptorPool() {

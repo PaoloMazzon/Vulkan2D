@@ -20,6 +20,9 @@ extern const VkApplicationInfo VK2D_DEFAULT_CONFIG;
 /// Number of command pools a device has to cycle through
 #define VK2D_DEVICE_COMMAND_POOLS ((uint32_t)3)
 
+/// Maximum number of frames to be processed at once
+#define VK2D_MAX_FRAMES_IN_FLIGHT 3
+
 #ifdef __cplusplus
 };
 #endif
