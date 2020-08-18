@@ -297,7 +297,7 @@ static void _vk2dRendererCreateDescriptorSetLayout() {
 	const uint32_t shapeLayoutCount = 1;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingShapes[shapeLayoutCount];
 	descriptorSetLayoutBindingShapes[0] = vk2dInitDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
-	VkDescriptorSetLayoutCreateInfo shapesDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBinding, layoutCount);
+	VkDescriptorSetLayoutCreateInfo shapesDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingShapes, shapeLayoutCount);
 	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &shapesDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dusls));
 
 	vk2dLogMessage("Descriptor set layout initialized...");
@@ -399,11 +399,37 @@ static void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
 }
 
 static void _vk2dRendererCreateFrameBuffer() {
+	uint32_t i;
+	gRenderer->framebuffers = malloc(sizeof(VkFramebuffer) * gRenderer->swapchainImageCount);
+
+	if (vk2dPointerCheck(gRenderer->framebuffers)) {
+		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
+			// There is no 3rd attachment if msaa is disabled
+			const int attachCount = gRenderer->config.msaa > 1 ? 3 : 2;
+			VkImageView attachments[attachCount];
+			if (gRenderer->config.msaa > 1) {
+				attachments[0] = gRenderer->dsi->view;
+				attachments[1] = gRenderer->msaaImage->view;
+				attachments[2] = gRenderer->swapchainImageViews[i];
+			} else {
+				attachments[0] = gRenderer->dsi->view;
+				attachments[1] = gRenderer->swapchainImageViews[i];
+			}
+
+			VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(gRenderer->renderPass, gRenderer->surfaceWidth, gRenderer->surfaceHeight, attachments, attachCount);
+			vk2dErrorCheck(vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->framebuffers[i]));
+			vk2dLogMessage("Framebuffer[%i] ready...", i);
+		}
+	}
+
 	vk2dLogMessage("Framebuffers initialized...");
 }
 
 static void _vk2dRendererDestroyFrameBuffer() {
-
+	uint32_t i;
+	for (i = 0; i < gRenderer->swapchainImageCount; i++)
+		vkDestroyFramebuffer(gRenderer->ld->dev, gRenderer->framebuffers[i], VK_NULL_HANDLE);
+	free(gRenderer->framebuffers);
 }
 
 static void _vk2dRendererCreateUniformBuffers() {
@@ -459,6 +485,9 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererDestroyUniformBuffers();
 	_vk2dRendererDestroyDescriptorPool();
 	_vk2dRendererDestroyDescriptorSets();
+
+	// Swap out configs in case they were changed
+	gRenderer->config = gRenderer->newConfig;
 
 	// Restart swapchain
 	_vk2dRendererGetSurfaceSize();
@@ -521,6 +550,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 		gRenderer->config.msaa = maxMSAA >= msaa ? msaa : maxMSAA;
 		gRenderer->config.textureDetail = textureDetail;
 		gRenderer->config.screenMode = screenMode;
+		gRenderer->newConfig = gRenderer->config;
 
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();
@@ -577,4 +607,13 @@ VK2DRenderer vk2dRendererGetPointer() {
 
 void vk2dRendererResetSwapchain() {
 	gRenderer->resetSwapchain = true;
+}
+
+VK2DRendererConfig vk2dRendererGetConfig() {
+	return gRenderer->config;
+}
+
+void vk2dRendererSetConfig(VK2DRendererConfig config) {
+	gRenderer->newConfig = config;
+	vk2dRendererResetSwapchain();
 }

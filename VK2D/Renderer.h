@@ -19,9 +19,10 @@ struct VK2DRenderer {
 	VkDebugReportCallbackEXT dr; ///< Debug information
 
 	// Configurable options
-	VK2DRendererConfig config; ///< User config
-	bool resetSwapchain;       ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
-	VK2DImage msaaImage;       ///< In case MSAA is enabled
+	VK2DRendererConfig config;    ///< User config
+	VK2DRendererConfig newConfig; ///< In the event that its updated, we only swap out when we're ready to reset the swapchain
+	bool resetSwapchain;          ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
+	VK2DImage msaaImage;          ///< In case MSAA is enabled
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -39,6 +40,7 @@ struct VK2DRenderer {
 	VkImageView *swapchainImageViews; ///< Image views for the swapchain images
 	uint32_t swapchainImageCount;     ///< Number of images in the swapchain
 	VkRenderPass renderPass;          ///< The render pass
+	VkFramebuffer *framebuffers;      ///< Framebuffers for the swapchain images
 
 	// Depth stencil image things
 	bool dsiAvailable;  ///< Whether or not the depth stencil image is available
@@ -77,6 +79,23 @@ void vk2dRendererQuit();
 /// This is meant to be more control and configuration for those who are comfortable
 /// with Vulkan. It is not recommended that you use this function unless necessary.
 VK2DRenderer vk2dRendererGetPointer();
+
+/// \brief Gets the current user configuration of the renderer
+/// \return Returns the structure containing the config information
+///
+/// This returns the *ACTUAL* user configuration, not what you've requested. If you've
+/// requested for a setting that isn't available on the current device, this will return
+/// what was actually used instead (for example, if you request 32x MSAA but only 8x was
+/// available, 8x will be returned).
+VK2DRendererConfig vk2dRendererGetConfig();
+
+/// \brief Resets the renderer with a new configuration
+/// \param config New render user configuration to use
+///
+/// Changes take effect when vk2dRendererResetSwapchain would normally take effect. That
+/// also means vk2dRendererGetConfig will continue to return the same thing until this
+/// configuration takes effect at the end of the frame.
+void vk2dRendererSetConfig(VK2DRendererConfig config);
 
 /// \brief Resets the rendering pipeline after the next frame is rendered
 ///
