@@ -51,8 +51,9 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 
 // Checks if a device is supported, loading all the queue families if so
 static bool _vk2dPhysicalDeviceSupported(VkInstance instance, VkPhysicalDevice dev, VkPhysicalDeviceProperties *props, VK2DPhysicalDevice out) {
-	// You can add device requirements here
-	return _vk2dPhysicalDeviceSupportsQueueFamilies(instance, dev, out);
+	bool supportsQueueFamily = _vk2dPhysicalDeviceSupportsQueueFamilies(instance, dev, out);
+	bool supports256PushConstants = props->limits.maxPushConstantsSize >= 256;
+	return supportsQueueFamily && supports256PushConstants;
 }
 
 VkPhysicalDeviceProperties *vk2dPhysicalDeviceGetList(VkInstance instance, uint32_t *size) {

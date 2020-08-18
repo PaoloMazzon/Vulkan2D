@@ -34,6 +34,9 @@ struct VK2DPhysicalDevice {
 /// the first dedicated graphics card it finds (for example, it would choose a GTX 1080
 /// over Intel HD 4600). GPUs are still arbitrary, however, and for example if you had a
 /// GTX 2080ti and 1060 in your system but it finds the 1060 first, it will choose the 1060.
+///
+/// The device must also support both graphics and compute indices, as well as support push
+/// constants of at least 256 bits.
 VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferredDevice);
 
 /// \brief Returns a list of device properties should you want to pick one specifically
