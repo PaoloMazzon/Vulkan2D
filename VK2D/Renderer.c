@@ -454,14 +454,36 @@ static void _vk2dRendererDestroyUniformBuffers() {
 }
 
 static void _vk2dRendererCreateDescriptorPool() {
+	// Textures
+	const uint32_t poolSizeCount = 2;
+	VkDescriptorPoolSize poolSize[poolSizeCount];
+	poolSize[0].descriptorCount = gRenderer->swapchainImageCount;
+	poolSize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize[1].descriptorCount = gRenderer->swapchainImageCount;
+	poolSize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+	VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = vk2dInitDescriptorPoolCreateInfo(poolSize, poolSizeCount, gRenderer->swapchainImageCount);
+	vk2dErrorCheck(vkCreateDescriptorPool(gRenderer->ld->dev, &descriptorPoolCreateInfo, VK_NULL_HANDLE, &gRenderer->descPoolTex));
+
+	// Shapes
+	const uint32_t poolSizeCountShapes = 1;
+	VkDescriptorPoolSize poolSizeShapes[poolSizeCount];
+	poolSizeShapes[0].descriptorCount = gRenderer->swapchainImageCount;
+	poolSizeShapes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+	VkDescriptorPoolCreateInfo descriptorPoolCreateInfoShapes = vk2dInitDescriptorPoolCreateInfo(poolSizeShapes, poolSizeCountShapes, gRenderer->swapchainImageCount);
+	vk2dErrorCheck(vkCreateDescriptorPool(gRenderer->ld->dev, &descriptorPoolCreateInfoShapes, VK_NULL_HANDLE, &gRenderer->descPoolPrim));
+
 	vk2dLogMessage("Descriptor pool initialized...");
 }
 
 static void _vk2dRendererDestroyDescriptorPool() {
-
+	vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->descPoolTex, VK_NULL_HANDLE);
+	vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->descPoolPrim, VK_NULL_HANDLE);
 }
 
-static void _vk2dRendererCreateDescriptorSets() {
+static void _vk2dRendererCreateDescriptorSets() { // TODO: Another descriptor set for shapes
+
 	vk2dLogMessage("Descriptor sets initialized...");
 }
 

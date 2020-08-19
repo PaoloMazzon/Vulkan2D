@@ -49,14 +49,20 @@ struct VK2DRenderer {
 	VK2DImage dsi;      ///< Depth stencil image
 
 	// Pipelines
-	VkDescriptorSetLayout duslt;            ///< Default uniform descriptor set layout for textures
-	VkDescriptorSetLayout dusls;            ///< Default uniform descriptor set layout for shapes
 	VK2DPipeline texPipe;                   ///< Pipeline for rendering textures
 	VK2DPipeline primFillPipe;              ///< Pipeline for rendering filled shapes
 	VK2DPipeline primLinePipe;              ///< Pipeline for rendering shape outlines
 	VK2DPipeline *customPipes;              ///< User defined shaders/pipelines
 	uint32_t pipeCount;                     ///< Number of user defined pipelines
 	VK2DCustomPipelineInfo *customPipeInfo; ///< Information required to recreate user pipelines
+
+	// Uniform things
+	VkDescriptorSetLayout duslt;   ///< Default uniform descriptor set layout for textures
+	VkDescriptorSetLayout dusls;   ///< Default uniform descriptor set layout for shapes
+	VkDescriptorPool descPoolTex;  ///< Pool for texture descriptors
+	VkDescriptorPool descPoolPrim; ///< Pool for shape descriptors
+	VkDescriptorSet descSetsTex;   ///< Texture descriptor sets
+	VkDescriptorSet descSetsPrim;  ///< Shape descriptor sets
 
 	// One UBO per frame for testing
 	/* In the future this should be one view/projection matrix per frame
@@ -75,6 +81,20 @@ struct VK2DRenderer {
 /// GPUs are not guaranteed to support certain screen modes and msaa levels (integrated
 /// gpus often don't usually support triple buffering, 32x msaa is not terribly common), so if
 /// you request something that isn't supported, the next best thing is used in its place.
+///
+/// Something important to note is that by default the renderer has three graphics pipelines that
+/// you can add to. Those three pipelines are as follows:
+///
+///  - Texture pipeline that uses VK2DVertexTexture as vertices
+///  - Primitives pipeline that draws filled triangles that uses VK2DVertexColour as vertices
+///  - Primitives pipeline that draws wireframe triangles that uses VK2DVertexColour as vertices
+///
+/// That should cover ~95% of all 2D drawing requirements, for specifics just check the shaders'
+/// source code. Pipelines that are added by the user are tracked by the renderer and should
+/// the swapchain need to be reconstructed (config change, window resize, user requested) the
+/// renderer will recreate the pipelines without the user ever needing to get involved. This means
+/// all pipeline settings and shaders are copied and stored inside the renderer should they need
+/// to be remade.
 int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK2DScreenMode screenMode, VK2DMSAA msaa);
 
 /// \brief Frees resources used by the renderer
