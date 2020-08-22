@@ -46,10 +46,23 @@ static const int EXTENSION_COUNT = 0;
 
 /******************************* Internal functions *******************************/
 
+static VkCommandBuffer _vk2dRendererGetNextCommandBuffer() {
+	if (gRenderer->drawCommandBuffers == gRenderer->drawListSize) {
+		VkCommandBuffer *newList = realloc(gRenderer->draws, sizeof(VkCommandBuffer) * (gRenderer->drawListSize + VK2D_DEFAULT_ARRAY_EXTENSION));
+		if (vk2dPointerCheck(newList)) {
+			gRenderer->draws = newList;
+			gRenderer->drawListSize += VK2D_DEFAULT_ARRAY_EXTENSION;
+		}
+	}
+	gRenderer->draws[gRenderer->drawCommandBuffers] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, gRenderer->drawCommandPool);
+	gRenderer->drawCommandBuffers++;
+	return gRenderer->draws[gRenderer->drawCommandBuffers - 1];
+}
+
 static void _vk2dRendererCreateDebug() {
 #ifdef VK2D_ENABLE_DEBUG
 	fvkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(gRenderer->vk, "vkCreateDebugReportCallbackEXT");
-	fvkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(gRenderer->vk, "vkDestroyDebugReportCallbackEXT");;
+	fvkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(gRenderer->vk, "vkDestroyDebugReportCallbackEXT");
 
 	if (vk2dPointerCheck(fvkCreateDebugReportCallbackEXT) && vk2dPointerCheck(fvkDestroyDebugReportCallbackEXT)) {
 		VkDebugReportCallbackCreateInfoEXT callbackCreateInfoEXT = vk2dInitDebugReportCallbackCreateInfoEXT(_vk2dDebugCallback);
@@ -477,11 +490,37 @@ static void _vk2dRendererDestroyDescriptorPool() {
 }
 
 static void _vk2dRendererCreateSynchronization() {
+	uint32_t i;
+	VkSemaphoreCreateInfo semaphoreCreateInfo = vk2dInitSemaphoreCreateInfo(0);
+	VkFenceCreateInfo fenceCreateInfo = vk2dInitFenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
+	gRenderer->imageAvailableSemaphores = malloc(sizeof(VkSemaphore) * VK2D_MAX_FRAMES_IN_FLIGHT);
+	gRenderer->renderFinishedSemaphores = malloc(sizeof(VkSemaphore) * VK2D_MAX_FRAMES_IN_FLIGHT);
+	gRenderer->inFlightFences = malloc(sizeof(VkFence) * VK2D_MAX_FRAMES_IN_FLIGHT);
+	gRenderer->imagesInFlight = calloc(1, sizeof(VkFence) * gRenderer->swapchainImageCount);
+
+	if (vk2dPointerCheck(gRenderer->imageAvailableSemaphores) && vk2dPointerCheck(gRenderer->renderFinishedSemaphores)
+		&& vk2dPointerCheck(gRenderer->inFlightFences) && vk2dPointerCheck(gRenderer->imagesInFlight)) {
+		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+			vk2dErrorCheck(vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->imageAvailableSemaphores[i]));
+			vk2dErrorCheck(vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->renderFinishedSemaphores[i]));
+			vk2dErrorCheck(vkCreateFence(gRenderer->ld->dev, &fenceCreateInfo, VK_NULL_HANDLE, &gRenderer->inFlightFences[i]));
+		}
+	}
 	vk2dLogMessage("Synchronization initialized...");
 }
 
 static void _vk2dRendererDestroySynchronization() {
+	uint32_t i;
 
+	for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+		vkDestroySemaphore(gRenderer->ld->dev, gRenderer->renderFinishedSemaphores[i], VK_NULL_HANDLE);
+		vkDestroySemaphore(gRenderer->ld->dev, gRenderer->imageAvailableSemaphores[i], VK_NULL_HANDLE);
+		vkDestroyFence(gRenderer->ld->dev, gRenderer->inFlightFences[i], VK_NULL_HANDLE);
+	}
+	free(gRenderer->imagesInFlight);
+	free(gRenderer->inFlightFences);
+	free(gRenderer->imageAvailableSemaphores);
+	free(gRenderer->renderFinishedSemaphores);
 }
 
 // If the window is resized or minimized or whatever
@@ -635,9 +674,49 @@ void vk2dRendererSetConfig(VK2DRendererConfig config) {
 }
 
 void vk2dRendererStartFrame() {
-	// TODO: This
+	// Wait for previous rendering to be finished
+	vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame], VK_TRUE, UINT64_MAX);
+
+	// Acquire image
+	vkAcquireNextImageKHR(gRenderer->ld->dev, gRenderer->swapchain, UINT64_MAX, gRenderer->imageAvailableSemaphores[gRenderer->currentFrame], VK_NULL_HANDLE, &gRenderer->scImageIndex);
+
+	if (gRenderer->imagesInFlight[gRenderer->scImageIndex] != VK_NULL_HANDLE) {
+		vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->imagesInFlight[gRenderer->scImageIndex], VK_TRUE, UINT64_MAX);
+	}
+	gRenderer->imagesInFlight[gRenderer->scImageIndex] = gRenderer->inFlightFences[gRenderer->currentFrame];
+
+	// Get the command pool ready
+	gRenderer->drawCommandPool = (gRenderer->drawCommandPool + 1) % VK2D_DEVICE_COMMAND_POOLS;
+	gRenderer->drawCommandBuffers = 0;
+	vk2dErrorCheck(vkResetCommandPool(gRenderer->ld->dev, gRenderer->ld->pool[gRenderer->drawCommandPool], VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
 }
 
 void vk2dRendererEndFrame() {
-	// TODO: This
+	// Wait for image before doing things
+	VkPipelineStageFlags waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+	VkSubmitInfo submitInfo = vk2dInitSubmitInfo(
+			gRenderer->draws,
+			gRenderer->drawCommandBuffers,
+			&gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
+			1,
+			&gRenderer->imageAvailableSemaphores[gRenderer->currentFrame],
+			1,
+			waitStage);
+
+	// Submit
+	vkResetFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame]);
+	vk2dErrorCheck(vkQueueSubmit(gRenderer->ld->queue, 1, &submitInfo, gRenderer->inFlightFences[gRenderer->currentFrame]));
+
+	// Final present info bit
+	VkResult result;
+	VkPresentInfoKHR presentInfo = vk2dInitPresentInfoKHR(&gRenderer->swapchain, 1, &gRenderer->scImageIndex, &result, &gRenderer->renderFinishedSemaphores[gRenderer->currentFrame], 1);
+	vk2dErrorCheck(vkQueuePresentKHR(gRenderer->ld->queue, &presentInfo));
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || gRenderer->resetSwapchain) {
+		_vk2dRendererResetSwapchain();
+		gRenderer->resetSwapchain = false;
+	} else {
+		vk2dErrorCheck(result);
+	}
+
+	gRenderer->currentFrame = (gRenderer->currentFrame + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
 }

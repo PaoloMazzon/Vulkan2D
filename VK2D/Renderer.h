@@ -62,12 +62,19 @@ struct VK2DRenderer {
 	VK2DDescCon *descConTex;     ///< Descriptor controllers for texture pipelines (1 per swapchain image)
 	VK2DDescCon *descConPrim;    ///< Descriptor controllers for shapes pipelines (1 per swapchain image)
 
-	// Frame synchronisation
-	uint32_t currentFrame;                 ///< Current frame to be rendered
+	// Frame synchronization
+	uint32_t currentFrame;                 ///< Current frame being looped through
+	uint32_t scImageIndex;                 ///< Swapchain image index to be rendered to this frame
 	VkSemaphore *imageAvailableSemaphores; ///< Semaphores to signal when the image is ready
 	VkSemaphore *renderFinishedSemaphores; ///< Semaphores to signal when rendering is done
 	VkFence *inFlightFences;               ///< Fences for each frame
 	VkFence *imagesInFlight;               ///< Individual images in flight
+
+	// Command buffers for drawing management
+	VkCommandBuffer *draws;      ///< List of command buffers for this frame's drawing
+	uint32_t drawListSize;       ///< Total size of command buffer list (not necessarily all valid command buffers, to avoid constantly resizing list)
+	uint32_t drawCommandBuffers; ///< Amount of actual command buffers in the list
+	uint32_t drawCommandPool;    ///< Index of the logical device's command pool to pull from
 
 	// One UBO per frame for testing
 	/* In the future this should be one view/projection matrix per frame
