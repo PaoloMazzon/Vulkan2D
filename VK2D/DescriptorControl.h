@@ -8,8 +8,9 @@
 struct VK2DDescCon {
 	VkDescriptorPool *pools;      ///< List of pools
 	VkDescriptorSetLayout layout; ///< Layout for these sets
-	bool buffer;                  ///< Whether or not pools support uniform buffers
-	bool sampler;                 ///< Whether or not pools support texture samplers
+	uint32_t buffer;              ///< Whether or not pools support uniform buffers
+	uint32_t sampler;             ///< Whether or not pools support texture samplers
+	VK2DLogicalDevice dev;        ///< Device pools are created with
 
 	// pools will always have poolListSize elements, but only elements up to poolsInUse will be
 	// valid pools (in an effort to avoid constantly reallocating memory)
@@ -19,10 +20,10 @@ struct VK2DDescCon {
 
 /// \brief Creates an empty descriptor controller
 /// \param layout Descriptor set layout to use
-/// \param buffer Whether or not the descriptor pools need to support uniform buffers
-/// \param sampler Whether or not the descriptor pools need to support image samplers
+/// \param buffer Location of the buffer or VK2D_NO_LOCATION if unused (binding)
+/// \param sampler Location of the sampler or VK2D_NO_LOCATION if unused (binding)
 /// \return New descriptor controller or NULL if it failed
-VK2DDescCon vk2dDescConCreate(VkDescriptorSetLayout layout, bool buffer, bool sampler);
+VK2DDescCon vk2dDescConCreate(VK2DLogicalDevice dev, VkDescriptorSetLayout layout, uint32_t buffer, uint32_t sampler);
 
 /// \brief Frees a descriptor controller from memory
 /// \param descCon Descriptor controller to free
@@ -39,9 +40,19 @@ VkDescriptorSet *vk2dDescConGetBufferSet(VK2DDescCon descCon, void *buffer, uint
 /// \brief Creates, updates, and returns a descriptor set ready to be bound to a command buffer
 /// \param descCon Descriptor controller to pull the set from
 /// \param tex Texture to bind to the descriptor set (namely the sampler and image view)
+/// \return Returns a new descriptor set ready to be bound to a command buffer (valid until vk2dDescConReset is called)
+///
+/// You can only pass samplers to fragment shaders, hence the lack of a VK2DShaderStage parameter.
+VkDescriptorSet *vk2dDescConGetSamplerSet(VK2DDescCon descCon, VK2DTexture tex);
+
+/// \brief Creates, updates, and returns a descriptor set ready to be bound to a command buffer
+/// \param descCon Descriptor controller to pull the set from
+/// \param tex Texture to bind to the descriptor set
+/// \param buffer Buffer to bind to the descriptor set cast to void*
+/// \param size Size of the buffer
 /// \param stage Which shaders require this data
 /// \return Returns a new descriptor set ready to be bound to a command buffer (valid until vk2dDescConReset is called)
-VkDescriptorSet *vk2dDescConGetSamplerSet(VK2DDescCon descCon, VK2DTexture tex, VK2DShaderStage stage);
+VkDescriptorSet *vk2dDescConGetSamplerBufferSet(VK2DDescCon descCon, VK2DTexture tex, void *buffer, uint32_t size, VK2DShaderStage stage);
 
 /// \brief Resets all pools in a descriptor controller (basically deletes all active sets so new ones can be allocated)
 /// \param descCon Descriptor controller to reset
