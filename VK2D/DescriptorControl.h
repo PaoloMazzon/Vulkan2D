@@ -31,28 +31,22 @@ void vk2dDescConFree(VK2DDescCon descCon);
 
 /// \brief Creates, updates, and returns a descriptor set ready to be bound to a command buffer
 /// \param descCon Descriptor controller to pull the set from
-/// \param buffer Buffer to bind to the descriptor set cast to void*
-/// \param size Size of the buffer
-/// \param stage Which shaders require this data
+/// \param buffer Buffer to bind to the descriptor set
 /// \return Returns a new descriptor set ready to be bound to a command buffer (valid until vk2dDescConReset is called)
-VkDescriptorSet *vk2dDescConGetBufferSet(VK2DDescCon descCon, void *buffer, uint32_t size, VK2DShaderStage stage);
+VkDescriptorSet vk2dDescConGetBufferSet(VK2DDescCon descCon, VK2DBuffer buffer);
 
 /// \brief Creates, updates, and returns a descriptor set ready to be bound to a command buffer
 /// \param descCon Descriptor controller to pull the set from
 /// \param tex Texture to bind to the descriptor set (namely the sampler and image view)
 /// \return Returns a new descriptor set ready to be bound to a command buffer (valid until vk2dDescConReset is called)
-///
-/// You can only pass samplers to fragment shaders, hence the lack of a VK2DShaderStage parameter.
-VkDescriptorSet *vk2dDescConGetSamplerSet(VK2DDescCon descCon, VK2DTexture tex);
+VkDescriptorSet vk2dDescConGetSamplerSet(VK2DDescCon descCon, VK2DTexture tex);
 
 /// \brief Creates, updates, and returns a descriptor set ready to be bound to a command buffer
 /// \param descCon Descriptor controller to pull the set from
 /// \param tex Texture to bind to the descriptor set
-/// \param buffer Buffer to bind to the descriptor set cast to void*
-/// \param size Size of the buffer
-/// \param stage Which shaders require this data
+/// \param buffer Buffer to bind to the descriptor set
 /// \return Returns a new descriptor set ready to be bound to a command buffer (valid until vk2dDescConReset is called)
-VkDescriptorSet *vk2dDescConGetSamplerBufferSet(VK2DDescCon descCon, VK2DTexture tex, void *buffer, uint32_t size, VK2DShaderStage stage);
+VkDescriptorSet vk2dDescConGetSamplerBufferSet(VK2DDescCon descCon, VK2DTexture tex, VK2DBuffer buffer);
 
 /// \brief Resets all pools in a descriptor controller (basically deletes all active sets so new ones can be allocated)
 /// \param descCon Descriptor controller to reset
