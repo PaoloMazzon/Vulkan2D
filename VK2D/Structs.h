@@ -30,8 +30,8 @@ typedef struct VK2DPipeline *VK2DPipeline;
 /// \brief Abstraction to make managing pointers easier for VK2DTexture
 typedef struct VK2DTexture *VK2DTexture;
 
-/// \brief Abstraction to make managing pointers easier for VK2DDescriptorControl
-typedef struct VK2DDescriptorControl *VK2DDescriptorControl;
+/// \brief Abstraction to make managing pointers easier for VK2DDescCon
+typedef struct VK2DDescCon *VK2DDescCon;
 
 /// \brief 2D vector of floats
 typedef float vec2[2];
@@ -101,6 +101,15 @@ typedef enum {
 	td_Low = 2,    ///< Won't look great but high performance
 	td_Minimum = 3 ///< Will look like absolute garbage, don't use this unless you hate graphics
 } VK2DTextureDetail;
+
+/// \brief A bitwise-able enum representing different shader stages
+///
+/// Right now VK2D only supports vertex and fragment shaders, but it is possible that
+/// it may support geometry and tesselation in the future (I don't see a use case right now).
+typedef enum {
+	ss_Fragment = VK_SHADER_STAGE_FRAGMENT_BIT, ///< Fragment (pixel) shader
+	ss_Vertex = VK_SHADER_STAGE_VERTEX_BIT      ///< Vertex shader
+} VK2DShaderStage;
 
 /// \brief User configurable settings
 typedef struct VK2DConfiguration {
