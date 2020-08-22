@@ -57,12 +57,10 @@ struct VK2DRenderer {
 	VK2DCustomPipelineInfo *customPipeInfo; ///< Information required to recreate user pipelines
 
 	// Uniform things
-	VkDescriptorSetLayout duslt;   ///< Default uniform descriptor set layout for textures
-	VkDescriptorSetLayout dusls;   ///< Default uniform descriptor set layout for shapes
-	VkDescriptorPool descPoolTex;  ///< Pool for texture descriptors
-	VkDescriptorPool descPoolPrim; ///< Pool for shape descriptors
-	VkDescriptorSet descSetsTex;   ///< Texture descriptor sets
-	VkDescriptorSet descSetsPrim;  ///< Shape descriptor sets
+	VkDescriptorSetLayout duslt; ///< Default uniform descriptor set layout for textures
+	VkDescriptorSetLayout dusls; ///< Default uniform descriptor set layout for shapes
+	VK2DDescCon *descConTex;     ///< Descriptor controllers for texture pipelines (1 per swapchain image)
+	VK2DDescCon *descConPrim;    ///< Descriptor controllers for shapes pipelines (1 per swapchain image)
 
 	// One UBO per frame for testing
 	/* In the future this should be one view/projection matrix per frame

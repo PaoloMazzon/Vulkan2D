@@ -13,6 +13,7 @@
 #include "VK2D/Pipeline.h"
 #include "VK2D/Blobs.h"
 #include "VK2D/Buffer.h"
+#include "VK2D/DescriptorControl.h"
 
 /******************************* Globals *******************************/
 
@@ -454,19 +455,25 @@ static void _vk2dRendererDestroyUniformBuffers() {
 }
 
 static void _vk2dRendererCreateDescriptorPool() {
+	gRenderer->descConTex = malloc(sizeof(VK2DDescCon) * gRenderer->swapchainImageCount);
+	gRenderer->descConPrim = malloc(sizeof(VK2DDescCon) * gRenderer->swapchainImageCount);
+	uint32_t i;
+
+	if (vk2dPointerCheck(gRenderer->descConPrim) && vk2dPointerCheck(gRenderer->descConTex)) {
+		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
+			gRenderer->descConTex[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->duslt, 0, 1);
+			gRenderer->descConPrim[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->duslt, 0, VK2D_NO_LOCATION);
+		}
+	}
 	vk2dLogMessage("Descriptor pool initialized...");
 }
 
 static void _vk2dRendererDestroyDescriptorPool() {
-
-}
-
-static void _vk2dRendererCreateDescriptorSets() {
-	vk2dLogMessage("Descriptor sets initialized...");
-}
-
-static void _vk2dRendererDestroyDescriptorSets() {
-
+	uint32_t i;
+	for (i = 0; i < gRenderer->swapchainImageCount; i++) {
+		vk2dDescConFree(gRenderer->descConTex[i]);
+		vk2dDescConFree(gRenderer->descConPrim[i]);
+	}
 }
 
 static void _vk2dRendererCreateSynchronization() {
@@ -497,7 +504,6 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererDestroyFrameBuffer();
 	_vk2dRendererDestroyUniformBuffers();
 	_vk2dRendererDestroyDescriptorPool();
-	_vk2dRendererDestroyDescriptorSets();
 
 	// Swap out configs in case they were changed
 	gRenderer->config = gRenderer->newConfig;
@@ -512,7 +518,6 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateFrameBuffer();
 	_vk2dRendererCreateUniformBuffers();
 	_vk2dRendererCreateDescriptorPool();
-	_vk2dRendererCreateDescriptorSets();
 }
 
 /******************************* User-visible functions *******************************/
@@ -577,7 +582,6 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 		_vk2dRendererCreateFrameBuffer();
 		_vk2dRendererCreateUniformBuffers();
 		_vk2dRendererCreateDescriptorPool();
-		_vk2dRendererCreateDescriptorSets();
 		_vk2dRendererCreateSynchronization();
 	} else {
 		errorCode = -1;
@@ -590,7 +594,6 @@ void vk2dRendererQuit() {
 	if (gRenderer != NULL) {
 		// Destroy subsystems
 		_vk2dRendererDestroySynchronization();
-		_vk2dRendererDestroyDescriptorSets();
 		_vk2dRendererDestroyDescriptorPool();
 		_vk2dRendererDestroyUniformBuffers();
 		_vk2dRendererDestroyFrameBuffer();
