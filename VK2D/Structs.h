@@ -33,6 +33,9 @@ typedef struct VK2DTexture *VK2DTexture;
 /// \brief Abstraction to make managing pointers easier for VK2DDescCon
 typedef struct VK2DDescCon *VK2DDescCon;
 
+/// \brief Abstraction to make managing pointers easier for VK2DPolygon
+typedef struct VK2DPolygon *VK2DPolygon;
+
 /// \brief 2D vector of floats
 typedef float vec2[2];
 

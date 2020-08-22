@@ -464,7 +464,7 @@ static void _vk2dRendererCreateDescriptorPool() {
 			gRenderer->descConTex[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->duslt, 0, 1);
 			gRenderer->descConPrim[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->duslt, 0, VK2D_NO_LOCATION);
 		}
-	}
+	} // TODO: Custom pipeline descriptor controllers
 	vk2dLogMessage("Descriptor pool initialized...");
 }
 
@@ -473,7 +473,7 @@ static void _vk2dRendererDestroyDescriptorPool() {
 	for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 		vk2dDescConFree(gRenderer->descConTex[i]);
 		vk2dDescConFree(gRenderer->descConPrim[i]);
-	}
+	} // TODO: Custom pipeline descriptor controllers
 }
 
 static void _vk2dRendererCreateSynchronization() {
@@ -632,4 +632,12 @@ VK2DRendererConfig vk2dRendererGetConfig() {
 void vk2dRendererSetConfig(VK2DRendererConfig config) {
 	gRenderer->newConfig = config;
 	vk2dRendererResetSwapchain();
+}
+
+void vk2dRendererStartFrame() {
+	// TODO: This
+}
+
+void vk2dRendererEndFrame() {
+	// TODO: This
 }

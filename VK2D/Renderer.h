@@ -62,6 +62,13 @@ struct VK2DRenderer {
 	VK2DDescCon *descConTex;     ///< Descriptor controllers for texture pipelines (1 per swapchain image)
 	VK2DDescCon *descConPrim;    ///< Descriptor controllers for shapes pipelines (1 per swapchain image)
 
+	// Frame synchronisation
+	uint32_t currentFrame;                 ///< Current frame to be rendered
+	VkSemaphore *imageAvailableSemaphores; ///< Semaphores to signal when the image is ready
+	VkSemaphore *renderFinishedSemaphores; ///< Semaphores to signal when rendering is done
+	VkFence *inFlightFences;               ///< Fences for each frame
+	VkFence *imagesInFlight;               ///< Individual images in flight
+
 	// One UBO per frame for testing
 	/* In the future this should be one view/projection matrix per frame
 	 * and one model matrix per instance, all of which set via push constants */
@@ -127,3 +134,17 @@ void vk2dRendererSetConfig(VK2DRendererConfig config);
 /// This is automatically done when Vulkan detects the window is no longer suitable,
 /// but this is still available to do manually if you so desire.
 void vk2dRendererResetSwapchain();
+
+/// \brief Performs the tasks necessary to start rendering a frame (call before you start drawing)
+void vk2dRendererStartFrame();
+
+/// \brief Performs the tasks necessary to complete/present a frame (call once you're done drawing)
+void vk2dRendererEndFrame();
+
+/* TODO: Implement these
+ * I'm not yet sure what parameters they will take or what they will exactly do
+ * but I've put them here all the same just as a sort of reminder. There will
+ * likely be more than just these two drawing functions but I'm thinking of these
+ * being the big flexible primary drawing functions. */
+void vk2dRendererDrawTex(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot);
+void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot);
