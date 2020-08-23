@@ -504,7 +504,7 @@ static void _vk2dRendererCreateDescriptorPool() {
 	if (vk2dPointerCheck(gRenderer->descConPrim) && vk2dPointerCheck(gRenderer->descConTex)) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			gRenderer->descConTex[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->duslt, 0, 1);
-			gRenderer->descConPrim[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->duslt, 0, VK2D_NO_LOCATION);
+			gRenderer->descConPrim[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dusls, 0, VK2D_NO_LOCATION);
 		}
 	} // TODO: Custom pipeline descriptor controllers
 	vk2dLogMessage("Descriptor pool initialized...");
@@ -797,15 +797,28 @@ void vk2dRendererDrawTex(VK2DTexture target, VK2DTexture tex, float x, float y, 
 
 void vk2dRendererDrawPolygon(VK2DTexture target, VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot) {
 	// TODO: This (properly)
+	// Necessary information
 	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->renderPass, 0, VK_NULL_HANDLE);
 	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], gTestUBO); // TODO: Remove test thing here
 	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
+	VkViewport viewport = {};
+	viewport.minDepth = 0;
+	viewport.minDepth = 1;
+	viewport.width = gRenderer->surfaceWidth;
+	viewport.height = gRenderer->surfaceHeight;
+	viewport.x = 0;
+	viewport.y = 0;
+	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
+
+	// Recording the command buffer
 	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
 	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, filled ? gRenderer->primFillPipe->pipe : gRenderer->primLinePipe->pipe);
 	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, filled ? gRenderer->primFillPipe->layout : gRenderer->primLinePipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
 	VkDeviceSize offsets[] = {0};
 	vkCmdBindVertexBuffers(buf, 0, 1, &polygon->vertices->buf, offsets);
+	vkCmdSetViewport(buf, 0, 1, &viewport);
+	vkCmdSetBlendConstants(buf, blendConstants);
 	vkCmdDraw(buf, polygon->vertexCount, 1, 0, 0);
 	vk2dErrorCheck(vkEndCommandBuffer(buf));
 }
