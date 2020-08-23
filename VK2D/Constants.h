@@ -25,6 +25,9 @@ extern const uint32_t VK2D_DEFAULT_ARRAY_EXTENSION;
 /// Used to specify that a variable is not present in a shader
 extern const uint32_t VK2D_NO_LOCATION;
 
+/// Draw to the screen and not a texture
+extern const VK2DTexture VK2D_TARGET_SCREEN;
+
 // This is a preprocessor because variable size arrays cannot be used in structs
 /// Number of command pools a device has to cycle through
 #define VK2D_DEVICE_COMMAND_POOLS ((uint32_t)3)

@@ -1,6 +1,7 @@
 /// \file Constants.c
 /// \author Paolo Mazzon
 #include <vulkan/vulkan.h>
+#include "VK2D/Structs.h"
 
 const int32_t VK2D_DEVICE_BEST_FIT = -1;
 
@@ -19,3 +20,5 @@ const uint32_t VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION = 10;
 const uint32_t VK2D_DEFAULT_ARRAY_EXTENSION = 5;
 
 const uint32_t VK2D_NO_LOCATION = UINT32_MAX;
+
+const VK2DTexture VK2D_TARGET_SCREEN = NULL;

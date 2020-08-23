@@ -25,7 +25,9 @@ int main(int argc, const char *argv[]) {
 		while (SDL_PollEvent(&e))
 			if (e.type == SDL_QUIT)
 				quit = true;
-		// TODO: Test VK2D
+
+		vk2dRendererStartFrame();
+		vk2dRendererEndFrame();
 	}
 
 	vk2dRendererQuit();

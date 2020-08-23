@@ -631,6 +631,8 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 
 void vk2dRendererQuit() {
 	if (gRenderer != NULL) {
+		vkDeviceWaitIdle(gRenderer->ld->dev);
+
 		// Destroy subsystems
 		_vk2dRendererDestroySynchronization();
 		_vk2dRendererDestroyDescriptorPool();
@@ -689,6 +691,33 @@ void vk2dRendererStartFrame() {
 	gRenderer->drawCommandPool = (gRenderer->drawCommandPool + 1) % VK2D_DEVICE_COMMAND_POOLS;
 	gRenderer->drawCommandBuffers = 0;
 	vk2dErrorCheck(vkResetCommandPool(gRenderer->ld->dev, gRenderer->ld->pool[gRenderer->drawCommandPool], VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
+
+	// Now we clear the screen
+	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
+	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0);
+	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
+
+	// Setup render pass
+	VkRect2D rect = {};
+	rect.extent.width = gRenderer->surfaceWidth;
+	rect.extent.height = gRenderer->surfaceHeight;
+	VkClearValue clearValues[2] = {};
+	clearValues[0].depthStencil.depth = 1;
+	clearValues[0].depthStencil.stencil = 0;
+	clearValues[1].color.float32[0] = 0;
+	clearValues[1].color.float32[1] = 0;
+	clearValues[1].color.float32[2] = 0;
+	clearValues[1].color.float32[3] = 0;
+	VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
+			gRenderer->renderPass,
+			gRenderer->framebuffers[gRenderer->scImageIndex],
+			rect,
+			clearValues,
+			2);
+
+	vkCmdBeginRenderPass(buf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdEndRenderPass(buf);
+	vk2dErrorCheck(vkEndCommandBuffer(buf));
 }
 
 void vk2dRendererEndFrame() {
@@ -719,4 +748,12 @@ void vk2dRendererEndFrame() {
 	}
 
 	gRenderer->currentFrame = (gRenderer->currentFrame + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
+}
+
+void vk2dRendererDrawTex(VK2DTexture target, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot) {
+	// TODO: This
+}
+
+void vk2dRendererDrawPolygon(VK2DTexture target, VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot) {
+	// TODO: This
 }

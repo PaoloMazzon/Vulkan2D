@@ -71,6 +71,7 @@ struct VK2DRenderer {
 	VkFence *imagesInFlight;               ///< Individual images in flight
 
 	// Command buffers for drawing management
+	// TODO: Use secondary command buffers so the render pass is only started and stopped once per frame
 	VkCommandBuffer *draws;      ///< List of command buffers for this frame's drawing
 	uint32_t drawListSize;       ///< Total size of command buffer list (not necessarily all valid command buffers, to avoid constantly resizing list)
 	uint32_t drawCommandBuffers; ///< Amount of actual command buffers in the list
@@ -148,10 +149,22 @@ void vk2dRendererStartFrame();
 /// \brief Performs the tasks necessary to complete/present a frame (call once you're done drawing)
 void vk2dRendererEndFrame();
 
-/* TODO: Implement these
- * I'm not yet sure what parameters they will take or what they will exactly do
- * but I've put them here all the same just as a sort of reminder. There will
- * likely be more than just these two drawing functions but I'm thinking of these
- * being the big flexible primary drawing functions. */
-void vk2dRendererDrawTex(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot);
-void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot);
+/// \brief Renders a texture
+/// \param target Target of the drawing (VK2D_TARGET_SCREEN for the screen)
+/// \param tex Texture to draw
+/// \param x x position in pixels from the top left of the window to draw it from
+/// \param y y position in pixels from the top left of the window to draw it from
+/// \param xscale Horizontal scale for drawing the texture (negative for flipped)
+/// \param yscale Vertical scale for drawing the texture (negative for flipped)
+/// \param rot Rotation to draw the texture
+void vk2dRendererDrawTex(VK2DTexture target, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot);
+
+/// \brief Renders a polygon
+/// \param target Target of the drawing (VK2D_TARGET_SCREEN for the screen)
+/// \param polygon Polygon to draw
+/// \param x x position in pixels from the top left of the window to draw it from
+/// \param y y position in pixels from the top left of the window to draw it from
+/// \param xscale Horizontal scale for drawing the polygon (negative for flipped)
+/// \param yscale Vertical scale for drawing the polygon (negative for flipped)
+/// \param rot Rotation to draw the polygon
+void vk2dRendererDrawPolygon(VK2DTexture target, VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot);
