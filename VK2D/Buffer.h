@@ -25,12 +25,19 @@ struct VK2DBuffer {
 /// \return Returns the new buffer or NULL if it failed
 VK2DBuffer vk2dBufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags mem, VK2DLogicalDevice dev);
 
+/// \brief Creates a buffer and loads some data into high-performance memory
+/// \param size Size in bytes of data
+/// \param usage Usage of the buffer
+/// \param dev Device to get the memory from
+/// \param data Data to put into high performance memory
+/// \return Returns a new buffer with the data loaded or NULL if it failed
+VK2DBuffer vk2dBufferLoad(VkDeviceSize size, VkBufferUsageFlags usage, VK2DLogicalDevice dev, void *data);
+
 /// \brief Copies the entire contents of src into dst
 /// \param src Buffer to copy from
 /// \param dst Buffer to copy to
-/// \param commandPool Index of the command pool to use on the previously assigned device
 /// \warning Both buffers must originate from the same device
-void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst, uint32_t pool);
+void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst);
 
 /// \brief Frees a buffer from memory
 /// \param buf Buffer to free

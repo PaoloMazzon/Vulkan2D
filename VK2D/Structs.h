@@ -68,6 +68,13 @@ typedef struct {
 	mat4 proj;  ///< Projection matrix
 } VK2DUniformBufferObject;
 
+/// \brief Describes what kind of vertices are in use
+typedef enum {
+	vt_Texture = 0, ///< Vertex meant for the texture pipeline
+	vt_Shape = 1,   ///< Vertex meant for the shapes pipelines
+	vt_Other = 2    ///< Unspecified vertex type
+} VK2DVertexType;
+
 /// \brief Multisampling detail
 ///
 /// While Vulkan does technically support 64 samples per pixel,

@@ -6,6 +6,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/Initializers.h"
 #include <malloc.h>
+#include <memory.h>
 
 uint32_t _reVulkanBufferFindMemoryType(VkPhysicalDeviceMemoryProperties *memProps, uint32_t memoryFilter, VkMemoryPropertyFlags requirements) {
 	uint32_t i;
@@ -36,14 +37,39 @@ VK2DBuffer vk2dBufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkMemor
 	return buf;
 }
 
-void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst, uint32_t pool) {
-	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev, pool);
+VK2DBuffer vk2dBufferLoad(VkDeviceSize size, VkBufferUsageFlags usage, VK2DLogicalDevice dev, void *data) {
+	// Create staging buffer
+	VK2DBuffer stageBuffer = vk2dBufferCreate(size,
+			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			dev);
+
+	// Map data
+	void *location;
+	vk2dErrorCheck(vkMapMemory(dev->dev, stageBuffer->mem, 0, size, 0, &location));
+	memcpy(location, data, size);
+	vkUnmapMemory(dev->dev, stageBuffer->mem);
+
+	// Create the actual vbo
+	VK2DBuffer ret = vk2dBufferCreate(size,
+			usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			dev);
+	vk2dBufferCopy(stageBuffer, ret);
+
+	vk2dBufferFree(stageBuffer);
+
+	return ret;
+}
+
+void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst) {
+	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev);
 	VkBufferCopy copyRegion = {};
 	copyRegion.size = src->size;
 	copyRegion.dstOffset = 0;
 	copyRegion.srcOffset = 0;
 	vkCmdCopyBuffer(buffer, src->buf, dst->buf, 1, &copyRegion);
-	vk2dLogicalDeviceSubmitSingleBuffer(src->dev, buffer, pool);
+	vk2dLogicalDeviceSubmitSingleBuffer(src->dev, buffer);
 }
 
 void vk2dBufferFree(VK2DBuffer buf) {

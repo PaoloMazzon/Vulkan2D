@@ -16,6 +16,7 @@ struct VK2DLogicalDevice {
 	VkQueue queue;         ///< Queue for command buffers
 	VK2DPhysicalDevice pd; ///< Physical device this came from
 	VkCommandPool pool[VK2D_DEVICE_COMMAND_POOLS]; ///< Command pools to cycle through
+	VkCommandPool singlePool;                      ///< Command pool for single use command buffers
 };
 
 /// \brief Creates a logical device for rendering
@@ -52,18 +53,16 @@ void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer b
 
 /// \brief Gets a command buffer created with the single use flag
 /// \param dev Logical device to use
-/// \param pool Which command pool to make the buffer from
 /// \return Returns a new command buffer in the recording state
-VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev, uint32_t pool);
+VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev);
 
 /// \brief Submits a single use command buffer
 /// \param dev Device it belongs to
 /// \param buffer Command buffer to submit
-/// \param pool Pool the buffer came from
 ///
 /// To be more specific, this will submit the command buffer then wait for the queue
 /// to idle. After that it will free the buffer.
-void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer, uint32_t pool);
+void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer);
 
 /// \brief Grabs a fence from a logical device
 /// \param dev Logical device to get the fence from

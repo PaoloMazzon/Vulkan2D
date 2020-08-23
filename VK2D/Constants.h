@@ -28,11 +28,10 @@ extern const uint32_t VK2D_NO_LOCATION;
 /// Draw to the screen and not a texture
 extern const VK2DTexture VK2D_TARGET_SCREEN;
 
-// This is a preprocessor because variable size arrays cannot be used in structs
-/// Number of command pools a device has to cycle through
+/// Number of command pools a device has to cycle through - You generally want this and VK2D_MAX_FRAMES_IN_FLIGHT to be the same
 #define VK2D_DEVICE_COMMAND_POOLS ((uint32_t)3)
 
-/// Maximum number of frames to be processed at once
+/// Maximum number of frames to be processed at once - You generally want this and VK2D_DEVICE_COMMAND_POOLS to be the same
 #define VK2D_MAX_FRAMES_IN_FLIGHT 3
 
 #ifdef __cplusplus
