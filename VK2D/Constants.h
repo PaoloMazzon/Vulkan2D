@@ -34,6 +34,9 @@ extern const VK2DTexture VK2D_TARGET_SCREEN;
 /// Maximum number of frames to be processed at once - You generally want this and VK2D_DEVICE_COMMAND_POOLS to be the same
 #define VK2D_MAX_FRAMES_IN_FLIGHT 3
 
+/// Not terribly difficult to figure out the usages of this
+#define VK2D_PI 3.14159265358979323846264338327950
+
 #ifdef __cplusplus
 };
 #endif

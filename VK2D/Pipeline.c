@@ -97,7 +97,7 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 
 void vk2dPipelineBeginBuffer(VK2DPipeline pipe, VkFramebuffer framebuffer, VkCommandBuffer buffer, float blendConstants[4], VkViewport *viewports, uint32_t viewportCount, float lineWidth) {
 	// Create info and start recording
-	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0);
+	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0, VK_NULL_HANDLE);
 	VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(pipe->renderPass, framebuffer, pipe->rect, pipe->clearValue, 2);
 	if (vk2dErrorInline(vkBeginCommandBuffer(buffer, &beginInfo))) {
 		// Bind pipeline and render pass

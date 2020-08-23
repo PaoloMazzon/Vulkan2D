@@ -34,6 +34,14 @@ struct VK2DLogicalDevice {
 ///
 /// samplerAnisotropy is for nice looking edges when it is so desired, and the others
 /// are for drawing shapes without being filled in (Something games often want to do).
+///
+/// Because most things use and store a pointer to a logical device in this renderer, it is vital
+/// that you always free this last (assuming you're not just letting the renderer take care of all
+/// this). It could be seen as spaghetti to have something's pointer all over the place, but since
+/// A) the vulkan spec says all things allocated on the device must be freed before the device and
+/// B) the VK2DLogicalDevice will likely never change beyond the command pools getting reset, its
+/// not at all unreasonable to just store the logical device on anything that needs it constantly.
+/// TL;DR, always free VK2DLogicalDevice last (or ignore this if you're using VK2DRenderer).
 VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice);
 
 /// \brief Frees a logical device from memory

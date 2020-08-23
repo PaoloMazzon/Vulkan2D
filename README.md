@@ -24,6 +24,15 @@ The CMakeLists.txt is there for testing purposes, not for use in projects. If yo
 wish to use this in your project, just drop the VK2D directory into your project
 and build it with your project. It requires SDL2 and Vulkan to build.
 
+TODO
+====
+
+ + Implement textures
+ + Move model matrix to push constants, leave view and proj in a universal buffer
+ + Have global RGBA modifier via push constants
+ + Add render to textures
+ + Let the polygon loader triangulate polygons on load
+
 Warning
 =======
 Similar to Vulkan, VK2D does not check to see if you are passing garbage arguments (except for 

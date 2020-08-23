@@ -4,10 +4,15 @@
 #pragma once
 #include "VK2D/Structs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Makes shapes easier to deal with
 struct VK2DPolygon {
-	VK2DBuffer vertices; ///< Internal memory for the vertices
-	VK2DVertexType type; ///< What kind of vertices this stores
+	VK2DBuffer vertices;  ///< Internal memory for the vertices
+	VK2DVertexType type;  ///< What kind of vertices this stores
+	uint32_t vertexCount; ///< Number of vertices
 };
 
 /// \brief Creates a polygon for the texture pipeline (should be triangulated)
@@ -27,3 +32,7 @@ VK2DPolygon vk2dPolygonShapeCreate(VK2DLogicalDevice dev, VK2DVertexColour *vert
 /// \brief Frees a polygon from memory
 /// \param polygon Polygon to free
 void vk2dPolygonFree(VK2DPolygon polygon);
+
+#ifdef __cplusplus
+}
+#endif

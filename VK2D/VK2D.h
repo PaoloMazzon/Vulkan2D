@@ -4,10 +4,5 @@
 #pragma once
 
 #include "VK2D/Renderer.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#ifdef __cplusplus
-};
-#endif
+#include "VK2D/Polygon.h"
+#include "VK2D/Texture.h"

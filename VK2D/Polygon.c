@@ -20,11 +20,17 @@ VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size,
 }
 
 VK2DPolygon vk2dPolygonTextureCreate(VK2DLogicalDevice dev, VK2DVertexTexture *vertexData, uint32_t vertexCount) {
-	return _vk2dPolygonCreate(dev, vertexData, sizeof(VK2DVertexTexture) * vertexCount, vt_Texture);
+	VK2DPolygon poly = _vk2dPolygonCreate(dev, vertexData, sizeof(VK2DVertexTexture) * vertexCount, vt_Texture);
+	if (poly != NULL)
+		poly->vertexCount = vertexCount;
+	return poly;
 }
 
 VK2DPolygon vk2dPolygonShapeCreate(VK2DLogicalDevice dev, VK2DVertexColour *vertexData, uint32_t vertexCount) {
-	return _vk2dPolygonCreate(dev, vertexData, sizeof(VK2DVertexColour) * vertexCount, vt_Shape);
+	VK2DPolygon poly = _vk2dPolygonCreate(dev, vertexData, sizeof(VK2DVertexColour) * vertexCount, vt_Shape);
+	if (poly != NULL)
+		poly->vertexCount = vertexCount;
+	return poly;
 }
 
 void vk2dPolygonFree(VK2DPolygon polygon) {

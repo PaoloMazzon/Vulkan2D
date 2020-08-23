@@ -96,10 +96,11 @@ VkDebugReportCallbackCreateInfoEXT vk2dInitDebugReportCallbackCreateInfoEXT(PFN_
 	return createInfoEXT;
 }
 
-VkCommandBufferBeginInfo vk2dInitCommandBufferBeginInfo(VkCommandBufferUsageFlags flags) {
+VkCommandBufferBeginInfo vk2dInitCommandBufferBeginInfo(VkCommandBufferUsageFlags flags, VkCommandBufferInheritanceInfo *inheritanceInfo) {
 	VkCommandBufferBeginInfo commandBufferBeginInfo = {};
 	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	commandBufferBeginInfo.flags = flags;
+	commandBufferBeginInfo.pInheritanceInfo = inheritanceInfo;
 	return commandBufferBeginInfo;
 }
 
@@ -464,4 +465,13 @@ VkWriteDescriptorSet vk2dInitWriteDescriptorSet(VkDescriptorType type, uint32_t 
 	writeDescriptorSet.pBufferInfo = info;
 	writeDescriptorSet.pImageInfo = images;
 	return writeDescriptorSet;
+}
+
+VkCommandBufferInheritanceInfo vk2dInitCommandBufferInheritanceInfo(VkRenderPass renderPass, uint32_t subpass, VkFramebuffer framebuffer) {
+	VkCommandBufferInheritanceInfo commandBufferInheritanceInfo = {};
+	commandBufferInheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+	commandBufferInheritanceInfo.framebuffer = framebuffer;
+	commandBufferInheritanceInfo.renderPass = renderPass;
+	commandBufferInheritanceInfo.subpass = subpass;
+	return commandBufferInheritanceInfo;
 }

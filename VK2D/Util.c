@@ -40,3 +40,4 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState() {
 
 	return pipelineVertexInputStateCreateInfo;
 }
+

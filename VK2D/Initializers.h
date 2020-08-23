@@ -16,7 +16,7 @@ VkDeviceCreateInfo vk2dInitDeviceCreateInfo(VkDeviceQueueCreateInfo *info, uint3
 VkCommandPoolCreateInfo vk2dInitCommandPoolCreateInfo(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags);
 VkCommandBufferAllocateInfo vk2dInitCommandBufferAllocateInfo(VkCommandPool pool, uint32_t count);
 VkDebugReportCallbackCreateInfoEXT vk2dInitDebugReportCallbackCreateInfoEXT(PFN_vkDebugReportCallbackEXT callback);
-VkCommandBufferBeginInfo vk2dInitCommandBufferBeginInfo(VkCommandBufferUsageFlags flags);
+VkCommandBufferBeginInfo vk2dInitCommandBufferBeginInfo(VkCommandBufferUsageFlags flags, VkCommandBufferInheritanceInfo *inheritanceInfo);
 VkSubmitInfo vk2dInitSubmitInfo(VkCommandBuffer *commandBufferVector, uint32_t commandBufferCount, VkSemaphore *signalSemaphoreVector, uint32_t signalSemaphoreCount, VkSemaphore *waitSemaphoreVector, uint32_t waitSemaphoreCount, VkPipelineStageFlags *waitFlag);
 VkFenceCreateInfo vk2dInitFenceCreateInfo(VkFenceCreateFlags flags);
 VkSemaphoreCreateInfo vk2dInitSemaphoreCreateInfo(VkSemaphoreCreateFlags flags);
@@ -49,6 +49,7 @@ VkDescriptorPoolCreateInfo vk2dInitDescriptorPoolCreateInfo(VkDescriptorPoolSize
 VkDescriptorSetAllocateInfo vk2dInitDescriptorSetAllocateInfo(VkDescriptorPool pool, uint32_t amount, VkDescriptorSetLayout *layouts);
 VkSamplerCreateInfo vk2dInitSamplerCreateInfo(VkBool32 linearFilter, float anisotropy, float mipLevels);
 VkWriteDescriptorSet vk2dInitWriteDescriptorSet(VkDescriptorType type, uint32_t binding, VkDescriptorSet dstSet, VkDescriptorBufferInfo *info, uint32_t descriptorCount, VkDescriptorImageInfo *images);
+VkCommandBufferInheritanceInfo vk2dInitCommandBufferInheritanceInfo(VkRenderPass renderPass, uint32_t subpass, VkFramebuffer framebuffer);
 
 #ifdef __cplusplus
 };

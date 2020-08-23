@@ -14,6 +14,8 @@
 #include "VK2D/Blobs.h"
 #include "VK2D/Buffer.h"
 #include "VK2D/DescriptorControl.h"
+#include "VK2D/Polygon.h"
+#include "VK2D/Math.h"
 
 /******************************* Globals *******************************/
 
@@ -23,6 +25,9 @@ PFN_vkDestroyDebugReportCallbackEXT fvkDestroyDebugReportCallbackEXT;
 
 // For everything
 VK2DRenderer gRenderer = NULL;
+
+// For testing purposes
+VK2DBuffer gTestUBO = NULL;
 
 #ifdef VK2D_ENABLE_DEBUG
 static const char* EXTENSIONS[] = {
@@ -45,6 +50,30 @@ static const int EXTENSION_COUNT = 0;
 #endif // VK2D_ENABLE_DEBUG
 
 /******************************* Internal functions *******************************/
+
+static void _vk2dRendererCreateDemos() {
+#ifdef VK2D_ENABLE_DEBUG
+	VK2DUniformBufferObject ubo;
+	identityMatrix(ubo.model);
+
+	vec3 turnAxis = {0, 0, 1};
+	rotateMatrix(ubo.model, turnAxis, VK2D_PI / 2);
+
+	vec3 eyes = {2, 2, 2};
+	vec3 center = {0, 0, 0};
+	vec3 up = {0, 0, 1};
+	cameraMatrix(ubo.view, eyes, center, up);
+
+	perspectiveMatrix(ubo.proj, VK2D_PI / 4, gRenderer->surfaceWidth / gRenderer->surfaceHeight, 0.1, 10);
+	gTestUBO = vk2dBufferLoad(sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, gRenderer->ld, &ubo);
+#endif //VK2D_ENABLE_DEBUG
+}
+
+static void _vk2dRendererDestroyDemos() {
+#ifdef VK2D_ENABLE_DEBUG
+	vk2dBufferFree(gTestUBO);
+#endif //VK2D_ENABLE_DEBUG
+}
 
 static VkCommandBuffer _vk2dRendererGetNextCommandBuffer() {
 	if (gRenderer->drawCommandBuffers == gRenderer->drawListSize) {
@@ -622,6 +651,9 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 		_vk2dRendererCreateUniformBuffers();
 		_vk2dRendererCreateDescriptorPool();
 		_vk2dRendererCreateSynchronization();
+
+		// Demos
+		_vk2dRendererCreateDemos();
 	} else {
 		errorCode = -1;
 	}
@@ -632,6 +664,9 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 void vk2dRendererQuit() {
 	if (gRenderer != NULL) {
 		vkDeviceWaitIdle(gRenderer->ld->dev);
+
+		// Demos
+		_vk2dRendererDestroyDemos();
 
 		// Destroy subsystems
 		_vk2dRendererDestroySynchronization();
@@ -696,7 +731,7 @@ void vk2dRendererStartFrame() {
 void vk2dRendererEndFrame() {
 	// Construct the big command buffer for this frame's drawings
 	VkCommandBuffer buf = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, gRenderer->drawCommandPool, true);
-	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0);
+	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0, VK_NULL_HANDLE);
 	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
 
 	// Setup render pass
@@ -752,10 +787,25 @@ void vk2dRendererEndFrame() {
 	gRenderer->currentFrame = (gRenderer->currentFrame + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
 }
 
+VK2DLogicalDevice vk2dRendererGetDevice() {
+	return gRenderer->ld;
+}
+
 void vk2dRendererDrawTex(VK2DTexture target, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot) {
 	// TODO: This
 }
 
 void vk2dRendererDrawPolygon(VK2DTexture target, VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot) {
-	// TODO: This
+	// TODO: This (properly)
+	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->renderPass, 0, VK_NULL_HANDLE);
+	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], gTestUBO); // TODO: Remove test thing here
+	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
+	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
+	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
+	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, filled ? gRenderer->primFillPipe->pipe : gRenderer->primLinePipe->pipe);
+	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, filled ? gRenderer->primFillPipe->layout : gRenderer->primLinePipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
+	VkDeviceSize offsets[] = {0};
+	vkCmdBindVertexBuffers(buf, 0, 1, &polygon->vertices->buf, offsets);
+	vkCmdDraw(buf, polygon->vertexCount, 1, 0, 0);
+	vk2dErrorCheck(vkEndCommandBuffer(buf));
 }

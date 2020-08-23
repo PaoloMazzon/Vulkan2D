@@ -4,6 +4,10 @@
 #pragma once
 #include "VK2D/Structs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Abstraction for descriptor pools and sets so you can dynamically use them
 struct VK2DDescCon {
 	VkDescriptorPool *pools;      ///< List of pools
@@ -51,3 +55,7 @@ VkDescriptorSet vk2dDescConGetSamplerBufferSet(VK2DDescCon descCon, VK2DTexture 
 /// \brief Resets all pools in a descriptor controller (basically deletes all active sets so new ones can be allocated)
 /// \param descCon Descriptor controller to reset
 void vk2dDescConReset(VK2DDescCon descCon);
+
+#ifdef __cplusplus
+}
+#endif

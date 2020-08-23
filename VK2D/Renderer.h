@@ -148,6 +148,10 @@ void vk2dRendererStartFrame();
 /// \brief Performs the tasks necessary to complete/present a frame (call once you're done drawing)
 void vk2dRendererEndFrame();
 
+/// \brief Returns the logical device being used by the renderer
+/// \return Returns the current logical device
+VK2DLogicalDevice vk2dRendererGetDevice();
+
 /// \brief Renders a texture
 /// \param target Target of the drawing (VK2D_TARGET_SCREEN for the screen)
 /// \param tex Texture to draw
@@ -155,7 +159,7 @@ void vk2dRendererEndFrame();
 /// \param y y position in pixels from the top left of the window to draw it from
 /// \param xscale Horizontal scale for drawing the texture (negative for flipped)
 /// \param yscale Vertical scale for drawing the texture (negative for flipped)
-/// \param rot Rotation to draw the texture
+/// \param rot Rotation to draw the texture (VK2D only uses radians)
 void vk2dRendererDrawTex(VK2DTexture target, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot);
 
 /// \brief Renders a polygon
@@ -165,7 +169,7 @@ void vk2dRendererDrawTex(VK2DTexture target, VK2DTexture tex, float x, float y, 
 /// \param y y position in pixels from the top left of the window to draw it from
 /// \param xscale Horizontal scale for drawing the polygon (negative for flipped)
 /// \param yscale Vertical scale for drawing the polygon (negative for flipped)
-/// \param rot Rotation to draw the polygon
+/// \param rot Rotation to draw the polygon (VK2D only uses radians)
 void vk2dRendererDrawPolygon(VK2DTexture target, VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot);
 
 
