@@ -71,8 +71,7 @@ struct VK2DRenderer {
 	VkFence *imagesInFlight;               ///< Individual images in flight
 
 	// Command buffers for drawing management
-	// TODO: Use secondary command buffers so the render pass is only started and stopped once per frame
-	VkCommandBuffer *draws;      ///< List of command buffers for this frame's drawing
+	VkCommandBuffer *draws;      ///< List of command buffers for this frame's drawing - all secondary and will be executed by a primary in a render pass inside vk2dRendererEndFrame
 	uint32_t drawListSize;       ///< Total size of command buffer list (not necessarily all valid command buffers, to avoid constantly resizing list)
 	uint32_t drawCommandBuffers; ///< Amount of actual command buffers in the list
 	uint32_t drawCommandPool;    ///< Index of the logical device's command pool to pull from
@@ -168,3 +167,6 @@ void vk2dRendererDrawTex(VK2DTexture target, VK2DTexture tex, float x, float y, 
 /// \param yscale Vertical scale for drawing the polygon (negative for flipped)
 /// \param rot Rotation to draw the polygon
 void vk2dRendererDrawPolygon(VK2DTexture target, VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot);
+
+
+// TODO: Function for loading custom shaders

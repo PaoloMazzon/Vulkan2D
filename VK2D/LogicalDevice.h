@@ -43,7 +43,7 @@ void vk2dLogicalDeviceFree(VK2DLogicalDevice dev);
 /// \param dev Logical device to get the buffer from
 /// \param pool Pool in the device to get the buffer from
 /// \return Returns a VkCommandBuffer in the initial state (see Vulkan spec for more info on command buffer states)
-VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, uint32_t pool);
+VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, uint32_t pool, bool primary);
 
 /// \brief Frees a command buffer
 /// \param dev Logical device the buffer belongs to

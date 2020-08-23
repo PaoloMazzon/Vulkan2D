@@ -54,7 +54,7 @@ static VkCommandBuffer _vk2dRendererGetNextCommandBuffer() {
 			gRenderer->drawListSize += VK2D_DEFAULT_ARRAY_EXTENSION;
 		}
 	}
-	gRenderer->draws[gRenderer->drawCommandBuffers] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, gRenderer->drawCommandPool);
+	gRenderer->draws[gRenderer->drawCommandBuffers] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, gRenderer->drawCommandPool, false);
 	gRenderer->drawCommandBuffers++;
 	return gRenderer->draws[gRenderer->drawCommandBuffers - 1];
 }
@@ -691,9 +691,11 @@ void vk2dRendererStartFrame() {
 	gRenderer->drawCommandPool = (gRenderer->drawCommandPool + 1) % VK2D_DEVICE_COMMAND_POOLS;
 	gRenderer->drawCommandBuffers = 0;
 	vk2dErrorCheck(vkResetCommandPool(gRenderer->ld->dev, gRenderer->ld->pool[gRenderer->drawCommandPool], VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
+}
 
-	// Now we clear the screen
-	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
+void vk2dRendererEndFrame() {
+	// Construct the big command buffer for this frame's drawings
+	VkCommandBuffer buf = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, gRenderer->drawCommandPool, true);
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0);
 	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
 
@@ -716,16 +718,16 @@ void vk2dRendererStartFrame() {
 			2);
 
 	vkCmdBeginRenderPass(buf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	if (gRenderer->drawCommandBuffers > 0)
+		vkCmdExecuteCommands(buf, gRenderer->drawCommandBuffers, gRenderer->draws);
 	vkCmdEndRenderPass(buf);
 	vk2dErrorCheck(vkEndCommandBuffer(buf));
-}
 
-void vk2dRendererEndFrame() {
 	// Wait for image before doing things
 	VkPipelineStageFlags waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 	VkSubmitInfo submitInfo = vk2dInitSubmitInfo(
-			gRenderer->draws,
-			gRenderer->drawCommandBuffers,
+			&buf,
+			1,
 			&gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
 			1,
 			&gRenderer->imageAvailableSemaphores[gRenderer->currentFrame],
