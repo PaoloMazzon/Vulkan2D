@@ -104,6 +104,12 @@ typedef enum {
 	sm_TripleBuffer = VK_PRESENT_MODE_MAILBOX_KHR ///< Optimal for gaming but a bit slower than immediate (machines may not support this)
 } VK2DScreenMode;
 
+/// \brief Specifies how textures will be filtered at higher and lower resolutions
+typedef enum {
+	ft_Linear = VK_FILTER_LINEAR,  ///< Linear interpolation, good for most things
+	ft_Nearest = VK_FILTER_NEAREST ///< Nearest neighbor filter, good for pixel art
+} VK2DFilterType;
+
 /// \brief A bitwise-able enum representing different shader stages
 ///
 /// Right now VK2D only supports vertex and fragment shaders, but it is possible that
@@ -126,6 +132,7 @@ typedef struct VK2DConfiguration {
 typedef struct VK2DRendererConfig {
 	VK2DMSAA msaa;             ///< Current MSAA
 	VK2DScreenMode screenMode; ///< Current screen mode
+	VK2DFilterType filterMode; ///< How to filter textures
 } VK2DRendererConfig;
 
 // Required for less memory management on VK2DCustomPipelineInfo

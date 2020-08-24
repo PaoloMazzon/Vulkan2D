@@ -23,7 +23,8 @@ int main(int argc, const char *argv[]) {
 	if (window == NULL)
 		return -1;
 
-	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer};
+	// For testing purposes, we just try to get the renderer to use the best possible settings
+	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Linear};
 	int32_t error = vk2dRendererInit(window, config);
 
 	if (error < 0)
