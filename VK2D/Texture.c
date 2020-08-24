@@ -29,6 +29,28 @@ const VK2DVertexTexture immutableFull[] = {
 const uint32_t baseTexVertexCount = 6;
 
 VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, float wInImage, float hInImage) {
+	// In order to display portions of an image, we normalize UV coordinates and stick it in a vertex buffer
+	float x1 = xInImage / image->width;
+	float y1 = yInImage / image->height;
+	float x2 = (xInImage + wInImage) / image->width;
+	float y2 = (yInImage + hInImage) / image->height;
+
+	// Order of the 6 vertices are as follows:
+	//     UR, UL, UR, UR, BR, BL
+	// Where U is up or top, b is bottom, l is left, and r is right
+	baseTex[0].tex[0] = x2;
+	baseTex[0].tex[1] = y1;
+	baseTex[1].tex[0] = x1;
+	baseTex[1].tex[1] = y1;
+	baseTex[2].tex[0] = x2;
+	baseTex[2].tex[1] = y1;
+	baseTex[3].tex[0] = x2;
+	baseTex[3].tex[1] = y1;
+	baseTex[4].tex[0] = x2;
+	baseTex[4].tex[1] = y2;
+	baseTex[5].tex[0] = x1;
+	baseTex[5].tex[1] = y2;
+
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DPolygon poly = vk2dPolygonTextureCreate(image->dev, baseTex, baseTexVertexCount);
 	VK2DRenderer renderer = vk2dRendererGetPointer();
@@ -49,7 +71,37 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 }
 
 VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
-	return NULL; // TODO: This
+	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
+	VK2DPolygon poly = vk2dPolygonTextureCreate(dev, (void*)immutableFull, baseTexVertexCount);
+	VK2DRenderer renderer = vk2dRendererGetPointer();
+
+	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
+		out->imgSampler = &renderer->textureSampler;
+		out->bounds = poly;
+
+		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
+
+		// Set up FBO
+		const int attachCount = renderer->config.msaa > 1 ? 3 : 2;
+		VkImageView attachments[attachCount];
+		if (renderer->config.msaa > 1) {
+			attachments[0] = renderer->dsi->view;
+			attachments[1] = renderer->msaaImage->view;
+			attachments[2] = out->img->view;
+		} else {
+			attachments[0] = renderer->dsi->view;
+			attachments[1] = out->img->view;
+		}
+
+		VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(renderer->externalTargetRenderPass, w, h, attachments, attachCount);
+		vk2dErrorCheck(vkCreateFramebuffer(dev->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &out->fbo));
+	} else {
+		vk2dPolygonFree(poly);
+		free(out);
+		out = NULL;
+	}
+
+	return out;
 }
 
 void vk2dTextureFree(VK2DTexture tex) {
