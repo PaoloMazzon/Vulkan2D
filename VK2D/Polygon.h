@@ -20,6 +20,7 @@ struct VK2DPolygon {
 /// \param vertexData Vertex data of the triangle
 /// \param vertexCount Number of vertices
 /// \return Returns a new polygon
+/// \warning Polygon vertices should be specified clockwise or they will not be rendered
 VK2DPolygon vk2dPolygonTextureCreate(VK2DLogicalDevice dev, VK2DVertexTexture *vertexData, uint32_t vertexCount);
 
 /// \brief Creates a polygon for the shapes pipeline (should be triangulated)
@@ -27,6 +28,7 @@ VK2DPolygon vk2dPolygonTextureCreate(VK2DLogicalDevice dev, VK2DVertexTexture *v
 /// \param vertexData Vertex data of the triangle
 /// \param vertexCount Number of vertices
 /// \return Returns a new polygon
+/// \warning Polygon vertices should be specified clockwise or they will not be rendered
 VK2DPolygon vk2dPolygonShapeCreate(VK2DLogicalDevice dev, VK2DVertexColour *vertexData, uint32_t vertexCount);
 
 /// \brief Frees a polygon from memory

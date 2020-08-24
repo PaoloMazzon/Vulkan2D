@@ -6,6 +6,7 @@
 #include "VK2D/LogicalDevice.h"
 #include "VK2D/Validation.h"
 #include "VK2D/Polygon.h"
+#include "VK2D/Renderer.h"
 #include <malloc.h>
 
 // Will be modified to fit the texture then uploaded to a polygon
@@ -27,14 +28,13 @@ const VK2DVertexTexture immutableFull[] = {
 };
 const uint32_t baseTexVertexCount = 6;
 
-VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, float wInImage, float hInImage, VkBool32 filter, float anisotropy) {
+VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, float wInImage, float hInImage) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DPolygon poly = vk2dPolygonTextureCreate(image->dev, baseTex, baseTexVertexCount);
+	VK2DRenderer renderer = vk2dRendererGetPointer();
 
 	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
-		VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(filter, anisotropy, 1);
-		vk2dErrorCheck(vkCreateSampler(image->dev->dev, &samplerCreateInfo, VK_NULL_HANDLE, &out->imgSampler));
-
+		out->imgSampler = &renderer->textureSampler;
 		out->bounds = poly;
 		out->img = image;
 		out->fbo = NULL;
@@ -48,7 +48,7 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 	return out;
 }
 
-VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h, VkBool32 filter, float anisotropy) {
+VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	return NULL; // TODO: This
 }
 
@@ -58,7 +58,6 @@ void vk2dTextureFree(VK2DTexture tex) {
 			vkDestroyFramebuffer(tex->img->dev->dev, tex->fbo, VK_NULL_HANDLE);
 			vk2dImageFree(tex->img);
 		}
-		vkDestroySampler(tex->img->dev->dev, tex->imgSampler, VK_NULL_HANDLE);
 		vk2dPolygonFree(tex->bounds);
 		free(tex);
 	}

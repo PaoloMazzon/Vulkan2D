@@ -2,7 +2,6 @@
 /// \author Paolo Mazzon
 #include <vulkan/vulkan.h>
 #include <SDL2/SDL_vulkan.h>
-#include "Vk2D/Texture.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/BuildOptions.h"
 #include "VK2D/Validation.h"
@@ -11,6 +10,7 @@
 #include "VK2D/PhysicalDevice.h"
 #include "VK2D/LogicalDevice.h"
 #include "VK2D/Image.h"
+#include "VK2D/Texture.h"
 #include "VK2D/Pipeline.h"
 #include "VK2D/Blobs.h"
 #include "VK2D/Buffer.h"
@@ -61,8 +61,8 @@ static void _vk2dRendererCreateDemos() {
 	rotateMatrix(ubo.model, turnAxis, 0);
 
 	vec3 eyes = {0, 0, 2};
-	vec3 center = {0, 0, 0};
-	vec3 up = {0, -1, 0};
+	vec3 center = {0, 1, 0};
+	vec3 up = {0, 1, 0};
 	cameraMatrix(ubo.view, eyes, center, up);
 
 	orthographicMatrix(ubo.proj, 2, gRenderer->surfaceWidth / gRenderer->surfaceHeight, 0.1, 10);
@@ -284,7 +284,7 @@ static void _vk2dRendererCreateRenderPass() {
 	attachments[0].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	attachments[1].format = gRenderer->surfaceFormat.format;
 	attachments[1].samples = (VkSampleCountFlagBits)gRenderer->config.msaa;
-	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	attachments[1].finalLayout = gRenderer->config.msaa > 1 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -610,6 +610,15 @@ static void _vk2dRendererDestroySynchronization() {
 	free(gRenderer->primaryBuffer);
 }
 
+static void _vk2dRendererCreateSampler() {
+	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode, gRenderer->config.msaa, 1);
+	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler));
+}
+
+static void _vk2dRendererDestroySampler() {
+	vkDestroySampler(gRenderer->ld->dev, gRenderer->textureSampler, VK_NULL_HANDLE);
+}
+
 // If the window is resized or minimized or whatever
 static void _vk2dRendererResetSwapchain() {
 	// Hang while minimized
@@ -622,14 +631,16 @@ static void _vk2dRendererResetSwapchain() {
 	vkDeviceWaitIdle(gRenderer->ld->dev);
 
 	// Free swapchain
-	_vk2dRendererDestroySwapchain();
-	_vk2dRendererDestroyColourResources();
-	_vk2dRendererDestroyDepthStencilImage();
-	_vk2dRendererDestroyRenderPass();
-	_vk2dRendererDestroyPipelines(true);
-	_vk2dRendererDestroyFrameBuffer();
-	_vk2dRendererDestroyUniformBuffers();
+	_vk2dRendererDestroySampler();
+	_vk2dRendererDestroySynchronization();
 	_vk2dRendererDestroyDescriptorPool();
+	_vk2dRendererDestroyUniformBuffers();
+	_vk2dRendererDestroyFrameBuffer();
+	_vk2dRendererDestroyPipelines(true);
+	_vk2dRendererDestroyRenderPass();
+	_vk2dRendererDestroyDepthStencilImage();
+	_vk2dRendererDestroyColourResources();
+	_vk2dRendererDestroySwapchain();
 
 	// Swap out configs in case they were changed
 	gRenderer->config = gRenderer->newConfig;
@@ -644,6 +655,8 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateFrameBuffer();
 	_vk2dRendererCreateUniformBuffers();
 	_vk2dRendererCreateDescriptorPool();
+	_vk2dRendererCreateSynchronization();
+	_vk2dRendererCreateSampler();
 }
 
 /******************************* User-visible functions *******************************/
@@ -708,6 +721,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		_vk2dRendererCreateUniformBuffers();
 		_vk2dRendererCreateDescriptorPool();
 		_vk2dRendererCreateSynchronization();
+		_vk2dRendererCreateSampler();
 
 		// Demos
 		_vk2dRendererCreateDemos();
@@ -726,6 +740,7 @@ void vk2dRendererQuit() {
 		_vk2dRendererDestroyDemos();
 
 		// Destroy subsystems
+		_vk2dRendererDestroySampler();
 		_vk2dRendererDestroySynchronization();
 		_vk2dRendererDestroyDescriptorPool();
 		_vk2dRendererDestroyUniformBuffers();

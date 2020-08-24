@@ -48,6 +48,7 @@ struct VK2DRenderer {
 	bool resetSwapchain;          ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
 	VK2DImage msaaImage;          ///< In case MSAA is enabled
 	vec4 colourBlend;             ///< For future use, will be used in all shaders via push constants to blend colours with another one (for on-the-fly changing of transparency/colour)
+	VkSampler textureSampler;     ///< Needed for textures
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to

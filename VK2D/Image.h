@@ -17,7 +17,6 @@ struct VK2DImage {
 	VK2DLogicalDevice dev; ///< Device this image belongs to
 	uint32_t width;        ///< Width in pixels of the image
 	uint32_t height;       ///< Height in pixels of the image
-	uint32_t mipCount;     ///< Mip levels of the image
 };
 
 /// \brief Creates a Vulkan image (Users want VK2DTexture, not VK2DImage, they are different)
