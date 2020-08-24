@@ -196,7 +196,8 @@ static void _vk2dRendererCreateColourResources() {
 				gRenderer->surfaceFormat.format,
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-				(VkSampleCountFlagBits) gRenderer->config.msaa);
+				(VkSampleCountFlagBits) gRenderer->config.msaa,
+				1);
 		vk2dLogMessage("Colour resources initialized...");
 	} else {
 		vk2dLogMessage("Colour resources not enabled...");
@@ -238,7 +239,8 @@ static void _vk2dRendererCreateDepthStencilImage() {
 				gRenderer->dsiFormat,
 				VK_IMAGE_ASPECT_DEPTH_BIT,
 				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-				(VkSampleCountFlagBits)gRenderer->config.msaa);
+				(VkSampleCountFlagBits)gRenderer->config.msaa,
+				1);
 		vk2dLogMessage("Depth stencil image initialized...");
 	} else {
 		vk2dLogMessage("Depth stencil image unavailable...");
