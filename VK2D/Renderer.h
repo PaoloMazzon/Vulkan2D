@@ -194,6 +194,10 @@ VK2DLogicalDevice vk2dRendererGetDevice();
 /// \warning This can be computationally expensive so don't take this simple function lightly (it ends then starts a render pass)
 void vk2dRendererSetTarget(VK2DTexture target);
 
+/// \brief Clears the current render target to a specified colour
+/// \param colour Colour to clear with
+void vk2dRendererClear(vec4 colour);
+
 /// \brief Renders a texture
 /// \param tex Texture to draw
 /// \param x x position in pixels from the top left of the window to draw it from

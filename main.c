@@ -25,6 +25,7 @@ int main(int argc, const char *argv[]) {
 
 	// For testing purposes, we just try to get the renderer to use the best possible settings
 	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Linear};
+	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	int32_t error = vk2dRendererInit(window, config);
 
 	if (error < 0)
@@ -39,6 +40,7 @@ int main(int argc, const char *argv[]) {
 				quit = true;
 
 		vk2dRendererStartFrame();
+		vk2dRendererClear(clear);
 		vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
 		vk2dRendererEndFrame();
 	}

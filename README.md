@@ -27,6 +27,7 @@ you like random crashes).
     SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
    	SDL_Event e;
     vk2dRendererInit(window, td_Max, sm_TripleBuffer, msaa_32x);
+    vec4 clearColour = {0.0, 0.0, 0.0, 1.0}; // Black
     
     // Load your resources
     
@@ -36,6 +37,7 @@ you like random crashes).
    				return 0;
     
    		vk2dRendererStartFrame();
+   		vk2dRendererClear(clearColour);
    		
    		// Draw your things
    		

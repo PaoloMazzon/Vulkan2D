@@ -898,6 +898,10 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 	}
 }
 
+void vk2dRendererClear(vec4 colour) {
+	// TODO: Clear the current render target's colour
+}
+
 void vk2dRendererDrawTex(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot) {
 	// TODO: This
 }
