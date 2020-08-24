@@ -20,6 +20,46 @@ folder will be created containing the documentation.
 
 Usage
 =====
+Using the renderer is quite simple, but there are some things to be aware of. For the sake
+of brevity, error checking is removed from the following example (always error check unless
+you like random crashes).
+
+    SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
+   	SDL_Event e;
+    vk2dRendererInit(window, td_Max, sm_TripleBuffer, msaa_32x);
+    
+    // Load your resources
+    
+   	while (1) {
+   		while (SDL_PollEvent(&e))
+   			if (e.type == SDL_QUIT)
+   				return 0;
+    
+   		vk2dRendererStartFrame();
+   		
+   		// Draw your things
+   		
+   		vk2dRendererEndFrame();
+   	}
+    
+   	vk2dRendererWait();
+   	
+   	// Free your resources
+   	
+   	vk2dRendererQuit();
+   	SDL_DestroyWindow(window);
+
+SDL functions were included the example to remove any confusion on how the two integrate, but
+SDL is very simple to use and won't be discussed here beyond don't forget to give the window the
+`SDL_WINDOW_VULKAN` flag. You first initialize the renderer with some configuration (which can
+be changed whenever), then at the start of the frame you call `vk2dRendererStartFrame()` and at
+the end of the frame you call `vk2dRendererEndFrame()`. Other than that, its crucial that you
+call `vk2dRendererWait()` before you start free your resources in case they're still in use by
+the GPU (and of course call `vk2dRendererQuit()` after). Other than that, there are some useful
+functions in Renderer.h (generate the documentation). 
+
+Testing
+=======
 The CMakeLists.txt is there for testing purposes, not for use in projects. If you
 wish to use this in your project, just drop the VK2D directory into your project
 and build it with your project. It requires SDL2 and Vulkan to build.

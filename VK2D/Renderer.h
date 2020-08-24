@@ -110,6 +110,11 @@ struct VK2DRenderer {
 /// to be remade.
 int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK2DScreenMode screenMode, VK2DMSAA msaa);
 
+/// \brief Waits until current GPU tasks are done before moving on
+///
+/// Make sure you call this before freeing your assets in case they're still being used.
+void vk2dRendererWait();
+
 /// \brief Frees resources used by the renderer
 void vk2dRendererQuit();
 

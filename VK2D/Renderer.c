@@ -57,11 +57,11 @@ static void _vk2dRendererCreateDemos() {
 	identityMatrix(ubo.model);
 
 	vec3 turnAxis = {0, 0, 1};
-	rotateMatrix(ubo.model, turnAxis, VK2D_PI / 2);
+	rotateMatrix(ubo.model, turnAxis, 0);
 
-	vec3 eyes = {2, 2, 2};
+	vec3 eyes = {0, 0, 2};
 	vec3 center = {0, 0, 0};
-	vec3 up = {0, 0, 1};
+	vec3 up = {0, -1, 0};
 	cameraMatrix(ubo.view, eyes, center, up);
 
 	perspectiveMatrix(ubo.proj, VK2D_PI / 4, gRenderer->surfaceWidth / gRenderer->surfaceHeight, 0.1, 10);
@@ -663,7 +663,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 
 void vk2dRendererQuit() {
 	if (gRenderer != NULL) {
-		vkDeviceWaitIdle(gRenderer->ld->dev);
+		vkQueueWaitIdle(gRenderer->ld->queue);
 
 		// Demos
 		_vk2dRendererDestroyDemos();
@@ -691,6 +691,10 @@ void vk2dRendererQuit() {
 
 		vk2dLogMessage("VK2D has been uninitialized.");
 	}
+}
+
+void vk2dRendererWait() {
+	vkQueueWaitIdle(gRenderer->ld->queue);
 }
 
 VK2DRenderer vk2dRendererGetPointer() {
@@ -752,7 +756,7 @@ void vk2dRendererEndFrame() {
 			clearValues,
 			2);
 
-	vkCmdBeginRenderPass(buf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdBeginRenderPass(buf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 	if (gRenderer->drawCommandBuffers > 0)
 		vkCmdExecuteCommands(buf, gRenderer->drawCommandBuffers, gRenderer->draws);
 	vkCmdEndRenderPass(buf);
@@ -809,7 +813,7 @@ void vk2dRendererDrawPolygon(VK2DTexture target, VK2DPolygon polygon, bool fille
 	viewport.height = gRenderer->surfaceHeight;
 	viewport.x = 0;
 	viewport.y = 0;
-	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
+	const float blendConstants[4] = {1.0, 1.0, 1.0, 1.0};
 
 	// Recording the command buffer
 	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
