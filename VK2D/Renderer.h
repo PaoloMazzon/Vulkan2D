@@ -86,9 +86,7 @@ struct VK2DRenderer {
 
 /// \brief Initializes VK2D's renderer
 /// \param window An SDL window created with the flag SDL_WINDOW_VULKAN
-/// \param textureDetail Level of detail for textures
-/// \param screenMode How to present the screen
-/// \param msaa Number of samples per pixel
+/// \param config Initial renderer configuration settings
 /// \return Returns weather or not the function was successful, less than zero is an error
 ///
 /// GPUs are not guaranteed to support certain screen modes and msaa levels (integrated
@@ -108,7 +106,7 @@ struct VK2DRenderer {
 /// renderer will recreate the pipelines without the user ever needing to get involved. This means
 /// all pipeline settings and shaders are copied and stored inside the renderer should they need
 /// to be remade.
-int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK2DScreenMode screenMode, VK2DMSAA msaa);
+int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config);
 
 /// \brief Waits until current GPU tasks are done before moving on
 ///

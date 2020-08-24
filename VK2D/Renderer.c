@@ -196,8 +196,7 @@ static void _vk2dRendererCreateColourResources() {
 				gRenderer->surfaceFormat.format,
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-				(VkSampleCountFlagBits) gRenderer->config.msaa,
-				1);
+				(VkSampleCountFlagBits) gRenderer->config.msaa);
 		vk2dLogMessage("Colour resources initialized...");
 	} else {
 		vk2dLogMessage("Colour resources not enabled...");
@@ -239,8 +238,7 @@ static void _vk2dRendererCreateDepthStencilImage() {
 				gRenderer->dsiFormat,
 				VK_IMAGE_ASPECT_DEPTH_BIT,
 				VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-				(VkSampleCountFlagBits)gRenderer->config.msaa,
-				1);
+				(VkSampleCountFlagBits)gRenderer->config.msaa);
 		vk2dLogMessage("Depth stencil image initialized...");
 	} else {
 		vk2dLogMessage("Depth stencil image unavailable...");
@@ -592,7 +590,7 @@ static void _vk2dRendererResetSwapchain() {
 
 /******************************* User-visible functions *******************************/
 
-int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK2DScreenMode screenMode, VK2DMSAA msaa) {
+int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 	gRenderer = calloc(1, sizeof(struct VK2DRenderer));
 	int32_t errorCode = 0;
 	uint32_t totalExtensionCount, i, sdlExtensions;
@@ -635,9 +633,8 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DTextureDetail textureDetail, VK
 
 		// Assign user settings, except for screen mode which will be handled later
 		VK2DMSAA maxMSAA = vk2dPhysicalDeviceGetMSAA(gRenderer->pd);
-		gRenderer->config.msaa = maxMSAA >= msaa ? msaa : maxMSAA;
-		gRenderer->config.textureDetail = textureDetail;
-		gRenderer->config.screenMode = screenMode;
+		gRenderer->config = config;
+		gRenderer->config.msaa = maxMSAA >= config.msaa ? config.msaa : maxMSAA;
 		gRenderer->newConfig = gRenderer->config;
 
 		// Initialize subsystems

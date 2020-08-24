@@ -104,14 +104,6 @@ typedef enum {
 	sm_TripleBuffer = VK_PRESENT_MODE_MAILBOX_KHR ///< Optimal for gaming but a bit slower than immediate (machines may not support this)
 } VK2DScreenMode;
 
-/// \brief Level of detail for textures (what mip level to use)
-typedef enum {
-	td_Max = 0,    ///< Should be fine on 99% of machines
-	td_Medium = 1, ///< Eases off the gpu while still providing ok image quality
-	td_Low = 2,    ///< Won't look great but high performance
-	td_Minimum = 3 ///< Will look like absolute garbage, don't use this unless you hate graphics
-} VK2DTextureDetail;
-
 /// \brief A bitwise-able enum representing different shader stages
 ///
 /// Right now VK2D only supports vertex and fragment shaders, but it is possible that
@@ -132,9 +124,8 @@ typedef struct VK2DConfiguration {
 
 /// \brief User configurable settings
 typedef struct VK2DRendererConfig {
-	VK2DMSAA msaa;                   ///< Current MSAA
-	VK2DScreenMode screenMode;       ///< Current screen mode
-	VK2DTextureDetail textureDetail; ///< Current texture detail
+	VK2DMSAA msaa;             ///< Current MSAA
+	VK2DScreenMode screenMode; ///< Current screen mode
 } VK2DRendererConfig;
 
 // Required for less memory management on VK2DCustomPipelineInfo

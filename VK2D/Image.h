@@ -28,9 +28,8 @@ struct VK2DImage {
 /// \param aspectMask Aspect mask of the image
 /// \param usage How the image will be used
 /// \param samples MSAA level of the image (can't be more than max supported, 1 for no MSAA)
-/// \param mipLevels How many mip levels the image has (if you don't know, do 1)
 /// \return Returns the new image or NULL
-VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height, VkFormat format, VkImageAspectFlags aspectMask, VkImageUsageFlags usage, VkSampleCountFlagBits samples, uint32_t mipLevels);
+VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height, VkFormat format, VkImageAspectFlags aspectMask, VkImageUsageFlags usage, VkSampleCountFlagBits samples);
 
 /// \brief Loads an image from the disk (generates mipmaps)
 /// \param dev Device to get the memory from

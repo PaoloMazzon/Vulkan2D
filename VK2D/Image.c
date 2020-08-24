@@ -41,7 +41,7 @@ static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, 
 	vk2dLogicalDeviceSubmitSingleBuffer(dev, commandBuffer);
 }
 
-static void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels) {
+static void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout) {
 	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(dev);
 	VkPipelineStageFlags sourceStage = 0;
 	VkPipelineStageFlags destinationStage = 0;
@@ -55,7 +55,7 @@ static void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image
 	barrier.image = image;
 	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	barrier.subresourceRange.baseMipLevel = 0;
-	barrier.subresourceRange.levelCount = mipLevels;
+	barrier.subresourceRange.levelCount = 1;
 	barrier.subresourceRange.baseArrayLayer = 0;
 	barrier.subresourceRange.layerCount = 1;
 
@@ -88,101 +88,9 @@ static void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image
 	vk2dLogicalDeviceSubmitSingleBuffer(dev, buffer);
 }
 
-static void _vk2dImageGenerateMipmaps(VK2DLogicalDevice dev, VkImage image, VkFormat imageFormat, uint32_t width, uint32_t height, uint32_t mipLevels) {
-	// We first make sure the platform actually supports blitting things
-	VkFormatProperties formatProperties;
-	vkGetPhysicalDeviceFormatProperties(dev->pd->dev, imageFormat, &formatProperties);
-	vk2dErrorCheck((formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) ? VK_SUCCESS : -1);
-
-	VkCommandBuffer commandBuffer = vk2dLogicalDeviceGetSingleUseBuffer(dev);
-	int32_t mipW = width;
-	int32_t mipH = height;
-	uint32_t i;
-
-	VkImageMemoryBarrier barrier = {};
-	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.image = image;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	barrier.subresourceRange.baseArrayLayer = 0;
-	barrier.subresourceRange.layerCount = 1;
-	barrier.subresourceRange.levelCount = 1;
-
-	for (i = 1; i < mipLevels; i++) {
-		barrier.subresourceRange.baseMipLevel = i - 1;
-		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-		barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
-		vkCmdPipelineBarrier(commandBuffer,
-							 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-							 0, VK_NULL_HANDLE,
-							 0, VK_NULL_HANDLE,
-							 1, &barrier);
-
-		VkImageBlit blit = {};
-		blit.srcOffsets[0].x = 0;
-		blit.srcOffsets[0].y = 0;
-		blit.srcOffsets[0].z = 0;
-		blit.srcOffsets[1].x = mipW;
-		blit.srcOffsets[1].y = mipH;
-		blit.srcOffsets[1].z = 1;
-		blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		blit.srcSubresource.mipLevel = i - 1;
-		blit.srcSubresource.baseArrayLayer = 0;
-		blit.srcSubresource.layerCount = 1;
-		blit.dstOffsets[0].x = 0;
-		blit.dstOffsets[0].y = 0;
-		blit.dstOffsets[0].z = 0;
-		blit.dstOffsets[1].x = mipW > 1 ? mipW / 2 : 1;
-		blit.dstOffsets[1].y = mipH > 1 ? mipH / 2 : 1;
-		blit.dstOffsets[1].z = 1;
-		blit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		blit.dstSubresource.mipLevel = i;
-		blit.dstSubresource.baseArrayLayer = 0;
-		blit.dstSubresource.layerCount = 1;
-
-		vkCmdBlitImage(commandBuffer,
-					   image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-					   image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-					   1, &blit,
-					   VK_FILTER_LINEAR);
-
-		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-		barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-		vkCmdPipelineBarrier(commandBuffer,
-							 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-							 0, VK_NULL_HANDLE,
-							 0, VK_NULL_HANDLE,
-							 1, &barrier);
-
-		if (mipW > 1) mipW /= 2;
-		if (mipH > 1) mipH /= 2;
-	}
-
-	barrier.subresourceRange.baseMipLevel = mipLevels - 1;
-	barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-	barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-	vkCmdPipelineBarrier(commandBuffer,
-						 VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-						 0, VK_NULL_HANDLE,
-						 0, VK_NULL_HANDLE,
-						 1, &barrier);
-
-	vk2dLogicalDeviceSubmitSingleBuffer(dev, commandBuffer);
-}
-
 // End of internal functions
 
-VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height, VkFormat format, VkImageAspectFlags aspectMask, VkImageUsageFlags usage, VkSampleCountFlagBits samples, uint32_t mipLevels) {
+VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height, VkFormat format, VkImageAspectFlags aspectMask, VkImageUsageFlags usage, VkSampleCountFlagBits samples) {
 	VK2DImage out = malloc(sizeof(struct VK2DImage));
 	uint32_t i;
 
@@ -191,7 +99,7 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 		out->width = width;
 		out->height = height;
 		out->mipCount = 1;
-		VkImageCreateInfo imageCreateInfo = vk2dInitImageCreateInfo(width, height, format, usage, mipLevels, samples);
+		VkImageCreateInfo imageCreateInfo = vk2dInitImageCreateInfo(width, height, format, usage, 1, samples);
 		vk2dErrorCheck(vkCreateImage(dev->dev, &imageCreateInfo, NULL, &out->img));
 
 		// Get memory requirement
@@ -238,13 +146,11 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename, VkSampleCou
 
 	stbi_image_free(pixels);
 
-	uint32_t mipLevels = floorf(log2f(fmax(texWidth, texHeight))) + 1;
-	out = vk2dImageCreate(dev, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, samples, mipLevels);
+	out = vk2dImageCreate(dev, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, samples);
 
 	if (vk2dPointerCheck(out)) {
-		_vk2dImageTransitionImageLayout(dev, out->img, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
+		_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, texWidth, texHeight);
-		_vk2dImageGenerateMipmaps(dev, out->img, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
 	}
 
 	vk2dBufferFree(stage);

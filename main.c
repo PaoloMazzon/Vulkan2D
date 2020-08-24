@@ -23,7 +23,8 @@ int main(int argc, const char *argv[]) {
 	if (window == NULL)
 		return -1;
 
-	int32_t error = vk2dRendererInit(window, td_Max, sm_TripleBuffer, msaa_32x);
+	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer};
+	int32_t error = vk2dRendererInit(window, config);
 
 	if (error < 0)
 		return -1;
