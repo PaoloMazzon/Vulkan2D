@@ -16,4 +16,4 @@ file(GLOB H_FILES VK2D/*.h)
 # is just for testing purposes.
 include_directories(./ ${SDL2_INCLUDE_DIR} ${Vulkan_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} main.c ${C_FILES} ${H_FILES})
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES} ${Vulkan_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} m ${SDL2_LIBRARIES} ${Vulkan_LIBRARIES})

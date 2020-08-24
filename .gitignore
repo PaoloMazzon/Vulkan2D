@@ -1,4 +1,7 @@
 cmake-build-debug/
+cmake-build-debug-coverage/
+analasys.txt
+gmon.out
 .idea/
 .vscode/
 cmake_install.cmake

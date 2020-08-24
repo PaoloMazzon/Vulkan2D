@@ -64,7 +64,7 @@ static void _vk2dRendererCreateDemos() {
 	vec3 up = {0, -1, 0};
 	cameraMatrix(ubo.view, eyes, center, up);
 
-	perspectiveMatrix(ubo.proj, VK2D_PI / 4, gRenderer->surfaceWidth / gRenderer->surfaceHeight, 0.1, 10);
+	orthographicMatrix(ubo.proj, 2, gRenderer->surfaceWidth / gRenderer->surfaceHeight, 0.1, 10);
 	gTestUBO = vk2dBufferLoad(sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, gRenderer->ld, &ubo);
 #endif //VK2D_ENABLE_DEBUG
 }
@@ -729,6 +729,8 @@ void vk2dRendererStartFrame() {
 	gRenderer->drawCommandPool = (gRenderer->drawCommandPool + 1) % VK2D_DEVICE_COMMAND_POOLS;
 	gRenderer->drawCommandBuffers = 0;
 	vk2dErrorCheck(vkResetCommandPool(gRenderer->ld->dev, gRenderer->ld->pool[gRenderer->drawCommandPool], VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT));
+	vk2dDescConReset(gRenderer->descConPrim[gRenderer->scImageIndex]);
+	vk2dDescConReset(gRenderer->descConTex[gRenderer->scImageIndex]);
 }
 
 void vk2dRendererEndFrame() {
