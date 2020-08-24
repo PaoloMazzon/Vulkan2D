@@ -44,21 +44,6 @@ struct VK2DPipeline {
 /// (This may change in the future) .
 VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout setLayout, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa);
 
-/// \brief Begins a command buffer for a given pipeline
-/// \param pipe Pipeline to begin the buffer with
-/// \param framebuffer Framebuffer to be the render target
-/// \param buffer Buffer to begin (should be in initial state)
-/// \param blendConstants How to blend colours for RGBA, hence the 4 (See https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#framebuffer-blendfactors)
-/// \param viewports Vector of viewports to draw with
-/// \param viewportCount Amount of viewports to draw with
-/// \param lineWidth Width of wireframe lines (if wireframe is not enabled this value is not used)
-///
-/// This function is to begin recording a command buffer with all preliminary information already
-/// set up. Typically, you would create a command buffer, then call this function on it and once
-/// that is done, you are ready to record whatever draw commands you want without having to bind
-/// the pipeline/framebuffer/dynamic state/render pass.
-void vk2dPipelineBeginBuffer(VK2DPipeline pipe, VkFramebuffer framebuffer, VkCommandBuffer buffer, float blendConstants[4], VkViewport *viewports, uint32_t viewportCount, float lineWidth);
-
 /// \brief Frees a pipeline from memory
 /// \param pipe Pipeline to free
 void vk2dPipelineFree(VK2DPipeline pipe);

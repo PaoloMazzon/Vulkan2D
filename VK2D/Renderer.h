@@ -60,12 +60,14 @@ struct VK2DRenderer {
 	uint32_t surfaceHeight;                       ///< Height of the surface
 
 	// Swapchain
-	VkSwapchainKHR swapchain;         ///< Swapchain (manages images and presenting to screen)
-	VkImage *swapchainImages;         ///< Images of the swapchain
-	VkImageView *swapchainImageViews; ///< Image views for the swapchain images
-	uint32_t swapchainImageCount;     ///< Number of images in the swapchain
-	VkRenderPass renderPass;          ///< The render pass
-	VkFramebuffer *framebuffers;      ///< Framebuffers for the swapchain images
+	VkSwapchainKHR swapchain;              ///< Swapchain (manages images and presenting to screen)
+	VkImage *swapchainImages;              ///< Images of the swapchain
+	VkImageView *swapchainImageViews;      ///< Image views for the swapchain images
+	uint32_t swapchainImageCount;          ///< Number of images in the swapchain
+	VkRenderPass renderPass;               ///< The render pass
+	VkRenderPass midFrameSwapRenderPass;   ///< Render pass for mid-frame switching back to the swapchain as a target
+	VkRenderPass externalTargetRenderPass; ///< Render pass for rendering to textures
+	VkFramebuffer *framebuffers;           ///< Framebuffers for the swapchain images
 
 	// Depth stencil image things
 	bool dsiAvailable;  ///< Whether or not the depth stencil image is available

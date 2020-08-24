@@ -95,22 +95,6 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 	return pipe;
 }
 
-void vk2dPipelineBeginBuffer(VK2DPipeline pipe, VkFramebuffer framebuffer, VkCommandBuffer buffer, float blendConstants[4], VkViewport *viewports, uint32_t viewportCount, float lineWidth) {
-	// Create info and start recording
-	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0, VK_NULL_HANDLE);
-	VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(pipe->renderPass, framebuffer, pipe->rect, pipe->clearValue, 2);
-	if (vk2dErrorInline(vkBeginCommandBuffer(buffer, &beginInfo))) {
-		// Bind pipeline and render pass
-		vkCmdBeginRenderPass(buffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-		vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipe);
-
-		// Dynamic state
-		vkCmdSetViewport(buffer, 0, viewportCount, viewports);
-		vkCmdSetBlendConstants(buffer, blendConstants);
-		vkCmdSetLineWidth(buffer, lineWidth);
-	}
-}
-
 void vk2dPipelineFree(VK2DPipeline pipe) {
 	if (pipe != NULL) {
 		vkDestroyPipelineLayout(pipe->dev->dev, pipe->layout, VK_NULL_HANDLE);

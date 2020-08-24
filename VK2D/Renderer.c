@@ -2,6 +2,7 @@
 /// \author Paolo Mazzon
 #include <vulkan/vulkan.h>
 #include <SDL2/SDL_vulkan.h>
+#include "Vk2D/Texture.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/BuildOptions.h"
 #include "VK2D/Validation.h"
@@ -283,7 +284,7 @@ static void _vk2dRendererCreateRenderPass() {
 	attachments[0].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	attachments[1].format = gRenderer->surfaceFormat.format;
 	attachments[1].samples = (VkSampleCountFlagBits)gRenderer->config.msaa;
-	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	attachments[1].finalLayout = gRenderer->config.msaa > 1 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -334,11 +335,36 @@ static void _vk2dRendererCreateRenderPass() {
 	VkRenderPassCreateInfo renderPassCreateInfo = vk2dInitRenderPassCreateInfo(attachments, attachCount, subpasses, subpassCount, &subpassDependency, 1);
 	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->renderPass));
 
+	// Two more render passes for mid-frame render pass reset to swapchain and rendering to textures
+	if (gRenderer->config.msaa != 1) {
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[2].initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		attachments[2].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	} else {
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	}
+	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->midFrameSwapRenderPass));
+
+	if (gRenderer->config.msaa != 1) {
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[2].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[2].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	} else {
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	}
+	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->externalTargetRenderPass));
+
 	vk2dLogMessage("Render pass initialized...");
 }
 
 static void _vk2dRendererDestroyRenderPass() {
 	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->renderPass, VK_NULL_HANDLE);
+	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->externalTargetRenderPass, VK_NULL_HANDLE);
+	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->midFrameSwapRenderPass, VK_NULL_HANDLE);
 }
 
 static void _vk2dRendererCreateDescriptorSetLayout() {
@@ -764,6 +790,9 @@ void vk2dRendererStartFrame() {
 	vk2dLogicalDeviceResetPool(gRenderer->ld, gRenderer->drawCommandPool);
 	vk2dDescConReset(gRenderer->descConPrim[gRenderer->scImageIndex]);
 	vk2dDescConReset(gRenderer->descConTex[gRenderer->scImageIndex]);
+	gRenderer->targetFrameBuffer = gRenderer->framebuffers[gRenderer->scImageIndex];
+	gRenderer->targetRenderPass = gRenderer->renderPass;
+	gRenderer->targetSubPass = 0;
 
 	// Start the render pass
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0, VK_NULL_HANDLE);
@@ -774,19 +803,16 @@ void vk2dRendererStartFrame() {
 	VkRect2D rect = {};
 	rect.extent.width = gRenderer->surfaceWidth;
 	rect.extent.height = gRenderer->surfaceHeight;
-	VkClearValue clearValues[2] = {};
+	const uint32_t clearCount = 1;
+	VkClearValue clearValues[1] = {};
 	clearValues[0].depthStencil.depth = 1;
 	clearValues[0].depthStencil.stencil = 0;
-	clearValues[1].color.float32[0] = 0;
-	clearValues[1].color.float32[1] = 0;
-	clearValues[1].color.float32[2] = 0;
-	clearValues[1].color.float32[3] = 0;
 	VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
 			gRenderer->renderPass,
 			gRenderer->framebuffers[gRenderer->scImageIndex],
 			rect,
 			clearValues,
-			2);
+			clearCount);
 
 	vkCmdBeginRenderPass(gRenderer->primaryBuffer[gRenderer->drawCommandPool], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 }
@@ -830,7 +856,31 @@ VK2DLogicalDevice vk2dRendererGetDevice() {
 }
 
 void vk2dRendererSetTarget(VK2DTexture target) {
-	// TODO: This
+	if (target->fbo != gRenderer->targetFrameBuffer) {
+		// Figure out which render pass to use
+		VkRenderPass pass = target == VK2D_TARGET_SCREEN ? gRenderer->midFrameSwapRenderPass : gRenderer->externalTargetRenderPass;
+		VkFramebuffer framebuffer = target == VK2D_TARGET_SCREEN ? gRenderer->framebuffers[gRenderer->scImageIndex] : target->fbo;
+		gRenderer->targetRenderPass = pass;
+		gRenderer->targetFrameBuffer = framebuffer;
+
+		// Setup render pass
+		_vk2dRendererEndRenderPass();
+		VkRect2D rect = {};
+		rect.extent.width = gRenderer->surfaceWidth;
+		rect.extent.height = gRenderer->surfaceHeight;
+		const uint32_t clearCount = 1;
+		VkClearValue clearValues[1] = {};
+		clearValues[0].depthStencil.depth = 1;
+		clearValues[0].depthStencil.stencil = 0;
+		VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
+				pass,
+				framebuffer,
+				rect,
+				clearValues,
+				clearCount);
+
+		vkCmdBeginRenderPass(gRenderer->primaryBuffer[gRenderer->drawCommandPool], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+	}
 }
 
 void vk2dRendererDrawTex(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot) {
@@ -840,7 +890,7 @@ void vk2dRendererDrawTex(VK2DTexture tex, float x, float y, float xscale, float 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot) {
 	// TODO: This (properly)
 	// Necessary information
-	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->renderPass, 0, VK_NULL_HANDLE);
+	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
 	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], gTestUBO); // TODO: Remove test thing here
 	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
@@ -851,7 +901,7 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y,
 	viewport.height = gRenderer->surfaceHeight;
 	viewport.x = 0;
 	viewport.y = 0;
-	const float blendConstants[4] = {1.0, 1.0, 1.0, 1.0};
+	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
 
 	// Recording the command buffer
 	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
