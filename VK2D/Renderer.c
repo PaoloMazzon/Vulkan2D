@@ -61,7 +61,7 @@ static void _vk2dRendererCreateDemos() {
 	rotateMatrix(ubo.model, turnAxis, 0);
 
 	vec3 eyes = {0, 0, 2};
-	vec3 center = {0, 1, 0};
+	vec3 center = {0, 0, 0};
 	vec3 up = {0, 1, 0};
 	cameraMatrix(ubo.view, eyes, center, up);
 
@@ -631,8 +631,8 @@ static void _vk2dRendererResetSwapchain() {
 	vkDeviceWaitIdle(gRenderer->ld->dev);
 
 	// Free swapchain
-	_vk2dRendererDestroySampler();
 	_vk2dRendererDestroySynchronization();
+	_vk2dRendererDestroySampler();
 	_vk2dRendererDestroyDescriptorPool();
 	_vk2dRendererDestroyUniformBuffers();
 	_vk2dRendererDestroyFrameBuffer();
@@ -655,8 +655,8 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateFrameBuffer();
 	_vk2dRendererCreateUniformBuffers();
 	_vk2dRendererCreateDescriptorPool();
-	_vk2dRendererCreateSynchronization();
 	_vk2dRendererCreateSampler();
+	_vk2dRendererCreateSynchronization();
 }
 
 /******************************* User-visible functions *******************************/
@@ -720,8 +720,8 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		_vk2dRendererCreateFrameBuffer();
 		_vk2dRendererCreateUniformBuffers();
 		_vk2dRendererCreateDescriptorPool();
-		_vk2dRendererCreateSynchronization();
 		_vk2dRendererCreateSampler();
+		_vk2dRendererCreateSynchronization();
 
 		// Demos
 		_vk2dRendererCreateDemos();
@@ -740,8 +740,8 @@ void vk2dRendererQuit() {
 		_vk2dRendererDestroyDemos();
 
 		// Destroy subsystems
-		_vk2dRendererDestroySampler();
 		_vk2dRendererDestroySynchronization();
+		_vk2dRendererDestroySampler();
 		_vk2dRendererDestroyDescriptorPool();
 		_vk2dRendererDestroyUniformBuffers();
 		_vk2dRendererDestroyFrameBuffer();
