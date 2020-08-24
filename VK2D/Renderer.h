@@ -12,6 +12,29 @@ extern "C" {
 #endif
 
 /// \brief Core rendering data, don't modify values unless you know what you're doing
+///
+/// Drawing and drawing synchronization is kind of tricky, so an in-depth explanation
+/// is here for people looking to understand it and future me. At the start of each
+/// frame a few things happen
+///
+///  - Renderer selects a command pool to use for this frame and resets it (there are VK2D_DEVICE_COMMAND_POOLS command pools that are cycled through)
+///  - A primary command buffer is made from it and it starts a render pass, clearing the contents
+///
+/// After this, should you switch the render target, other things happen.
+///
+///  - All recorded secondary command buffers starting at `drawOffset` (in the `draws` variable) are executed in the render pass in the primary command buffer for the frame
+///  - The render pass is ended, a new one is started for the render target (screen uses the swapchain's framebuffers, textures have a framebuffer if they're a target)
+///  - `drawOffset` is updated to the current amount of secondary command buffers so the original ones are preserved and won't be executed twice in the future
+///
+/// That may happen any number of times in a frame. At the end of the frame, something similar happens:
+///
+///  - All recorded secondary command buffers starting at `drawOffset` are executed in the current render pass
+///  - `drawOffset` is not updated because it will not be needed again this frame
+///  - The screen is presented
+///
+/// Since the start of the frame starts a render pass in the screen's framebuffer and by the end of
+/// the frame that render pass is guaranteed to have ended, the image should always be in the proper
+/// KHR present source.
 struct VK2DRenderer {
 	// Devices/core functionality (these have short names because they're constantly referenced)
 	VK2DPhysicalDevice pd;       ///< Physical device (gpu)
@@ -72,10 +95,17 @@ struct VK2DRenderer {
 	VkFence *imagesInFlight;               ///< Individual images in flight
 
 	// Command buffers for drawing management
-	VkCommandBuffer *draws;      ///< List of command buffers for this frame's drawing - all secondary and will be executed by a primary in a render pass inside vk2dRendererEndFrame
-	uint32_t drawListSize;       ///< Total size of command buffer list (not necessarily all valid command buffers, to avoid constantly resizing list)
-	uint32_t drawCommandBuffers; ///< Amount of actual command buffers in the list
-	uint32_t drawCommandPool;    ///< Index of the logical device's command pool to pull from
+	VkCommandBuffer **draws;        ///< List of lists (1 list per command pool, current one being drawCommandPool), inner list being a list of secondary command buffers containing draw commands
+	uint32_t *drawListSize;         ///< Total size of command buffer list (All are valid command buffers, only drawCommandBuffers[i] are currently in use) (1 value per command pool)
+	uint32_t *drawCommandBuffers;   ///< Amount of actual command buffers in the list (1 value per command pool)
+	uint32_t drawCommandPool;       ///< Index of the logical device's command pool to pull from
+	uint32_t drawOffset;            ///< Offset of where to execute from in the command buffer when starting a new render pass (in case render target is switched)
+	VkCommandBuffer *primaryBuffer; ///< "Master" command buffer that does the render passes and executes the ones in `draws` (1 per command pool)
+
+	// Render targeting info
+	uint32_t targetSubPass;          ///< Current sub pass being rendered to
+	VkRenderPass targetRenderPass;   ///< Current render pass being rendered to
+	VkFramebuffer targetFrameBuffer; ///< Current framebuffer being rendered to
 
 	// One UBO per frame for testing
 	/* In the future this should be one view/projection matrix per frame
@@ -156,25 +186,28 @@ void vk2dRendererEndFrame();
 /// \return Returns the current logical device
 VK2DLogicalDevice vk2dRendererGetDevice();
 
+/// \brief Changes the render target to a texture or the screen
+/// \param target Target texture to switch to or VK2D_TARGET_SCREEN for the screen
+/// \warning This can be computationally expensive so don't take this simple function lightly (it ends then starts a render pass)
+void vk2dRendererSetTarget(VK2DTexture target);
+
 /// \brief Renders a texture
-/// \param target Target of the drawing (VK2D_TARGET_SCREEN for the screen)
 /// \param tex Texture to draw
 /// \param x x position in pixels from the top left of the window to draw it from
 /// \param y y position in pixels from the top left of the window to draw it from
 /// \param xscale Horizontal scale for drawing the texture (negative for flipped)
 /// \param yscale Vertical scale for drawing the texture (negative for flipped)
 /// \param rot Rotation to draw the texture (VK2D only uses radians)
-void vk2dRendererDrawTex(VK2DTexture target, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot);
+void vk2dRendererDrawTex(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot);
 
 /// \brief Renders a polygon
-/// \param target Target of the drawing (VK2D_TARGET_SCREEN for the screen)
 /// \param polygon Polygon to draw
 /// \param x x position in pixels from the top left of the window to draw it from
 /// \param y y position in pixels from the top left of the window to draw it from
 /// \param xscale Horizontal scale for drawing the polygon (negative for flipped)
 /// \param yscale Vertical scale for drawing the polygon (negative for flipped)
 /// \param rot Rotation to draw the polygon (VK2D only uses radians)
-void vk2dRendererDrawPolygon(VK2DTexture target, VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot);
+void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot);
 
 
 // TODO: Function for loading custom shaders

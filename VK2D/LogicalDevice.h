@@ -47,11 +47,25 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 /// \brief Frees a logical device from memory
 void vk2dLogicalDeviceFree(VK2DLogicalDevice dev);
 
+/// \brief Resets a command pool
+/// \param dev Device containing the pool
+/// \param pool Pool index to reset
+/// \warning Resetting a pool does not free its command buffers, it just puts them in the initial state
+void vk2dLogicalDeviceResetPool(VK2DLogicalDevice dev, uint32_t pool);
+
 /// \brief Gets a command buffer from a device
 /// \param dev Logical device to get the buffer from
 /// \param pool Pool in the device to get the buffer from
 /// \return Returns a VkCommandBuffer in the initial state (see Vulkan spec for more info on command buffer states)
 VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, uint32_t pool, bool primary);
+
+/// \brief Fills a list with new command buffers
+/// \param dev Device to get the buffers from
+/// \param pool Pool to get the buffers from
+/// \param primary Are they primary command buffers or not
+/// \param n Amount of command buffers to allocate
+/// \param list List to put them in (should be at least n * sizeof(VkCommandBuffer) in size)
+void vk2dLogicalDeviceGetCommandBuffers(VK2DLogicalDevice dev, uint32_t pool, bool primary, uint32_t n, VkCommandBuffer *list);
 
 /// \brief Frees a command buffer
 /// \param dev Logical device the buffer belongs to

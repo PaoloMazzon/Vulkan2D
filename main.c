@@ -39,7 +39,7 @@ int main(int argc, const char *argv[]) {
 				quit = true;
 
 		vk2dRendererStartFrame();
-		vk2dRendererDrawPolygon(VK2D_TARGET_SCREEN, testPoly, true, 0, 0, 1, 1, 0);
+		vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
 		vk2dRendererEndFrame();
 	}
 

@@ -52,12 +52,22 @@ void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
 	}
 }
 
+void vk2dLogicalDeviceResetPool(VK2DLogicalDevice dev, uint32_t pool) {
+	vk2dErrorCheck(vkResetCommandPool(dev->dev, dev->pool[pool], 0));
+}
+
 VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, uint32_t pool, bool primary) {
 	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool[pool], 1);
 	allocInfo.level = primary ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 	VkCommandBuffer buffer;
 	vk2dErrorCheck(vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer));
 	return buffer;
+}
+
+void vk2dLogicalDeviceGetCommandBuffers(VK2DLogicalDevice dev, uint32_t pool, bool primary, uint32_t n, VkCommandBuffer *list) {
+	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool[pool], n);
+	allocInfo.level = primary ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : VK_COMMAND_BUFFER_LEVEL_SECONDARY;
+	vk2dErrorCheck(vkAllocateCommandBuffers(dev->dev, &allocInfo, list));
 }
 
 void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer, uint32_t pool) {
