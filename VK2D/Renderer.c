@@ -66,7 +66,7 @@ static void _vk2dRendererCreateDemos() {
 	cameraMatrix(ubo.view, eyes, center, up);
 
 	orthographicMatrix(ubo.proj, 2, gRenderer->surfaceWidth / gRenderer->surfaceHeight, 0.1, 10);
-	gTestUBO = vk2dBufferLoad(sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, gRenderer->ld, &ubo);
+	gTestUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo);
 #endif //VK2D_ENABLE_DEBUG
 }
 
@@ -339,22 +339,28 @@ static void _vk2dRendererCreateRenderPass() {
 	if (gRenderer->config.msaa != 1) {
 		attachments[1].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[1].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachments[2].initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 		attachments[2].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		attachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	} else {
 		attachments[1].initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 		attachments[1].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	}
 	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->midFrameSwapRenderPass));
 
 	if (gRenderer->config.msaa != 1) {
 		attachments[1].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[1].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 		attachments[2].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[2].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	} else {
 		attachments[1].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[1].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	}
 	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->externalTargetRenderPass));
 
@@ -522,7 +528,7 @@ static void _vk2dRendererCreateUniformBuffers() {
 
 	if (vk2dPointerCheck(gRenderer->ubos) && vk2dPointerCheck(gRenderer->uboBuffers)) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++)
-			gRenderer->uboBuffers[i] = vk2dBufferCreate(sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, gRenderer->ld);
+			gRenderer->uboBuffers[i] = vk2dBufferCreate(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 	}
 	vk2dLogMessage("UBO initialized...");
 }
@@ -642,6 +648,8 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererDestroyColourResources();
 	_vk2dRendererDestroySwapchain();
 
+	vk2dLogMessage("Destroyed swapchain assets...");
+
 	// Swap out configs in case they were changed
 	gRenderer->config = gRenderer->newConfig;
 
@@ -657,6 +665,8 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateDescriptorPool();
 	_vk2dRendererCreateSampler();
 	_vk2dRendererCreateSynchronization();
+
+	vk2dLogMessage("Recreated swapchain assets...");
 }
 
 /******************************* User-visible functions *******************************/
@@ -902,8 +912,31 @@ void vk2dRendererClear(vec4 colour) {
 	// TODO: Clear the current render target's colour
 }
 
-void vk2dRendererDrawTex(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot) {
-	// TODO: This
+void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot) {
+	// Necessary information
+	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
+	VkDescriptorSet set = vk2dDescConGetSamplerBufferSet(gRenderer->descConTex[gRenderer->scImageIndex], tex, gTestUBO); // TODO: Remove test thing here
+	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
+	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
+	VkViewport viewport = {};
+	viewport.minDepth = 0;
+	viewport.minDepth = 1;
+	viewport.width = gRenderer->surfaceWidth;
+	viewport.height = gRenderer->surfaceHeight;
+	viewport.x = 0;
+	viewport.y = 0;
+	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
+
+	// Recording the command buffer
+	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
+	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->texPipe->pipe);
+	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->texPipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
+	VkDeviceSize offsets[] = {0};
+	vkCmdBindVertexBuffers(buf, 0, 1, &tex->bounds->vertices->buf, offsets);
+	vkCmdSetViewport(buf, 0, 1, &viewport);
+	vkCmdSetBlendConstants(buf, blendConstants);
+	vkCmdDraw(buf, tex->bounds->vertexCount, 1, 0, 0);
+	vk2dErrorCheck(vkEndCommandBuffer(buf));
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot) {

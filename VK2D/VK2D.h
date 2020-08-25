@@ -6,3 +6,4 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Polygon.h"
 #include "VK2D/Texture.h"
+#include "VK2D/Image.h"

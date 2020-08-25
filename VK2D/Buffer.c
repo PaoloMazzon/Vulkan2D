@@ -17,7 +17,7 @@ uint32_t _reVulkanBufferFindMemoryType(VkPhysicalDeviceMemoryProperties *memProp
 	return UINT32_MAX;
 }
 
-VK2DBuffer vk2dBufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags mem, VK2DLogicalDevice dev) {
+VK2DBuffer vk2dBufferCreate(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags mem) {
 	VK2DBuffer buf = malloc(sizeof(struct VK2DBuffer));
 
 	if (vk2dPointerCheck(buf)) {
@@ -37,12 +37,12 @@ VK2DBuffer vk2dBufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkMemor
 	return buf;
 }
 
-VK2DBuffer vk2dBufferLoad(VkDeviceSize size, VkBufferUsageFlags usage, VK2DLogicalDevice dev, void *data) {
+VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data) {
 	// Create staging buffer
-	VK2DBuffer stageBuffer = vk2dBufferCreate(size,
+	VK2DBuffer stageBuffer = vk2dBufferCreate(dev,
+			size,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			dev);
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	// Map data
 	void *location;
@@ -51,10 +51,10 @@ VK2DBuffer vk2dBufferLoad(VkDeviceSize size, VkBufferUsageFlags usage, VK2DLogic
 	vkUnmapMemory(dev->dev, stageBuffer->mem);
 
 	// Create the actual vbo
-	VK2DBuffer ret = vk2dBufferCreate(size,
+	VK2DBuffer ret = vk2dBufferCreate(dev,
+			size,
 			usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			dev);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 	vk2dBufferCopy(stageBuffer, ret);
 
 	vk2dBufferFree(stageBuffer);

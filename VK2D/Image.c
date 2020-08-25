@@ -8,6 +8,7 @@
 #include "VK2D/Buffer.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "VK2D/stb_image.h"
+#include "VK2D/Renderer.h"
 #include <malloc.h>
 
 // Internal functions
@@ -129,14 +130,14 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 	return out;
 }
 
-VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename, VkSampleCountFlagBits samples) {
+VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 	VK2DImage out;
 	VK2DBuffer stage;
 	int texWidth, texHeight, texChannels;
 	stbi_uc* pixels = stbi_load(filename, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-	stage = vk2dBufferCreate(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, dev);
+	stage = vk2dBufferCreate(dev, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	void* data;
 	vkMapMemory(dev->dev, stage->mem, 0, imageSize, 0, &data);
@@ -145,11 +146,12 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename, VkSampleCou
 
 	stbi_image_free(pixels);
 
-	out = vk2dImageCreate(dev, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT, samples);
+	out = vk2dImageCreate(dev, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
 
 	if (vk2dPointerCheck(out)) {
 		_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, texWidth, texHeight);
+		_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 
 	vk2dBufferFree(stage);

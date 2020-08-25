@@ -205,7 +205,7 @@ void vk2dRendererClear(vec4 colour);
 /// \param xscale Horizontal scale for drawing the texture (negative for flipped)
 /// \param yscale Vertical scale for drawing the texture (negative for flipped)
 /// \param rot Rotation to draw the texture (VK2D only uses radians)
-void vk2dRendererDrawTex(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot);
+void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot);
 
 /// \brief Renders a polygon
 /// \param polygon Polygon to draw

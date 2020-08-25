@@ -33,9 +33,9 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 /// \brief Loads an image from the disk (generates mipmaps)
 /// \param dev Device to get the memory from
 /// \param filename Filename of the image
-/// \param samples Sample count of the image
 /// \return Returns a new image or NULL if it failed
-VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename, VkSampleCountFlagBits samples);
+/// \warning Requires a renderer be initialized to work
+VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename);
 
 /// \brief Frees an image from memory
 /// \param img Image to free

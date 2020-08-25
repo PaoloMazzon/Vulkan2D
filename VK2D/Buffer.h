@@ -18,20 +18,20 @@ struct VK2DBuffer {
 };
 
 /// \brief Creates a new buffer with memory and all that ready
+/// \param dev Device to get the memory from (will use graphics indices)
 /// \param size Size in bytes of the new buffer
 /// \param usage How the buffer will be used
 /// \param mem Required memory properties (device local, host visible, etc...)
-/// \param dev Device to get the memory from (will use graphics indices)
 /// \return Returns the new buffer or NULL if it failed
-VK2DBuffer vk2dBufferCreate(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags mem, VK2DLogicalDevice dev);
+VK2DBuffer vk2dBufferCreate(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags mem);
 
 /// \brief Creates a buffer and loads some data into high-performance memory
+/// \param dev Device to get the memory from
 /// \param size Size in bytes of data
 /// \param usage Usage of the buffer
-/// \param dev Device to get the memory from
 /// \param data Data to put into high performance memory
 /// \return Returns a new buffer with the data loaded or NULL if it failed
-VK2DBuffer vk2dBufferLoad(VkDeviceSize size, VkBufferUsageFlags usage, VK2DLogicalDevice dev, void *data);
+VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data);
 
 /// \brief Copies the entire contents of src into dst
 /// \param src Buffer to copy from
