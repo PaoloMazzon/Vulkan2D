@@ -21,18 +21,18 @@ static void _vk2dDescConAppendList(VK2DDescCon descCon) {
 	}
 
 	VkDescriptorPoolSize sizes[2];
-	uint32_t sizeCount = (descCon->sampler != VK2D_NO_LOCATION ? 1 : 0) + (descCon->buffer != VK2D_NO_LOCATION ? 1 : 0);
 	uint32_t i = 0;
-	if (descCon->sampler != VK2D_NO_LOCATION) {
+	if (descCon->buffer != VK2D_NO_LOCATION) {
 		sizes[i].descriptorCount = VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION;
 		sizes[i].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		i++;
 	}
-	if (descCon->buffer != VK2D_NO_LOCATION) {
+	if (descCon->sampler != VK2D_NO_LOCATION) {
 		sizes[i].descriptorCount = VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION;
 		sizes[i].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		i++;
 	}
-	VkDescriptorPoolCreateInfo createInfo = vk2dInitDescriptorPoolCreateInfo(sizes, sizeCount, VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION);
+	VkDescriptorPoolCreateInfo createInfo = vk2dInitDescriptorPoolCreateInfo(sizes, i, VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION);
 	vk2dErrorCheck(vkCreateDescriptorPool(descCon->dev->dev, &createInfo, VK_NULL_HANDLE, &descCon->pools[descCon->poolsInUse]));
 	descCon->poolsInUse++;
 }
@@ -55,7 +55,7 @@ VkDescriptorSet _vk2dDescConGetAvailableSet(VK2DDescCon descCon) {
 		}
 
 		i++;
-		if (i == descCon->poolsInUse && res == VK_NULL_HANDLE)
+		if (i == descCon->poolsInUse && set == VK_NULL_HANDLE)
 			_vk2dDescConAppendList(descCon);
 	}
 

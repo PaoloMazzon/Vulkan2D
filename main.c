@@ -33,7 +33,7 @@ int main(int argc, const char *argv[]) {
 
 	// Load test assets
 	VK2DPolygon testPoly = vk2dPolygonShapeCreate(vk2dRendererGetDevice(), (void*)SAMPLE_TRIANGLE, VERTICES);
-	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
+	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/texture.jpg");
 	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
 
 	while (!quit) {
@@ -43,8 +43,8 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame();
 		vk2dRendererClear(clear);
-		vk2dRendererDrawTexture(testTexture, 0, 0, 1, 1, 1);
 		//vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
+		vk2dRendererDrawTexture(testTexture, 0, 0, 1, 1, 0);
 		vk2dRendererEndFrame();
 	}
 
