@@ -9,9 +9,9 @@ const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
 const VK2DVertexColour SAMPLE_TRIANGLE[] = {
-		{{+0.0, +0.5, +0.0}, {1.0, 1.0, 0.5, 1}},
-		{{-0.5, -0.5, +0.0}, {0.5, 1.0, 1.0, 1}},
-		{{+0.5, -0.5, +0.0}, {1.0, 0.5, 1.0, 1}}
+		{{+0.0, -0.5, +0.0}, {1.0, 1.0, 0.5, 1}},
+		{{-0.5, +0.5, +0.0}, {0.5, 1.0, 1.0, 1}},
+		{{+0.5, +0.5, +0.0}, {1.0, 0.5, 1.0, 1}}
 };
 const uint32_t VERTICES = 3;
 
@@ -34,7 +34,7 @@ int main(int argc, const char *argv[]) {
 	// Load test assets
 	VK2DPolygon testPoly = vk2dPolygonShapeCreate(vk2dRendererGetDevice(), (void*)SAMPLE_TRIANGLE, VERTICES);
 	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/texture.jpg");
-	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
+	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 512, 512);
 
 	while (!quit) {
 		while (SDL_PollEvent(&e))

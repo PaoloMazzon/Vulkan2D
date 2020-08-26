@@ -62,7 +62,7 @@ static void _vk2dRendererCreateDemos() {
 
 	vec3 eyes = {0, 0, 2};
 	vec3 center = {0, 0, 0};
-	vec3 up = {0, 1, 0};
+	vec3 up = {0, -1, 0};
 	cameraMatrix(ubo.view, eyes, center, up);
 
 	orthographicMatrix(ubo.proj, 2, gRenderer->surfaceWidth / gRenderer->surfaceHeight, 0.1, 10);
