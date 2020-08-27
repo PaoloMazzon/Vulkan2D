@@ -43,8 +43,8 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame();
 		vk2dRendererClear(clear);
-		vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
-		//vk2dRendererDrawTexture(testTexture, 0, 0, 1, 1, 0);
+		//vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
+		vk2dRendererDrawTexture(testTexture, 0, 0, 1, 1, 0);
 		vk2dRendererEndFrame();
 	}
 

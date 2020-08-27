@@ -54,7 +54,7 @@ static const int EXTENSION_COUNT = 0;
 void _vk2dPrintUBO(FILE* out, VK2DUniformBufferObject ubo);
 static void _vk2dRendererCreateDemos() {
 #ifdef VK2D_ENABLE_DEBUG
-	VK2DUniformBufferObject ubo;
+	VK2DUniformBufferObject ubo = {};
 	identityMatrix(ubo.model);
 
 	vec3 turnAxis = {0, 0, 1};
@@ -65,7 +65,7 @@ static void _vk2dRendererCreateDemos() {
 	vec3 up = {0, -1, 0};
 	cameraMatrix(ubo.view, eyes, center, up);
 
-	orthographicMatrix(ubo.proj, 2, gRenderer->surfaceWidth / gRenderer->surfaceHeight, 0.1, 10);
+	orthographicMatrix(ubo.proj, 2, (float)gRenderer->surfaceWidth / (float)gRenderer->surfaceHeight, 0.1, 10);
 	gTestUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo);
 #endif //VK2D_ENABLE_DEBUG
 }
