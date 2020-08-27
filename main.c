@@ -10,8 +10,8 @@ const int WINDOW_HEIGHT = 600;
 
 const VK2DVertexColour SAMPLE_TRIANGLE[] = {
 		{{+0.0, -0.5, +0.0}, {1.0, 1.0, 0.5, 1}},
-		{{-0.5, +0.5, +0.0}, {0.5, 1.0, 1.0, 1}},
-		{{+0.5, +0.5, +0.0}, {1.0, 0.5, 1.0, 1}}
+		{{+0.5, +0.5, +0.0}, {1.0, 0.5, 1.0, 1}},
+		{{-0.5, +0.5, +0.0}, {0.5, 1.0, 1.0, 1}}
 };
 const uint32_t VERTICES = 3;
 
@@ -43,8 +43,8 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame();
 		vk2dRendererClear(clear);
-		//vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
-		vk2dRendererDrawTexture(testTexture, 0, 0, 1, 1, 0);
+		vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
+		//vk2dRendererDrawTexture(testTexture, 0, 0, 1, 1, 0);
 		vk2dRendererEndFrame();
 	}
 

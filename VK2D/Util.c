@@ -2,10 +2,12 @@
 /// \author Paolo Mazzon
 /// \brief These are "hidden" functions to make certain things simpler
 #include <vulkan/vulkan.h>
+#include <stdio.h>
+#include <math.h>
 #include "VK2D/Initializers.h"
 #include "VK2D/Structs.h"
 
-// Gets the vertex input information for VK2DVertexTexture
+// Gets the vertex input information for VK2DVertexTexture (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState() {
 	static VkVertexInputBindingDescription vertexInputBindingDescription;
 	static VkVertexInputAttributeDescription vertexInputAttributeDescription[3];
@@ -24,6 +26,7 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState() {
 	return pipelineVertexInputStateCreateInfo;
 }
 
+// Gets the vertex input information for VK2DVertexColour (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState() {
 	static VkVertexInputBindingDescription vertexInputBindingDescription;
 	static VkVertexInputAttributeDescription vertexInputAttributeDescription[2];
@@ -41,3 +44,21 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState() {
 	return pipelineVertexInputStateCreateInfo;
 }
 
+// Prints a matrix
+void _vk2dPrintMatrix(FILE* out, mat4 m, const char* prefix) {
+	fprintf(out, "%s[ %f %f %f %f ]\n", prefix, m[0], m[4], m[8],  m[12]);
+	fprintf(out, "%s[ %f %f %f %f ]\n", prefix, m[1], m[5], m[9],  m[13]);
+	fprintf(out, "%s[ %f %f %f %f ]\n", prefix, m[2], m[6], m[10], m[14]);
+	fprintf(out, "%s[ %f %f %f %f ]\n", prefix, m[3], m[7], m[11], m[15]);
+}
+
+// Prints a UBO all fancy like
+void _vk2dPrintUBO(FILE* out, VK2DUniformBufferObject ubo) {
+	fprintf(out, "Model:\n");
+	_vk2dPrintMatrix(out, ubo.model, "    ");
+	fprintf(out, "View:\n");
+	_vk2dPrintMatrix(out, ubo.view, "    ");
+	fprintf(out, "Projection:\n");
+	_vk2dPrintMatrix(out, ubo.proj, "    ");
+	fflush(out);
+}

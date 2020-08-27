@@ -51,7 +51,7 @@ static const int EXTENSION_COUNT = 0;
 #endif // VK2D_ENABLE_DEBUG
 
 /******************************* Internal functions *******************************/
-
+void _vk2dPrintUBO(FILE* out, VK2DUniformBufferObject ubo);
 static void _vk2dRendererCreateDemos() {
 #ifdef VK2D_ENABLE_DEBUG
 	VK2DUniformBufferObject ubo;
