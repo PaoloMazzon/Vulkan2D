@@ -24,7 +24,7 @@ int main(int argc, const char *argv[]) {
 		return -1;
 
 	// For testing purposes, we just try to get the renderer to use the best possible settings
-	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Linear};
+	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Nearest};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	int32_t error = vk2dRendererInit(window, config);
 
@@ -33,8 +33,8 @@ int main(int argc, const char *argv[]) {
 
 	// Load test assets
 	VK2DPolygon testPoly = vk2dPolygonShapeCreate(vk2dRendererGetDevice(), (void*)SAMPLE_TRIANGLE, VERTICES);
-	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/texture.jpg");
-	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 512, 512);
+	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
+	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
 
 	while (!quit) {
 		while (SDL_PollEvent(&e))

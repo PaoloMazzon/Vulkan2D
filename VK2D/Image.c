@@ -134,15 +134,15 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 	VK2DImage out;
 	VK2DBuffer stage;
 	int texWidth, texHeight, texChannels;
-	stbi_uc* pixels = stbi_load(filename, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	unsigned char* pixels = stbi_load(filename, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-	stage = vk2dBufferLoad(dev, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, pixels);//VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	stage = vk2dBufferCreate(dev, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-	/*void* data;
+	void* data;
 	vkMapMemory(dev->dev, stage->mem, 0, imageSize, 0, &data);
 	memcpy(data, pixels, imageSize);
-	vkUnmapMemory(dev->dev, stage->mem);*/
+	vkUnmapMemory(dev->dev, stage->mem);
 
 	stbi_image_free(pixels);
 

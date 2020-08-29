@@ -447,7 +447,7 @@ VkSamplerCreateInfo vk2dInitSamplerCreateInfo(VkBool32 linearFilter, float aniso
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 	samplerCreateInfo.compareEnable = VK_FALSE;
 	samplerCreateInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerCreateInfo.mipmapMode = linearFilter ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
 	samplerCreateInfo.mipLodBias = 0;
 	samplerCreateInfo.minLod = 0;
 	samplerCreateInfo.maxLod = mipLevels;
