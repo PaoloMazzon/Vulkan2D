@@ -3,11 +3,21 @@
 
 layout(binding = 1) uniform sampler2D texSampler;
 
+layout(push_constant) uniform PushBuffer {
+    mat4 model;
+    vec4 colourMod;
+} pushBuffer;
+
 layout(location = 0) in vec4 fragColor;
 layout(location = 1) in vec2 fragTexCoord;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    outColor = texture(texSampler, fragTexCoord);
+    vec4 colour = texture(texSampler, fragTexCoord);
+    outColor = vec4(
+            colour.r  * pushBuffer.colourMod.r,
+            colour.g  * pushBuffer.colourMod.g,
+            colour.b  * pushBuffer.colourMod.b,
+            colour.a  * pushBuffer.colourMod.a);
 }

@@ -27,9 +27,6 @@ PFN_vkDestroyDebugReportCallbackEXT fvkDestroyDebugReportCallbackEXT;
 // For everything
 VK2DRenderer gRenderer = NULL;
 
-// For testing purposes
-VK2DBuffer gTestUBO = NULL;
-
 #ifdef VK2D_ENABLE_DEBUG
 static const char* EXTENSIONS[] = {
 		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
@@ -51,29 +48,13 @@ static const int EXTENSION_COUNT = 0;
 #endif // VK2D_ENABLE_DEBUG
 
 /******************************* Internal functions *******************************/
-void _vk2dPrintUBO(FILE* out, VK2DUniformBufferObject ubo);
-static void _vk2dRendererCreateDemos() {
-#ifdef VK2D_ENABLE_DEBUG
-	VK2DUniformBufferObject ubo = {};
-	identityMatrix(ubo.model);
 
-	vec3 turnAxis = {0, 0, 1};
-	rotateMatrix(ubo.model, turnAxis, 0);
-
-	vec3 eyes = {0, 0, 2};
-	vec3 center = {0, 0, 0};
-	vec3 up = {0, -1, 0};
-	cameraMatrix(ubo.view, eyes, center, up);
-
-	orthographicMatrix(ubo.proj, 2, (float)gRenderer->surfaceWidth / (float)gRenderer->surfaceHeight, 0.1, 10);
-	gTestUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo);
-#endif //VK2D_ENABLE_DEBUG
-}
-
-static void _vk2dRendererDestroyDemos() {
-#ifdef VK2D_ENABLE_DEBUG
-	vk2dBufferFree(gTestUBO);
-#endif //VK2D_ENABLE_DEBUG
+// Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
+static void _vk2dRendererFlushUBOBuffer(uint32_t frame) {
+	void *data;
+	vkMapMemory(gRenderer->ld->dev, gRenderer->uboBuffers[frame]->mem, 0, sizeof(VK2DUniformBufferObject), 0, &data);
+	memcpy(data, &gRenderer->ubos[frame], sizeof(VK2DUniformBufferObject));
+	vkUnmapMemory(gRenderer->ld->dev, gRenderer->uboBuffers[frame]->mem);
 }
 
 static VkCommandBuffer _vk2dRendererGetNextCommandBuffer() {
@@ -527,8 +508,18 @@ static void _vk2dRendererCreateUniformBuffers() {
 	uint32_t i;
 
 	if (vk2dPointerCheck(gRenderer->ubos) && vk2dPointerCheck(gRenderer->uboBuffers)) {
-		for (i = 0; i < gRenderer->swapchainImageCount; i++)
+		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			gRenderer->uboBuffers[i] = vk2dBufferCreate(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+			// Assemble a default buffer
+			vec3 eyes = {0, 0, 2};
+			vec3 center = {0, 0, 0};
+			vec3 up = {0, -1, 0};
+			cameraMatrix(gRenderer->ubos[i].view, eyes, center, up);
+			orthographicMatrix(gRenderer->ubos[i].proj, 2, (float)gRenderer->surfaceWidth / (float)gRenderer->surfaceHeight, 0.1, 10);
+
+			_vk2dRendererFlushUBOBuffer(i);
+		}
 	}
 	vk2dLogMessage("UBO initialized...");
 }
@@ -733,8 +724,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		_vk2dRendererCreateSampler();
 		_vk2dRendererCreateSynchronization();
 
-		// Demos
-		_vk2dRendererCreateDemos();
+		vk2dRendererSetColourMod((void*)VK2D_DEFAULT_COLOUR_MOD);
 	} else {
 		errorCode = -1;
 	}
@@ -745,9 +735,6 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 void vk2dRendererQuit() {
 	if (gRenderer != NULL) {
 		vkQueueWaitIdle(gRenderer->ld->queue);
-
-		// Demos
-		_vk2dRendererDestroyDemos();
 
 		// Destroy subsystems
 		_vk2dRendererDestroySynchronization();
@@ -797,6 +784,8 @@ void vk2dRendererSetConfig(VK2DRendererConfig config) {
 }
 
 void vk2dRendererStartFrame() {
+	/*********** Get image and synchronization ***********/
+
 	// Wait for previous rendering to be finished
 	vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -808,16 +797,24 @@ void vk2dRendererStartFrame() {
 	}
 	gRenderer->imagesInFlight[gRenderer->scImageIndex] = gRenderer->inFlightFences[gRenderer->currentFrame];
 
-	// Get the command pool and desc con ready
+	/*********** Start-of-frame tasks ***********/
+	// Reset command pool
 	gRenderer->drawCommandPool = (gRenderer->drawCommandPool + 1) % VK2D_DEVICE_COMMAND_POOLS;
 	gRenderer->drawCommandBuffers[gRenderer->drawCommandPool] = 0;
 	gRenderer->drawOffset = 0;
 	vk2dLogicalDeviceResetPool(gRenderer->ld, gRenderer->drawCommandPool);
+
+	// Reset descriptor controllers
 	vk2dDescConReset(gRenderer->descConPrim[gRenderer->scImageIndex]);
 	vk2dDescConReset(gRenderer->descConTex[gRenderer->scImageIndex]);
+
+	// Reset current render targets
 	gRenderer->targetFrameBuffer = gRenderer->framebuffers[gRenderer->scImageIndex];
 	gRenderer->targetRenderPass = gRenderer->renderPass;
 	gRenderer->targetSubPass = 0;
+
+	// Flush the current ubo into its buffer for the frame
+	_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex);
 
 	// Start the render pass
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0, VK_NULL_HANDLE);
@@ -908,11 +905,26 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 	}
 }
 
+void vk2dRendererSetColourMod(vec4 mod) {
+	gRenderer->colourBlend[0] = mod[0];
+	gRenderer->colourBlend[1] = mod[1];
+	gRenderer->colourBlend[2] = mod[2];
+	gRenderer->colourBlend[3] = mod[3];
+}
+
+void vk2dRendererGetColourMod(vec4 dst) {
+	dst[0] = gRenderer->colourBlend[0];
+	dst[1] = gRenderer->colourBlend[1];
+	dst[2] = gRenderer->colourBlend[2];
+	dst[3] = gRenderer->colourBlend[3];
+}
+
 void vk2dRendererClear(vec4 colour) {
 	// TODO: Clear the current render target's colour
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot) {
+	/*
 	// Necessary information
 	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
 	VkDescriptorSet set = vk2dDescConGetSamplerBufferSet(gRenderer->descConTex[gRenderer->scImageIndex], tex, gTestUBO); // TODO: Remove test thing here
@@ -937,15 +949,19 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 	vkCmdSetBlendConstants(buf, blendConstants);
 	vkCmdDraw(buf, tex->bounds->vertexCount, 1, 0, 0);
 	vk2dErrorCheck(vkEndCommandBuffer(buf));
+	 */ // TODO: Rewrite of this with new push constants and all that jazz
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot) {
-	// TODO: This (properly)
-	// Necessary information
+	// Command buffer nonsense
 	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
-	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], gTestUBO); // TODO: Remove test thing here
 	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
+
+	// Descriptor set
+	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], gRenderer->uboBuffers[gRenderer->scImageIndex]);
+
+	// Dynamic state
 	VkViewport viewport = {};
 	viewport.minDepth = 0;
 	viewport.minDepth = 1;
@@ -955,14 +971,30 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y,
 	viewport.y = 0;
 	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
 
+	// Push constants
+	VK2DPushBuffer push = {};
+	identityMatrix(push.model);
+	vec3 axis = {1, 1, 0};
+	vec3 translation = {x, y};
+	vec3 scale = {xscale, yscale, 1};
+	rotateMatrix(push.model, axis, rot);
+	translateMatrix(push.model, translation);
+	scaleMatrix(push.model, scale);
+	push.colourMod[0] = gRenderer->colourBlend[0];
+	push.colourMod[1] = gRenderer->colourBlend[1];
+	push.colourMod[2] = gRenderer->colourBlend[2];
+	push.colourMod[3] = gRenderer->colourBlend[3];
+
 	// Recording the command buffer
+	VK2DPipeline currentPipe = filled ? gRenderer->primFillPipe : gRenderer->primLinePipe;
 	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
-	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, filled ? gRenderer->primFillPipe->pipe : gRenderer->primLinePipe->pipe);
-	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, filled ? gRenderer->primFillPipe->layout : gRenderer->primLinePipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
+	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipe->pipe);
+	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
 	VkDeviceSize offsets[] = {0};
 	vkCmdBindVertexBuffers(buf, 0, 1, &polygon->vertices->buf, offsets);
 	vkCmdSetViewport(buf, 0, 1, &viewport);
 	vkCmdSetBlendConstants(buf, blendConstants);
+	vkCmdPushConstants(buf, currentPipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
 	vkCmdDraw(buf, polygon->vertexCount, 1, 0, 0);
 	vk2dErrorCheck(vkEndCommandBuffer(buf));
 }

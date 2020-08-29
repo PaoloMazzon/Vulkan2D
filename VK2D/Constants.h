@@ -28,6 +28,9 @@ extern const uint32_t VK2D_NO_LOCATION;
 /// Draw to the screen and not a texture
 extern const VK2DTexture VK2D_TARGET_SCREEN;
 
+/// Colour mod when the renderer first initializes
+extern const vec4 VK2D_DEFAULT_COLOUR_MOD;
+
 /// Number of command pools a device has to cycle through - You generally want this and VK2D_MAX_FRAMES_IN_FLIGHT to be the same
 #define VK2D_DEVICE_COMMAND_POOLS ((uint32_t)3)
 

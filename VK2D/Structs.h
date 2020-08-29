@@ -61,12 +61,17 @@ typedef struct {
 	vec4 colour; ///< Colour of this vertex
 } VK2DVertexColour;
 
-/// \brief The MVP buffer
+/// \brief The VP buffer
 typedef struct {
-	mat4 model; ///< Model matrix
 	mat4 view;  ///< View matrix
 	mat4 proj;  ///< Projection matrix
 } VK2DUniformBufferObject;
+
+/// \brief Buffer passed per-model via push constants
+typedef struct {
+	mat4 model;
+	vec4 colourMod;
+} VK2DPushBuffer;
 
 /// \brief Describes what kind of vertices are in use
 typedef enum {

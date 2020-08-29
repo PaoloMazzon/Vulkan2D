@@ -340,11 +340,13 @@ VkPipelineDynamicStateCreateInfo vk2dInitPipelineDynamicStateCreateInfo(VkDynami
 	return pipelineDynamicStateCreateInfo;
 }
 
-VkPipelineLayoutCreateInfo vk2dInitPipelineLayoutCreateInfo(VkDescriptorSetLayout *layouts, uint32_t layoutCount) {
+VkPipelineLayoutCreateInfo vk2dInitPipelineLayoutCreateInfo(VkDescriptorSetLayout *layouts, uint32_t layoutCount, uint32_t pushConstantCount, VkPushConstantRange *pushConstants) {
 	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
 	pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutCreateInfo.pSetLayouts = layouts;
 	pipelineLayoutCreateInfo.setLayoutCount = layoutCount;
+	pipelineLayoutCreateInfo.pushConstantRangeCount = pushConstantCount;
+	pipelineLayoutCreateInfo.pPushConstantRanges = pushConstants;
 	return pipelineLayoutCreateInfo;
 }
 

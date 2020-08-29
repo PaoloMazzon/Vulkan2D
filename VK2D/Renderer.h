@@ -42,13 +42,15 @@ struct VK2DRenderer {
 	VkInstance vk;               ///< Core vulkan instance
 	VkDebugReportCallbackEXT dr; ///< Debug information
 
-	// Configurable options
-	VK2DRendererConfig config;    ///< User config
-	VK2DRendererConfig newConfig; ///< In the event that its updated, we only swap out when we're ready to reset the swapchain
-	bool resetSwapchain;          ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
-	VK2DImage msaaImage;          ///< In case MSAA is enabled
-	vec4 colourBlend;             ///< For future use, will be used in all shaders via push constants to blend colours with another one (for on-the-fly changing of transparency/colour)
-	VkSampler textureSampler;     ///< Needed for textures
+	// User-end things
+	VK2DRendererConfig config;     ///< User config
+	VK2DRendererConfig newConfig;  ///< In the event that its updated, we only swap out when we're ready to reset the swapchain
+	bool resetSwapchain;           ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
+	VK2DImage msaaImage;           ///< In case MSAA is enabled
+	vec4 colourBlend;              ///< Used to modify colours (and transparency) of anything drawn. Passed via push constants.
+	VkSampler textureSampler;      ///< Needed for textures
+	VK2DUniformBufferObject *ubos; ///< UBOs in memory that will be applied to their respective buffer at the start of the frame
+	VK2DBuffer *uboBuffers;        ///< Buffers in memory for the UBOs (1 per swapchain image, updated at start of frame)
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -109,12 +111,6 @@ struct VK2DRenderer {
 	uint32_t targetSubPass;          ///< Current sub pass being rendered to
 	VkRenderPass targetRenderPass;   ///< Current render pass being rendered to
 	VkFramebuffer targetFrameBuffer; ///< Current framebuffer being rendered to
-
-	// One UBO per frame for testing
-	/* In the future this should be one view/projection matrix per frame
-	 * and one model matrix per instance, all of which set via push constants */
-	VK2DUniformBufferObject *ubos; ///< One ubo per swapchain image
-	VK2DBuffer *uboBuffers;        ///< Buffers in memory for the UBOs
 };
 
 /// \brief Initializes VK2D's renderer
@@ -194,8 +190,20 @@ VK2DLogicalDevice vk2dRendererGetDevice();
 /// \warning This can be computationally expensive so don't take this simple function lightly (it ends then starts a render pass)
 void vk2dRendererSetTarget(VK2DTexture target);
 
+/// \brief Sets the current colour modifier (Colour all pixels are blended with)
+/// \param mod Colour mod to make current
+void vk2dRendererSetColourMod(vec4 mod);
+
+/// \brief Gets the current colour modifier
+/// \param dst Destination vector to place the current colour mod into
+///
+/// The vec4 is treated as an RGBA array
+void vk2dRendererGetColourMod(vec4 dst);
+
 /// \brief Clears the current render target to a specified colour
 /// \param colour Colour to clear with
+///
+/// The vec4 is treated as an RGBA array
 void vk2dRendererClear(vec4 colour);
 
 /// \brief Renders a texture
@@ -218,3 +226,4 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y,
 
 
 // TODO: Function for loading custom shaders
+// TODO: Function for setting the view/projection matrix in a nice high-level way
