@@ -69,10 +69,9 @@ and build it with your project. It requires SDL2 and Vulkan to build.
 TODO
 ====
 
- + Implement textures
  + Move model matrix to push constants, leave view and proj in a universal buffer
  + Have global RGBA modifier via push constants
- + Add render to textures
+ + Implement render to textures
  + Let the polygon loader triangulate polygons on load
 
 Warning

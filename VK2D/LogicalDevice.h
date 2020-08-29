@@ -30,7 +30,6 @@ struct VK2DLogicalDevice {
 ///  - wideLines
 ///  - fillModeNonSolid
 ///  - samplerAnisotropy
-///  - logicOp
 ///  - shaderStorageImageMultisample
 ///
 /// samplerAnisotropy is for nice looking edges when it is so desired, and the others

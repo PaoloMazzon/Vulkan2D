@@ -325,8 +325,8 @@ VkPipelineDepthStencilStateCreateInfo vk2dInitPipelineDepthStencilStateCreateInf
 VkPipelineColorBlendStateCreateInfo vk2dInitPipelineColorBlendStateCreateInfo(VkPipelineColorBlendAttachmentState *attachments, uint32_t attachmentCount) {
 	VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo = {};
 	pipelineColorBlendStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	pipelineColorBlendStateCreateInfo.logicOpEnable = VK_TRUE;
-	pipelineColorBlendStateCreateInfo.logicOp = VK_LOGIC_OP_COPY;
+	pipelineColorBlendStateCreateInfo.logicOpEnable = VK_FALSE;//VK_TRUE;
+	pipelineColorBlendStateCreateInfo.logicOp = VK_LOGIC_OP_CLEAR;
 	pipelineColorBlendStateCreateInfo.attachmentCount = attachmentCount;
 	pipelineColorBlendStateCreateInfo.pAttachments = attachments;
 	return pipelineColorBlendStateCreateInfo;
@@ -450,7 +450,7 @@ VkSamplerCreateInfo vk2dInitSamplerCreateInfo(VkBool32 linearFilter, float aniso
 	samplerCreateInfo.mipmapMode = linearFilter ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
 	samplerCreateInfo.mipLodBias = 0;
 	samplerCreateInfo.minLod = 0;
-	samplerCreateInfo.maxLod = mipLevels;
+	samplerCreateInfo.maxLod = 1;
 	return samplerCreateInfo;
 }
 

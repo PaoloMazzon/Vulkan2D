@@ -20,7 +20,6 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 			feats.wideLines = VK_TRUE;
 			feats.fillModeNonSolid = VK_TRUE;
 			feats.samplerAnisotropy = VK_TRUE;
-			feats.logicOp = VK_TRUE;
 			feats.shaderStorageImageMultisample = VK_TRUE;
 		}
 

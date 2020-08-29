@@ -53,7 +53,6 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DPolygon poly = vk2dPolygonTextureCreate(image->dev, baseTex, baseTexVertexCount);
-	//VK2DPolygon poly = vk2dPolygonTextureCreate(image->dev, (void*)immutableFull, baseTexVertexCount);
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 
 	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
