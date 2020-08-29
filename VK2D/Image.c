@@ -137,25 +137,31 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 	unsigned char* pixels = stbi_load(filename, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-	stage = vk2dBufferCreate(dev, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	if (vk2dPointerCheck(pixels)) {
+		stage = vk2dBufferCreate(dev, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+								 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-	void* data;
-	vkMapMemory(dev->dev, stage->mem, 0, imageSize, 0, &data);
-	memcpy(data, pixels, imageSize);
-	vkUnmapMemory(dev->dev, stage->mem);
+		void *data;
+		vkMapMemory(dev->dev, stage->mem, 0, imageSize, 0, &data);
+		memcpy(data, pixels, imageSize);
+		vkUnmapMemory(dev->dev, stage->mem);
 
-	stbi_image_free(pixels);
+		stbi_image_free(pixels);
 
-	out = vk2dImageCreate(dev, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
+		out = vk2dImageCreate(dev, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
+							  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
 
 
-	if (vk2dPointerCheck(out)) {
-		_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, texWidth, texHeight);
-		_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		if (vk2dPointerCheck(out)) {
+			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
+											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, texWidth, texHeight);
+			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		}
+
+		vk2dBufferFree(stage);
 	}
-
-	vk2dBufferFree(stage);
 
 	return out;
 }
