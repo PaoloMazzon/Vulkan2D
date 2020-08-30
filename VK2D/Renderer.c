@@ -1005,7 +1005,7 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 	vk2dErrorCheck(vkEndCommandBuffer(buf));
 }
 
-void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot) {
+void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot) {
 	// Command buffer nonsense
 	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
 	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
@@ -1045,6 +1045,8 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y,
 	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
 	VkDeviceSize offsets[] = {0};
 	vkCmdBindVertexBuffers(buf, 0, 1, &polygon->vertices->buf, offsets);
+	if (!filled)
+		vkCmdSetLineWidth(buf, lineWidth);
 	vkCmdSetViewport(buf, 0, 1, &viewport);
 	vkCmdSetBlendConstants(buf, blendConstants);
 	vkCmdPushConstants(buf, currentPipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);

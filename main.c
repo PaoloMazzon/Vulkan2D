@@ -53,7 +53,7 @@ int main(int argc, const char *argv[]) {
 		yScale = sin(scaleRot) * 0.25;
 
 		vk2dRendererStartFrame(clear);
-		vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
+		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dRendererDrawTexture(testTexture, 0, 0, 1 + xScale, 1 + yScale, rot);
 		vk2dRendererEndFrame();
 	}

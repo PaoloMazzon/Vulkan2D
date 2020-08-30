@@ -221,11 +221,21 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 /// \param polygon Polygon to draw
 /// \param x x position in pixels from the top left of the window to draw it from
 /// \param y y position in pixels from the top left of the window to draw it from
+/// \param filled Whether or not to draw the polygon filled
+/// \param lineWidth Width of the lines to draw if the polygon is not failed
 /// \param xscale Horizontal scale for drawing the polygon (negative for flipped)
 /// \param yscale Vertical scale for drawing the polygon (negative for flipped)
 /// \param rot Rotation to draw the polygon (VK2D only uses radians)
-void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot);
+void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot);
 
+/// \brief Draws a texture (x and y should be floats)
+#define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0)
+
+/// \brief Draws a polygon's outline (x, y, and width should be floats)
+#define vk2dDrawPolygonOutline(polygon, x, y, width) vk2dRendererDrawPolygon(polygon, x, y, false, width, 1, 1, 0)
+
+/// \brief Draws a polygon (x and y should be floats)
+#define vk2dDrawPolygon(polygon, x, y) vk2dRendererDrawPolygon(polygon, x, y, true, 0, 1, 1, 0)
 
 // TODO: Function for loading custom shaders
 // TODO: Function for setting the view/projection matrix in a nice high-level way
