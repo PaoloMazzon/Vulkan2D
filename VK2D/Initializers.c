@@ -313,7 +313,7 @@ VkPipelineDepthStencilStateCreateInfo vk2dInitPipelineDepthStencilStateCreateInf
 	VkPipelineDepthStencilStateCreateInfo pipelineDepthStencilStateCreateInfo = {};
 	pipelineDepthStencilStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	pipelineDepthStencilStateCreateInfo.stencilTestEnable = VK_FALSE;
-	pipelineDepthStencilStateCreateInfo.depthTestEnable = VK_TRUE;
+	pipelineDepthStencilStateCreateInfo.depthTestEnable = VK_FALSE;
 	pipelineDepthStencilStateCreateInfo.depthWriteEnable = VK_TRUE;
 	pipelineDepthStencilStateCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
 	pipelineDepthStencilStateCreateInfo.depthBoundsTestEnable = VK_FALSE;
