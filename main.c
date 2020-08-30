@@ -43,11 +43,26 @@ int main(int argc, const char *argv[]) {
 	float scaleRot = 0;
 	float xScale = 0;
 	float yScale = 0;
+	float camSpeed = 5;
 
 	while (!quit) {
-		while (SDL_PollEvent(&e))
-			if (e.type == SDL_QUIT)
+		while (SDL_PollEvent(&e)) {
+			if (e.type == SDL_QUIT) {
 				quit = true;
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_D) {
+				cam.x += camSpeed;
+				vk2dRendererSetCamera(cam);
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_A) {
+				cam.x -= camSpeed;
+				vk2dRendererSetCamera(cam);
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_S) {
+				cam.y += camSpeed;
+				vk2dRendererSetCamera(cam);
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_W) {
+				cam.y -= camSpeed;
+				vk2dRendererSetCamera(cam);
+			}
+		}
 
 		// Fancy tweening
 		rot += (VK2D_PI * 2) / 120;

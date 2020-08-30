@@ -52,9 +52,9 @@ static const int EXTENSION_COUNT = 0;
 // Rebuilds the matrices for a given buffer and camera
 static void _vk2dRendererRecreateBuffer(uint32_t frame) {
 	// Assemble view
-	vec3 eyes = {gRenderer->camera.x - (gRenderer->camera.w * 0.5), -gRenderer->camera.y + (gRenderer->camera.h * 0.5), 2};
-	vec3 center = {gRenderer->camera.x - (gRenderer->camera.w * 0.5), -gRenderer->camera.y + (gRenderer->camera.h * 0.5), 0};//-gRenderer->camera.w / 2, gRenderer->camera.h / 2, 0};
-	vec3 up = {0, -1, 0};
+	vec3 eyes = {-gRenderer->camera.x - (gRenderer->camera.w * 0.5), gRenderer->camera.y + (gRenderer->camera.h * 0.5), 2};
+	vec3 center = {-gRenderer->camera.x - (gRenderer->camera.w * 0.5), gRenderer->camera.y + (gRenderer->camera.h * 0.5), 0};//-gRenderer->camera.w / 2, gRenderer->camera.h / 2, 0};
+	vec3 up = {sin(gRenderer->camera.rot), -cos(gRenderer->camera.rot), 0};
 	cameraMatrix(gRenderer->ubos[frame].view, eyes, center, up);
 
 	// Projection is quite a simple matter
