@@ -514,7 +514,7 @@ static void _vk2dRendererCreateUniformBuffers() {
 			// Assemble a default buffer
 			vec3 eyes = {0, 0, 2};
 			vec3 center = {0, 0, 0};
-			vec3 up = {0, -1, 0};
+			vec3 up = {0, -1, 0}; // I like the y axis to be inverted in game programming
 			cameraMatrix(gRenderer->ubos[i].view, eyes, center, up);
 			orthographicMatrix(gRenderer->ubos[i].proj, 2, (float)gRenderer->surfaceWidth / (float)gRenderer->surfaceHeight, 0.1, 10);
 
@@ -975,9 +975,9 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y,
 	VK2DPushBuffer push = {};
 	identityMatrix(push.model);
 	vec3 axis = {1, 1, 0};
-	vec3 translation = {x, y};
+	vec3 translation = {-x, y};
 	vec3 scale = {xscale, yscale, 1};
-	rotateMatrix(push.model, axis, rot);
+	rotateMatrix(push.model, axis, rot); // TODO: Fix this
 	translateMatrix(push.model, translation);
 	scaleMatrix(push.model, scale);
 	push.colourMod[0] = gRenderer->colourBlend[0];

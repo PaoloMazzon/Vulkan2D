@@ -292,7 +292,7 @@ VkPipelineRasterizationStateCreateInfo vk2dInitPipelineRasterizationStateCreateI
 	pipelineRasterizationStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	pipelineRasterizationStateCreateInfo.polygonMode = fill ? VK_POLYGON_MODE_FILL : VK_POLYGON_MODE_LINE;
 	pipelineRasterizationStateCreateInfo.lineWidth = 1;
-	pipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+	pipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_NONE;//VK_CULL_MODE_BACK_BIT;
 	pipelineRasterizationStateCreateInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	return pipelineRasterizationStateCreateInfo;
 }
