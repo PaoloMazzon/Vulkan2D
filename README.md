@@ -73,6 +73,7 @@ TODO
  + Let the polygon loader triangulate polygons on load
  + Simple scaling for pixel art games
  + Proper projection matrix
+ + Order-independent transparency and multi-threaded draw calls
 
 Warning
 =======

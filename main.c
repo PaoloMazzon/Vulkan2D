@@ -10,9 +10,9 @@ const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
 const VK2DVertexColour SAMPLE_TRIANGLE[] = {
-		{{+0.0, -0.5, +0.0}, {1.0, 1.0, 0.5, 1}},
-		{{+0.5, +0.5, +0.0}, {1.0, 0.5, 1.0, 1}},
-		{{-0.5, +0.5, +0.0}, {0.5, 1.0, 1.0, 1}}
+		{{125, 0.0, +0.0}, {1.0, 1.0, 0.5, 1}},
+		{{250, 200, +0.0}, {1.0, 0.5, 1.0, 1}},
+		{{0.0, 200, +0.0}, {0.5, 1.0, 1.0, 1}}
 };
 const uint32_t VERTICES = 3;
 
@@ -31,6 +31,9 @@ int main(int argc, const char *argv[]) {
 
 	if (error < 0)
 		return -1;
+
+	VK2DCamera cam = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0};
+	vk2dRendererSetCamera(cam);
 
 	// Load test assets
 	VK2DPolygon testPoly = vk2dPolygonShapeCreate(vk2dRendererGetDevice(), (void*)SAMPLE_TRIANGLE, VERTICES);
@@ -54,7 +57,7 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame(clear);
 		vk2dDrawPolygon(testPoly, 0, 0);
-		vk2dRendererDrawTexture(testTexture, 0, 0, 1 + xScale, 1 + yScale, rot);
+		vk2dRendererDrawTexture(testTexture, 0, 0, 1, 1, 0);
 		vk2dRendererEndFrame();
 	}
 

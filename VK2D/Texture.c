@@ -11,12 +11,12 @@
 
 // Will be modified to fit the texture then uploaded to a polygon
 VK2DVertexTexture baseTex[] = {
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+		{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
 };
 const VK2DVertexTexture immutableFull[] = {
 		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
@@ -35,6 +35,11 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 	float x2 = (xInImage + wInImage) / image->width;
 	float y2 = (yInImage + hInImage) / image->height;
 
+	// Image loads flipped so this is a really cheaty way of fixing
+	float hold = x2;
+	x2 = x1;
+	x1 = hold;
+
 	// Order of the 6 vertices are as follows:
 	//     UR, UL, UR, UR, BR, BL
 	// Where U is up or top, b is bottom, l is left, and r is right
@@ -50,6 +55,12 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 	baseTex[4].tex[1] = y2;
 	baseTex[5].tex[0] = x2;
 	baseTex[5].tex[1] = y1;
+	baseTex[1].pos[0] = wInImage;
+	baseTex[2].pos[0] = wInImage;
+	baseTex[2].pos[1] = hInImage;
+	baseTex[3].pos[0] = wInImage;
+	baseTex[3].pos[1] = hInImage;
+	baseTex[4].pos[1] = hInImage;
 
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DPolygon poly = vk2dPolygonTextureCreate(image->dev, baseTex, baseTexVertexCount);

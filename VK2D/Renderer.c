@@ -49,6 +49,18 @@ static const int EXTENSION_COUNT = 0;
 
 /******************************* Internal functions *******************************/
 
+// Rebuilds the matrices for a given buffer and camera
+static void _vk2dRendererRecreateBuffer(uint32_t frame) {
+	// Assemble view
+	vec3 eyes = {gRenderer->camera.x - (gRenderer->camera.w * 0.5), -gRenderer->camera.y + (gRenderer->camera.h * 0.5), 2};
+	vec3 center = {gRenderer->camera.x - (gRenderer->camera.w * 0.5), -gRenderer->camera.y + (gRenderer->camera.h * 0.5), 0};//-gRenderer->camera.w / 2, gRenderer->camera.h / 2, 0};
+	vec3 up = {0, -1, 0};
+	cameraMatrix(gRenderer->ubos[frame].view, eyes, center, up);
+
+	// Projection is quite a simple matter
+	orthographicMatrix(gRenderer->ubos[frame].proj, gRenderer->camera.h / gRenderer->camera.zoom, gRenderer->camera.w / gRenderer->camera.h, 0.1, 10);
+}
+
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
 static void _vk2dRendererFlushUBOBuffer(uint32_t frame) {
 	void *data;
@@ -507,17 +519,20 @@ static void _vk2dRendererCreateUniformBuffers() {
 	gRenderer->uboBuffers = malloc(sizeof(VK2DBuffer) * gRenderer->swapchainImageCount);
 	uint32_t i;
 
+	VK2DCamera cam = {
+			0,
+			0,
+			gRenderer->surfaceWidth,
+			gRenderer->surfaceHeight,
+			1,
+			0
+	};
+	gRenderer->camera = cam;
+
 	if (vk2dPointerCheck(gRenderer->ubos) && vk2dPointerCheck(gRenderer->uboBuffers)) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			gRenderer->uboBuffers[i] = vk2dBufferCreate(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-			// Assemble a default buffer
-			vec3 eyes = {0, 0, 2};
-			vec3 center = {0, 0, 0};
-			vec3 up = {0, -1, 0}; // I like the y axis to be inverted in game programming
-			cameraMatrix(gRenderer->ubos[i].view, eyes, center, up);
-			orthographicMatrix(gRenderer->ubos[i].proj, 2, (float)gRenderer->surfaceWidth / (float)gRenderer->surfaceHeight, 0.1, 10);
-
+			_vk2dRendererRecreateBuffer(i);
 			_vk2dRendererFlushUBOBuffer(i);
 		}
 	}
@@ -815,6 +830,7 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 	gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
 
 	// Flush the current ubo into its buffer for the frame
+	_vk2dRendererRecreateBuffer(gRenderer->scImageIndex);
 	_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex);
 
 	// Start the render pass
@@ -925,6 +941,14 @@ void vk2dRendererGetColourMod(vec4 dst) {
 	dst[3] = gRenderer->colourBlend[3];
 }
 
+void vk2dRendererSetCamera(VK2DCamera camera) {
+	gRenderer->camera = camera;
+}
+
+VK2DCamera vk2dRendererGetCamera() {
+	return gRenderer->camera;
+}
+
 void vk2dRendererClear(vec4 colour) {
 	VkImageSubresourceRange range = {};
 	range.layerCount = 1;
@@ -981,8 +1005,8 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 	VK2DPushBuffer push = {};
 	identityMatrix(push.model);
 	vec3 axis = {0, 0, -1};
-	vec3 translation = {-x, y};
-	vec3 scale = {xscale, yscale, 1};
+	vec3 translation = {x, y};
+	vec3 scale = {-xscale, yscale, 1};
 	rotateMatrix(push.model, axis, rot);
 	translateMatrix(push.model, translation);
 	scaleMatrix(push.model, scale);
@@ -1028,8 +1052,8 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 	VK2DPushBuffer push = {};
 	identityMatrix(push.model);
 	vec3 axis = {0, 0, -1};
-	vec3 translation = {-x, y};
-	vec3 scale = {xscale, yscale, 1};
+	vec3 translation = {x, y};
+	vec3 scale = {-xscale, yscale, 1};
 	rotateMatrix(push.model, axis, rot);
 	translateMatrix(push.model, translation);
 	scaleMatrix(push.model, scale);

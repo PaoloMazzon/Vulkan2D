@@ -51,6 +51,7 @@ struct VK2DRenderer {
 	VkSampler textureSampler;      ///< Needed for textures
 	VK2DUniformBufferObject *ubos; ///< UBOs in memory that will be applied to their respective buffer at the start of the frame
 	VK2DBuffer *uboBuffers;        ///< Buffers in memory for the UBOs (1 per swapchain image, updated at start of frame)
+	VK2DCamera camera;             ///< Camera settings that are applied to the UBO before every frame
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -201,6 +202,21 @@ void vk2dRendererSetColourMod(vec4 mod);
 ///
 /// The vec4 is treated as an RGBA array
 void vk2dRendererGetColourMod(vec4 dst);
+
+/// \brief Sets the current camera settings
+/// \param camera Camera settings to use
+///
+/// Camera settings take effect at the start of every frame when the view and projection
+/// matrices are uploaded to the gpu.
+void vk2dRendererSetCamera(VK2DCamera camera);
+
+/// \brief Gets the current camera settings
+/// \return Returns the current camera settings
+///
+/// Since camera settings are only applied at the start of every frame, this may return
+/// something that has yet to take effect (Shouldn't really matter, but worth noting in
+/// case you get some unexpected results).
+VK2DCamera vk2dRendererGetCamera();
 
 /// \brief Clears the current render target to a specified colour
 /// \param colour Colour to clear with
