@@ -111,6 +111,7 @@ struct VK2DRenderer {
 	uint32_t targetSubPass;          ///< Current sub pass being rendered to
 	VkRenderPass targetRenderPass;   ///< Current render pass being rendered to
 	VkFramebuffer targetFrameBuffer; ///< Current framebuffer being rendered to
+	VkImage targetImage;             ///< Current image being rendered to
 };
 
 /// \brief Initializes VK2D's renderer
@@ -176,7 +177,8 @@ void vk2dRendererSetConfig(VK2DRendererConfig config);
 void vk2dRendererResetSwapchain();
 
 /// \brief Performs the tasks necessary to start rendering a frame (call before you start drawing)
-void vk2dRendererStartFrame();
+/// \param clearColour Colour to clear the screen to
+void vk2dRendererStartFrame(vec4 clearColour);
 
 /// \brief Performs the tasks necessary to complete/present a frame (call once you're done drawing)
 void vk2dRendererEndFrame();

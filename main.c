@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "VK2D/VK2D.h"
 #include <stdio.h>
+#include <time.h>
 
 /************************ Constants ************************/
 const int WINDOW_WIDTH  = 800;
@@ -35,16 +36,25 @@ int main(int argc, const char *argv[]) {
 	VK2DPolygon testPoly = vk2dPolygonShapeCreate(vk2dRendererGetDevice(), (void*)SAMPLE_TRIANGLE, VERTICES);
 	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
 	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
+	float rot = 0;
+	float scaleRot = 0;
+	float xScale = 0;
+	float yScale = 0;
 
 	while (!quit) {
 		while (SDL_PollEvent(&e))
 			if (e.type == SDL_QUIT)
 				quit = true;
 
-		vk2dRendererStartFrame();
-		vk2dRendererClear(clear);
-		vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
-		//vk2dRendererDrawTexture(testTexture, 0, 0, 1, 1, 0);
+		// Fancy tweening
+		rot += (VK2D_PI * 2) / 120;
+		scaleRot += (VK2D_PI * 2) / 45;
+		xScale = cos(scaleRot) * 0.25;
+		yScale = sin(scaleRot) * 0.25;
+
+		vk2dRendererStartFrame(clear);
+		//vk2dRendererDrawPolygon(testPoly, true, 0, 0, 1, 1, 0);
+		vk2dRendererDrawTexture(testTexture, 0, 0, 1 + xScale, 1 + yScale, rot);
 		vk2dRendererEndFrame();
 	}
 

@@ -265,7 +265,7 @@ static void _vk2dRendererCreateRenderPass() {
 	attachments[0].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	attachments[1].format = gRenderer->surfaceFormat.format;
 	attachments[1].samples = (VkSampleCountFlagBits)gRenderer->config.msaa;
-	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	attachments[1].finalLayout = gRenderer->config.msaa > 1 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -783,7 +783,7 @@ void vk2dRendererSetConfig(VK2DRendererConfig config) {
 	vk2dRendererResetSwapchain();
 }
 
-void vk2dRendererStartFrame() {
+void vk2dRendererStartFrame(vec4 clearColour) {
 	/*********** Get image and synchronization ***********/
 
 	// Wait for previous rendering to be finished
@@ -812,6 +812,7 @@ void vk2dRendererStartFrame() {
 	gRenderer->targetFrameBuffer = gRenderer->framebuffers[gRenderer->scImageIndex];
 	gRenderer->targetRenderPass = gRenderer->renderPass;
 	gRenderer->targetSubPass = 0;
+	gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
 
 	// Flush the current ubo into its buffer for the frame
 	_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex);
@@ -825,10 +826,14 @@ void vk2dRendererStartFrame() {
 	VkRect2D rect = {};
 	rect.extent.width = gRenderer->surfaceWidth;
 	rect.extent.height = gRenderer->surfaceHeight;
-	const uint32_t clearCount = 1;
-	VkClearValue clearValues[1] = {};
+	const uint32_t clearCount = 2;
+	VkClearValue clearValues[2] = {};
 	clearValues[0].depthStencil.depth = 1;
 	clearValues[0].depthStencil.stencil = 0;
+	clearValues[1].color.float32[0] = clearColour[0];
+	clearValues[1].color.float32[1] = clearColour[1];
+	clearValues[1].color.float32[2] = clearColour[2];
+	clearValues[1].color.float32[3] = clearColour[3];
 	VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
 			gRenderer->renderPass,
 			gRenderer->framebuffers[gRenderer->scImageIndex],
@@ -884,6 +889,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 		VkFramebuffer framebuffer = target == VK2D_TARGET_SCREEN ? gRenderer->framebuffers[gRenderer->scImageIndex] : target->fbo;
 		gRenderer->targetRenderPass = pass;
 		gRenderer->targetFrameBuffer = framebuffer;
+		gRenderer->targetImage = target->img->img;
 
 		// Setup render pass
 		_vk2dRendererEndRenderPass();
@@ -920,16 +926,48 @@ void vk2dRendererGetColourMod(vec4 dst) {
 }
 
 void vk2dRendererClear(vec4 colour) {
-	// TODO: Clear the current render target's colour
+	VkImageSubresourceRange range = {};
+	range.layerCount = 1;
+	range.baseArrayLayer = 0;
+	range.baseMipLevel = 0;;
+	range.levelCount = 1;
+	range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	VkClearColorValue clear = {};
+	clear.float32[0] = colour[0];
+	clear.float32[1] = colour[1];
+	clear.float32[2] = colour[2];
+	clear.float32[3] = colour[3];
+
+	vkCmdClearColorImage(gRenderer->primaryBuffer[gRenderer->drawCommandPool], gRenderer->targetImage, gRenderer->targetImage == gRenderer->swapchainImages[gRenderer->scImageIndex] ? VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR : VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear, 1, &range);
+	// Setup render pass
+	_vk2dRendererEndRenderPass();
+	VkRect2D rect = {};
+	rect.extent.width = gRenderer->surfaceWidth;
+	rect.extent.height = gRenderer->surfaceHeight;
+	const uint32_t clearCount = 1;
+	VkClearValue clearValues[1] = {};
+	clearValues[0].depthStencil.depth = 1;
+	clearValues[0].depthStencil.stencil = 0;
+	VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
+			gRenderer->targetRenderPass,
+			gRenderer->targetFrameBuffer,
+			rect,
+			clearValues,
+			clearCount);
+
+	vkCmdBeginRenderPass(gRenderer->primaryBuffer[gRenderer->drawCommandPool], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot) {
-	/*
-	// Necessary information
+	// Command buffer nonsense
 	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
-	VkDescriptorSet set = vk2dDescConGetSamplerBufferSet(gRenderer->descConTex[gRenderer->scImageIndex], tex, gTestUBO); // TODO: Remove test thing here
 	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
+
+	// Descriptor set
+	VkDescriptorSet set = vk2dDescConGetSamplerBufferSet(gRenderer->descConTex[gRenderer->scImageIndex], tex, gRenderer->uboBuffers[gRenderer->scImageIndex]);
+
+	// Dynamic state
 	VkViewport viewport = {};
 	viewport.minDepth = 0;
 	viewport.minDepth = 1;
@@ -939,17 +977,32 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 	viewport.y = 0;
 	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
 
+	// Push constants
+	VK2DPushBuffer push = {};
+	identityMatrix(push.model);
+	vec3 axis = {0, 0, -1};
+	vec3 translation = {-x, y};
+	vec3 scale = {xscale, yscale, 1};
+	rotateMatrix(push.model, axis, rot);
+	translateMatrix(push.model, translation);
+	scaleMatrix(push.model, scale);
+	push.colourMod[0] = gRenderer->colourBlend[0];
+	push.colourMod[1] = gRenderer->colourBlend[1];
+	push.colourMod[2] = gRenderer->colourBlend[2];
+	push.colourMod[3] = gRenderer->colourBlend[3];
+
 	// Recording the command buffer
+	VK2DPipeline currentPipe = gRenderer->texPipe;
 	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
-	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->texPipe->pipe);
-	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->texPipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
+	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipe->pipe);
+	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
 	VkDeviceSize offsets[] = {0};
 	vkCmdBindVertexBuffers(buf, 0, 1, &tex->bounds->vertices->buf, offsets);
 	vkCmdSetViewport(buf, 0, 1, &viewport);
 	vkCmdSetBlendConstants(buf, blendConstants);
+	vkCmdPushConstants(buf, currentPipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
 	vkCmdDraw(buf, tex->bounds->vertexCount, 1, 0, 0);
 	vk2dErrorCheck(vkEndCommandBuffer(buf));
-	 */ // TODO: Rewrite of this with new push constants and all that jazz
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y, float xscale, float yscale, float rot) {
@@ -974,10 +1027,10 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, bool filled, float x, float y,
 	// Push constants
 	VK2DPushBuffer push = {};
 	identityMatrix(push.model);
-	vec3 axis = {1, 1, 0};
+	vec3 axis = {0, 0, -1};
 	vec3 translation = {-x, y};
 	vec3 scale = {xscale, yscale, 1};
-	rotateMatrix(push.model, axis, rot); // TODO: Fix this
+	rotateMatrix(push.model, axis, rot);
 	translateMatrix(push.model, translation);
 	scaleMatrix(push.model, scale);
 	push.colourMod[0] = gRenderer->colourBlend[0];
