@@ -32,7 +32,7 @@ int main(int argc, const char *argv[]) {
 	if (error < 0)
 		return -1;
 
-	VK2DCamera cam = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0};
+	VK2DCamera cam = {0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
 	vk2dRendererSetCamera(cam);
 
 	// Load test assets
@@ -79,7 +79,7 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame(clear);
 		vk2dDrawPolygon(testPoly, 0, 0);
-		vk2dRendererDrawTexture(testTexture, 100, 100, 2 + 2 * xScale, 2 + 2 * yScale, rot, 8, 8);
+		vk2dRendererDrawTexture(testTexture, 80, 80, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();
 	}
 

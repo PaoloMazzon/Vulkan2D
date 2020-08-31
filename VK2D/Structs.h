@@ -69,8 +69,8 @@ typedef struct {
 
 /// \brief Buffer passed per-model via push constants
 typedef struct {
-	mat4 model;
-	vec4 colourMod;
+	mat4 model;     ///< Model matrix
+	vec4 colourMod; ///< Current colour modifier
 } VK2DPushBuffer;
 
 /// \brief Describes what kind of vertices are in use

@@ -1011,16 +1011,19 @@ static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2D
 	// Dynamic state
 	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
 
+	originX *= xscale;
+	originY *= yscale;
+
 	// Push constants
 	VK2DPushBuffer push = {};
 	identityMatrix(push.model);
 	vec3 axis = {0, 0, 1};
-	vec3 translation = {-x, y};
-	vec3 originTranslation = {cos(rot) * -originX, sin(rot) * -originY, 0}; // TODO: This
+	vec3 originTranslation = {originX, -originY, 0};
+	vec3 origin2 = {-originX - x, originY + y, 0};
 	vec3 scale = {-xscale, yscale, 1};
-	translateMatrix(push.model, translation);
-	translateMatrix(push.model, originTranslation);
+	translateMatrix(push.model, origin2);
 	rotateMatrix(push.model, axis, rot);
+	translateMatrix(push.model, originTranslation);
 	scaleMatrix(push.model, scale);
 	push.colourMod[0] = gRenderer->colourBlend[0];
 	push.colourMod[1] = gRenderer->colourBlend[1];
