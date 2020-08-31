@@ -44,6 +44,7 @@ int main(int argc, const char *argv[]) {
 	float xScale = 0;
 	float yScale = 0;
 	float camSpeed = 5;
+	float camRotSpeed = 0.1;
 
 	while (!quit) {
 		while (SDL_PollEvent(&e)) {
@@ -61,6 +62,12 @@ int main(int argc, const char *argv[]) {
 			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_W) {
 				cam.y -= camSpeed;
 				vk2dRendererSetCamera(cam);
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_Q) {
+				cam.rot += camRotSpeed;
+				vk2dRendererSetCamera(cam);
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_E) {
+				cam.rot -= camRotSpeed;
+				vk2dRendererSetCamera(cam);
 			}
 		}
 
@@ -72,7 +79,7 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame(clear);
 		vk2dDrawPolygon(testPoly, 0, 0);
-		vk2dRendererDrawTexture(testTexture, 0, 0, 1, 1, 0);
+		vk2dRendererDrawTexture(testTexture, 100, 100, 2 + 2 * xScale, 2 + 2 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();
 	}
 

@@ -740,6 +740,12 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		_vk2dRendererCreateSynchronization();
 
 		vk2dRendererSetColourMod((void*)VK2D_DEFAULT_COLOUR_MOD);
+		gRenderer->viewport.x = 0;
+		gRenderer->viewport.y = 0;
+		gRenderer->viewport.width = gRenderer->surfaceWidth;
+		gRenderer->viewport.height = gRenderer->surfaceHeight;
+		gRenderer->viewport.minDepth = 0;
+		gRenderer->viewport.maxDepth = 1;
 	} else {
 		errorCode = -1;
 	}
@@ -949,6 +955,20 @@ VK2DCamera vk2dRendererGetCamera() {
 	return gRenderer->camera;
 }
 
+void vk2dRendererSetViewport(float x, float y, float w, float h) {
+	gRenderer->viewport.x = x;
+	gRenderer->viewport.y = y;
+	gRenderer->viewport.width = w;
+	gRenderer->viewport.height = h;
+}
+
+void vk2dRendererGetViewport(float *x, float *y, float *w, float *h) {
+	*x = gRenderer->viewport.x;
+	*y = gRenderer->viewport.y;
+	*w = gRenderer->viewport.width;
+	*h = gRenderer->viewport.height;
+}
+
 void vk2dRendererClear(vec4 colour) {
 	VkImageSubresourceRange range = {};
 	range.layerCount = 1;
@@ -982,33 +1002,25 @@ void vk2dRendererClear(vec4 colour) {
 	vkCmdBeginRenderPass(gRenderer->primaryBuffer[gRenderer->drawCommandPool], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 }
 
-void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot) {
+static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {
 	// Command buffer nonsense
 	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
 	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
 
-	// Descriptor set
-	VkDescriptorSet set = vk2dDescConGetSamplerBufferSet(gRenderer->descConTex[gRenderer->scImageIndex], tex, gRenderer->uboBuffers[gRenderer->scImageIndex]);
-
 	// Dynamic state
-	VkViewport viewport = {};
-	viewport.minDepth = 0;
-	viewport.minDepth = 1;
-	viewport.width = gRenderer->surfaceWidth;
-	viewport.height = gRenderer->surfaceHeight;
-	viewport.x = 0;
-	viewport.y = 0;
 	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
 
 	// Push constants
 	VK2DPushBuffer push = {};
 	identityMatrix(push.model);
-	vec3 axis = {0, 0, -1};
-	vec3 translation = {x, y};
+	vec3 axis = {0, 0, 1};
+	vec3 translation = {-x, y};
+	vec3 originTranslation = {cos(rot) * -originX, sin(rot) * -originY, 0}; // TODO: This
 	vec3 scale = {-xscale, yscale, 1};
-	rotateMatrix(push.model, axis, rot);
 	translateMatrix(push.model, translation);
+	translateMatrix(push.model, originTranslation);
+	rotateMatrix(push.model, axis, rot);
 	scaleMatrix(push.model, scale);
 	push.colourMod[0] = gRenderer->colourBlend[0];
 	push.colourMod[1] = gRenderer->colourBlend[1];
@@ -1016,64 +1028,25 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 	push.colourMod[3] = gRenderer->colourBlend[3];
 
 	// Recording the command buffer
-	VK2DPipeline currentPipe = gRenderer->texPipe;
 	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
-	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipe->pipe);
-	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
+	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipe);
+	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
 	VkDeviceSize offsets[] = {0};
-	vkCmdBindVertexBuffers(buf, 0, 1, &tex->bounds->vertices->buf, offsets);
-	vkCmdSetViewport(buf, 0, 1, &viewport);
+	vkCmdBindVertexBuffers(buf, 0, 1, &poly->vertices->buf, offsets);
+	vkCmdSetViewport(buf, 0, 1, &gRenderer->viewport);
 	vkCmdSetBlendConstants(buf, blendConstants);
-	vkCmdPushConstants(buf, currentPipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
-	vkCmdDraw(buf, tex->bounds->vertexCount, 1, 0, 0);
+	vkCmdSetLineWidth(buf, lineWidth);
+	vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
+	vkCmdDraw(buf, poly->vertexCount, 1, 0, 0);
 	vk2dErrorCheck(vkEndCommandBuffer(buf));
 }
 
-void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot) {
-	// Command buffer nonsense
-	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
-	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
-	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
+void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
+	VkDescriptorSet set = vk2dDescConGetSamplerBufferSet(gRenderer->descConTex[gRenderer->scImageIndex], tex, gRenderer->uboBuffers[gRenderer->scImageIndex]);
+	_vk2dRendererDraw(set, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
+}
 
-	// Descriptor set
+void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
 	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], gRenderer->uboBuffers[gRenderer->scImageIndex]);
-
-	// Dynamic state
-	VkViewport viewport = {};
-	viewport.minDepth = 0;
-	viewport.minDepth = 1;
-	viewport.width = gRenderer->surfaceWidth;
-	viewport.height = gRenderer->surfaceHeight;
-	viewport.x = 0;
-	viewport.y = 0;
-	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
-
-	// Push constants
-	VK2DPushBuffer push = {};
-	identityMatrix(push.model);
-	vec3 axis = {0, 0, -1};
-	vec3 translation = {x, y};
-	vec3 scale = {-xscale, yscale, 1};
-	rotateMatrix(push.model, axis, rot);
-	translateMatrix(push.model, translation);
-	scaleMatrix(push.model, scale);
-	push.colourMod[0] = gRenderer->colourBlend[0];
-	push.colourMod[1] = gRenderer->colourBlend[1];
-	push.colourMod[2] = gRenderer->colourBlend[2];
-	push.colourMod[3] = gRenderer->colourBlend[3];
-
-	// Recording the command buffer
-	VK2DPipeline currentPipe = filled ? gRenderer->primFillPipe : gRenderer->primLinePipe;
-	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
-	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipe->pipe);
-	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, currentPipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
-	VkDeviceSize offsets[] = {0};
-	vkCmdBindVertexBuffers(buf, 0, 1, &polygon->vertices->buf, offsets);
-	if (!filled)
-		vkCmdSetLineWidth(buf, lineWidth);
-	vkCmdSetViewport(buf, 0, 1, &viewport);
-	vkCmdSetBlendConstants(buf, blendConstants);
-	vkCmdPushConstants(buf, currentPipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
-	vkCmdDraw(buf, polygon->vertexCount, 1, 0, 0);
-	vk2dErrorCheck(vkEndCommandBuffer(buf));
+	_vk2dRendererDraw(set, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale, yscale, rot, originX, originY, lineWidth);
 }

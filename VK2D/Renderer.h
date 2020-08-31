@@ -52,6 +52,7 @@ struct VK2DRenderer {
 	VK2DUniformBufferObject *ubos; ///< UBOs in memory that will be applied to their respective buffer at the start of the frame
 	VK2DBuffer *uboBuffers;        ///< Buffers in memory for the UBOs (1 per swapchain image, updated at start of frame)
 	VK2DCamera camera;             ///< Camera settings that are applied to the UBO before every frame
+	VkViewport viewport;           ///< Viewport to draw with
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -218,6 +219,20 @@ void vk2dRendererSetCamera(VK2DCamera camera);
 /// case you get some unexpected results).
 VK2DCamera vk2dRendererGetCamera();
 
+/// \brief Sets the current viewport (portion of the window that is drawn to)
+/// \param x X in window to draw to
+/// \param y Y in window to draw to
+/// \param w Width to draw
+/// \param h Height to draw
+void vk2dRendererSetViewport(float x, float y, float w, float h);
+
+/// \brief Gets the current viewport
+/// \param x Will be given the current x
+/// \param y Will be given the current y
+/// \param w Will be given the current w
+/// \param h Will be given the current h
+void vk2dRendererGetViewport(float *x, float *y, float *w, float *h);
+
 /// \brief Clears the current render target to a specified colour
 /// \param colour Colour to clear with
 ///
@@ -231,7 +246,9 @@ void vk2dRendererClear(vec4 colour);
 /// \param xscale Horizontal scale for drawing the texture (negative for flipped)
 /// \param yscale Vertical scale for drawing the texture (negative for flipped)
 /// \param rot Rotation to draw the texture (VK2D only uses radians)
-void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot);
+/// \param originX X origin for rotation
+/// \param originY Y origin for rotation
+void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY);
 
 /// \brief Renders a polygon
 /// \param polygon Polygon to draw
@@ -242,16 +259,18 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 /// \param xscale Horizontal scale for drawing the polygon (negative for flipped)
 /// \param yscale Vertical scale for drawing the polygon (negative for flipped)
 /// \param rot Rotation to draw the polygon (VK2D only uses radians)
-void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot);
+/// \param originX X origin for rotation
+/// \param originY Y origin for rotation
+void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY);
 
 /// \brief Draws a texture (x and y should be floats)
-#define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0)
+#define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0)
 
 /// \brief Draws a polygon's outline (x, y, and width should be floats)
-#define vk2dDrawPolygonOutline(polygon, x, y, width) vk2dRendererDrawPolygon(polygon, x, y, false, width, 1, 1, 0)
+#define vk2dDrawPolygonOutline(polygon, x, y, width) vk2dRendererDrawPolygon(polygon, x, y, false, width, 1, 1, 0, 0, 0)
 
 /// \brief Draws a polygon (x and y should be floats)
-#define vk2dDrawPolygon(polygon, x, y) vk2dRendererDrawPolygon(polygon, x, y, true, 0, 1, 1, 0)
+#define vk2dDrawPolygon(polygon, x, y) vk2dRendererDrawPolygon(polygon, x, y, true, 0, 1, 1, 0, 0, 0)
 
 // TODO: Function for loading custom shaders
 // TODO: Function for setting the view/projection matrix in a nice high-level way
