@@ -50,15 +50,15 @@ static const int EXTENSION_COUNT = 0;
 /******************************* Internal functions *******************************/
 
 // Rebuilds the matrices for a given buffer and camera
-static void _vk2dRendererRecreateBuffer(uint32_t frame) {
+static void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera) {
 	// Assemble view
-	vec3 eyes = {-gRenderer->camera.x - (gRenderer->camera.w * 0.5), gRenderer->camera.y + (gRenderer->camera.h * 0.5), 2};
-	vec3 center = {-gRenderer->camera.x - (gRenderer->camera.w * 0.5), gRenderer->camera.y + (gRenderer->camera.h * 0.5), 0};//-gRenderer->camera.w / 2, gRenderer->camera.h / 2, 0};
-	vec3 up = {sin(gRenderer->camera.rot), -cos(gRenderer->camera.rot), 0};
-	cameraMatrix(gRenderer->ubos[frame].view, eyes, center, up);
+	vec3 eyes = {-camera->x - (camera->w * 0.5), camera->y + (camera->h * 0.5), 2};
+	vec3 center = {-camera->x - (camera->w * 0.5), camera->y + (camera->h * 0.5), 0};//-camera->w / 2, camera->h / 2, 0};
+	vec3 up = {sin(camera->rot), -cos(camera->rot), 0};
+	cameraMatrix(ubo->view, eyes, center, up);
 
 	// Projection is quite a simple matter
-	orthographicMatrix(gRenderer->ubos[frame].proj, gRenderer->camera.h / gRenderer->camera.zoom, gRenderer->camera.w / gRenderer->camera.h, 0.1, 10);
+	orthographicMatrix(ubo->proj, camera->h / camera->zoom, camera->w / camera->h, 0.1, 10);
 }
 
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
@@ -532,7 +532,7 @@ static void _vk2dRendererCreateUniformBuffers() {
 	if (vk2dPointerCheck(gRenderer->ubos) && vk2dPointerCheck(gRenderer->uboBuffers)) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			gRenderer->uboBuffers[i] = vk2dBufferCreate(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-			_vk2dRendererRecreateBuffer(i);
+			_vk2dCameraUpdateUBO(&gRenderer->ubos[i], &gRenderer->camera);
 			_vk2dRendererFlushUBOBuffer(i);
 		}
 	}
@@ -836,7 +836,7 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 	gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
 
 	// Flush the current ubo into its buffer for the frame
-	_vk2dRendererRecreateBuffer(gRenderer->scImageIndex);
+	_vk2dCameraUpdateUBO(&gRenderer->ubos[gRenderer->scImageIndex], &gRenderer->camera);
 	_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex);
 
 	// Start the render pass

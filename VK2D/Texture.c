@@ -18,13 +18,13 @@ VK2DVertexTexture baseTex[] = {
 		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
 		{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
 };
-const VK2DVertexTexture immutableFull[] = {
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
+VK2DVertexTexture immutableFull[] = {
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+		{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
 };
 const uint32_t baseTexVertexCount = 6;
 
@@ -62,7 +62,7 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 	baseTex[3].pos[1] = hInImage;
 	baseTex[4].pos[1] = hInImage;
 
-	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
+	VK2DTexture out = calloc(1, sizeof(struct VK2DTexture));
 	VK2DPolygon poly = vk2dPolygonTextureCreate(image->dev, baseTex, baseTexVertexCount);
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 
@@ -70,8 +70,6 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 		out->imgSampler = &renderer->textureSampler;
 		out->bounds = poly;
 		out->img = image;
-		out->fbo = NULL;
-
 	} else {
 		vk2dPolygonFree(poly);
 		free(out);
@@ -85,12 +83,18 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DPolygon poly = vk2dPolygonTextureCreate(dev, (void*)immutableFull, baseTexVertexCount);
 	VK2DRenderer renderer = vk2dRendererGetPointer();
+	immutableFull[1].pos[0] = w;
+	immutableFull[2].pos[0] = w;
+	immutableFull[2].pos[1] = h;
+	immutableFull[3].pos[0] = w;
+	immutableFull[3].pos[1] = h;
+	immutableFull[4].pos[1] = h;
 
 	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
 		out->imgSampler = &renderer->textureSampler;
 		out->bounds = poly;
 
-		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
+		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
 
 		// Set up FBO
 		const int attachCount = renderer->config.msaa > 1 ? 3 : 2;

@@ -142,12 +142,12 @@ typedef struct VK2DRendererConfig {
 
 /// \brief Camera information
 typedef struct VK2DCamera {
-	float x;         ///< X position of the camera (top left coordinates)
-	float y;         ///< Y position of the camera (top left coordinates)
-	float w;         ///< Virtual width of the screen
-	float h;         ///< Virtual height of the screen
-	float zoom;      ///< Zoom percentage (Relative to the virtual width and height, not actual)
-	float rot;       ///< Rotation of the camera
+	float x;    ///< X position of the camera (top left coordinates)
+	float y;    ///< Y position of the camera (top left coordinates)
+	float w;    ///< Virtual width of the screen
+	float h;    ///< Virtual height of the screen
+	float zoom; ///< Zoom percentage (Relative to the virtual width and height, not actual)
+	float rot;  ///< Rotation of the camera
 } VK2DCamera;
 
 // Required for less memory management on VK2DCustomPipelineInfo

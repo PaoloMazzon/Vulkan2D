@@ -36,8 +36,7 @@ you like random crashes).
    			if (e.type == SDL_QUIT)
    				return 0;
     
-   		vk2dRendererStartFrame();
-   		vk2dRendererClear(clearColour);
+   		vk2dRendererStartFrame(clearColour);
    		
    		// Draw your things
    		
@@ -71,8 +70,7 @@ TODO
 
  + Implement render to textures
  + Let the polygon loader triangulate polygons on load
- + Simple scaling for pixel art games
- + Proper projection matrix
+ + Option to apply a camera to a texture's UBO
  + Order-independent transparency and multi-threaded draw calls
 
 Warning

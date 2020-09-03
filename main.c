@@ -39,12 +39,15 @@ int main(int argc, const char *argv[]) {
 	VK2DPolygon testPoly = vk2dPolygonShapeCreate(vk2dRendererGetDevice(), (void*)SAMPLE_TRIANGLE, VERTICES);
 	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
 	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
+
+	// Testing values for fanciness
 	float rot = 0;
 	float scaleRot = 0;
 	float xScale = 0;
 	float yScale = 0;
 	float camSpeed = 5;
 	float camRotSpeed = 0.1;
+	float camZoomSpeed = 0.15;
 
 	while (!quit) {
 		while (SDL_PollEvent(&e)) {
@@ -67,6 +70,12 @@ int main(int argc, const char *argv[]) {
 				vk2dRendererSetCamera(cam);
 			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_E) {
 				cam.rot -= camRotSpeed;
+				vk2dRendererSetCamera(cam);
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_I) {
+				cam.zoom += camZoomSpeed;
+				vk2dRendererSetCamera(cam);
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_O) {
+				cam.zoom -= camZoomSpeed;
 				vk2dRendererSetCamera(cam);
 			}
 		}
