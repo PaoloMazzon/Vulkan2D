@@ -53,6 +53,7 @@ struct VK2DRenderer {
 	VK2DBuffer *uboBuffers;        ///< Buffers in memory for the UBOs (1 per swapchain image, updated at start of frame)
 	VK2DCamera camera;             ///< Camera settings that are applied to the UBO before every frame
 	VkViewport viewport;           ///< Viewport to draw with
+	bool enableTextureCameraUBO;   ///< If true, when drawing to a texture the UBO for the internal camera is used instead of the texture's UBO
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -114,6 +115,7 @@ struct VK2DRenderer {
 	VkRenderPass targetRenderPass;   ///< Current render pass being rendered to
 	VkFramebuffer targetFrameBuffer; ///< Current framebuffer being rendered to
 	VkImage targetImage;             ///< Current image being rendered to
+	VK2DBuffer targetUBO;            ///< UBO being used for rendering
 };
 
 /// \brief Initializes VK2D's renderer
@@ -203,6 +205,22 @@ void vk2dRendererSetColourMod(vec4 mod);
 ///
 /// The vec4 is treated as an RGBA array
 void vk2dRendererGetColourMod(vec4 dst);
+
+/// \brief Allows you to enable or disable the use of the renderer's camera when drawing to textures
+/// \param useCameraOnTextures If true, the renderer's camera will be used when drawing to textures
+///
+/// This is kind of unintuitive to explain with a quick sentence, so here is a very long explanation.
+/// Whenever you create a texture that is meant to be drawn to, a view and projection matrix are made
+/// for it that account for its internal width and height (in order to properly render things. Look
+/// into model-view-projection matrices if you're interested). The renderer stores several of these
+/// (one per swapchain image as to allow for multi-frame rendering, this is not something the user
+/// needs to think about) that use the user-provided camera so you can have simple 2D camera controls.
+/// Should you want to render your game to a texture before drawing it to screen (possibly for pixel-
+/// perfect scaling or to apply fragment shaders) you can enable this to make the renderer use the
+/// internal camera matrices instead of the texture ones which allows you to use your camera transformations
+/// when you draw to your textures. If you choose to do this, you most likely want to make the camera's
+/// virtual width and height equal to the texture's actual width and height.
+void vk2dRendererSetTextureCamera(bool useCameraOnTextures);
 
 /// \brief Sets the current camera settings
 /// \param camera Camera settings to use

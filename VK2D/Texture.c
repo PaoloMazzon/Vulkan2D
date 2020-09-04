@@ -7,6 +7,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/Polygon.h"
 #include "VK2D/Renderer.h"
+#include "VK2D/Buffer.h"
 #include <malloc.h>
 
 // Will be modified to fit the texture then uploaded to a polygon
@@ -79,6 +80,7 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 	return out;
 }
 
+void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera);
 VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DPolygon poly = vk2dPolygonTextureCreate(dev, (void*)immutableFull, baseTexVertexCount);
@@ -89,6 +91,18 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	immutableFull[3].pos[0] = w;
 	immutableFull[3].pos[1] = h;
 	immutableFull[4].pos[1] = h;
+
+	// For the UBO
+	VK2DCamera cam = {
+			0,
+			0,
+			w,
+			h,
+			1,
+			0
+	};
+	VK2DUniformBufferObject ubo;
+	_vk2dCameraUpdateUBO(&ubo, &cam);
 
 	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
 		out->imgSampler = &renderer->textureSampler;
@@ -110,6 +124,9 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 
 		VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(renderer->externalTargetRenderPass, w, h, attachments, attachCount);
 		vk2dErrorCheck(vkCreateFramebuffer(dev->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &out->fbo));
+
+		// And the UBO
+		out->ubo = vk2dBufferLoad(dev, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo);
 	} else {
 		vk2dPolygonFree(poly);
 		free(out);
@@ -124,6 +141,7 @@ void vk2dTextureFree(VK2DTexture tex) {
 		if (tex->fbo != VK_NULL_HANDLE) {
 			vkDestroyFramebuffer(tex->img->dev->dev, tex->fbo, VK_NULL_HANDLE);
 			vk2dImageFree(tex->img);
+			vk2dBufferFree(tex->ubo);
 		}
 		vk2dPolygonFree(tex->bounds);
 		free(tex);

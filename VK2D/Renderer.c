@@ -50,7 +50,7 @@ static const int EXTENSION_COUNT = 0;
 /******************************* Internal functions *******************************/
 
 // Rebuilds the matrices for a given buffer and camera
-static void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera) {
+void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera) {
 	// Assemble view
 	vec3 eyes = {-camera->x - (camera->w * 0.5), camera->y + (camera->h * 0.5), 2};
 	vec3 center = {-camera->x - (camera->w * 0.5), camera->y + (camera->h * 0.5), 0};//-camera->w / 2, camera->h / 2, 0};
@@ -834,6 +834,7 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 	gRenderer->targetRenderPass = gRenderer->renderPass;
 	gRenderer->targetSubPass = 0;
 	gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
+	gRenderer->targetUBO = gRenderer->uboBuffers[gRenderer->scImageIndex];
 
 	// Flush the current ubo into its buffer for the frame
 	_vk2dCameraUpdateUBO(&gRenderer->ubos[gRenderer->scImageIndex], &gRenderer->camera);
@@ -909,9 +910,12 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 		// Figure out which render pass to use
 		VkRenderPass pass = target == VK2D_TARGET_SCREEN ? gRenderer->midFrameSwapRenderPass : gRenderer->externalTargetRenderPass;
 		VkFramebuffer framebuffer = target == VK2D_TARGET_SCREEN ? gRenderer->framebuffers[gRenderer->scImageIndex] : target->fbo;
+		VkImage image = target == VK2D_TARGET_SCREEN ? gRenderer->swapchainImages[gRenderer->scImageIndex] : target->img->img;
+		VK2DBuffer buffer = target == VK2D_TARGET_SCREEN ? gRenderer->uboBuffers[gRenderer->scImageIndex] : target->ubo;
 		gRenderer->targetRenderPass = pass;
 		gRenderer->targetFrameBuffer = framebuffer;
-		gRenderer->targetImage = target->img->img;
+		gRenderer->targetImage = image;
+		gRenderer->targetUBO = buffer;
 
 		// Setup render pass
 		_vk2dRendererEndRenderPass();
@@ -967,6 +971,10 @@ void vk2dRendererGetViewport(float *x, float *y, float *w, float *h) {
 	*y = gRenderer->viewport.y;
 	*w = gRenderer->viewport.width;
 	*h = gRenderer->viewport.height;
+}
+
+void vk2dRendererSetTextureCamera(bool useCameraOnTextures) {
+	gRenderer->enableTextureCameraUBO = useCameraOnTextures;
 }
 
 void vk2dRendererClear(vec4 colour) {
@@ -1045,11 +1053,13 @@ static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2D
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
-	VkDescriptorSet set = vk2dDescConGetSamplerBufferSet(gRenderer->descConTex[gRenderer->scImageIndex], tex, gRenderer->uboBuffers[gRenderer->scImageIndex]);
+	VK2DBuffer target = gRenderer->enableTextureCameraUBO ? gRenderer->uboBuffers[gRenderer->scImageIndex] : gRenderer->targetUBO;
+	VkDescriptorSet set = vk2dDescConGetSamplerBufferSet(gRenderer->descConTex[gRenderer->scImageIndex], tex, target);
 	_vk2dRendererDraw(set, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
-	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], gRenderer->uboBuffers[gRenderer->scImageIndex]);
+	VK2DBuffer target = gRenderer->enableTextureCameraUBO ? gRenderer->uboBuffers[gRenderer->scImageIndex] : gRenderer->targetUBO;
+	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], target);
 	_vk2dRendererDraw(set, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale, yscale, rot, originX, originY, lineWidth);
 }
