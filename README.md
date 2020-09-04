@@ -70,8 +70,6 @@ TODO
 
  + Implement render to textures
  + Let the polygon loader triangulate polygons on load
- + Option to apply a camera to a texture's UBO
- + Order-independent transparency and multi-threaded draw calls
 
 Warning
 =======
