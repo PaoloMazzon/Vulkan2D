@@ -1,4 +1,4 @@
-
+![basic demo](https://i.imgur.com/zz4GT5D.gif)
 
 VK2D
 ====
@@ -28,7 +28,8 @@ you like random crashes).
 
     SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
    	SDL_Event e;
-    vk2dRendererInit(window, td_Max, sm_TripleBuffer, msaa_32x);
+   	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Nearest};
+    vk2dRendererInit(window, config);
     vec4 clearColour = {0.0, 0.0, 0.0, 1.0}; // Black
     bool stopRunning = false;
     
@@ -59,14 +60,27 @@ SDL is very simple to use and won't be discussed here beyond don't forget to giv
 be changed whenever), then at the start of the frame you call `vk2dRendererStartFrame()` and at
 the end of the frame you call `vk2dRendererEndFrame()`. Other than that, its crucial that you
 call `vk2dRendererWait()` before you start free your resources in case they're still in use by
-the GPU (and of course call `vk2dRendererQuit()` after). Other than that, there are some useful
-functions in Renderer.h (generate the documentation). 
+the GPU (and of course call `vk2dRendererQuit()` after). Check the documentation on Renderer.h
+to see all the fun stuff you can do.
 
 Testing
 =======
 The CMakeLists.txt is there for testing purposes, not for use in projects. If you
 wish to use this in your project, just drop the VK2D directory into your project
 and build it with your project. It requires SDL2 and Vulkan to build.
+
+Features
+========
+Right now it can do most things you would need in a game-dev environment but is still
+in development as lacks a few very important things (check the TODO).
+
+ + Draw polygons
+ + Load and draw textures (including only parts of images for spritesheets and the lot)
+ + Simple configuration options you can change at any point (you need not restart to change MSAA, for example)
+ + Simple yet powerful camera and viewport controls
+ + Colour modifier that can be changed mid-frame in order to make things transparent, colour white things, and so on
+ + Build options to make the renderer play with your setup
+ + Small amount of required features and limits to make the renderer work on most machines
 
 TODO
 ====
@@ -75,6 +89,8 @@ TODO
    + Transition image layout when render target is switched to and fro
    + Test clearing function
  + Let the polygon loader triangulate polygons on load
+ + Custom shaders/pipelines
+ + Load default configurations from file automatically
 
 Warning
 =======
