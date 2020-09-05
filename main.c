@@ -39,6 +39,7 @@ int main(int argc, const char *argv[]) {
 	VK2DPolygon testPoly = vk2dPolygonShapeCreate(vk2dRendererGetDevice(), (void*)SAMPLE_TRIANGLE, VERTICES);
 	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
 	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
+	VK2DTexture drawTex = vk2dTextureCreate(vk2dRendererGetDevice(), 320, 240);
 
 	// Testing values for fanciness
 	float rot = 0;
@@ -89,6 +90,8 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererStartFrame(clear);
 		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dRendererDrawTexture(testTexture, 80, 80, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
+
+		vk2dRendererSetTarget(drawTex);
 		vk2dRendererEndFrame();
 	}
 
@@ -96,6 +99,7 @@ int main(int argc, const char *argv[]) {
 	vk2dTextureFree(testTexture);
 	vk2dImageFree(testImage);
 	vk2dPolygonFree(testPoly);
+	vk2dTextureFree(drawTex);
 	vk2dRendererQuit();
 	SDL_DestroyWindow(window);
 	return 0;

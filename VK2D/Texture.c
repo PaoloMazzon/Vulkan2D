@@ -81,6 +81,7 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 }
 
 void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera);
+void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DPolygon poly = vk2dPolygonTextureCreate(dev, (void*)immutableFull, baseTexVertexCount);
@@ -108,7 +109,8 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 		out->imgSampler = &renderer->textureSampler;
 		out->bounds = poly;
 
-		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
+		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, 1);
+		_vk2dImageTransitionImageLayout(dev, out->img->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		// Set up FBO
 		const int attachCount = renderer->config.msaa > 1 ? 3 : 2;

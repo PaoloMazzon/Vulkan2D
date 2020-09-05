@@ -1,3 +1,5 @@
+
+
 VK2D
 ====
 VK2D is a 2D renderer using Vulkan and SDL2 in C. It aims to be simple and abstract most
@@ -28,13 +30,14 @@ you like random crashes).
    	SDL_Event e;
     vk2dRendererInit(window, td_Max, sm_TripleBuffer, msaa_32x);
     vec4 clearColour = {0.0, 0.0, 0.0, 1.0}; // Black
+    bool stopRunning = false;
     
     // Load your resources
     
-   	while (1) {
+   	while (!stopRunning) {
    		while (SDL_PollEvent(&e))
    			if (e.type == SDL_QUIT)
-   				return 0;
+   				stopRunning = true;
     
    		vk2dRendererStartFrame(clearColour);
    		
@@ -69,6 +72,8 @@ TODO
 ====
 
  + Implement render to textures
+   + Transition image layout when render target is switched to and fro
+   + Test clearing function
  + Let the polygon loader triangulate polygons on load
 
 Warning

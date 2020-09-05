@@ -87,11 +87,13 @@ static VkCommandBuffer _vk2dRendererGetNextCommandBuffer() {
 
 // Ends the render pass in the current primary buffer
 static void _vk2dRendererEndRenderPass() {
-	if (gRenderer->drawCommandBuffers[gRenderer->drawCommandPool] > 0)
+	if (gRenderer->drawCommandBuffers[gRenderer->drawCommandPool] > gRenderer->drawOffset) {
 		vkCmdExecuteCommands(
 				gRenderer->primaryBuffer[gRenderer->drawCommandPool],
 				gRenderer->drawCommandBuffers[gRenderer->drawCommandPool] - gRenderer->drawOffset,
 				&gRenderer->draws[gRenderer->drawCommandPool][gRenderer->drawOffset]);
+		gRenderer->drawOffset = gRenderer->drawCommandBuffers[gRenderer->drawCommandPool];
+	}
 	vkCmdEndRenderPass(gRenderer->primaryBuffer[gRenderer->drawCommandPool]);
 }
 
@@ -912,16 +914,19 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 		VkFramebuffer framebuffer = target == VK2D_TARGET_SCREEN ? gRenderer->framebuffers[gRenderer->scImageIndex] : target->fbo;
 		VkImage image = target == VK2D_TARGET_SCREEN ? gRenderer->swapchainImages[gRenderer->scImageIndex] : target->img->img;
 		VK2DBuffer buffer = target == VK2D_TARGET_SCREEN ? gRenderer->uboBuffers[gRenderer->scImageIndex] : target->ubo;
+
+		_vk2dRendererEndRenderPass();
+
+		// Assign new render targets
 		gRenderer->targetRenderPass = pass;
 		gRenderer->targetFrameBuffer = framebuffer;
 		gRenderer->targetImage = image;
 		gRenderer->targetUBO = buffer;
 
-		// Setup render pass
-		_vk2dRendererEndRenderPass();
+		// Setup new render pass
 		VkRect2D rect = {};
-		rect.extent.width = gRenderer->surfaceWidth;
-		rect.extent.height = gRenderer->surfaceHeight;
+		rect.extent.width = target == VK2D_TARGET_SCREEN ? gRenderer->surfaceWidth : target->img->width;
+		rect.extent.height = target == VK2D_TARGET_SCREEN ? gRenderer->surfaceHeight : target->img->height;
 		const uint32_t clearCount = 1;
 		VkClearValue clearValues[1] = {};
 		clearValues[0].depthStencil.depth = 1;
