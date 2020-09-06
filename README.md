@@ -86,7 +86,6 @@ TODO
 ====
 
  + Implement render to textures
-   + Transition image layout when render target is switched to and fro
    + Test clearing function
  + Let the polygon loader triangulate polygons on load
  + Custom shaders/pipelines

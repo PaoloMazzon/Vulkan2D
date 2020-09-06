@@ -92,6 +92,7 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererDrawTexture(testTexture, 80, 80, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 
 		vk2dRendererSetTarget(drawTex);
+		vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
 		vk2dRendererEndFrame();
 	}
 

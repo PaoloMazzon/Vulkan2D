@@ -116,6 +116,7 @@ struct VK2DRenderer {
 	VkFramebuffer targetFrameBuffer; ///< Current framebuffer being rendered to
 	VkImage targetImage;             ///< Current image being rendered to
 	VK2DBuffer targetUBO;            ///< UBO being used for rendering
+	VK2DTexture target;              ///< Just for simplicity sake
 };
 
 /// \brief Initializes VK2D's renderer
@@ -152,9 +153,7 @@ void vk2dRendererQuit();
 
 /// \brief Gets the internal renderer's pointer
 /// \return Returns the internal VK2DRenderer pointer (can be NULL)
-///
-/// This is meant to be more control and configuration for those who are comfortable
-/// with Vulkan. It is not recommended that you use this function unless necessary.
+/// \warning This could be referred to as the ***DANGER ZONE***, read the documentation before trying anything
 VK2DRenderer vk2dRendererGetPointer();
 
 /// \brief Gets the current user configuration of the renderer
@@ -194,6 +193,7 @@ VK2DLogicalDevice vk2dRendererGetDevice();
 /// \brief Changes the render target to a texture or the screen
 /// \param target Target texture to switch to or VK2D_TARGET_SCREEN for the screen
 /// \warning This can be computationally expensive so don't take this simple function lightly (it ends then starts a render pass)
+/// \warning Any time you change the target to a texture, you absolutely must change the target back to VK2D_TARGET_SCREEN when you're done drawing or else you can expect a crash
 void vk2dRendererSetTarget(VK2DTexture target);
 
 /// \brief Sets the current colour modifier (Colour all pixels are blended with)

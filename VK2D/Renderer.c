@@ -49,6 +49,51 @@ static const int EXTENSION_COUNT = 0;
 
 /******************************* Internal functions *******************************/
 
+// This is used when changing the render target to make sure the texture is either ready to be drawn itself or rendered to
+void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout new) {
+	VkPipelineStageFlags sourceStage = 0;
+	VkPipelineStageFlags destinationStage = 0;
+
+	VkImageMemoryBarrier barrier = {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout = old;
+	barrier.newLayout = new;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = img;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+
+	if (old == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL && new == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	} else if (new == VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL && old == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	} else {
+		vk2dLogMessage("!!!Unsupported image transition!!!");
+		vk2dErrorCheck(-1);
+	}
+
+	vkCmdPipelineBarrier(
+			gRenderer->primaryBuffer[gRenderer->drawCommandPool],
+			sourceStage, destinationStage,
+			0,
+			0, VK_NULL_HANDLE,
+			0, VK_NULL_HANDLE,
+			1, &barrier
+	);
+}
+
 // Rebuilds the matrices for a given buffer and camera
 void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera) {
 	// Assemble view
@@ -837,6 +882,7 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 	gRenderer->targetSubPass = 0;
 	gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
 	gRenderer->targetUBO = gRenderer->uboBuffers[gRenderer->scImageIndex];
+	gRenderer->target = VK2D_TARGET_SCREEN;
 
 	// Flush the current ubo into its buffer for the frame
 	_vk2dCameraUpdateUBO(&gRenderer->ubos[gRenderer->scImageIndex], &gRenderer->camera);
@@ -908,7 +954,8 @@ VK2DLogicalDevice vk2dRendererGetDevice() {
 }
 
 void vk2dRendererSetTarget(VK2DTexture target) {
-	if (target->fbo != gRenderer->targetFrameBuffer) {
+	if (target != gRenderer->target) {
+		gRenderer->target = target;
 		// Figure out which render pass to use
 		VkRenderPass pass = target == VK2D_TARGET_SCREEN ? gRenderer->midFrameSwapRenderPass : gRenderer->externalTargetRenderPass;
 		VkFramebuffer framebuffer = target == VK2D_TARGET_SCREEN ? gRenderer->framebuffers[gRenderer->scImageIndex] : target->fbo;
@@ -916,6 +963,12 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 		VK2DBuffer buffer = target == VK2D_TARGET_SCREEN ? gRenderer->uboBuffers[gRenderer->scImageIndex] : target->ubo;
 
 		_vk2dRendererEndRenderPass();
+
+		// Now we either have to transition the image layout depending on whats going in and whats poppin out
+		if (target == VK2D_TARGET_SCREEN)
+			_vk2dTransitionImageLayout(gRenderer->targetImage, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		else
+			_vk2dTransitionImageLayout(target->img->img, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		// Assign new render targets
 		gRenderer->targetRenderPass = pass;
