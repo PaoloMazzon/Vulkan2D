@@ -12,20 +12,20 @@
 
 // Will be modified to fit the texture then uploaded to a polygon
 VK2DVertexTexture baseTex[] = {
-		{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-		{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-		{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
+		{{1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}
 };
 VK2DVertexTexture immutableFull[] = {
-		{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-		{{1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{1.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-		{{0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}}
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f}},
+		{{1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 1.0f}},
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f}}
 };
 const uint32_t baseTexVertexCount = 6;
 
@@ -102,7 +102,6 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera);
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
-	VK2DPolygon poly = vk2dPolygonTextureCreate(dev, (void*)immutableFull, baseTexVertexCount);
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 	immutableFull[1].pos[0] = w;
 	immutableFull[2].pos[0] = w;
@@ -110,6 +109,7 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	immutableFull[3].pos[0] = w;
 	immutableFull[3].pos[1] = h;
 	immutableFull[4].pos[1] = h;
+	VK2DPolygon poly = vk2dPolygonTextureCreate(dev, (void*)immutableFull, baseTexVertexCount);
 
 	// For the UBO
 	VK2DCamera cam = {
@@ -128,14 +128,16 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 		out->bounds = poly;
 
 		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
+		out->sampledImg = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
 		_vk2dImageTransitionImageLayout(dev, out->img->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		_vk2dImageTransitionImageLayout(dev, out->sampledImg->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		// Set up FBO
 		const int attachCount = renderer->config.msaa > 1 ? 3 : 2;
 		VkImageView attachments[attachCount];
 		if (renderer->config.msaa > 1) {
 			attachments[0] = renderer->dsi->view;
-			attachments[1] = renderer->msaaImage->view;
+			attachments[1] = out->sampledImg->view;
 			attachments[2] = out->img->view;
 		} else {
 			attachments[0] = renderer->dsi->view;
@@ -162,6 +164,7 @@ void vk2dTextureFree(VK2DTexture tex) {
 			vkDestroyFramebuffer(tex->img->dev->dev, tex->fbo, VK_NULL_HANDLE);
 			vk2dImageFree(tex->img);
 			vk2dBufferFree(tex->ubo);
+			vk2dImageFree(tex->sampledImg);
 		}
 		vk2dPolygonFree(tex->bounds);
 		free(tex);

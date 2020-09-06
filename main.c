@@ -20,6 +20,7 @@ int main(int argc, const char *argv[]) {
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
 	SDL_Event e;
 	bool quit = false;
+	bool drawnToTex = false;
 
 	if (window == NULL)
 		return -1;
@@ -81,6 +82,7 @@ int main(int argc, const char *argv[]) {
 			}
 		}
 
+
 		// Fancy tweening
 		rot += (VK2D_PI * 2) / 120;
 		scaleRot += (VK2D_PI * 2) / 45;
@@ -88,11 +90,17 @@ int main(int argc, const char *argv[]) {
 		yScale = sin(scaleRot) * 0.25;
 
 		vk2dRendererStartFrame(clear);
-		vk2dDrawPolygon(testPoly, 0, 0);
-		vk2dRendererDrawTexture(testTexture, 80, 80, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 
-		vk2dRendererSetTarget(drawTex);
-		vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
+		if (!drawnToTex) {
+			vk2dRendererSetTarget(drawTex);
+			vk2dRendererClear();
+			vk2dRendererDrawPolygon(testPoly, 0, 0, true, 1, 1, 1, 0, 0, 0);
+			vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
+			drawnToTex = true;
+		}
+		//vk2dDrawPolygon(testPoly, 0, 0);
+		vk2dRendererDrawTexture(drawTex, 0, 0, 1, 1, 0, 0, 0);
+		vk2dRendererDrawTexture(testTexture, 80, 80, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();
 	}
 

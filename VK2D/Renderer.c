@@ -47,6 +47,16 @@ static const int LAYER_COUNT = 0;
 static const int EXTENSION_COUNT = 0;
 #endif // VK2D_ENABLE_DEBUG
 
+VK2DVertexColour unitSquare[] = {
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}
+};
+const uint32_t unitSquareVertices = 6;
+
 /******************************* Internal functions *******************************/
 
 // This is used when changing the render target to make sure the texture is either ready to be drawn itself or rendered to
@@ -678,6 +688,14 @@ static void _vk2dRendererDestroySampler() {
 	vkDestroySampler(gRenderer->ld->dev, gRenderer->textureSampler, VK_NULL_HANDLE);
 }
 
+static void _vk2dRendererCreateUnits() {
+	gRenderer->unitSquare = vk2dPolygonShapeCreate(gRenderer->ld, unitSquare, unitSquareVertices);
+}
+
+static void _vk2dRendererDestroyUnits() {
+	vk2dPolygonFree(gRenderer->unitSquare);
+}
+
 // If the window is resized or minimized or whatever
 static void _vk2dRendererResetSwapchain() {
 	// Hang while minimized
@@ -784,6 +802,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		_vk2dRendererCreateUniformBuffers();
 		_vk2dRendererCreateDescriptorPool();
 		_vk2dRendererCreateSampler();
+		_vk2dRendererCreateUnits();
 		_vk2dRendererCreateSynchronization();
 
 		vk2dRendererSetColourMod((void*)VK2D_DEFAULT_COLOUR_MOD);
@@ -806,6 +825,7 @@ void vk2dRendererQuit() {
 
 		// Destroy subsystems
 		_vk2dRendererDestroySynchronization();
+		_vk2dRendererDestroyUnits();
 		_vk2dRendererDestroySampler();
 		_vk2dRendererDestroyDescriptorPool();
 		_vk2dRendererDestroyUniformBuffers();
@@ -1035,37 +1055,15 @@ void vk2dRendererSetTextureCamera(bool useCameraOnTextures) {
 	gRenderer->enableTextureCameraUBO = useCameraOnTextures;
 }
 
-void vk2dRendererClear(vec4 colour) {
-	VkImageSubresourceRange range = {};
-	range.layerCount = 1;
-	range.baseArrayLayer = 0;
-	range.baseMipLevel = 0;;
-	range.levelCount = 1;
-	range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	VkClearColorValue clear = {};
-	clear.float32[0] = colour[0];
-	clear.float32[1] = colour[1];
-	clear.float32[2] = colour[2];
-	clear.float32[3] = colour[3];
+void vk2dRendererClear() {
+	if (gRenderer->target == VK2D_TARGET_SCREEN || gRenderer->enableTextureCameraUBO) // TODO: Create another UBO that doesn't account for the camera so this doesn't need to play around the camera
+		vk2dRendererDrawRectangle(gRenderer->camera.x, gRenderer->camera.y, gRenderer->camera.w, gRenderer->camera.h);
+	else
+		vk2dRendererDrawRectangle(0, 0, gRenderer->target->img->width, gRenderer->target->img->height);
+}
 
-	vkCmdClearColorImage(gRenderer->primaryBuffer[gRenderer->drawCommandPool], gRenderer->targetImage, gRenderer->targetImage == gRenderer->swapchainImages[gRenderer->scImageIndex] ? VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR : VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clear, 1, &range);
-	// Setup render pass
-	_vk2dRendererEndRenderPass();
-	VkRect2D rect = {};
-	rect.extent.width = gRenderer->surfaceWidth;
-	rect.extent.height = gRenderer->surfaceHeight;
-	const uint32_t clearCount = 1;
-	VkClearValue clearValues[1] = {};
-	clearValues[0].depthStencil.depth = 1;
-	clearValues[0].depthStencil.stencil = 0;
-	VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
-			gRenderer->targetRenderPass,
-			gRenderer->targetFrameBuffer,
-			rect,
-			clearValues,
-			clearCount);
-
-	vkCmdBeginRenderPass(gRenderer->primaryBuffer[gRenderer->drawCommandPool], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+void vk2dRendererDrawRectangle(float x, float y, float w, float h) {
+	vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, 0, 0, 0);
 }
 
 static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {

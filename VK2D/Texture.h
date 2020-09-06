@@ -17,6 +17,7 @@ extern "C" {
 struct VK2DTexture {
 	VkSampler *imgSampler; ///< Sampler to make it shader visible (pointer to the universal one made by and maintained by the renderer)
 	VK2DImage img;         ///< Internal image
+	VK2DImage sampledImg;  ///< Image for MSAA
 	VK2DPolygon bounds;    ///< Needed to render and more so to store the texture coordinates
 	VkFramebuffer fbo;     ///< Framebuffer of this texture so it can be drawn to
 	VK2DBuffer ubo;        ///< UBO that will be used when drawing to this texture

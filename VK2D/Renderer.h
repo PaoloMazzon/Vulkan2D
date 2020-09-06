@@ -117,6 +117,9 @@ struct VK2DRenderer {
 	VkImage targetImage;             ///< Current image being rendered to
 	VK2DBuffer targetUBO;            ///< UBO being used for rendering
 	VK2DTexture target;              ///< Just for simplicity sake
+
+	// Makes drawing things simpler
+	VK2DPolygon unitSquare; // Used to draw rectangles
 };
 
 /// \brief Initializes VK2D's renderer
@@ -251,11 +254,15 @@ void vk2dRendererSetViewport(float x, float y, float w, float h);
 /// \param h Will be given the current h
 void vk2dRendererGetViewport(float *x, float *y, float *w, float *h);
 
-/// \brief Clears the current render target to a specified colour
-/// \param colour Colour to clear with
-///
-/// The vec4 is treated as an RGBA array
-void vk2dRendererClear(vec4 colour);
+/// \brief Clears the current render target to the current renderer colour
+void vk2dRendererClear();
+
+/// \brief Draws a rectangle using the current rendering colour
+/// \param x X position to draw the rectangle
+/// \param y Y position to draw the rectangle
+/// \param w Width of the rectangle
+/// \param h Height of the rectangle
+void vk2dRendererDrawRectangle(float x, float y, float w, float h);
 
 /// \brief Renders a texture
 /// \param tex Texture to draw

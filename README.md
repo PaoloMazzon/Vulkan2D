@@ -81,12 +81,13 @@ in development as lacks a few very important things (check the TODO).
  + Colour modifier that can be changed mid-frame in order to make things transparent, colour white things, and so on
  + Build options to make the renderer play with your setup
  + Small amount of required features and limits to make the renderer work on most machines
+ + Render to textures and/or the screen
 
 TODO
 ====
 
- + Implement render to textures
-   + Test clearing function
+ + Fix clearing function for rotated camera
+ + Have the renderer recreate the render textures when the MSAA is changed
  + Let the polygon loader triangulate polygons on load
  + Custom shaders/pipelines
  + Load default configurations from file automatically
