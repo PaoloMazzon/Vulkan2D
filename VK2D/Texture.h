@@ -47,7 +47,7 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h);
 
 /// \brief Creates a texture from an image and polygon, allowing you to specify the texture's polygon
 /// \param image Image to use for the texture
-/// \param poly Polygon to use with the texture (must be created with vk2dPolygonTextureCreate)
+/// \param poly Polygon to use with the texture (must be created with vk2dPolygonTextureCreateRaw)
 /// \return Returns a new texture
 /// \warning Textures are closely tied to the renderer and require the renderer be initialized to load and use them
 /// \warning The polygon will be destroyed when the class is destroyed, do not free it on your own

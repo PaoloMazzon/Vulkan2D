@@ -64,7 +64,7 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 	baseTex[4].pos[1] = hInImage;
 
 	VK2DTexture out = calloc(1, sizeof(struct VK2DTexture));
-	VK2DPolygon poly = vk2dPolygonTextureCreate(image->dev, baseTex, baseTexVertexCount);
+	VK2DPolygon poly = vk2dPolygonTextureCreateRaw(image->dev, baseTex, baseTexVertexCount);
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 
 	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
@@ -111,7 +111,7 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	immutableFull[3].pos[0] = w;
 	immutableFull[3].pos[1] = h;
 	immutableFull[4].pos[1] = h;
-	VK2DPolygon poly = vk2dPolygonTextureCreate(dev, (void*)immutableFull, baseTexVertexCount);
+	VK2DPolygon poly = vk2dPolygonTextureCreateRaw(dev, (void *) immutableFull, baseTexVertexCount);
 
 	// For the UBO
 	VK2DCamera cam = {

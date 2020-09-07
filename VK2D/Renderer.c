@@ -743,7 +743,7 @@ static void _vk2dRendererDestroySampler() {
 
 static void _vk2dRendererCreateUnits() {
 #ifdef VK2D_UNIT_GENERATION
-	gRenderer->unitSquare = vk2dPolygonShapeCreate(gRenderer->ld, unitSquare, unitSquareVertices);
+	gRenderer->unitSquare = vk2dPolygonShapeCreateRaw(gRenderer->ld, unitSquare, unitSquareVertices);
 	vk2dLogMessage("Created unit polygons...");
 #else // VK2D_UNIT_GENERATION
 	vk2dLogMessage("Unit polygons disabled...");

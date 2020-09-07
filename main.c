@@ -2,6 +2,7 @@
 #include <SDL2/SDL_vulkan.h>
 #include <stdbool.h>
 #include "VK2D/VK2D.h"
+#include "VK2D/Validation.h"
 #include <stdio.h>
 #include <time.h>
 
@@ -37,10 +38,15 @@ int main(int argc, const char *argv[]) {
 	vk2dRendererSetCamera(cam);
 
 	// Load test assets
-	VK2DPolygon testPoly = vk2dPolygonShapeCreate(vk2dRendererGetDevice(), (void*)SAMPLE_TRIANGLE, VERTICES);
+	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw(vk2dRendererGetDevice(), (void *) SAMPLE_TRIANGLE, VERTICES);
 	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
 	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
 	VK2DTexture drawTex = vk2dTextureCreate(vk2dRendererGetDevice(), 320, 240);
+
+	// Delta and fps
+	double lastTime = SDL_GetPerformanceCounter();
+	double secondCounter = SDL_GetPerformanceCounter();
+	double frameCounter = 0;
 
 	// Testing values for fanciness
 	float rot = 0;
@@ -93,9 +99,11 @@ int main(int argc, const char *argv[]) {
 		}
 
 
-		// Fancy tweening
-		rot += (VK2D_PI * 2) / 120;
-		scaleRot += (VK2D_PI * 2) / 45;
+		// Fancy tweening and extremely basic delta timing
+		double delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
+		lastTime = SDL_GetPerformanceCounter();
+		rot += VK2D_PI * 1.5 * delta;
+		scaleRot += VK2D_PI * 3.25 * delta;
 		xScale = cos(scaleRot) * 0.25;
 		yScale = sin(scaleRot) * 0.25;
 
@@ -108,10 +116,18 @@ int main(int argc, const char *argv[]) {
 			vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
 			drawnToTex = true;
 		}
-		//vk2dDrawPolygon(testPoly, 0, 0);
-		vk2dRendererDrawTexture(drawTex, 0, 0, 1, 1, 0, 0, 0);
+		vk2dDrawPolygon(testPoly, 0, 0);
+		//vk2dRendererDrawTexture(drawTex, 0, 0, 1, 1, 0, 0, 0);
 		vk2dRendererDrawTexture(testTexture, 80, 80, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();
+
+		// Framerate is printed once per second
+		frameCounter += 1;
+		if (SDL_GetPerformanceCounter() - secondCounter >= SDL_GetPerformanceFrequency()) {
+			vk2dLogMessage("FPS: %f", frameCounter / ((SDL_GetPerformanceCounter() - secondCounter) / (double)SDL_GetPerformanceFrequency()));
+			secondCounter = SDL_GetPerformanceCounter();
+			frameCounter = 0;
+		}
 	}
 
 	vk2dRendererWait();

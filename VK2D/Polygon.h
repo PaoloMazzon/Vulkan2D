@@ -17,19 +17,27 @@ struct VK2DPolygon {
 
 /// \brief Creates a polygon for the texture pipeline (should be triangulated)
 /// \param dev Device to allocate the memory on
-/// \param vertexData Vertex data of the triangle
+/// \param vertexData Vertex data of the polygon (must be triangulated)
 /// \param vertexCount Number of vertices
 /// \return Returns a new polygon
-/// \warning Polygon vertices should be specified clockwise or they will not be rendered
-VK2DPolygon vk2dPolygonTextureCreate(VK2DLogicalDevice dev, VK2DVertexTexture *vertexData, uint32_t vertexCount);
+/// \warning This function is for creating fancier effects with the inner vertex data. Use vk2dPolygonCreate for creating simple shapes
+VK2DPolygon vk2dPolygonTextureCreateRaw(VK2DLogicalDevice dev, VK2DVertexTexture *vertexData, uint32_t vertexCount);
 
 /// \brief Creates a polygon for the shapes pipeline (should be triangulated)
 /// \param dev Device to allocate the memory on
-/// \param vertexData Vertex data of the triangle
+/// \param vertexData Vertex data of the polygon (must be triangulated)
 /// \param vertexCount Number of vertices
 /// \return Returns a new polygon
-/// \warning Polygon vertices should be specified clockwise or they will not be rendered
-VK2DPolygon vk2dPolygonShapeCreate(VK2DLogicalDevice dev, VK2DVertexColour *vertexData, uint32_t vertexCount);
+/// \warning This function is for creating fancier effects with the inner vertex data. Use vk2dPolygonCreate for creating simple shapes
+VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DLogicalDevice dev, VK2DVertexColour *vertexData, uint32_t vertexCount);
+
+/// \brief Creates a polygon with specified vertices for drawing (use vk2dRendererSetColourMod to change colours)
+/// \param dev Device to create the polygon with
+/// \param vertices List of x/y positions for the polygon's vertices
+/// \param vertexCount Amount of vertices
+/// \return Returns either the new polygon or NULL if it failed (resultant polygon ***MAY NOT*** be used with vk2dTextureCreateFrom)
+/// \warning Convex polygons only, the triangulation method will likely fail for concave polygons
+VK2DPolygon vk2dPolygonCreate(VK2DLogicalDevice dev, vec2 *vertices, uint32_t vertexCount);
 
 /// \brief Frees a polygon from memory
 /// \param polygon Polygon to free
