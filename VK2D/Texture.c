@@ -100,6 +100,8 @@ VK2DTexture vk2dTextureCreateFrom(VK2DImage image, VK2DPolygon poly) {
 
 void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera);
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
+void _vk2dRendererAddTarget(VK2DTexture tex);
+void _vk2dRendererRemoveTarget(VK2DTexture tex);
 VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
@@ -149,6 +151,8 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 
 		// And the UBO
 		out->ubo = vk2dBufferLoad(dev, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo);
+
+		_vk2dRendererAddTarget(out);
 	} else {
 		vk2dPolygonFree(poly);
 		free(out);
@@ -165,6 +169,7 @@ void vk2dTextureFree(VK2DTexture tex) {
 			vk2dImageFree(tex->img);
 			vk2dBufferFree(tex->ubo);
 			vk2dImageFree(tex->sampledImg);
+			_vk2dRendererRemoveTarget(tex);
 		}
 		vk2dPolygonFree(tex->bounds);
 		free(tex);

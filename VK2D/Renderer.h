@@ -117,9 +117,12 @@ struct VK2DRenderer {
 	VkImage targetImage;             ///< Current image being rendered to
 	VK2DBuffer targetUBO;            ///< UBO being used for rendering
 	VK2DTexture target;              ///< Just for simplicity sake
+	VK2DTexture *targets;            ///< List of all currently loaded textures targets (in case the MSAA is changed and the sample image needs to be reloaded)
+	uint32_t targetListSize;         ///< Amount of elements in the list (only non-null elements count)
 
 	// Makes drawing things simpler
-	VK2DPolygon unitSquare; // Used to draw rectangles
+	VK2DPolygon unitSquare; ///< Used to draw rectangles
+	VK2DBuffer unitUBO;     ///< Used to draw to the whole screen
 };
 
 /// \brief Initializes VK2D's renderer
@@ -184,9 +187,11 @@ void vk2dRendererResetSwapchain();
 
 /// \brief Performs the tasks necessary to start rendering a frame (call before you start drawing)
 /// \param clearColour Colour to clear the screen to
+/// \warning You may only call drawing functions after vk2dRendererStartFrame is called and before vk2dRendererEndFrame is called
 void vk2dRendererStartFrame(vec4 clearColour);
 
 /// \brief Performs the tasks necessary to complete/present a frame (call once you're done drawing)
+/// \warning You may only call drawing functions after vk2dRendererStartFrame is called and before vk2dRendererEndFrame is called
 void vk2dRendererEndFrame();
 
 /// \brief Returns the logical device being used by the renderer
@@ -255,6 +260,7 @@ void vk2dRendererSetViewport(float x, float y, float w, float h);
 void vk2dRendererGetViewport(float *x, float *y, float *w, float *h);
 
 /// \brief Clears the current render target to the current renderer colour
+/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
 void vk2dRendererClear();
 
 /// \brief Draws a rectangle using the current rendering colour
@@ -262,7 +268,11 @@ void vk2dRendererClear();
 /// \param y Y position to draw the rectangle
 /// \param w Width of the rectangle
 /// \param h Height of the rectangle
-void vk2dRendererDrawRectangle(float x, float y, float w, float h);
+/// \param r Rotation of the rectangle
+/// \param ox X origin of rotation of the rectangle (in percentage)
+/// \param oy Y origin of rotation of the rectangle (in percentage)
+/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
+void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy);
 
 /// \brief Renders a texture
 /// \param tex Texture to draw
@@ -271,8 +281,8 @@ void vk2dRendererDrawRectangle(float x, float y, float w, float h);
 /// \param xscale Horizontal scale for drawing the texture (negative for flipped)
 /// \param yscale Vertical scale for drawing the texture (negative for flipped)
 /// \param rot Rotation to draw the texture (VK2D only uses radians)
-/// \param originX X origin for rotation
-/// \param originY Y origin for rotation
+/// \param originX X origin for rotation (in pixels)
+/// \param originY Y origin for rotation (in pixels)
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY);
 
 /// \brief Renders a polygon
@@ -284,9 +294,14 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 /// \param xscale Horizontal scale for drawing the polygon (negative for flipped)
 /// \param yscale Vertical scale for drawing the polygon (negative for flipped)
 /// \param rot Rotation to draw the polygon (VK2D only uses radians)
-/// \param originX X origin for rotation
-/// \param originY Y origin for rotation
+/// \param originX X origin for rotation (in pixels)
+/// \param originY Y origin for rotation (in pixels)
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY);
+
+/************************* Shorthand for simpler drawing at no performance cost *************************/
+
+/// \brief Draws a rectangle using the current render colour (floats all around)
+#define vk2dDrawRectangle(x, y, w, h) vk2dRendererDrawRectangle(x, y, w, h, 0, 0, 0);
 
 /// \brief Draws a texture (x and y should be floats)
 #define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0)

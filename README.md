@@ -86,8 +86,6 @@ in development as lacks a few very important things (check the TODO).
 TODO
 ====
 
- + Fix clearing function for rotated camera
- + Have the renderer recreate the render textures when the MSAA is changed
  + Let the polygon loader triangulate polygons on load
  + Custom shaders/pipelines
  + Load default configurations from file automatically

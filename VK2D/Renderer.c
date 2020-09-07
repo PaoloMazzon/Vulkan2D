@@ -59,6 +59,43 @@ const uint32_t unitSquareVertices = 6;
 
 /******************************* Internal functions *******************************/
 
+// This is called when a render-target texture is created to make the renderer aware of it
+void _vk2dRendererAddTarget(VK2DTexture tex) {
+	uint32_t i;
+	bool foundSpot = false;
+	VK2DTexture *newList;
+	for (i = 0; i < gRenderer->targetListSize; i++) {
+		if (gRenderer->targets[i] == NULL) {
+			foundSpot = true;
+			gRenderer->targets[i] = tex;
+		}
+	}
+
+	// We extend the list if no spots were found
+	if (!foundSpot) {
+		newList = realloc(gRenderer->targets, (gRenderer->targetListSize + VK2D_DEFAULT_ARRAY_EXTENSION) * sizeof(VK2DTexture));
+
+		if (vk2dPointerCheck(newList)) {
+			gRenderer->targets = newList;
+			gRenderer->targets[gRenderer->targetListSize] = tex;
+
+			// Fill the newly allocated parts of the list with NULL
+			for (i = gRenderer->targetListSize + 1; i < gRenderer->targetListSize + VK2D_DEFAULT_ARRAY_EXTENSION; i++)
+				gRenderer->targets[i] = NULL;
+
+			gRenderer->targetListSize += VK2D_DEFAULT_ARRAY_EXTENSION;
+		}
+	}
+}
+
+// Called when a render-target texture is destroyed so the renderer can remove it from its list
+void _vk2dRendererRemoveTarget(VK2DTexture tex) {
+	uint32_t i;
+	for (i = 0; i < gRenderer->targetListSize; i++)
+		if (gRenderer->targets[i] == tex)
+			gRenderer->targets[i] = NULL;
+}
+
 // This is used when changing the render target to make sure the texture is either ready to be drawn itself or rendered to
 void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout new) {
 	VkPipelineStageFlags sourceStage = 0;
@@ -571,7 +608,7 @@ static void _vk2dRendererDestroyFrameBuffer() {
 	free(gRenderer->framebuffers);
 }
 
-static void _vk2dRendererCreateUniformBuffers() {
+static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	gRenderer->ubos = calloc(1, sizeof(VK2DUniformBufferObject) * gRenderer->swapchainImageCount);
 	gRenderer->uboBuffers = malloc(sizeof(VK2DBuffer) * gRenderer->swapchainImageCount);
 	uint32_t i;
@@ -584,7 +621,8 @@ static void _vk2dRendererCreateUniformBuffers() {
 			1,
 			0
 	};
-	gRenderer->camera = cam;
+	if (newCamera)
+		gRenderer->camera = cam;
 
 	if (vk2dPointerCheck(gRenderer->ubos) && vk2dPointerCheck(gRenderer->uboBuffers)) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
@@ -593,6 +631,19 @@ static void _vk2dRendererCreateUniformBuffers() {
 			_vk2dRendererFlushUBOBuffer(i);
 		}
 	}
+
+	VK2DCamera unitCam = {
+			0,
+			0,
+			1,
+			1,
+			1,
+			0
+	};
+	VK2DUniformBufferObject unitUBO = {};
+	_vk2dCameraUpdateUBO(&unitUBO, &unitCam);
+	gRenderer->unitUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &unitUBO);
+
 	vk2dLogMessage("UBO initialized...");
 }
 
@@ -600,6 +651,7 @@ static void _vk2dRendererDestroyUniformBuffers() {
 	uint32_t i;
 	for (i = 0; i < gRenderer->swapchainImageCount; i++)
 		vk2dBufferFree(gRenderer->uboBuffers[i]);
+	vk2dBufferFree(gRenderer->unitUBO);
 	free(gRenderer->ubos);
 	free(gRenderer->uboBuffers);
 }
@@ -682,6 +734,7 @@ static void _vk2dRendererDestroySynchronization() {
 static void _vk2dRendererCreateSampler() {
 	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode == ft_Linear, gRenderer->config.filterMode == ft_Linear ? gRenderer->config.msaa : 1, 1);
 	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler));
+	vk2dLogMessage("Created texture sampler...");
 }
 
 static void _vk2dRendererDestroySampler() {
@@ -689,11 +742,59 @@ static void _vk2dRendererDestroySampler() {
 }
 
 static void _vk2dRendererCreateUnits() {
+#ifdef VK2D_UNIT_GENERATION
 	gRenderer->unitSquare = vk2dPolygonShapeCreate(gRenderer->ld, unitSquare, unitSquareVertices);
+	vk2dLogMessage("Created unit polygons...");
+#else // VK2D_UNIT_GENERATION
+	vk2dLogMessage("Unit polygons disabled...");
+#endif // VK2D_UNIT_GENERATION
 }
 
 static void _vk2dRendererDestroyUnits() {
+#ifdef VK2D_UNIT_GENERATION
 	vk2dPolygonFree(gRenderer->unitSquare);
+#endif // VK2D_UNIT_GENERATION
+}
+
+void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
+static void _vk2dRendererRefreshTargets() {
+	uint32_t i;
+	for (i = 0; i < gRenderer->targetListSize; i++) {
+		if (gRenderer->targets[i] != NULL) {
+			// Sampled image
+			vk2dImageFree(gRenderer->targets[i]->sampledImg);
+			gRenderer->targets[i]->sampledImg = vk2dImageCreate(
+					gRenderer->ld,
+					gRenderer->targets[i]->img->width,
+					gRenderer->targets[i]->img->height,
+					VK_FORMAT_B8G8R8A8_SRGB,
+					VK_IMAGE_ASPECT_COLOR_BIT,
+					VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+					(VkSampleCountFlagBits)gRenderer->config.msaa);
+			_vk2dImageTransitionImageLayout(gRenderer->ld, gRenderer->targets[i]->sampledImg->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+
+			// Framebuffer
+			vkDestroyFramebuffer(gRenderer->ld->dev, gRenderer->targets[i]->fbo, VK_NULL_HANDLE);
+			const int attachCount = gRenderer->config.msaa > 1 ? 3 : 2;
+			VkImageView attachments[attachCount];
+			if (gRenderer->config.msaa > 1) {
+				attachments[0] = gRenderer->dsi->view;
+				attachments[1] = gRenderer->targets[i]->sampledImg->view;
+				attachments[2] = gRenderer->targets[i]->img->view;
+			} else {
+				attachments[0] = gRenderer->dsi->view;
+				attachments[1] = gRenderer->targets[i]->img->view;
+			}
+
+			VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(gRenderer->externalTargetRenderPass, gRenderer->targets[i]->img->width, gRenderer->targets[i]->img->height, attachments, attachCount);
+			vk2dErrorCheck(vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->targets[i]->fbo));
+		}
+	}
+	vk2dLogMessage("Refreshed %i render targets...", gRenderer->targetListSize);
+}
+
+static void _vk2dRendererDestroyTargetsList() {
+	free(gRenderer->targets);
 }
 
 // If the window is resized or minimized or whatever
@@ -732,9 +833,10 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateRenderPass();
 	_vk2dRendererCreatePipelines();
 	_vk2dRendererCreateFrameBuffer();
-	_vk2dRendererCreateUniformBuffers();
+	_vk2dRendererCreateUniformBuffers(false);
 	_vk2dRendererCreateDescriptorPool();
 	_vk2dRendererCreateSampler();
+	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
 
 	vk2dLogMessage("Recreated swapchain assets...");
@@ -799,7 +901,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		_vk2dRendererCreateDescriptorSetLayout();
 		_vk2dRendererCreatePipelines();
 		_vk2dRendererCreateFrameBuffer();
-		_vk2dRendererCreateUniformBuffers();
+		_vk2dRendererCreateUniformBuffers(true);
 		_vk2dRendererCreateDescriptorPool();
 		_vk2dRendererCreateSampler();
 		_vk2dRendererCreateUnits();
@@ -825,6 +927,7 @@ void vk2dRendererQuit() {
 
 		// Destroy subsystems
 		_vk2dRendererDestroySynchronization();
+		_vk2dRendererDestroyTargetsList();
 		_vk2dRendererDestroyUnits();
 		_vk2dRendererDestroySampler();
 		_vk2dRendererDestroyDescriptorPool();
@@ -1055,15 +1158,17 @@ void vk2dRendererSetTextureCamera(bool useCameraOnTextures) {
 	gRenderer->enableTextureCameraUBO = useCameraOnTextures;
 }
 
+static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth);
+
 void vk2dRendererClear() {
-	if (gRenderer->target == VK2D_TARGET_SCREEN || gRenderer->enableTextureCameraUBO) // TODO: Create another UBO that doesn't account for the camera so this doesn't need to play around the camera
-		vk2dRendererDrawRectangle(gRenderer->camera.x, gRenderer->camera.y, gRenderer->camera.w, gRenderer->camera.h);
-	else
-		vk2dRendererDrawRectangle(0, 0, gRenderer->target->img->width, gRenderer->target->img->height);
+	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], gRenderer->unitUBO);
+	_vk2dRendererDraw(set, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1);
 }
 
-void vk2dRendererDrawRectangle(float x, float y, float w, float h) {
-	vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, 0, 0, 0);
+void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
+#ifdef VK2D_UNIT_GENERATION
+	vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox, oy);
+#endif // VK2D_UNIT_GENERATION
 }
 
 static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {

@@ -26,6 +26,9 @@ extern "C" {
 /// Enables printing errors to a file
 #define VK2D_ERROR_FILE "vk2derror.log"
 
+/// Creates "unit polygons" that make drawing primitives without polygons possible (takes a little bit of ram and vram)
+#define VK2D_UNIT_GENERATION
+
 #ifdef __cplusplus
 };
 #endif

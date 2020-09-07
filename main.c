@@ -80,6 +80,16 @@ int main(int argc, const char *argv[]) {
 				cam.zoom -= camZoomSpeed;
 				vk2dRendererSetCamera(cam);
 			}
+			else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_8) {
+				config.msaa = msaa_8x;
+				vk2dRendererSetConfig(config);
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_4) {
+				config.msaa = msaa_4x;
+				vk2dRendererSetConfig(config);
+			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_1) {
+				config.msaa = msaa_1x;
+				vk2dRendererSetConfig(config);
+			}
 		}
 
 
