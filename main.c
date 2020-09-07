@@ -11,11 +11,14 @@ const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
 const VK2DVertexColour SAMPLE_TRIANGLE[] = {
-		{{125, 0.0, +0.0}, {1.0, 1.0, 0.5, 1}},
-		{{250, 200, +0.0}, {1.0, 0.5, 1.0, 1}},
-		{{0.0, 200, +0.0}, {0.5, 1.0, 1.0, 1}}
+		{{0.0, 0.0, +0.0}, {1.0, 1.0, 0.5, 1}},
+		{{200, 200, +0.0}, {1.0, 0.5, 1.0, 1}},
+		{{200, 0.0, +0.0}, {0.5, 1.0, 1.0, 1}},
+		{{0.0, 0.0, +0.0}, {0.5, 0.5, 1.0, 1}},
+		{{0.0, 200, +0.0}, {0.0, 1.0, 0.5, 1}},
+		{{200, 200, +0.0}, {1.0, 1.0, 1.0, 1}}
 };
-const uint32_t VERTICES = 3;
+const uint32_t VERTICES = 6;
 
 int main(int argc, const char *argv[]) {
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);

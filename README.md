@@ -86,7 +86,6 @@ in development as lacks a few very important things (check the TODO).
 TODO
 ====
 
- + Let the polygon loader triangulate polygons on load
  + Custom shaders/pipelines
  + Load default configurations from file automatically
 

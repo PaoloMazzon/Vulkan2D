@@ -33,6 +33,64 @@ VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DLogicalDevice dev, VK2DVertexColour *v
 	return poly;
 }
 
+/*
+   * Triangulation algorithm
+   *  1. Allocate a final vertex list containing (vertexCount - 2) * 3 elements
+   *  2. Starting from the third vertex, and for each vertex proceeding it
+   *    a. Add the first vertex in the polygon to the final vertex list
+   *    b. Add the current vertex in the polygon to the final list
+   *    c. Add the vertex before the current one in the polygon to the final list
+   *  3. Push the final vertex list off to vk2dPolygonShapeCreateRaw
+*/
+VK2DPolygon vk2dPolygonCreate(VK2DLogicalDevice dev, vec2 *vertices, uint32_t vertexCount) {
+	uint32_t finalVertexCount = (vertexCount - 2) * 3;
+	VK2DVertexColour *colourVertices = malloc(sizeof(VK2DVertexColour) * finalVertexCount);
+	uint32_t i;
+	uint32_t v = 0; // Current element in final vertex list
+	VK2DVertexColour defVert = {{0, 0, 0}, {1, 1, 1, 1}};
+	VK2DPolygon out = NULL;
+
+	if (vk2dPointerCheck(colourVertices)) {
+		for (i = 2; i < vertexCount; i++) {
+			defVert.pos[0] = vertices[0][0];
+			defVert.pos[1] = vertices[0][1];
+			colourVertices[v++] = defVert;
+			defVert.pos[0] = vertices[i][0];
+			defVert.pos[1] = vertices[i][1];
+			colourVertices[v++] = defVert;
+			defVert.pos[0] = vertices[i - 1][0];
+			defVert.pos[1] = vertices[i - 1][1];
+			colourVertices[v++] = defVert;
+		}
+
+		out = vk2dPolygonShapeCreateRaw(dev, colourVertices, finalVertexCount);
+		free(colourVertices);
+	}
+
+	return out;
+}
+
+VK2DPolygon vk2dPolygonCreateOutline(VK2DLogicalDevice dev, vec2 *vertices, uint32_t vertexCount) {
+	uint32_t i;
+	VK2DVertexColour defVert = {{0, 0, 0}, {1, 1, 1, 1}};
+	VK2DPolygon out = NULL;
+	VK2DVertexColour *colourVertices = malloc(sizeof(VK2DVertexColour) * (vertexCount + 1));
+
+	if (vk2dPointerCheck(colourVertices)) {
+		for (i = 0; i < vertexCount; i++) {
+			defVert.pos[0] = vertices[i][0];
+			defVert.pos[1] = vertices[i][1];
+			colourVertices[i] = defVert;
+		}
+		defVert.pos[0] = vertices[0][0];
+		defVert.pos[1] = vertices[0][1];
+		colourVertices[vertexCount] = defVert;
+		out = vk2dPolygonShapeCreateRaw(dev, colourVertices, vertexCount + 1);
+	}
+
+	return out;
+}
+
 void vk2dPolygonFree(VK2DPolygon polygon) {
 	if (polygon != NULL) {
 		vk2dBufferFree(polygon->vertices);

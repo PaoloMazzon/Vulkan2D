@@ -269,10 +269,10 @@ VkPipelineVertexInputStateCreateInfo vk2dInitPipelineVertexInputStateCreateInfo(
 	return pipelineVertexInputStateCreateInfo;
 }
 
-VkPipelineInputAssemblyStateCreateInfo vk2dInitPipelineInputAssemblyStateCreateInfo() {
+VkPipelineInputAssemblyStateCreateInfo vk2dInitPipelineInputAssemblyStateCreateInfo(bool triangles) {
 	VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo = {};
 	pipelineInputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	pipelineInputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	pipelineInputAssemblyStateCreateInfo.topology = triangles ? VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST : VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
 	pipelineInputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
 	return pipelineInputAssemblyStateCreateInfo;
 }
