@@ -18,6 +18,11 @@
 #include "VK2D/Polygon.h"
 #include "VK2D/Math.h"
 
+/******************************* Forward declarations *******************************/
+
+bool _vk2dFileExists(const char *filename);
+unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
+
 /******************************* Globals *******************************/
 
 // For debugging
@@ -499,16 +504,50 @@ static void _vk2dRendererCreatePipelines() {
 	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
 	VkPipelineVertexInputStateCreateInfo colourVertexInfo = _vk2dGetColourVertexInputState();
 
+	// Default shader files
+	uint32_t shaderTexVertSize = sizeof(VK2DVertTex);
+	bool CustomTexVertShader = false;
+	unsigned char *shaderTexVert = (void*)VK2DVertTex;
+	uint32_t shaderTexFragSize = sizeof(VK2DFragTex);
+	bool CustomTexFragShader = false;
+	unsigned char *shaderTexFrag = (void*)VK2DFragTex;
+	uint32_t shaderColourVertSize = sizeof(VK2DVertColour);
+	bool CustomColourVertShader = false;
+	unsigned char *shaderColourVert = (void*)VK2DVertColour;
+	uint32_t shaderColourFragSize = sizeof(VK2DFragColour);
+	bool CustomColourFragShader = false;
+	unsigned char *shaderColourFrag = (void*)VK2DFragColour;
+
+	// Potentially load some different ones
+#ifdef VK2D_LOAD_CUSTOM_SHADERS
+	if (_vk2dFileExists("shaders/texvert.spv")) {
+		CustomTexVertShader = true;
+		shaderTexVert = _vk2dLoadFile("shaders/texvert.spv", &shaderTexVertSize);
+	}
+	if (_vk2dFileExists("shaders/texfrag.spv")) {
+		CustomTexFragShader = true;
+		shaderTexFrag = _vk2dLoadFile("shaders/texfrag.spv", &shaderTexFragSize);
+	}
+	if (_vk2dFileExists("shaders/colourvert.spv")) {
+		CustomColourVertShader = true;
+		shaderColourVert = _vk2dLoadFile("shaders/colourvert.spv", &shaderColourVertSize);
+	}
+	if (_vk2dFileExists("shaders/colourfrag.spv")) {
+		CustomColourFragShader = true;
+		shaderColourFrag = _vk2dLoadFile("shaders/colourfrag.spv", &shaderColourFragSize);
+	}
+#endif // VK2D_LOAD_CUSTOM_SHADERS
+
 	// Texture pipeline
 	gRenderer->texPipe = vk2dPipelineCreate(
 			gRenderer->ld,
 			gRenderer->renderPass,
 			gRenderer->surfaceWidth,
 			gRenderer->surfaceHeight,
-			(void*)VK2DVertTex,
-			sizeof(VK2DVertTex),
-			(void*)VK2DFragTex,
-			sizeof(VK2DFragTex),
+			shaderTexVert,
+			shaderTexVertSize,
+			shaderTexFrag,
+			shaderTexFragSize,
 			gRenderer->duslt,
 			&textureVertexInfo,
 			true,
@@ -520,10 +559,10 @@ static void _vk2dRendererCreatePipelines() {
 			gRenderer->renderPass,
 			gRenderer->surfaceWidth,
 			gRenderer->surfaceHeight,
-			(void*)VK2DVertColour,
-			sizeof(VK2DVertColour),
-			(void*)VK2DFragColour,
-			sizeof(VK2DFragColour),
+			shaderColourVert,
+			shaderColourVertSize,
+			shaderColourFrag,
+			shaderColourFragSize,
 			gRenderer->dusls,
 			&colourVertexInfo,
 			true,
@@ -533,10 +572,10 @@ static void _vk2dRendererCreatePipelines() {
 			gRenderer->renderPass,
 			gRenderer->surfaceWidth,
 			gRenderer->surfaceHeight,
-			(void*)VK2DVertColour,
-			sizeof(VK2DVertColour),
-			(void*)VK2DFragColour,
-			sizeof(VK2DFragColour),
+			shaderColourVert,
+			shaderColourVertSize,
+			shaderColourFrag,
+			shaderColourFragSize,
 			gRenderer->dusls,
 			&colourVertexInfo,
 			false,
@@ -559,6 +598,16 @@ static void _vk2dRendererCreatePipelines() {
 					gRenderer->config.msaa
 					);
 	}
+
+	// Free custom shaders
+	if (CustomTexVertShader)
+		free(shaderTexVert);
+	if (CustomTexFragShader)
+		free(shaderTexFrag);
+	if (CustomColourVertShader)
+		free(shaderColourVert);
+	if (CustomColourFragShader)
+		free(shaderColourFrag);
 
 	vk2dLogMessage("Pipelines initialized...");
 }

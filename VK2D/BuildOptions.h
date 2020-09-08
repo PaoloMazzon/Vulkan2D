@@ -29,6 +29,12 @@ extern "C" {
 /// Creates "unit polygons" that make drawing primitives without polygons possible (takes a little bit of ram and vram)
 #define VK2D_UNIT_GENERATION
 
+/// This one is a bit trickier. Basically, if the renderer finds a file named `colourfrag.spv`, `colourvert.spv`,
+/// `texfrag.spv`, or `texvert.spv` in the directory `shaders` (relative to its working directory), it will use
+/// those shaders in place of its default ones (as found in Blobs.h). It expects them to be compiled SPIR-V
+/// shader code.
+#define VK2D_LOAD_CUSTOM_SHADERS
+
 #ifdef __cplusplus
 };
 #endif

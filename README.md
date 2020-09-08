@@ -82,12 +82,12 @@ in development as lacks a few very important things (check the TODO).
  + Build options to make the renderer play with your setup
  + Small amount of required features and limits to make the renderer work on most machines
  + Render to textures and/or the screen
+ + Loads custom default shaders from file if available (can be disabled in BuildOptions.h)
 
 TODO
 ====
 
- + Custom shaders/pipelines
- + Load default configurations from file automatically
+ + Custom shaders/pipelines (can already load custom default shaders)
 
 Warning
 =======
