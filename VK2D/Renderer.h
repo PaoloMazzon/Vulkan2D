@@ -350,6 +350,3 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 
 /// \brief Draws a polygon (x and y should be floats)
 #define vk2dDrawPolygon(polygon, x, y) vk2dRendererDrawPolygon(polygon, x, y, true, 0, 1, 1, 0, 0, 0)
-
-// TODO: Function for loading custom shaders
-// TODO: Function for setting the view/projection matrix in a nice high-level way
