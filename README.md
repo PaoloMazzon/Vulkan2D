@@ -74,7 +74,7 @@ Features
 Right now it can do most things you would need in a game-dev environment but is still
 in development as lacks a few very important things (check the TODO).
 
- + Draw polygons
+ + Draw polygons easily
  + Load and draw textures (including only parts of images for spritesheets and the lot)
  + Simple configuration options you can change at any point (you need not restart to change MSAA, for example)
  + Simple yet powerful camera and viewport controls

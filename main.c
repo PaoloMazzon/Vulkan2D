@@ -120,6 +120,7 @@ int main(int argc, const char *argv[]) {
 			drawnToTex = true;
 		}
 		vk2dDrawPolygon(testPoly, 0, 0);
+		vk2dDrawRectangleOutline(0, 0, 100, 100, 2);
 		//vk2dRendererDrawTexture(drawTex, 0, 0, 1, 1, 0, 0, 0);
 		vk2dRendererDrawTexture(testTexture, 80, 80, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();

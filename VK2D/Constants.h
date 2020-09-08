@@ -31,6 +31,10 @@ extern const VK2DTexture VK2D_TARGET_SCREEN;
 /// Colour mod when the renderer first initializes
 extern const vec4 VK2D_DEFAULT_COLOUR_MOD;
 
+/// Number of vertices to build the unit circle with if VK2D_UNIT_GENERATION is enabled. Higher values will result in a smoother circle but will be longer to initially create, slower to render, and consume more VRAM
+/// At 36, you're looking at something more than good enough for most pixel art games. At 360 you're looking at something silky-smooth for most things.
+extern const float VK2D_CIRCLE_VERTICES;
+
 /// Number of command pools a device has to cycle through - You generally want this and VK2D_MAX_FRAMES_IN_FLIGHT to be the same
 #define VK2D_DEVICE_COMMAND_POOLS ((uint32_t)3)
 

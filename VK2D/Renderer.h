@@ -121,8 +121,11 @@ struct VK2DRenderer {
 	uint32_t targetListSize;         ///< Amount of elements in the list (only non-null elements count)
 
 	// Makes drawing things simpler
-	VK2DPolygon unitSquare; ///< Used to draw rectangles
-	VK2DBuffer unitUBO;     ///< Used to draw to the whole screen
+	VK2DPolygon unitSquare;        ///< Used to draw rectangles
+	VK2DPolygon unitSquareOutline; ///< Used to draw rectangle outlines
+	VK2DPolygon unitCircle;        ///< Used to draw circles
+	VK2DPolygon unitCircleOutline; ///< Used to draw circle outlines
+	VK2DBuffer unitUBO;            ///< Used to draw to the whole screen
 };
 
 /// \brief Initializes VK2D's renderer
@@ -274,6 +277,33 @@ void vk2dRendererClear();
 /// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy);
 
+/// \brief Draws a rectangle using the current rendering colour
+/// \param x X position to draw the rectangle
+/// \param y Y position to draw the rectangle
+/// \param w Width of the rectangle
+/// \param h Height of the rectangle
+/// \param r Rotation of the rectangle
+/// \param ox X origin of rotation of the rectangle (in percentage)
+/// \param oy Y origin of rotation of the rectangle (in percentage)
+/// \param lineWidth Width of the outline
+/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
+void vk2dRendererDrawRectangleOutline(float x, float y, float w, float h, float r, float ox, float oy, float lineWidth);
+
+/// \brief Draws a circle using the current rendering colour
+/// \param x X position of the circle's center
+/// \param y Y position of the circle's center
+/// \param r Radius in pixels of the circle
+/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
+void vk2dRendererDrawCircle(float x, float y, float r);
+
+/// \brief Draws a circle using the current rendering colour
+/// \param x X position of the circle's center
+/// \param y Y position of the circle's center
+/// \param r Radius in pixels of the circle
+/// \param lineWidth Width of the outline
+/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
+void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth);
+
 /// \brief Renders a texture
 /// \param tex Texture to draw
 /// \param x x position in pixels from the top left of the window to draw it from
@@ -301,7 +331,16 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)
-#define vk2dDrawRectangle(x, y, w, h) vk2dRendererDrawRectangle(x, y, w, h, 0, 0, 0);
+#define vk2dDrawRectangle(x, y, w, h) vk2dRendererDrawRectangle(x, y, w, h, 0, 0, 0)
+
+/// \brief Draws a rectangle outline using the current render colour (floats all around)
+#define vk2dDrawRectangleOutline(x, y, w, h, lw) vk2dRendererDrawRectangleOutline(x, y, w, h, 0, 0, 0, lw)
+
+/// \brief Draws a circle using the current render colour (floats all around)
+#define vk2dDrawCircle(x, y, r) vk2dRendererDrawCircle(x, y, r)
+
+/// \brief Draws a circle outline using the current render colour (floats all around)
+#define vk2dDrawCircleOutline(x, y, r, w) vk2dRendererDrawCircleOutline(x, y, r, w)
 
 /// \brief Draws a texture (x and y should be floats)
 #define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0)

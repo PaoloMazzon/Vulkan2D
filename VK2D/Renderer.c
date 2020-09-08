@@ -57,6 +57,14 @@ VK2DVertexColour unitSquare[] = {
 };
 const uint32_t unitSquareVertices = 6;
 
+vec2 unitSquareOutline[] = {
+		{0, 0},
+		{1, 0},
+		{1, 1},
+		{0, 1}
+};
+uint32_t unitSquareOutlineVertices = 4;
+
 /******************************* Internal functions *******************************/
 
 // This is called when a render-target texture is created to make the renderer aware of it
@@ -743,7 +751,19 @@ static void _vk2dRendererDestroySampler() {
 
 static void _vk2dRendererCreateUnits() {
 #ifdef VK2D_UNIT_GENERATION
+	// Squares are simple
 	gRenderer->unitSquare = vk2dPolygonShapeCreateRaw(gRenderer->ld, unitSquare, unitSquareVertices);
+	gRenderer->unitSquareOutline = vk2dPolygonCreateOutline(gRenderer->ld, unitSquareOutline, unitSquareOutlineVertices);
+
+	// Now to generate the circle
+	vec2 *circleVertices = malloc(sizeof(vec2) * VK2D_CIRCLE_VERTICES);
+	uint32_t i;
+	for (i = 0; i < VK2D_CIRCLE_VERTICES; i++) {
+		circleVertices[i][0] = cos(((double)i / VK2D_CIRCLE_VERTICES) * (VK2D_PI * 2)) * 0.5;
+		circleVertices[i][1] = sin(((double)i / VK2D_CIRCLE_VERTICES) * (VK2D_PI * 2)) * 0.5;
+	}
+	gRenderer->unitCircle = vk2dPolygonCreate(gRenderer->ld, circleVertices, VK2D_CIRCLE_VERTICES);
+	gRenderer->unitCircleOutline = vk2dPolygonCreateOutline(gRenderer->ld, circleVertices, VK2D_CIRCLE_VERTICES);
 	vk2dLogMessage("Created unit polygons...");
 #else // VK2D_UNIT_GENERATION
 	vk2dLogMessage("Unit polygons disabled...");
@@ -753,6 +773,9 @@ static void _vk2dRendererCreateUnits() {
 static void _vk2dRendererDestroyUnits() {
 #ifdef VK2D_UNIT_GENERATION
 	vk2dPolygonFree(gRenderer->unitSquare);
+	vk2dPolygonFree(gRenderer->unitSquareOutline);
+	vk2dPolygonFree(gRenderer->unitCircle);
+	vk2dPolygonFree(gRenderer->unitCircleOutline);
 #endif // VK2D_UNIT_GENERATION
 }
 
@@ -1169,6 +1192,24 @@ void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, floa
 #ifdef VK2D_UNIT_GENERATION
 	vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox, oy);
 #endif // VK2D_UNIT_GENERATION
+}
+
+void vk2dRendererDrawRectangleOutline(float x, float y, float w, float h, float r, float ox, float oy, float lineWidth) {
+#ifdef VK2D_UNIT_GENERATION
+	vk2dRendererDrawPolygon(gRenderer->unitSquareOutline, x, y, false, lineWidth, w, h, r, ox, oy);
+#endif //  VK2D_UNIT_GENERATION
+}
+
+void vk2dRendererDrawCircle(float x, float y, float r) {
+#ifdef VK2D_UNIT_GENERATION
+	vk2dRendererDrawPolygon(gRenderer->unitCircle, x, y, true, 1, r, r, 0, 0, 0);
+#endif //  VK2D_UNIT_GENERATION
+}
+
+void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
+#ifdef VK2D_UNIT_GENERATION
+	vk2dRendererDrawPolygon(gRenderer->unitCircleOutline, x, y, false, lineWidth, r, r, 0, 0, 0);
+#endif //  VK2D_UNIT_GENERATION
 }
 
 static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {
