@@ -126,6 +126,12 @@ struct VK2DRenderer {
 	VK2DPolygon unitCircle;        ///< Used to draw circles
 	VK2DPolygon unitCircleOutline; ///< Used to draw circle outlines
 	VK2DBuffer unitUBO;            ///< Used to draw to the whole screen
+
+	// Debugging tools
+	double previousTime;     ///< Time that the current frame started
+	double amountOfFrames;   ///< Number of frames needed to calculate frameTimeAverage
+	double accumulatedTime;  ///< Total time of frames for average in ms
+	double frameTimeAverage; ///< Average amount of time frames are taking over a second (in ms)
 };
 
 /// \brief Initializes VK2D's renderer
@@ -232,6 +238,10 @@ void vk2dRendererGetColourMod(vec4 dst);
 /// when you draw to your textures. If you choose to do this, you most likely want to make the camera's
 /// virtual width and height equal to the texture's actual width and height.
 void vk2dRendererSetTextureCamera(bool useCameraOnTextures);
+
+/// \brief Gets the average amount of time frames are taking to process from the start of vk2dRendererStartFrame to the end of vk2dRendererEndFrame
+/// \return Returns average frame time over a course of a second in ms (1000 / vk2dRendererGetAverageFrameTime() will give FPS)
+double vk2dRendererGetAverageFrameTime();
 
 /// \brief Sets the current camera settings
 /// \param camera Camera settings to use

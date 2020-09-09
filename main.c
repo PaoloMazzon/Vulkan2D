@@ -24,7 +24,6 @@ int main(int argc, const char *argv[]) {
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
 	SDL_Event e;
 	bool quit = false;
-	bool drawnToTex = false;
 
 	if (window == NULL)
 		return -1;
@@ -44,7 +43,6 @@ int main(int argc, const char *argv[]) {
 	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw(vk2dRendererGetDevice(), (void *) SAMPLE_TRIANGLE, VERTICES);
 	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
 	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
-	VK2DTexture drawTex = vk2dTextureCreate(vk2dRendererGetDevice(), 320, 240);
 
 	// Delta and fps
 	double lastTime = SDL_GetPerformanceCounter();
@@ -111,24 +109,14 @@ int main(int argc, const char *argv[]) {
 		yScale = sin(scaleRot) * 0.25;
 
 		vk2dRendererStartFrame(clear);
-
-		if (!drawnToTex) {
-			vk2dRendererSetTarget(drawTex);
-			vk2dRendererClear();
-			vk2dRendererDrawPolygon(testPoly, 0, 0, true, 1, 1, 1, 0, 0, 0);
-			vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
-			drawnToTex = true;
-		}
 		vk2dDrawPolygon(testPoly, 0, 0);
-		vk2dDrawRectangleOutline(0, 0, 100, 100, 2);
-		//vk2dRendererDrawTexture(drawTex, 0, 0, 1, 1, 0, 0, 0);
-		vk2dRendererDrawTexture(testTexture, 80, 80, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
+		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();
 
 		// Framerate is printed once per second
 		frameCounter += 1;
 		if (SDL_GetPerformanceCounter() - secondCounter >= SDL_GetPerformanceFrequency()) {
-			vk2dLogMessage("FPS: %f", frameCounter / ((SDL_GetPerformanceCounter() - secondCounter) / (double)SDL_GetPerformanceFrequency()));
+			vk2dLogMessage("Frametime: %fms (%ffps)", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime());
 			secondCounter = SDL_GetPerformanceCounter();
 			frameCounter = 0;
 		}
@@ -138,7 +126,6 @@ int main(int argc, const char *argv[]) {
 	vk2dTextureFree(testTexture);
 	vk2dImageFree(testImage);
 	vk2dPolygonFree(testPoly);
-	vk2dTextureFree(drawTex);
 	vk2dRendererQuit();
 	SDL_DestroyWindow(window);
 	return 0;

@@ -1049,6 +1049,8 @@ void vk2dRendererSetConfig(VK2DRendererConfig config) {
 void vk2dRendererStartFrame(vec4 clearColour) {
 	/*********** Get image and synchronization ***********/
 
+	gRenderer->previousTime = SDL_GetPerformanceCounter();
+
 	// Wait for previous rendering to be finished
 	vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -1084,7 +1086,7 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 	_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex);
 
 	// Start the render pass
-	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(0, VK_NULL_HANDLE);
+	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE);
 	vkResetCommandBuffer(gRenderer->primaryBuffer[gRenderer->drawCommandPool], 0);
 	vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->primaryBuffer[gRenderer->drawCommandPool], &beginInfo));
 
@@ -1142,6 +1144,15 @@ void vk2dRendererEndFrame() {
 	}
 
 	gRenderer->currentFrame = (gRenderer->currentFrame + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
+
+	// Calculate time
+	gRenderer->accumulatedTime += (((double)SDL_GetPerformanceCounter() - gRenderer->previousTime) / (double)SDL_GetPerformanceFrequency()) * 1000;
+	gRenderer->amountOfFrames++;
+	if (gRenderer->accumulatedTime >= 1000) {
+		gRenderer->frameTimeAverage = gRenderer->accumulatedTime / gRenderer->amountOfFrames;
+		gRenderer->accumulatedTime = 0;
+		gRenderer->amountOfFrames = 0;
+	}
 }
 
 VK2DLogicalDevice vk2dRendererGetDevice() {
@@ -1230,6 +1241,10 @@ void vk2dRendererSetTextureCamera(bool useCameraOnTextures) {
 	gRenderer->enableTextureCameraUBO = useCameraOnTextures;
 }
 
+double vk2dRendererGetAverageFrameTime() {
+	return gRenderer->frameTimeAverage;
+}
+
 static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth);
 
 void vk2dRendererClear() {
@@ -1265,7 +1280,7 @@ static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2D
 	// Command buffer nonsense
 	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
 	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
-	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
+	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
 
 	// Dynamic state
 	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
