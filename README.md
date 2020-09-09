@@ -89,6 +89,7 @@ TODO
 
  + Custom shaders/pipelines (can already load custom default shaders)
  + ***Heavy duty*** optimizations
+  + Make descriptor sets given to each texture/polygon rather than created dynamically
 
 Performance wise, the renderer is pretty good but not there yet. It struggles to render 1000 textures
 on an integrated GPU @ 60fps (which is more than you'll probably ever need, but we don't strive for 
