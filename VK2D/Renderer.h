@@ -101,14 +101,7 @@ struct VK2DRenderer {
 	VkSemaphore *renderFinishedSemaphores; ///< Semaphores to signal when rendering is done
 	VkFence *inFlightFences;               ///< Fences for each frame
 	VkFence *imagesInFlight;               ///< Individual images in flight
-
-	// Command buffers for drawing management
-	VkCommandBuffer **draws;        ///< List of lists (1 list per command pool, current one being drawCommandPool), inner list being a list of secondary command buffers containing draw commands
-	uint32_t *drawListSize;         ///< Total size of command buffer list (All are valid command buffers, only drawCommandBuffers[i] are currently in use) (1 value per command pool)
-	uint32_t *drawCommandBuffers;   ///< Amount of actual command buffers in the list (1 value per command pool)
-	uint32_t drawCommandPool;       ///< Index of the logical device's command pool to pull from
-	uint32_t drawOffset;            ///< Offset of where to execute from in the command buffer when starting a new render pass (in case render target is switched)
-	VkCommandBuffer *primaryBuffer; ///< "Master" command buffer that does the render passes and executes the ones in `draws` (1 per command pool)
+	VkCommandBuffer *commandBuffer;        ///< Command buffers, recreated each frame
 
 	// Render targeting info
 	uint32_t targetSubPass;          ///< Current sub pass being rendered to
@@ -119,6 +112,11 @@ struct VK2DRenderer {
 	VK2DTexture target;              ///< Just for simplicity sake
 	VK2DTexture *targets;            ///< List of all currently loaded textures targets (in case the MSAA is changed and the sample image needs to be reloaded)
 	uint32_t targetListSize;         ///< Amount of elements in the list (only non-null elements count)
+
+	// Optimization tools - if the renderer knows the proper set/pipeline/vbo is already bound it doesn't need to rebind it
+	VkDescriptorSet prevSet; ///< Currently bound descriptor set
+	VkBuffer prevVBO;        ///< Currently bound vertex buffer
+	VkPipeline prevPipe;     ///< Currently bound pipeline
 
 	// Makes drawing things simpler
 	VK2DPolygon unitSquare;        ///< Used to draw rectangles

@@ -15,8 +15,7 @@ struct VK2DLogicalDevice {
 	VkDevice dev;          ///< Logical device
 	VkQueue queue;         ///< Queue for command buffers
 	VK2DPhysicalDevice pd; ///< Physical device this came from
-	VkCommandPool pool[VK2D_DEVICE_COMMAND_POOLS]; ///< Command pools to cycle through
-	VkCommandPool singlePool;                      ///< Command pool for single use command buffers
+	VkCommandPool pool;    ///< Command pools to cycle through
 };
 
 /// \brief Creates a logical device for rendering
@@ -51,13 +50,13 @@ void vk2dLogicalDeviceFree(VK2DLogicalDevice dev);
 /// \param dev Device containing the pool
 /// \param pool Pool index to reset
 /// \warning Resetting a pool does not free its command buffers, it just puts them in the initial state
-void vk2dLogicalDeviceResetPool(VK2DLogicalDevice dev, uint32_t pool);
+void vk2dLogicalDeviceResetPool(VK2DLogicalDevice dev);
 
 /// \brief Gets a command buffer from a device
 /// \param dev Logical device to get the buffer from
 /// \param pool Pool in the device to get the buffer from
 /// \return Returns a VkCommandBuffer in the initial state (see Vulkan spec for more info on command buffer states)
-VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, uint32_t pool, bool primary);
+VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, bool primary);
 
 /// \brief Fills a list with new command buffers
 /// \param dev Device to get the buffers from
@@ -65,13 +64,13 @@ VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, uint32_
 /// \param primary Are they primary command buffers or not
 /// \param n Amount of command buffers to allocate
 /// \param list List to put them in (should be at least n * sizeof(VkCommandBuffer) in size)
-void vk2dLogicalDeviceGetCommandBuffers(VK2DLogicalDevice dev, uint32_t pool, bool primary, uint32_t n, VkCommandBuffer *list);
+void vk2dLogicalDeviceGetCommandBuffers(VK2DLogicalDevice dev, bool primary, uint32_t n, VkCommandBuffer *list);
 
 /// \brief Frees a command buffer
 /// \param dev Logical device the buffer belongs to
 /// \param buffer Buffer to free
 /// \param pool Pool the buffer belongs to
-void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer, uint32_t pool);
+void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer);
 
 /// \brief Gets a command buffer created with the single use flag
 /// \param dev Logical device to use

@@ -29,7 +29,7 @@ int main(int argc, const char *argv[]) {
 		return -1;
 
 	// For testing purposes, we just try to get the renderer to use the best possible settings
-	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Nearest};
+	VK2DRendererConfig config = {msaa_32x, sm_Immediate, ft_Nearest};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	int32_t error = vk2dRendererInit(window, config);
 
@@ -110,7 +110,8 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame(clear);
 		vk2dDrawPolygon(testPoly, 0, 0);
-		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
+		for (int i = 0; i < 1000; i++)
+			vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();
 
 		// Framerate is printed once per second

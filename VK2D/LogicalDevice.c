@@ -8,7 +8,6 @@
 
 VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice) {
 	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice));
-	uint32_t i;
 	uint32_t queueFamily = graphicsDevice == true ? dev->QueueFamily.graphicsFamily : dev->QueueFamily.computeFamily;
 
 	if (vk2dPointerCheck(ldev)) {
@@ -31,51 +30,44 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		ldev->pd = dev;
 		vkGetDeviceQueue(ldev->dev, queueFamily, 0, &ldev->queue);
 
-		for (i = 0; i < VK2D_DEVICE_COMMAND_POOLS; i++)
-			vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool[i]));
-
-		commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(queueFamily, 0);
-		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->singlePool));
+		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool));
 	}
 	
 	return ldev;
 }
 
 void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
-	uint32_t i;
 	if (dev != NULL) {
-		for (i = 0; i < VK2D_DEVICE_COMMAND_POOLS; i++)
-			vkDestroyCommandPool(dev->dev, dev->pool[i], VK_NULL_HANDLE);
-		vkDestroyCommandPool(dev->dev, dev->singlePool, VK_NULL_HANDLE);
+		vkDestroyCommandPool(dev->dev, dev->pool, VK_NULL_HANDLE);
 		vkDestroyDevice(dev->dev, VK_NULL_HANDLE);
 		free(dev);
 	}
 }
 
-void vk2dLogicalDeviceResetPool(VK2DLogicalDevice dev, uint32_t pool) {
-	vk2dErrorCheck(vkResetCommandPool(dev->dev, dev->pool[pool], 0));
+void vk2dLogicalDeviceResetPool(VK2DLogicalDevice dev) {
+	vk2dErrorCheck(vkResetCommandPool(dev->dev, dev->pool, 0));
 }
 
-VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, uint32_t pool, bool primary) {
-	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool[pool], 1);
+VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, bool primary) {
+	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool, 1);
 	allocInfo.level = primary ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 	VkCommandBuffer buffer;
 	vk2dErrorCheck(vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer));
 	return buffer;
 }
 
-void vk2dLogicalDeviceGetCommandBuffers(VK2DLogicalDevice dev, uint32_t pool, bool primary, uint32_t n, VkCommandBuffer *list) {
-	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool[pool], n);
+void vk2dLogicalDeviceGetCommandBuffers(VK2DLogicalDevice dev, bool primary, uint32_t n, VkCommandBuffer *list) {
+	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool, n);
 	allocInfo.level = primary ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 	vk2dErrorCheck(vkAllocateCommandBuffers(dev->dev, &allocInfo, list));
 }
 
-void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer, uint32_t pool) {
-	vkFreeCommandBuffers(dev->dev, dev->pool[pool], 1, &buffer);
+void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer) {
+	vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
 }
 
 VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev) {
-	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->singlePool, 1);
+	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool, 1);
 	VkCommandBuffer buffer;
 	vk2dErrorCheck(vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer));
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE);
@@ -88,7 +80,7 @@ void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer 
 	vkEndCommandBuffer(buffer);
 	vkQueueSubmit(dev->queue, 1, &submitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(dev->queue);
-	vkFreeCommandBuffers(dev->dev, dev->singlePool, 1, &buffer);
+	vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
 }
 
 VkFence vk2dLogicalDeviceGetFence(VK2DLogicalDevice dev, VkFenceCreateFlagBits flags) {

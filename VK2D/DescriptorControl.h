@@ -8,9 +8,17 @@
 extern "C" {
 #endif
 
+/// \brief Used internally to allow for descriptor set reuse
+typedef struct _VK2DDescConHash {
+	VK2DTexture tex; ///< Texture bound to this set
+	VK2DBuffer buf;  ///< Buffer bound to this set
+} _VK2DDescConHash;
+
 /// \brief Abstraction for descriptor pools and sets so you can dynamically use them
 struct VK2DDescCon {
 	VkDescriptorPool *pools;      ///< List of pools
+	VkDescriptorSet *sets;        ///< List of all sets allocated with this
+	_VK2DDescConHash *hashes;     ///< Hashes to allow for reuse of sets
 	VkDescriptorSetLayout layout; ///< Layout for these sets
 	uint32_t buffer;              ///< Whether or not pools support uniform buffers
 	uint32_t sampler;             ///< Whether or not pools support texture samplers
@@ -20,6 +28,10 @@ struct VK2DDescCon {
 	// valid pools (in an effort to avoid constantly reallocating memory)
 	uint32_t poolsInUse;   ///< Number of actively in use pools in pools
 	uint32_t poolListSize; ///< Total length of pools array
+
+	// For keeping track of this things sets
+	uint32_t setListSize;   ///< Size in elements of the lists
+	uint32_t setListAmount; ///< Actual number of sets/hashes in the list
 };
 
 /// \brief Creates an empty descriptor controller

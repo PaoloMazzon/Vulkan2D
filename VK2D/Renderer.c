@@ -72,6 +72,12 @@ uint32_t unitSquareOutlineVertices = 4;
 
 /******************************* Internal functions *******************************/
 
+void _vk2dRendererResetBoundPointers() {
+	gRenderer->prevPipe = VK_NULL_HANDLE;
+	gRenderer->prevSet = VK_NULL_HANDLE;
+	gRenderer->prevVBO = VK_NULL_HANDLE;
+}
+
 // This is called when a render-target texture is created to make the renderer aware of it
 void _vk2dRendererAddTarget(VK2DTexture tex) {
 	uint32_t i;
@@ -145,7 +151,7 @@ void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout ne
 	}
 
 	vkCmdPipelineBarrier(
-			gRenderer->primaryBuffer[gRenderer->drawCommandPool],
+			gRenderer->commandBuffer[gRenderer->scImageIndex],
 			sourceStage, destinationStage,
 			0,
 			0, VK_NULL_HANDLE,
@@ -172,34 +178,6 @@ static void _vk2dRendererFlushUBOBuffer(uint32_t frame) {
 	vkMapMemory(gRenderer->ld->dev, gRenderer->uboBuffers[frame]->mem, 0, sizeof(VK2DUniformBufferObject), 0, &data);
 	memcpy(data, &gRenderer->ubos[frame], sizeof(VK2DUniformBufferObject));
 	vkUnmapMemory(gRenderer->ld->dev, gRenderer->uboBuffers[frame]->mem);
-}
-
-static VkCommandBuffer _vk2dRendererGetNextCommandBuffer() {
-	if (gRenderer->drawListSize[gRenderer->drawCommandPool] == gRenderer->drawCommandBuffers[gRenderer->drawCommandPool]) {
-		VkCommandBuffer *newList = realloc(gRenderer->draws[gRenderer->drawCommandPool], (gRenderer->drawListSize[gRenderer->drawCommandPool] + VK2D_DEFAULT_ARRAY_EXTENSION) * sizeof(VkCommandBuffer*));
-		if (vk2dPointerCheck(newList)) {
-			gRenderer->draws[gRenderer->drawCommandPool] = newList;
-			gRenderer->drawListSize[gRenderer->drawCommandPool] += VK2D_DEFAULT_ARRAY_EXTENSION;
-			vk2dLogicalDeviceGetCommandBuffers(gRenderer->ld, gRenderer->drawCommandPool, false, VK2D_DEFAULT_ARRAY_EXTENSION, &gRenderer->draws[gRenderer->drawCommandPool][gRenderer->drawCommandBuffers[gRenderer->drawCommandPool]]);
-		}
-	}
-
-	// Just get the next command buffer in the list
-	VkCommandBuffer out = gRenderer->draws[gRenderer->drawCommandPool][gRenderer->drawCommandBuffers[gRenderer->drawCommandPool]];
-	gRenderer->drawCommandBuffers[gRenderer->drawCommandPool]++;
-	return out;
-}
-
-// Ends the render pass in the current primary buffer
-static void _vk2dRendererEndRenderPass() {
-	if (gRenderer->drawCommandBuffers[gRenderer->drawCommandPool] > gRenderer->drawOffset) {
-		vkCmdExecuteCommands(
-				gRenderer->primaryBuffer[gRenderer->drawCommandPool],
-				gRenderer->drawCommandBuffers[gRenderer->drawCommandPool] - gRenderer->drawOffset,
-				&gRenderer->draws[gRenderer->drawCommandPool][gRenderer->drawOffset]);
-		gRenderer->drawOffset = gRenderer->drawCommandBuffers[gRenderer->drawCommandPool];
-	}
-	vkCmdEndRenderPass(gRenderer->primaryBuffer[gRenderer->drawCommandPool]);
 }
 
 static void _vk2dRendererCreateDebug() {
@@ -743,6 +721,7 @@ static void _vk2dRendererCreateSynchronization() {
 	gRenderer->renderFinishedSemaphores = malloc(sizeof(VkSemaphore) * VK2D_MAX_FRAMES_IN_FLIGHT);
 	gRenderer->inFlightFences = malloc(sizeof(VkFence) * VK2D_MAX_FRAMES_IN_FLIGHT);
 	gRenderer->imagesInFlight = calloc(1, sizeof(VkFence) * gRenderer->swapchainImageCount);
+	gRenderer->commandBuffer = malloc(sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
 
 	if (vk2dPointerCheck(gRenderer->imageAvailableSemaphores) && vk2dPointerCheck(gRenderer->renderFinishedSemaphores)
 		&& vk2dPointerCheck(gRenderer->inFlightFences) && vk2dPointerCheck(gRenderer->imagesInFlight)) {
@@ -753,15 +732,9 @@ static void _vk2dRendererCreateSynchronization() {
 		}
 	}
 
-	// Drawing command pool synchronization
-	gRenderer->draws = calloc(VK2D_DEVICE_COMMAND_POOLS, sizeof(VkCommandBuffer*));
-	gRenderer->drawListSize = calloc(VK2D_DEVICE_COMMAND_POOLS, sizeof(uint32_t));
-	gRenderer->drawCommandBuffers = calloc(VK2D_DEVICE_COMMAND_POOLS, sizeof(uint32_t));
-	gRenderer->primaryBuffer = calloc(VK2D_DEVICE_COMMAND_POOLS, sizeof(VkCommandBuffer));
-
-	if (vk2dPointerCheck(gRenderer->primaryBuffer)) {
-		for (i = 0; i < VK2D_DEVICE_COMMAND_POOLS; i++)
-			gRenderer->primaryBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, i, true);
+	if (vk2dPointerCheck(gRenderer->commandBuffer)) {
+		for (i = 0; i < gRenderer->swapchainImageCount; i++)
+			gRenderer->commandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
 	}
 
 	vk2dLogMessage("Synchronization initialized...");
@@ -779,13 +752,7 @@ static void _vk2dRendererDestroySynchronization() {
 	free(gRenderer->inFlightFences);
 	free(gRenderer->imageAvailableSemaphores);
 	free(gRenderer->renderFinishedSemaphores);
-
-	for (i = 0; i < VK2D_DEVICE_COMMAND_POOLS; i++)
-		free(gRenderer->draws[i]);
-	free(gRenderer->draws);
-	free(gRenderer->drawListSize);
-	free(gRenderer->drawCommandBuffers);
-	free(gRenderer->primaryBuffer);
+	free(gRenderer->commandBuffer);
 }
 
 static void _vk2dRendererCreateSampler() {
@@ -1063,15 +1030,9 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 	gRenderer->imagesInFlight[gRenderer->scImageIndex] = gRenderer->inFlightFences[gRenderer->currentFrame];
 
 	/*********** Start-of-frame tasks ***********/
-	// Reset command pool
-	gRenderer->drawCommandPool = (gRenderer->drawCommandPool + 1) % VK2D_DEVICE_COMMAND_POOLS;
-	gRenderer->drawCommandBuffers[gRenderer->drawCommandPool] = 0;
-	gRenderer->drawOffset = 0;
-	vk2dLogicalDeviceResetPool(gRenderer->ld, gRenderer->drawCommandPool);
 
-	// Reset descriptor controllers
-	vk2dDescConReset(gRenderer->descConPrim[gRenderer->scImageIndex]);
-	vk2dDescConReset(gRenderer->descConTex[gRenderer->scImageIndex]);
+	// Reset currently bound items
+	_vk2dRendererResetBoundPointers();
 
 	// Reset current render targets
 	gRenderer->targetFrameBuffer = gRenderer->framebuffers[gRenderer->scImageIndex];
@@ -1087,8 +1048,8 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 
 	// Start the render pass
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE);
-	vkResetCommandBuffer(gRenderer->primaryBuffer[gRenderer->drawCommandPool], 0);
-	vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->primaryBuffer[gRenderer->drawCommandPool], &beginInfo));
+	vkResetCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], 0);
+	vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], &beginInfo));
 
 	// Setup render pass
 	VkRect2D rect = {};
@@ -1109,18 +1070,18 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 			clearValues,
 			clearCount);
 
-	vkCmdBeginRenderPass(gRenderer->primaryBuffer[gRenderer->drawCommandPool], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+	vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void vk2dRendererEndFrame() {
 	// Finish the primary command buffer, its time to PRESENT things
-	_vk2dRendererEndRenderPass();
-	vk2dErrorCheck(vkEndCommandBuffer(gRenderer->primaryBuffer[gRenderer->drawCommandPool]));
+	vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
+	vk2dErrorCheck(vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]));
 
 	// Wait for image before doing things
 	VkPipelineStageFlags waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 	VkSubmitInfo submitInfo = vk2dInitSubmitInfo(
-			&gRenderer->primaryBuffer[gRenderer->drawCommandPool],
+			&gRenderer->commandBuffer[gRenderer->scImageIndex],
 			1,
 			&gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
 			1,
@@ -1168,7 +1129,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 		VkImage image = target == VK2D_TARGET_SCREEN ? gRenderer->swapchainImages[gRenderer->scImageIndex] : target->img->img;
 		VK2DBuffer buffer = target == VK2D_TARGET_SCREEN ? gRenderer->uboBuffers[gRenderer->scImageIndex] : target->ubo;
 
-		_vk2dRendererEndRenderPass();
+		vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
 
 		// Now we either have to transition the image layout depending on whats going in and whats poppin out
 		if (target == VK2D_TARGET_SCREEN)
@@ -1197,7 +1158,9 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 				clearValues,
 				clearCount);
 
-		vkCmdBeginRenderPass(gRenderer->primaryBuffer[gRenderer->drawCommandPool], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+		vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+
+		_vk2dRendererResetBoundPointers();
 	}
 }
 
@@ -1277,10 +1240,7 @@ void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
 }
 
 static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {
-	// Command buffer nonsense
-	VkCommandBufferInheritanceInfo inheritanceInfo = vk2dInitCommandBufferInheritanceInfo(gRenderer->targetRenderPass, gRenderer->targetSubPass, gRenderer->targetFrameBuffer);
-	VkCommandBuffer buf = _vk2dRendererGetNextCommandBuffer();
-	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT | VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT, &inheritanceInfo);
+	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
 	// Dynamic state
 	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
@@ -1304,18 +1264,21 @@ static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2D
 	push.colourMod[2] = gRenderer->colourBlend[2];
 	push.colourMod[3] = gRenderer->colourBlend[3];
 
-	// Recording the command buffer
-	vk2dErrorCheck(vkBeginCommandBuffer(buf, &beginInfo));
-	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipe);
-	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
+	// Check if we actually need to bind things
+	if (gRenderer->prevPipe != pipe->pipe)
+		vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipe);
+	if (gRenderer->prevSet != set)
+		vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
 	VkDeviceSize offsets[] = {0};
-	vkCmdBindVertexBuffers(buf, 0, 1, &poly->vertices->buf, offsets);
+	if (gRenderer->prevVBO != poly->vertices->buf)
+		vkCmdBindVertexBuffers(buf, 0, 1, &poly->vertices->buf, offsets);
+
+	// Dynamic state that can't be optimized further and the draw call
 	vkCmdSetViewport(buf, 0, 1, &gRenderer->viewport);
 	vkCmdSetBlendConstants(buf, blendConstants);
 	vkCmdSetLineWidth(buf, lineWidth);
 	vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
 	vkCmdDraw(buf, poly->vertexCount, 1, 0, 0);
-	vk2dErrorCheck(vkEndCommandBuffer(buf));
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {

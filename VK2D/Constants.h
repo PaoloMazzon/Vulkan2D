@@ -35,9 +35,6 @@ extern const vec4 VK2D_DEFAULT_COLOUR_MOD;
 /// At 36, you're looking at something more than good enough for most pixel art games. At 360 you're looking at something silky-smooth for most things.
 extern const float VK2D_CIRCLE_VERTICES;
 
-/// Number of command pools a device has to cycle through - You generally want this and VK2D_MAX_FRAMES_IN_FLIGHT to be the same
-#define VK2D_DEVICE_COMMAND_POOLS ((uint32_t)3)
-
 /// Maximum number of frames to be processed at once - You generally want this and VK2D_DEVICE_COMMAND_POOLS to be the same
 #define VK2D_MAX_FRAMES_IN_FLIGHT 3
 
