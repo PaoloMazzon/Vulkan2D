@@ -10,8 +10,8 @@ extern "C" {
 
 /// \brief Used internally to allow for descriptor set reuse
 typedef struct _VK2DDescConHash {
-	VK2DTexture tex; ///< Texture bound to this set
-	VK2DBuffer buf;  ///< Buffer bound to this set
+	VK2DImage img;  ///< Image bound to this set
+	VK2DBuffer buf; ///< Buffer bound to this set
 } _VK2DDescConHash;
 
 /// \brief Abstraction for descriptor pools and sets so you can dynamically use them

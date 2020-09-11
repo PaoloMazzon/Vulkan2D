@@ -42,7 +42,7 @@ static inline VkDescriptorSet _vk2dDescConFindSet(VK2DDescCon descCon, VK2DTextu
 	uint32_t i;
 
 	for (i = 0; i < descCon->setListAmount; i++)
-		if (descCon->hashes[i].buf == buffer && descCon->hashes[i].tex == tex)
+		if (descCon->hashes[i].buf == buffer && tex != NULL && descCon->hashes[i].img == tex->img)
 			return descCon->sets[i];
 
 	return VK_NULL_HANDLE;
@@ -87,7 +87,10 @@ VkDescriptorSet _vk2dDescConGetAvailableSet(VK2DDescCon descCon, VK2DTexture tex
 		}
 		descCon->sets[descCon->setListAmount] = set;
 		descCon->hashes[descCon->setListAmount].buf = buffer;
-		descCon->hashes[descCon->setListAmount].tex = tex;
+		if (tex != NULL)
+			descCon->hashes[descCon->setListAmount].img = tex->img;
+		else
+			descCon->hashes[descCon->setListAmount].img = NULL;
 		descCon->setListAmount++;
 		*found = false;
 	} else {

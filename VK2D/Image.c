@@ -143,7 +143,7 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 }
 
 VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
-	VK2DImage out;
+	VK2DImage out = NULL;
 	VK2DBuffer stage;
 	int texWidth, texHeight, texChannels;
 	unsigned char* pixels = stbi_load(filename, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
