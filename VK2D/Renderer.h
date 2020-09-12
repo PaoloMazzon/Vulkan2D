@@ -82,12 +82,11 @@ struct VK2DRenderer {
 	VK2DImage dsi;      ///< Depth stencil image
 
 	// Pipelines
-	VK2DPipeline texPipe;                   ///< Pipeline for rendering textures
-	VK2DPipeline primFillPipe;              ///< Pipeline for rendering filled shapes
-	VK2DPipeline primLinePipe;              ///< Pipeline for rendering shape outlines
-	VK2DPipeline *customPipes;              ///< User defined shaders/pipelines
-	uint32_t pipeCount;                     ///< Number of user defined pipelines
-	VK2DCustomPipelineInfo *customPipeInfo; ///< Information required to recreate user pipelines
+	VK2DPipeline texPipe;      ///< Pipeline for rendering textures
+	VK2DPipeline primFillPipe; ///< Pipeline for rendering filled shapes
+	VK2DPipeline primLinePipe; ///< Pipeline for rendering shape outlines
+	uint32_t shaderListSize;   ///< Size of the list of customShaders
+	VK2DShader *customShaders; ///< Custom shaders the user creates
 
 	// Uniform things
 	VkDescriptorSetLayout dslSampler;    ///< Descriptor set layout for texture samplers

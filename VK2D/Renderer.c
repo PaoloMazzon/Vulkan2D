@@ -17,6 +17,7 @@
 #include "VK2D/DescriptorControl.h"
 #include "VK2D/Polygon.h"
 #include "VK2D/Math.h"
+#include "VK2D/Shader.h"
 
 /******************************* Forward declarations *******************************/
 
@@ -71,6 +72,34 @@ vec2 unitSquareOutline[] = {
 uint32_t unitSquareOutlineVertices = 4;
 
 /******************************* Internal functions *******************************/
+
+// Renderer has to keep track of user shaders in case the swapchain gets recreated
+void _vk2dRendererAddShader(VK2DShader shader) {
+	uint32_t i;
+	uint32_t found = UINT32_MAX;
+	for (i = 0; i < gRenderer->shaderListSize && found == UINT32_MAX; i++)
+		if (gRenderer->customShaders[i] == NULL)
+			found = i;
+
+	// Make some room in the shader list
+	if (found == UINT32_MAX) {
+		VK2DShader *newList = realloc(gRenderer->customShaders, sizeof(VK2DShader) * (gRenderer->shaderListSize + VK2D_DEFAULT_ARRAY_EXTENSION));
+		if (vk2dPointerCheck(newList)) {
+			found = gRenderer->shaderListSize;
+			gRenderer->customShaders = newList;
+			gRenderer->shaderListSize += VK2D_DEFAULT_ARRAY_EXTENSION;
+		}
+	}
+
+	gRenderer->customShaders[found] = shader;
+}
+
+void _vk2dRendererRemoveShader(VK2DShader shader) {
+	uint32_t i;
+	for (i = 0; i < gRenderer->shaderListSize; i++)
+		if (gRenderer->customShaders[i] == shader)
+			gRenderer->customShaders[i] = NULL;
+}
 
 static uint64_t inline _vk2dHashSets(VkDescriptorSet *sets, uint32_t setCount) {
 	uint64_t hash = 0;
@@ -493,7 +522,9 @@ static void _vk2dRendererDestroyDescriptorSetLayout() {
 
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
 VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState();
+void _vk2dShaderBuildPipe(VK2DShader shader);
 static void _vk2dRendererCreatePipelines() {
+	uint32_t i;
 	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
 	VkPipelineVertexInputStateCreateInfo colourVertexInfo = _vk2dGetColourVertexInputState();
 
@@ -578,7 +609,12 @@ static void _vk2dRendererCreatePipelines() {
 			false,
 			gRenderer->config.msaa);
 
-	// TODO: Reload custom shaders' pipelines
+	for (i = 0; i < gRenderer->shaderListSize; i++) {
+		if (gRenderer->customShaders[i] != NULL) {
+			vk2dPipelineFree(gRenderer->customShaders[i]->pipe);
+			_vk2dShaderBuildPipe(gRenderer->customShaders[i]);
+		}
+	}
 
 	// Free custom shaders
 	if (CustomTexVertShader)
@@ -594,22 +630,12 @@ static void _vk2dRendererCreatePipelines() {
 }
 
 static void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
-	uint32_t i;
 	vk2dPipelineFree(gRenderer->primLinePipe);
 	vk2dPipelineFree(gRenderer->primFillPipe);
 	vk2dPipelineFree(gRenderer->texPipe);
 
-	for (i = 0; i < gRenderer->pipeCount; i++)
-		vk2dPipelineFree(gRenderer->customPipes[i]);
-
-	if (!preserveCustomPipes) {
-		for (i = 0; i < gRenderer->pipeCount; i++) {
-			free(gRenderer->customPipeInfo[i].fragBuffer);
-			free(gRenderer->customPipeInfo[i].vertBuffer);
-		}
-		free(gRenderer->customPipeInfo);
-		free(gRenderer->customPipes);
-	}
+	if (!preserveCustomPipes)
+		free(gRenderer->customShaders);
 }
 
 static void _vk2dRendererCreateFrameBuffer() {

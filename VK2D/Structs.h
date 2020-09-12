@@ -152,21 +152,3 @@ typedef struct VK2DCamera {
 	float zoom; ///< Zoom percentage (Relative to the virtual width and height, not actual)
 	float rot;  ///< Rotation of the camera
 } VK2DCamera;
-
-// Required for less memory management on VK2DCustomPipelineInfo
-#define VK2D_MAX_VERTEX_ATTRIBUTES ((uint32_t)10)
-
-/// \brief Keeps track of user-defined pipelines so the user doesn't need to recreate them
-typedef struct {
-	unsigned char *vertBuffer;                       ///< Vertex shader compiled source
-	uint32_t vertBufferSize;                         ///< Size of the vertex buffer in bytes
-	unsigned char *fragBuffer;                       ///< Fragment shader compiled source
-	uint32_t fragBufferSize;                         ///< Size of the fragment buffer in bytes
-	VkPipelineVertexInputStateCreateInfo vertexInfo; ///< Vertex input information
-	bool fill;                                       ///< Whether or not polygons are filled
-	uint32_t attributeCount;                         ///< Number of attributes in vertexInfo
-	uint32_t bindingCount;                           ///< Number of bindings in vertexInfo
-	VkDescriptorSetLayout descriptorSetLayout;       ///< Uniform input information
-	VkVertexInputAttributeDescription attributes[VK2D_MAX_VERTEX_ATTRIBUTES]; ///< Attributes in vertexInfo
-	VkVertexInputBindingDescription bindings[VK2D_MAX_VERTEX_ATTRIBUTES];     ///< Bindings in vertexInfo
-} VK2DCustomPipelineInfo;
