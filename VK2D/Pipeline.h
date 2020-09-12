@@ -38,11 +38,10 @@ struct VK2DPipeline {
 /// create infos when in reality there are many more. For a complete list of dynamic state,
 ///
 ///  + Viewports
-///  + Colour blending
 ///  + Rasterization line width (if wireframe is enabled)
 ///
 /// (This may change in the future) .
-VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout setLayout, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa);
+VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayout, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa);
 
 /// \brief Frees a pipeline from memory
 /// \param pipe Pipeline to free

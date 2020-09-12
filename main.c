@@ -110,8 +110,8 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame(clear);
 		vk2dDrawPolygon(testPoly, 0, 0);
-		for (int i = 0; i < 1000; i++)
-			vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
+		//for (int i = 0; i < 1000; i++)
+		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();
 
 		// Framerate is printed once per second

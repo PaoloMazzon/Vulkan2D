@@ -1,7 +1,7 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 1) uniform sampler2D texSampler;
+layout(set = 1, binding = 1) uniform sampler2D texSampler;
 
 layout(push_constant) uniform PushBuffer {
     mat4 model;

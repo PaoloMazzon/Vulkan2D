@@ -89,10 +89,12 @@ struct VK2DRenderer {
 	VK2DCustomPipelineInfo *customPipeInfo; ///< Information required to recreate user pipelines
 
 	// Uniform things
-	VkDescriptorSetLayout duslt; ///< Default uniform descriptor set layout for textures
-	VkDescriptorSetLayout dusls; ///< Default uniform descriptor set layout for shapes
-	VK2DDescCon *descConTex;     ///< Descriptor controllers for texture pipelines (1 per swapchain image)
-	VK2DDescCon *descConPrim;    ///< Descriptor controllers for shapes pipelines (1 per swapchain image)
+	VkDescriptorSetLayout dslSampler;    ///< Descriptor set layout for texture samplers
+	VkDescriptorSetLayout dslBufferVP;   ///< Descriptor set layout for the view-projection buffer
+	VkDescriptorSetLayout dslBufferUser; ///< Descriptor set layout for user data buffers (custom shaders uniforms)
+	VK2DDescCon descConSamplers;         ///< Descriptor controller for samplers
+	VK2DDescCon descConVP;               ///< Descriptor controller for view projection buffers
+	VK2DDescCon descConUser;             ///< Descriptor controller for user buffers
 
 	// Frame synchronization
 	uint32_t currentFrame;                 ///< Current frame being looped through
@@ -114,9 +116,9 @@ struct VK2DRenderer {
 	uint32_t targetListSize;         ///< Amount of elements in the list (only non-null elements count)
 
 	// Optimization tools - if the renderer knows the proper set/pipeline/vbo is already bound it doesn't need to rebind it
-	VkDescriptorSet prevSet; ///< Currently bound descriptor set
-	VkBuffer prevVBO;        ///< Currently bound vertex buffer
-	VkPipeline prevPipe;     ///< Currently bound pipeline
+	uint64_t prevSetHash; ///< Currently bound descriptor set
+	VkBuffer prevVBO;     ///< Currently bound vertex buffer
+	VkPipeline prevPipe;  ///< Currently bound pipeline
 
 	// Makes drawing things simpler
 	VK2DPolygon unitSquare;        ///< Used to draw rectangles

@@ -6,7 +6,7 @@
 #include "VK2D/LogicalDevice.h"
 #include <malloc.h>
 
-VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout setLayout, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa) {
+VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayouts, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa) {
 	VK2DPipeline pipe = malloc(sizeof(struct VK2DPipeline));
 	uint32_t i;
 
@@ -61,9 +61,8 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		}
 		VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo = vk2dInitPipelineColorBlendStateCreateInfo(colourBlendAttachments, colourAttachCount);
 
-		const uint32_t stateCount = 3;
+		const uint32_t stateCount = 2;
 		VkDynamicState states[] = {
-				VK_DYNAMIC_STATE_BLEND_CONSTANTS,
 				VK_DYNAMIC_STATE_LINE_WIDTH,
 				VK_DYNAMIC_STATE_VIEWPORT
 		};
@@ -71,7 +70,7 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		VkPushConstantRange range = {};
 		range.size = sizeof(VK2DPushBuffer);
 		range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
-		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(&setLayout, 1, 1, &range);
+		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 1, &range);
 		vkCreatePipelineLayout(dev->dev, &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &pipe->layout);
 		VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo = vk2dInitPipelineInputAssemblyStateCreateInfo(fill);
 

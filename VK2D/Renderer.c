@@ -72,9 +72,18 @@ uint32_t unitSquareOutlineVertices = 4;
 
 /******************************* Internal functions *******************************/
 
-void _vk2dRendererResetBoundPointers() {
+static uint64_t inline _vk2dHashSets(VkDescriptorSet *sets, uint32_t setCount) {
+	uint64_t hash = 0;
+	for (uint32_t i = 0; i < setCount; i++) {
+		uint64_t *pointer = (void*)&sets[i];
+		hash += (*pointer) * (i + 1);
+	}
+	return hash;
+}
+
+static void _vk2dRendererResetBoundPointers() {
 	gRenderer->prevPipe = VK_NULL_HANDLE;
-	gRenderer->prevSet = VK_NULL_HANDLE;
+	gRenderer->prevSetHash = 0;
 	gRenderer->prevVBO = VK_NULL_HANDLE;
 }
 
@@ -451,34 +460,40 @@ static void _vk2dRendererDestroyRenderPass() {
 	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->midFrameSwapRenderPass, VK_NULL_HANDLE);
 }
 
-static void _vk2dRendererCreateDescriptorSetLayout() {
-	// For textures
-	const uint32_t layoutCount = 2;
+static void _vk2dRendererCreateDescriptorSetLayouts() {
+	// For texture samplers
+	const uint32_t layoutCount = 1;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBinding[layoutCount];
-	descriptorSetLayoutBinding[0] = vk2dInitDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
-	descriptorSetLayoutBinding[1] = vk2dInitDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
+	descriptorSetLayoutBinding[0] = vk2dInitDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBinding, layoutCount);
-	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &descriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->duslt));
+	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &descriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslSampler));
 
-	// For shapes
+	// For view projection buffers
 	const uint32_t shapeLayoutCount = 1;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingShapes[shapeLayoutCount];
 	descriptorSetLayoutBindingShapes[0] = vk2dInitDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo shapesDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingShapes, shapeLayoutCount);
-	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &shapesDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dusls));
+	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &shapesDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferVP));
+
+	// For user-created shaders
+	const uint32_t userLayoutCount = 1;
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingUser[userLayoutCount];
+	descriptorSetLayoutBindingUser[0] = vk2dInitDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
+	VkDescriptorSetLayoutCreateInfo userDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingUser, userLayoutCount);
+	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &userDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferUser));
 
 	vk2dLogMessage("Descriptor set layout initialized...");
 }
 
 static void _vk2dRendererDestroyDescriptorSetLayout() {
-	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->duslt, VK_NULL_HANDLE);
-	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dusls, VK_NULL_HANDLE);
+	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslSampler, VK_NULL_HANDLE);
+	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferVP, VK_NULL_HANDLE);
+	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferUser, VK_NULL_HANDLE);
 }
 
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
 VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState();
 static void _vk2dRendererCreatePipelines() {
-	uint32_t i;
 	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
 	VkPipelineVertexInputStateCreateInfo colourVertexInfo = _vk2dGetColourVertexInputState();
 
@@ -517,6 +532,7 @@ static void _vk2dRendererCreatePipelines() {
 #endif // VK2D_LOAD_CUSTOM_SHADERS
 
 	// Texture pipeline
+	VkDescriptorSetLayout layout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler};
 	gRenderer->texPipe = vk2dPipelineCreate(
 			gRenderer->ld,
 			gRenderer->renderPass,
@@ -526,7 +542,8 @@ static void _vk2dRendererCreatePipelines() {
 			shaderTexVertSize,
 			shaderTexFrag,
 			shaderTexFragSize,
-			gRenderer->duslt,
+			layout,
+			2,
 			&textureVertexInfo,
 			true,
 			gRenderer->config.msaa);
@@ -541,7 +558,8 @@ static void _vk2dRendererCreatePipelines() {
 			shaderColourVertSize,
 			shaderColourFrag,
 			shaderColourFragSize,
-			gRenderer->dusls,
+			&gRenderer->dslBufferVP,
+			1,
 			&colourVertexInfo,
 			true,
 			gRenderer->config.msaa);
@@ -554,28 +572,13 @@ static void _vk2dRendererCreatePipelines() {
 			shaderColourVertSize,
 			shaderColourFrag,
 			shaderColourFragSize,
-			gRenderer->dusls,
+			&gRenderer->dslBufferVP,
+			1,
 			&colourVertexInfo,
 			false,
 			gRenderer->config.msaa);
 
-	if (gRenderer->customPipeInfo != NULL) {
-		for (i = 0; i < gRenderer->pipeCount; i++)
-			gRenderer->customPipes[i] = vk2dPipelineCreate(
-					gRenderer->ld,
-					gRenderer->renderPass,
-					gRenderer->surfaceWidth,
-					gRenderer->surfaceWidth,
-					gRenderer->customPipeInfo[i].vertBuffer,
-					gRenderer->customPipeInfo[i].vertBufferSize,
-					gRenderer->customPipeInfo[i].fragBuffer,
-					gRenderer->customPipeInfo[i].fragBufferSize,
-					gRenderer->customPipeInfo[i].descriptorSetLayout,
-					&gRenderer->customPipeInfo[i].vertexInfo,
-					gRenderer->customPipeInfo[i].fill,
-					gRenderer->config.msaa
-					);
-	}
+	// TODO: Reload custom shaders' pipelines
 
 	// Free custom shaders
 	if (CustomTexVertShader)
@@ -692,25 +695,16 @@ static void _vk2dRendererDestroyUniformBuffers() {
 }
 
 static void _vk2dRendererCreateDescriptorPool() {
-	gRenderer->descConTex = malloc(sizeof(VK2DDescCon) * gRenderer->swapchainImageCount);
-	gRenderer->descConPrim = malloc(sizeof(VK2DDescCon) * gRenderer->swapchainImageCount);
-	uint32_t i;
-
-	if (vk2dPointerCheck(gRenderer->descConPrim) && vk2dPointerCheck(gRenderer->descConTex)) {
-		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
-			gRenderer->descConTex[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->duslt, 0, 1);
-			gRenderer->descConPrim[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dusls, 0, VK2D_NO_LOCATION);
-		}
-	} // TODO: Custom pipeline descriptor controllers
+	gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSampler, VK2D_NO_LOCATION, 1);
+	gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION);
+	gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 2, VK2D_NO_LOCATION);
 	vk2dLogMessage("Descriptor pool initialized...");
 }
 
 static void _vk2dRendererDestroyDescriptorPool() {
-	uint32_t i;
-	for (i = 0; i < gRenderer->swapchainImageCount; i++) {
-		vk2dDescConFree(gRenderer->descConTex[i]);
-		vk2dDescConFree(gRenderer->descConPrim[i]);
-	} // TODO: Custom pipeline descriptor controllers
+	vk2dDescConFree(gRenderer->descConSamplers);
+	vk2dDescConFree(gRenderer->descConVP);
+	vk2dDescConFree(gRenderer->descConUser);
 }
 
 static void _vk2dRendererCreateSynchronization() {
@@ -937,7 +931,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		_vk2dRendererCreateColourResources();
 		_vk2dRendererCreateDepthStencilImage();
 		_vk2dRendererCreateRenderPass();
-		_vk2dRendererCreateDescriptorSetLayout();
+		_vk2dRendererCreateDescriptorSetLayouts();
 		_vk2dRendererCreatePipelines();
 		_vk2dRendererCreateFrameBuffer();
 		_vk2dRendererCreateUniformBuffers(true);
@@ -1208,11 +1202,11 @@ double vk2dRendererGetAverageFrameTime() {
 	return gRenderer->frameTimeAverage;
 }
 
-static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth);
+static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth);
 
 void vk2dRendererClear() {
-	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], gRenderer->unitUBO);
-	_vk2dRendererDraw(set, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1);
+	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->unitUBO);
+	_vk2dRendererDraw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1);
 }
 
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
@@ -1239,7 +1233,7 @@ void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
 #endif //  VK2D_UNIT_GENERATION
 }
 
-static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {
+static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
 	// Dynamic state
@@ -1265,13 +1259,20 @@ static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2D
 	push.colourMod[3] = gRenderer->colourBlend[3];
 
 	// Check if we actually need to bind things
-	if (gRenderer->prevPipe != pipe->pipe)
+	uint64_t hash = _vk2dHashSets(sets, setCount);
+	if (gRenderer->prevPipe != pipe->pipe) {
 		vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipe);
-	if (gRenderer->prevSet != set)
-		vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
-	VkDeviceSize offsets[] = {0};
-	if (gRenderer->prevVBO != poly->vertices->buf)
+		gRenderer->prevPipe = pipe->pipe;
+	}
+	if (gRenderer->prevSetHash != hash) {
+		vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, setCount, sets, 0, VK_NULL_HANDLE);
+		gRenderer->prevSetHash = hash;
+	}
+	if (gRenderer->prevVBO != poly->vertices->buf) {
+		VkDeviceSize offsets[] = {0};
 		vkCmdBindVertexBuffers(buf, 0, 1, &poly->vertices->buf, offsets);
+		gRenderer->prevVBO = poly->vertices->buf;
+	}
 
 	// Dynamic state that can't be optimized further and the draw call
 	vkCmdSetViewport(buf, 0, 1, &gRenderer->viewport);
@@ -1283,12 +1284,14 @@ static inline void _vk2dRendererDraw(VkDescriptorSet set, VK2DPolygon poly, VK2D
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
 	VK2DBuffer target = gRenderer->enableTextureCameraUBO ? gRenderer->uboBuffers[gRenderer->scImageIndex] : gRenderer->targetUBO;
-	VkDescriptorSet set = vk2dDescConGetSamplerBufferSet(gRenderer->descConTex[gRenderer->scImageIndex], tex, target);
-	_vk2dRendererDraw(set, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
+	VkDescriptorSet sets[2];
+	sets[0] = vk2dDescConGetBufferSet(gRenderer->descConVP, target);
+	sets[1] = vk2dDescConGetSamplerSet(gRenderer->descConSamplers, tex);
+	_vk2dRendererDraw(sets, 2, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
 	VK2DBuffer target = gRenderer->enableTextureCameraUBO ? gRenderer->uboBuffers[gRenderer->scImageIndex] : gRenderer->targetUBO;
-	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConPrim[gRenderer->scImageIndex], target);
-	_vk2dRendererDraw(set, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale, yscale, rot, originX, originY, lineWidth);
+	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConVP, target);
+	_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale, yscale, rot, originX, originY, lineWidth);
 }
