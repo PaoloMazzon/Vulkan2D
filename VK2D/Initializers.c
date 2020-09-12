@@ -325,7 +325,7 @@ VkPipelineDepthStencilStateCreateInfo vk2dInitPipelineDepthStencilStateCreateInf
 VkPipelineColorBlendStateCreateInfo vk2dInitPipelineColorBlendStateCreateInfo(VkPipelineColorBlendAttachmentState *attachments, uint32_t attachmentCount) {
 	VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo = {};
 	pipelineColorBlendStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	pipelineColorBlendStateCreateInfo.logicOpEnable = VK_FALSE;//VK_TRUE;
+	pipelineColorBlendStateCreateInfo.logicOpEnable = VK_FALSE;
 	pipelineColorBlendStateCreateInfo.logicOp = VK_LOGIC_OP_CLEAR;
 	pipelineColorBlendStateCreateInfo.attachmentCount = attachmentCount;
 	pipelineColorBlendStateCreateInfo.pAttachments = attachments;

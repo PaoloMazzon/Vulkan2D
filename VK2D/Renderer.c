@@ -1239,9 +1239,6 @@ void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
 static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
-	// Dynamic state
-	const float blendConstants[4] = {0.0, 0.0, 0.0, 0.0};
-
 	originX *= xscale;
 	originY *= yscale;
 
@@ -1279,7 +1276,6 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 
 	// Dynamic state that can't be optimized further and the draw call
 	vkCmdSetViewport(buf, 0, 1, &gRenderer->viewport);
-	vkCmdSetBlendConstants(buf, blendConstants);
 	vkCmdSetLineWidth(buf, lineWidth);
 	vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
 	vkCmdDraw(buf, poly->vertexCount, 1, 0, 0);

@@ -88,6 +88,8 @@ TODO
 ====
 
  + Custom shaders/pipelines (can already load custom default shaders)
+ + Pipelines for a couple different blend modes (add, subtract, multiply, etc.)
+ + Possibly putting all textures into a texture array so there is only one descriptor binding
 
 Warning
 =======
