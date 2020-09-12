@@ -8,6 +8,7 @@
 #include "VK2D/Polygon.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/Buffer.h"
+#include "VK2D/DescriptorControl.h"
 #include <malloc.h>
 
 // Will be modified to fit the texture then uploaded to a polygon
@@ -28,6 +29,12 @@ VK2DVertexTexture immutableFull[] = {
 		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f}}
 };
 const uint32_t baseTexVertexCount = 6;
+
+static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer) {
+	if (tex->img->set == NULL) {
+		tex->img->set = vk2dDescConGetSamplerSet(renderer->descConSamplers, tex);
+	}
+}
 
 VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, float wInImage, float hInImage) {
 	// In order to display portions of an image, we normalize UV coordinates and stick it in a vertex buffer
@@ -71,6 +78,7 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 		out->imgSampler = &renderer->textureSampler;
 		out->bounds = poly;
 		out->img = image;
+		_vk2dTextureCreateDescriptor(out, renderer);
 	} else {
 		vk2dPolygonFree(poly);
 		free(out);
@@ -153,6 +161,7 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 		out->ubo = vk2dBufferLoad(dev, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo);
 
 		_vk2dRendererAddTarget(out);
+		_vk2dTextureCreateDescriptor(out, renderer);
 	} else {
 		vk2dPolygonFree(poly);
 		free(out);

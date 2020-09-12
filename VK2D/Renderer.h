@@ -51,6 +51,7 @@ struct VK2DRenderer {
 	VkSampler textureSampler;      ///< Needed for textures
 	VK2DUniformBufferObject *ubos; ///< UBOs in memory that will be applied to their respective buffer at the start of the frame
 	VK2DBuffer *uboBuffers;        ///< Buffers in memory for the UBOs (1 per swapchain image, updated at start of frame)
+	VkDescriptorSet *uboSets;      ///< Descriptor sets for the ubo buffers
 	VK2DCamera camera;             ///< Camera settings that are applied to the UBO before every frame
 	VkViewport viewport;           ///< Viewport to draw with
 	bool enableTextureCameraUBO;   ///< If true, when drawing to a texture the UBO for the internal camera is used instead of the texture's UBO

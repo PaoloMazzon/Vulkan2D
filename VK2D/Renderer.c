@@ -649,6 +649,7 @@ static void _vk2dRendererDestroyFrameBuffer() {
 static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	gRenderer->ubos = calloc(1, sizeof(VK2DUniformBufferObject) * gRenderer->swapchainImageCount);
 	gRenderer->uboBuffers = malloc(sizeof(VK2DBuffer) * gRenderer->swapchainImageCount);
+	gRenderer->uboSets = malloc(sizeof(VkDescriptorSet) * gRenderer->swapchainImageCount);
 	uint32_t i;
 
 	VK2DCamera cam = {
@@ -667,6 +668,7 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 			gRenderer->uboBuffers[i] = vk2dBufferCreate(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 			_vk2dCameraUpdateUBO(&gRenderer->ubos[i], &gRenderer->camera);
 			_vk2dRendererFlushUBOBuffer(i);
+			gRenderer->uboSets[i] = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->uboBuffers[i]);
 		}
 	}
 
@@ -692,6 +694,7 @@ static void _vk2dRendererDestroyUniformBuffers() {
 	vk2dBufferFree(gRenderer->unitUBO);
 	free(gRenderer->ubos);
 	free(gRenderer->uboBuffers);
+	free(gRenderer->uboSets);
 }
 
 static void _vk2dRendererCreateDescriptorPool() {
@@ -866,8 +869,8 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateRenderPass();
 	_vk2dRendererCreatePipelines();
 	_vk2dRendererCreateFrameBuffer();
-	_vk2dRendererCreateUniformBuffers(false);
 	_vk2dRendererCreateDescriptorPool();
+	_vk2dRendererCreateUniformBuffers(false);
 	_vk2dRendererCreateSampler();
 	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
@@ -934,8 +937,8 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		_vk2dRendererCreateDescriptorSetLayouts();
 		_vk2dRendererCreatePipelines();
 		_vk2dRendererCreateFrameBuffer();
-		_vk2dRendererCreateUniformBuffers(true);
 		_vk2dRendererCreateDescriptorPool();
+		_vk2dRendererCreateUniformBuffers(true);
 		_vk2dRendererCreateSampler();
 		_vk2dRendererCreateUnits();
 		_vk2dRendererCreateSynchronization();
@@ -1205,7 +1208,7 @@ double vk2dRendererGetAverageFrameTime() {
 static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth);
 
 void vk2dRendererClear() {
-	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->unitUBO);
+	VkDescriptorSet set = gRenderer->uboSets[gRenderer->scImageIndex];
 	_vk2dRendererDraw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1);
 }
 
@@ -1283,15 +1286,13 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
-	VK2DBuffer target = gRenderer->enableTextureCameraUBO ? gRenderer->uboBuffers[gRenderer->scImageIndex] : gRenderer->targetUBO;
 	VkDescriptorSet sets[2];
-	sets[0] = vk2dDescConGetBufferSet(gRenderer->descConVP, target);
-	sets[1] = vk2dDescConGetSamplerSet(gRenderer->descConSamplers, tex);
+	sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
+	sets[1] = tex->img->set;
 	_vk2dRendererDraw(sets, 2, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
-	VK2DBuffer target = gRenderer->enableTextureCameraUBO ? gRenderer->uboBuffers[gRenderer->scImageIndex] : gRenderer->targetUBO;
-	VkDescriptorSet set = vk2dDescConGetBufferSet(gRenderer->descConVP, target);
+	VkDescriptorSet set = gRenderer->uboSets[gRenderer->scImageIndex];
 	_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale, yscale, rot, originX, originY, lineWidth);
 }
