@@ -364,6 +364,9 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 /// \brief Draws a circle outline using the current render colour (floats all around)
 #define vk2dDrawCircleOutline(x, y, r, w) vk2dRendererDrawCircleOutline(x, y, r, w)
 
+/// \brief Draws a texture with a shader (floats)
+#define vk2dDrawShader(shader, texture, x, y) vk2dRendererDrawShader(shader, texture, x, y, 1, 1, 0, 0, 0)
+
 /// \brief Draws a texture (x and y should be floats)
 #define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0)
 

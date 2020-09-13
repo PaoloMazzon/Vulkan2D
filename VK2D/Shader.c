@@ -32,8 +32,8 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
 			renderer->surfaceHeight,
 			shader->spvVert,
 			shader->spvVertSize,
-			shader->spvVert,
-			shader->spvVertSize,
+			shader->spvFrag,
+			shader->spvFragSize,
 			layout,
 			layoutCount,
 			&textureVertexInfo,
@@ -57,7 +57,7 @@ VK2DShader vk2dShaderCreate(VK2DLogicalDevice dev, const char *vertexShader, con
 		out->dev = dev;
 		out->currentUniform = 0;
 
-		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
 			out->uniforms[i] = vk2dBufferCreate(dev, uniformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 												VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
 												VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
@@ -84,7 +84,7 @@ void vk2dShaderFree(VK2DShader shader) {
 	if (shader != NULL) {
 		vk2dPipelineFree(shader->pipe);
 
-		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
+		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && shader->uniformSize != 0; i++)
 			vk2dBufferFree(shader->uniforms[i]);
 		free(shader->spvVert);
 		free(shader->spvFrag);

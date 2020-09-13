@@ -507,7 +507,7 @@ static void _vk2dRendererCreateDescriptorSetLayouts() {
 	// For user-created shaders
 	const uint32_t userLayoutCount = 1;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingUser[userLayoutCount];
-	descriptorSetLayoutBindingUser[0] = vk2dInitDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
+	descriptorSetLayoutBindingUser[0] = vk2dInitDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo userDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingUser, userLayoutCount);
 	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &userDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferUser));
 
@@ -1312,7 +1312,9 @@ void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y
 	sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
 	sets[1] = tex->img->set;
 	sets[2] = shader->sets[shader->currentUniform];
-	_vk2dRendererDraw(sets, 3, tex->bounds, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1);
+
+	uint32_t setCount = shader->uniformSize == 0 ? 2 : 3;
+	_vk2dRendererDraw(sets, setCount, tex->bounds, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1);
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {

@@ -87,7 +87,6 @@ in development as lacks a few very important things (check the TODO).
 TODO
 ====
 
- + Custom shaders/pipelines (can already load custom default shaders)
  + Pipelines for a couple different blend modes (can be integrated into VK2DPipeline by having multiple pipelines internally)
  + Possibly putting all textures into a texture array so there is only one descriptor binding
 

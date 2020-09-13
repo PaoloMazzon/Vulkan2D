@@ -7,3 +7,4 @@
 #include "VK2D/Polygon.h"
 #include "VK2D/Texture.h"
 #include "VK2D/Image.h"
+#include "VK2D/Shader.h"
