@@ -28,10 +28,13 @@ struct VK2DShader {
 	VK2DPipeline pipe;       ///< Pipeline associated with this shader
 	uint32_t uniformSize;    ///< Uniform buffer size in bytes
 	uint32_t currentUniform; ///< Current uniform buffer that is allowed to be modified
-	VK2DBuffer uniforms[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Uniform buffers
+	VK2DLogicalDevice dev;   ///< Device this belongs to
+	VK2DBuffer uniforms[VK2D_MAX_FRAMES_IN_FLIGHT];  ///< Uniform buffers
+	VkDescriptorSet sets[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor sets for the uniform buffers
 };
 
 /// \brief Creates a shader you can use to render textures
+/// \param dev Device to create the shader with
 /// \param vertexShader File containing the compiled SPIR-V vertex shader
 /// \param fragmentShader File containing the compiled SPIR-V fragment shader
 /// \param uniformBufferSize Size of the shader's expected uniform buffer (0 is valid)
@@ -78,7 +81,7 @@ struct VK2DShader {
 ///
 /// The specified uniform buffer size must match the size of the data you
 /// use in `UserData` exactly and it must also be a multiple of 4.
-VK2DShader vk2dShaderCreate(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize);
+VK2DShader vk2dShaderCreate(VK2DLogicalDevice dev, const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize);
 
 /// \brief Updates a uniform in a shader
 /// \param shader Shader to update the uniform data for

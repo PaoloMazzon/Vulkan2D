@@ -325,6 +325,18 @@ void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth);
 /// \param originY Y origin for rotation (in pixels)
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY);
 
+/// \brief Renders a texture
+/// \param shader Shader to draw with
+/// \param tex Texture to draw
+/// \param x x position in pixels from the top left of the window to draw it from
+/// \param y y position in pixels from the top left of the window to draw it from
+/// \param xscale Horizontal scale for drawing the texture (negative for flipped)
+/// \param yscale Vertical scale for drawing the texture (negative for flipped)
+/// \param rot Rotation to draw the texture (VK2D only uses radians)
+/// \param originX X origin for rotation (in pixels)
+/// \param originY Y origin for rotation (in pixels)
+void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY);
+
 /// \brief Renders a polygon
 /// \param polygon Polygon to draw
 /// \param x x position in pixels from the top left of the window to draw it from
