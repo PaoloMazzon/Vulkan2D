@@ -41,7 +41,10 @@ int main(int argc, const char *argv[]) {
 
 	// Load test assets
 	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw(vk2dRendererGetDevice(), (void *) SAMPLE_TRIANGLE, VERTICES);
-	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
+	SDL_Surface *surf = SDL_LoadBMP("assets/caveguy.bmp");
+	VK2DImage testImage = vk2dImageFromSurface(vk2dRendererGetDevice(), surf);
+	SDL_FreeSurface(surf);
+	//VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
 	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
 
 	// Delta and fps

@@ -11,6 +11,18 @@
 #include "VK2D/Renderer.h"
 #include <malloc.h>
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+rmask = 0x000000ff;
+gmask = 0x0000ff00;
+bmask = 0x00ff0000;
+amask = 0xff000000;
+#endif
+
 // Internal functions
 
 static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
@@ -176,6 +188,48 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 		vk2dBufferFree(stage);
 	}
 
+	return out;
+}
+
+VK2DImage vk2dImageFromSurface(VK2DLogicalDevice dev, SDL_Surface *surface) {
+	SDL_PixelFormat format = {};
+	format.format = SDL_PIXELFORMAT_RGBA8888;
+	format.BytesPerPixel = 4;
+	format.BitsPerPixel = 32;
+	format.Rmask = rmask;
+	format.Gmask = gmask;
+	format.Bmask = bmask;
+	format.Amask = amask;
+	SDL_Surface *work = SDL_ConvertSurface(surface, &format, 0);
+	VK2DImage out = NULL;
+	VK2DBuffer stage;
+	uint32_t imageSize = work->w * work->h * 4;
+
+	if (vk2dPointerCheck(work)) {
+		stage = vk2dBufferCreate(dev, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+								 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+		void *data;
+		vkMapMemory(dev->dev, stage->mem, 0, imageSize, 0, &data);
+		memcpy(data, work->pixels, imageSize);
+		vkUnmapMemory(dev->dev, stage->mem);
+
+		out = vk2dImageCreate(dev, work->w, work->h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
+							  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
+
+
+		if (vk2dPointerCheck(out)) {
+			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
+											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, work->w, work->h);
+			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		}
+
+		vk2dBufferFree(stage);
+	}
+
+	SDL_FreeSurface(work);
 	return out;
 }
 

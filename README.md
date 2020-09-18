@@ -87,6 +87,7 @@ in development as lacks a few very important things (check the TODO).
 TODO
 ====
 
+ + Textures shouldn't create a sampling image if the msaa is 1
  + Pipelines for a couple different blend modes (can be integrated into VK2DPipeline by having multiple pipelines internally)
  + Possibly putting all textures into a texture array so there is only one descriptor binding
 
