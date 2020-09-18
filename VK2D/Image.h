@@ -4,6 +4,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include "VK2D/Structs.h"
+#include <SDL2/SDL.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,6 +38,12 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 /// \return Returns a new image or NULL if it failed
 /// \warning Requires a renderer be initialized to work
 VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename);
+
+/// \brief Creates an image from an SDL2 surface
+/// \param dev Device to create the image with
+/// \param surface Surface to get the initial pixels from
+/// \return Returns a new image or NULL if it failed
+VK2DImage vk2dImageFromSurface(VK2DLogicalDevice dev, SDL_Surface *surface);
 
 /// \brief Frees an image from memory
 /// \param img Image to free
