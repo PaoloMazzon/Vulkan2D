@@ -1181,7 +1181,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 				clearValues,
 				clearCount);
 
-		vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+		vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 		_vk2dRendererResetBoundPointers();
 	}
