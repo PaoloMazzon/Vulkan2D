@@ -1033,6 +1033,8 @@ VK2DRendererConfig vk2dRendererGetConfig() {
 
 void vk2dRendererSetConfig(VK2DRendererConfig config) {
 	gRenderer->newConfig = config;
+	VK2DMSAA maxMSAA = vk2dPhysicalDeviceGetMSAA(gRenderer->pd);
+	gRenderer->newConfig.msaa = maxMSAA >= config.msaa ? config.msaa : maxMSAA;
 	vk2dRendererResetSwapchain();
 }
 
