@@ -723,17 +723,23 @@ static void _vk2dRendererDestroyUniformBuffers() {
 	free(gRenderer->uboSets);
 }
 
-static void _vk2dRendererCreateDescriptorPool() {
-	gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSampler, VK2D_NO_LOCATION, 1);
-	gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION);
-	gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 2, VK2D_NO_LOCATION);
-	vk2dLogMessage("Descriptor pool initialized...");
+static void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
+	if (!preserveDescCons) {
+		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSampler, VK2D_NO_LOCATION, 1);
+		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION);
+		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 2, VK2D_NO_LOCATION);
+		vk2dLogMessage("Descriptor controllers initialized...");
+	} else {
+		vk2dLogMessage("Descriptor controllers preserved...");
+	}
 }
 
-static void _vk2dRendererDestroyDescriptorPool() {
-	vk2dDescConFree(gRenderer->descConSamplers);
-	vk2dDescConFree(gRenderer->descConVP);
-	vk2dDescConFree(gRenderer->descConUser);
+static void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
+	if (!preserveDescCons) {
+		vk2dDescConFree(gRenderer->descConSamplers);
+		vk2dDescConFree(gRenderer->descConVP);
+		vk2dDescConFree(gRenderer->descConUser);
+	}
 }
 
 static void _vk2dRendererCreateSynchronization() {
@@ -872,8 +878,8 @@ static void _vk2dRendererResetSwapchain() {
 
 	// Free swapchain
 	_vk2dRendererDestroySynchronization();
-	_vk2dRendererDestroySampler();
-	_vk2dRendererDestroyDescriptorPool();
+	//_vk2dRendererDestroySampler();
+	_vk2dRendererDestroyDescriptorPool(true);
 	_vk2dRendererDestroyUniformBuffers();
 	_vk2dRendererDestroyFrameBuffer();
 	_vk2dRendererDestroyPipelines(true);
@@ -895,9 +901,9 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateRenderPass();
 	_vk2dRendererCreatePipelines();
 	_vk2dRendererCreateFrameBuffer();
-	_vk2dRendererCreateDescriptorPool();
+	_vk2dRendererCreateDescriptorPool(true);
 	_vk2dRendererCreateUniformBuffers(false);
-	_vk2dRendererCreateSampler();
+	//_vk2dRendererCreateSampler();
 	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
 
@@ -963,7 +969,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		_vk2dRendererCreateDescriptorSetLayouts();
 		_vk2dRendererCreatePipelines();
 		_vk2dRendererCreateFrameBuffer();
-		_vk2dRendererCreateDescriptorPool();
+		_vk2dRendererCreateDescriptorPool(false);
 		_vk2dRendererCreateUniformBuffers(true);
 		_vk2dRendererCreateSampler();
 		_vk2dRendererCreateUnits();
@@ -992,7 +998,7 @@ void vk2dRendererQuit() {
 		_vk2dRendererDestroyTargetsList();
 		_vk2dRendererDestroyUnits();
 		_vk2dRendererDestroySampler();
-		_vk2dRendererDestroyDescriptorPool();
+		_vk2dRendererDestroyDescriptorPool(false);
 		_vk2dRendererDestroyUniformBuffers();
 		_vk2dRendererDestroyFrameBuffer();
 		_vk2dRendererDestroyPipelines(false);

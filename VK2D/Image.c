@@ -6,6 +6,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/Initializers.h"
 #include "VK2D/Buffer.h"
+#define STB_IMAGE_IMPLEMENTATION
 #include "VK2D/stb_image.h"
 #include "VK2D/Renderer.h"
 #include <malloc.h>

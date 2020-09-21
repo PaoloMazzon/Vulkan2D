@@ -137,10 +137,11 @@ typedef struct VK2DConfiguration {
 } VK2DConfiguration;
 
 /// \brief User configurable settings
+/// \warning Currently filterMode cannot be changed after the renderer is created but this is likely going to be fixed later
 typedef struct VK2DRendererConfig {
 	VK2DMSAA msaa;             ///< Current MSAA
 	VK2DScreenMode screenMode; ///< Current screen mode
-	VK2DFilterType filterMode; ///< How to filter textures
+	VK2DFilterType filterMode; ///< How to filter textures -- Not change-able after renderer creation
 } VK2DRendererConfig;
 
 /// \brief Camera information
