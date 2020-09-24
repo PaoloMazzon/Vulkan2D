@@ -709,6 +709,7 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	VK2DUniformBufferObject unitUBO = {};
 	_vk2dCameraUpdateUBO(&unitUBO, &unitCam);
 	gRenderer->unitUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &unitUBO);
+	gRenderer->unitUBOSet = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->unitUBO);
 
 	vk2dLogMessage("UBO initialized...");
 }
@@ -1242,7 +1243,7 @@ double vk2dRendererGetAverageFrameTime() {
 static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth);
 
 void vk2dRendererClear() {
-	VkDescriptorSet set = gRenderer->uboSets[gRenderer->scImageIndex];
+	VkDescriptorSet set = gRenderer->unitUBOSet;
 	_vk2dRendererDraw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1);
 }
 

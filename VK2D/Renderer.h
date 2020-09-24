@@ -126,6 +126,7 @@ struct VK2DRenderer {
 	VK2DPolygon unitCircle;        ///< Used to draw circles
 	VK2DPolygon unitCircleOutline; ///< Used to draw circle outlines
 	VK2DBuffer unitUBO;            ///< Used to draw to the whole screen
+	VkDescriptorSet unitUBOSet;    ///< Descriptor Set for the unit ubo
 
 	// Debugging tools
 	double previousTime;     ///< Time that the current frame started
