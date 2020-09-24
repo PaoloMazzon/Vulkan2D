@@ -75,6 +75,7 @@ struct VK2DRenderer {
 	VkRenderPass midFrameSwapRenderPass;   ///< Render pass for mid-frame switching back to the swapchain as a target
 	VkRenderPass externalTargetRenderPass; ///< Render pass for rendering to textures
 	VkFramebuffer *framebuffers;           ///< Framebuffers for the swapchain images
+	bool procedStartFrame;                 ///< End frame things are only done if this is true and start frame things are only done if this is false
 
 	// Depth stencil image things
 	bool dsiAvailable;  ///< Whether or not the depth stencil image is available

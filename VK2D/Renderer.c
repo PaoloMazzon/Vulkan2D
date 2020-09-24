@@ -1046,105 +1046,123 @@ void vk2dRendererSetConfig(VK2DRendererConfig config) {
 }
 
 void vk2dRendererStartFrame(vec4 clearColour) {
-	/*********** Get image and synchronization ***********/
+	if (!gRenderer->procedStartFrame) {
+		gRenderer->procedStartFrame = true;
 
-	gRenderer->previousTime = SDL_GetPerformanceCounter();
+		/*********** Get image and synchronization ***********/
 
-	// Wait for previous rendering to be finished
-	vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame], VK_TRUE, UINT64_MAX);
+		gRenderer->previousTime = SDL_GetPerformanceCounter();
 
-	// Acquire image
-	vkAcquireNextImageKHR(gRenderer->ld->dev, gRenderer->swapchain, UINT64_MAX, gRenderer->imageAvailableSemaphores[gRenderer->currentFrame], VK_NULL_HANDLE, &gRenderer->scImageIndex);
+		// Wait for previous rendering to be finished
+		vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame], VK_TRUE,
+						UINT64_MAX);
 
-	if (gRenderer->imagesInFlight[gRenderer->scImageIndex] != VK_NULL_HANDLE) {
-		vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->imagesInFlight[gRenderer->scImageIndex], VK_TRUE, UINT64_MAX);
+		// Acquire image
+		vkAcquireNextImageKHR(gRenderer->ld->dev, gRenderer->swapchain, UINT64_MAX,
+							  gRenderer->imageAvailableSemaphores[gRenderer->currentFrame], VK_NULL_HANDLE,
+							  &gRenderer->scImageIndex);
+
+		if (gRenderer->imagesInFlight[gRenderer->scImageIndex] != VK_NULL_HANDLE) {
+			vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->imagesInFlight[gRenderer->scImageIndex], VK_TRUE,
+							UINT64_MAX);
+		}
+		gRenderer->imagesInFlight[gRenderer->scImageIndex] = gRenderer->inFlightFences[gRenderer->currentFrame];
+
+		/*********** Start-of-frame tasks ***********/
+
+		// Reset currently bound items
+		_vk2dRendererResetBoundPointers();
+
+		// Reset current render targets
+		gRenderer->targetFrameBuffer = gRenderer->framebuffers[gRenderer->scImageIndex];
+		gRenderer->targetRenderPass = gRenderer->renderPass;
+		gRenderer->targetSubPass = 0;
+		gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
+		gRenderer->targetUBO = gRenderer->uboBuffers[gRenderer->scImageIndex];
+		gRenderer->target = VK2D_TARGET_SCREEN;
+
+		// Flush the current ubo into its buffer for the frame
+		_vk2dCameraUpdateUBO(&gRenderer->ubos[gRenderer->scImageIndex], &gRenderer->camera);
+		_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex);
+
+		// Start the render pass
+		VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+																			VK_NULL_HANDLE);
+		vkResetCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], 0);
+		vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], &beginInfo));
+
+		// Setup render pass
+		VkRect2D rect = {};
+		rect.extent.width = gRenderer->surfaceWidth;
+		rect.extent.height = gRenderer->surfaceHeight;
+		const uint32_t clearCount = 2;
+		VkClearValue clearValues[2] = {};
+		clearValues[0].depthStencil.depth = 1;
+		clearValues[0].depthStencil.stencil = 0;
+		clearValues[1].color.float32[0] = clearColour[0];
+		clearValues[1].color.float32[1] = clearColour[1];
+		clearValues[1].color.float32[2] = clearColour[2];
+		clearValues[1].color.float32[3] = clearColour[3];
+		VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
+				gRenderer->renderPass,
+				gRenderer->framebuffers[gRenderer->scImageIndex],
+				rect,
+				clearValues,
+				clearCount);
+
+		vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo,
+							 VK_SUBPASS_CONTENTS_INLINE);
 	}
-	gRenderer->imagesInFlight[gRenderer->scImageIndex] = gRenderer->inFlightFences[gRenderer->currentFrame];
-
-	/*********** Start-of-frame tasks ***********/
-
-	// Reset currently bound items
-	_vk2dRendererResetBoundPointers();
-
-	// Reset current render targets
-	gRenderer->targetFrameBuffer = gRenderer->framebuffers[gRenderer->scImageIndex];
-	gRenderer->targetRenderPass = gRenderer->renderPass;
-	gRenderer->targetSubPass = 0;
-	gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
-	gRenderer->targetUBO = gRenderer->uboBuffers[gRenderer->scImageIndex];
-	gRenderer->target = VK2D_TARGET_SCREEN;
-
-	// Flush the current ubo into its buffer for the frame
-	_vk2dCameraUpdateUBO(&gRenderer->ubos[gRenderer->scImageIndex], &gRenderer->camera);
-	_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex);
-
-	// Start the render pass
-	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE);
-	vkResetCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], 0);
-	vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], &beginInfo));
-
-	// Setup render pass
-	VkRect2D rect = {};
-	rect.extent.width = gRenderer->surfaceWidth;
-	rect.extent.height = gRenderer->surfaceHeight;
-	const uint32_t clearCount = 2;
-	VkClearValue clearValues[2] = {};
-	clearValues[0].depthStencil.depth = 1;
-	clearValues[0].depthStencil.stencil = 0;
-	clearValues[1].color.float32[0] = clearColour[0];
-	clearValues[1].color.float32[1] = clearColour[1];
-	clearValues[1].color.float32[2] = clearColour[2];
-	clearValues[1].color.float32[3] = clearColour[3];
-	VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
-			gRenderer->renderPass,
-			gRenderer->framebuffers[gRenderer->scImageIndex],
-			rect,
-			clearValues,
-			clearCount);
-
-	vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void vk2dRendererEndFrame() {
-	// Finish the primary command buffer, its time to PRESENT things
-	vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
-	vk2dErrorCheck(vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]));
+	if (gRenderer->procedStartFrame) {
+		gRenderer->procedStartFrame = false;
+		// Finish the primary command buffer, its time to PRESENT things
+		vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
+		vk2dErrorCheck(vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]));
 
-	// Wait for image before doing things
-	VkPipelineStageFlags waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-	VkSubmitInfo submitInfo = vk2dInitSubmitInfo(
-			&gRenderer->commandBuffer[gRenderer->scImageIndex],
-			1,
-			&gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
-			1,
-			&gRenderer->imageAvailableSemaphores[gRenderer->currentFrame],
-			1,
-			waitStage);
+		// Wait for image before doing things
+		VkPipelineStageFlags waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+		VkSubmitInfo submitInfo = vk2dInitSubmitInfo(
+				&gRenderer->commandBuffer[gRenderer->scImageIndex],
+				1,
+				&gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
+				1,
+				&gRenderer->imageAvailableSemaphores[gRenderer->currentFrame],
+				1,
+				waitStage);
 
-	// Submit
-	vkResetFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame]);
-	vk2dErrorCheck(vkQueueSubmit(gRenderer->ld->queue, 1, &submitInfo, gRenderer->inFlightFences[gRenderer->currentFrame]));
+		// Submit
+		vkResetFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame]);
+		vk2dErrorCheck(vkQueueSubmit(gRenderer->ld->queue, 1, &submitInfo,
+									 gRenderer->inFlightFences[gRenderer->currentFrame]));
 
-	// Final present info bit
-	VkResult result;
-	VkPresentInfoKHR presentInfo = vk2dInitPresentInfoKHR(&gRenderer->swapchain, 1, &gRenderer->scImageIndex, &result, &gRenderer->renderFinishedSemaphores[gRenderer->currentFrame], 1);
-	vk2dErrorCheck(vkQueuePresentKHR(gRenderer->ld->queue, &presentInfo));
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || gRenderer->resetSwapchain) {
-		_vk2dRendererResetSwapchain();
-		gRenderer->resetSwapchain = false;
-	} else {
-		vk2dErrorCheck(result);
-	}
+		// Final present info bit
+		VkResult result;
+		VkPresentInfoKHR presentInfo = vk2dInitPresentInfoKHR(&gRenderer->swapchain, 1, &gRenderer->scImageIndex,
+															  &result,
+															  &gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
+															  1);
+		vk2dErrorCheck(vkQueuePresentKHR(gRenderer->ld->queue, &presentInfo));
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || gRenderer->resetSwapchain) {
+			_vk2dRendererResetSwapchain();
+			gRenderer->resetSwapchain = false;
+		} else {
+			vk2dErrorCheck(result);
+		}
 
-	gRenderer->currentFrame = (gRenderer->currentFrame + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
+		gRenderer->currentFrame = (gRenderer->currentFrame + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
 
-	// Calculate time
-	gRenderer->accumulatedTime += (((double)SDL_GetPerformanceCounter() - gRenderer->previousTime) / (double)SDL_GetPerformanceFrequency()) * 1000;
-	gRenderer->amountOfFrames++;
-	if (gRenderer->accumulatedTime >= 1000) {
-		gRenderer->frameTimeAverage = gRenderer->accumulatedTime / gRenderer->amountOfFrames;
-		gRenderer->accumulatedTime = 0;
-		gRenderer->amountOfFrames = 0;
+		// Calculate time
+		gRenderer->accumulatedTime += (((double) SDL_GetPerformanceCounter() - gRenderer->previousTime) /
+									   (double) SDL_GetPerformanceFrequency()) * 1000;
+		gRenderer->amountOfFrames++;
+		if (gRenderer->accumulatedTime >= 1000) {
+			gRenderer->frameTimeAverage = gRenderer->accumulatedTime / gRenderer->amountOfFrames;
+			gRenderer->accumulatedTime = 0;
+			gRenderer->amountOfFrames = 0;
+		}
 	}
 }
 
