@@ -113,9 +113,9 @@ void _vk2dRendererRemoveTarget(VK2DTexture tex);
 VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
-	float x1 = 0;
+	float x1 = w;
 	float y1 = 0;
-	float x2 = w;
+	float x2 = 0;
 	float y2 = h;
 	immutableFull[0].tex[0] = x2;
 	immutableFull[0].tex[1] = y1;
