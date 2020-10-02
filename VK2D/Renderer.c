@@ -246,6 +246,7 @@ static VkPresentModeKHR _vk2dRendererGetPresentMode(VkPresentModeKHR mode) {
 }
 
 static void _vk2dRendererGetSurfaceSize() {
+	vk2dErrorCheck(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->surfaceCapabilities));
 	if (gRenderer->surfaceCapabilities.currentExtent.width == UINT32_MAX || gRenderer->surfaceCapabilities.currentExtent.height == UINT32_MAX) {
 		SDL_Vulkan_GetDrawableSize(gRenderer->window, (void*)&gRenderer->surfaceWidth, (void*)&gRenderer->surfaceHeight);
 	} else {
