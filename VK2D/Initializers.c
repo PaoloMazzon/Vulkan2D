@@ -440,19 +440,19 @@ VkSamplerCreateInfo vk2dInitSamplerCreateInfo(VkBool32 linearFilter, float aniso
 	samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	samplerCreateInfo.magFilter = linearFilter ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
 	samplerCreateInfo.minFilter = linearFilter ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
-	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 	samplerCreateInfo.anisotropyEnable = anisotropy > 1 ? VK_TRUE : VK_FALSE;
 	samplerCreateInfo.maxAnisotropy = anisotropy;
 	samplerCreateInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerCreateInfo.unnormalizedCoordinates = VK_TRUE;
 	samplerCreateInfo.compareEnable = VK_FALSE;
 	samplerCreateInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 	samplerCreateInfo.mipmapMode = linearFilter ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
 	samplerCreateInfo.mipLodBias = 0;
 	samplerCreateInfo.minLod = 0;
-	samplerCreateInfo.maxLod = 1;
+	samplerCreateInfo.maxLod = 0;
 	return samplerCreateInfo;
 }
 

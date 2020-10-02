@@ -38,10 +38,10 @@ static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer)
 
 VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, float wInImage, float hInImage) {
 	// In order to display portions of an image, we normalize UV coordinates and stick it in a vertex buffer
-	float x1 = xInImage / image->width;
-	float y1 = yInImage / image->height;
-	float x2 = (xInImage + wInImage) / image->width;
-	float y2 = (yInImage + hInImage) / image->height;
+	float x1 = xInImage;
+	float y1 = yInImage;
+	float x2 = (xInImage + wInImage);
+	float y2 = (yInImage + hInImage);
 
 	// Image loads flipped so this is a really cheaty way of fixing
 	float hold = x2;
@@ -113,6 +113,22 @@ void _vk2dRendererRemoveTarget(VK2DTexture tex);
 VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
+	float x1 = w;
+	float y1 = 0;
+	float x2 = 0;
+	float y2 = h;
+	immutableFull[0].tex[0] = x2;
+	immutableFull[0].tex[1] = y1;
+	immutableFull[1].tex[0] = x1;
+	immutableFull[1].tex[1] = y1;
+	immutableFull[2].tex[0] = x1;
+	immutableFull[2].tex[1] = y2;
+	immutableFull[3].tex[0] = x1;
+	immutableFull[3].tex[1] = y2;
+	immutableFull[4].tex[0] = x2;
+	immutableFull[4].tex[1] = y2;
+	immutableFull[5].tex[0] = x2;
+	immutableFull[5].tex[1] = y1;
 	immutableFull[1].pos[0] = w;
 	immutableFull[2].pos[0] = w;
 	immutableFull[2].pos[1] = h;
