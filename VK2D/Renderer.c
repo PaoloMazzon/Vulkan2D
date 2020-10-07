@@ -1079,7 +1079,7 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 		gRenderer->targetRenderPass = gRenderer->renderPass;
 		gRenderer->targetSubPass = 0;
 		gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
-		gRenderer->targetUBO = gRenderer->uboBuffers[gRenderer->scImageIndex];
+		gRenderer->targetUBOSet = gRenderer->uboSets[gRenderer->scImageIndex];
 		gRenderer->target = VK2D_TARGET_SCREEN;
 
 		// Flush the current ubo into its buffer for the frame
@@ -1178,7 +1178,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 		VkRenderPass pass = target == VK2D_TARGET_SCREEN ? gRenderer->midFrameSwapRenderPass : gRenderer->externalTargetRenderPass;
 		VkFramebuffer framebuffer = target == VK2D_TARGET_SCREEN ? gRenderer->framebuffers[gRenderer->scImageIndex] : target->fbo;
 		VkImage image = target == VK2D_TARGET_SCREEN ? gRenderer->swapchainImages[gRenderer->scImageIndex] : target->img->img;
-		VK2DBuffer buffer = target == VK2D_TARGET_SCREEN ? gRenderer->uboBuffers[gRenderer->scImageIndex] : target->ubo;
+		VkDescriptorSet buffer = target == VK2D_TARGET_SCREEN ? gRenderer->uboSets[gRenderer->scImageIndex] : target->uboSet;
 
 		vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
 
@@ -1192,7 +1192,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 		gRenderer->targetRenderPass = pass;
 		gRenderer->targetFrameBuffer = framebuffer;
 		gRenderer->targetImage = image;
-		gRenderer->targetUBO = buffer;
+		gRenderer->targetUBOSet = buffer;
 
 		// Setup new render pass
 		VkRect2D rect = {};
@@ -1327,9 +1327,13 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 		vkCmdBindVertexBuffers(buf, 0, 1, &poly->vertices->buf, offsets);
 		gRenderer->prevVBO = poly->vertices->buf;
 	}
+	VkRect2D scissor = {};
+	scissor.extent.width = gRenderer->surfaceWidth;
+	scissor.extent.height = gRenderer->surfaceHeight;
 
 	// Dynamic state that can't be optimized further and the draw call
 	vkCmdSetViewport(buf, 0, 1, &gRenderer->viewport);
+	vkCmdSetScissor(buf, 0, 1, &scissor);
 	vkCmdSetLineWidth(buf, lineWidth);
 	vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
 	vkCmdDraw(buf, poly->vertexCount, 1, 0, 0);
@@ -1337,7 +1341,10 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 
 void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
 	VkDescriptorSet sets[3];
-	sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
+	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
+		sets[0] = gRenderer->targetUBOSet;
+	else
+		sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
 	sets[1] = tex->img->set;
 	sets[2] = shader->sets[shader->currentUniform];
 
@@ -1347,12 +1354,19 @@ void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
 	VkDescriptorSet sets[2];
-	sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
+	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
+		sets[0] = gRenderer->targetUBOSet;
+	else
+		sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
 	sets[1] = tex->img->set;
 	_vk2dRendererDraw(sets, 2, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
-	VkDescriptorSet set = gRenderer->uboSets[gRenderer->scImageIndex];
+	VkDescriptorSet set;
+	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
+		set = gRenderer->targetUBOSet;
+	else
+		set = gRenderer->uboSets[gRenderer->scImageIndex];
 	_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale, yscale, rot, originX, originY, lineWidth);
 }

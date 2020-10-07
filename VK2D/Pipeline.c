@@ -64,7 +64,8 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		const uint32_t stateCount = 2;
 		VkDynamicState states[] = {
 				VK_DYNAMIC_STATE_LINE_WIDTH,
-				VK_DYNAMIC_STATE_VIEWPORT
+				VK_DYNAMIC_STATE_VIEWPORT,
+				VK_DYNAMIC_STATE_SCISSOR
 		};
 		VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo = vk2dInitPipelineDynamicStateCreateInfo(states, stateCount);
 		VkPushConstantRange range = {};

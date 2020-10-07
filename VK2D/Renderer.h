@@ -111,7 +111,7 @@ struct VK2DRenderer {
 	VkRenderPass targetRenderPass;   ///< Current render pass being rendered to
 	VkFramebuffer targetFrameBuffer; ///< Current framebuffer being rendered to
 	VkImage targetImage;             ///< Current image being rendered to
-	VK2DBuffer targetUBO;            ///< UBO being used for rendering
+	VkDescriptorSet targetUBOSet;    ///< UBO being used for rendering
 	VK2DTexture target;              ///< Just for simplicity sake
 	VK2DTexture *targets;            ///< List of all currently loaded textures targets (in case the MSAA is changed and the sample image needs to be reloaded)
 	uint32_t targetListSize;         ///< Amount of elements in the list (only non-null elements count)

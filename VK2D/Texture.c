@@ -175,6 +175,7 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 
 		// And the UBO
 		out->ubo = vk2dBufferLoad(dev, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo);
+		out->uboSet = vk2dDescConGetBufferSet(renderer->descConVP, out->ubo);
 
 		_vk2dRendererAddTarget(out);
 		_vk2dTextureCreateDescriptor(out, renderer);

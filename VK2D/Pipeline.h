@@ -39,6 +39,7 @@ struct VK2DPipeline {
 ///
 ///  + Viewports
 ///  + Rasterization line width (if wireframe is enabled)
+///  + Scissor
 ///
 /// (This may change in the future) .
 VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayout, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa);
