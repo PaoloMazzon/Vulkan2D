@@ -1145,12 +1145,13 @@ void vk2dRendererEndFrame() {
 															  &result,
 															  &gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
 															  1);
-		vk2dErrorCheck(vkQueuePresentKHR(gRenderer->ld->queue, &presentInfo));
-		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || gRenderer->resetSwapchain) {
+		VkResult queueRes = vkQueuePresentKHR(gRenderer->ld->queue, &presentInfo);
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || gRenderer->resetSwapchain || queueRes == VK_ERROR_OUT_OF_DATE_KHR) {
 			_vk2dRendererResetSwapchain();
 			gRenderer->resetSwapchain = false;
 		} else {
 			vk2dErrorCheck(result);
+			vk2dErrorCheck(queueRes);
 		}
 
 		gRenderer->currentFrame = (gRenderer->currentFrame + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
