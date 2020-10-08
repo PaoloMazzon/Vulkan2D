@@ -109,7 +109,7 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererStartFrame(clear);
 		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dRendererSetColourMod(line);
-		vk2dDrawLine(0, 0, 32, 32, 1);
+		vk2dDrawLine(0, 0, 32, 32);
 		vk2dRendererSetColourMod(white);
 		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();

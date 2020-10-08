@@ -1310,11 +1310,11 @@ void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
 #endif //  VK2D_UNIT_GENERATION
 }
 
-void vk2dRendererDrawLine(float x1, float y1, float x2, float y2, float lineWidth) {
+void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
 #ifdef VK2D_UNIT_GENERATION
 	float x = sqrtf(powf(y2 - y1, 2) + powf(x2 - x1, 2));
 	float r = atan2f(y2 - y1, x2 - x1);
-	vk2dRendererDrawPolygon(gRenderer->unitLine, x1, y1, false, lineWidth, x, 1, r, 0, 0);
+	vk2dRendererDrawPolygon(gRenderer->unitLine, x1, y1, false, 1, x, 1, r, 0, 0);
 #endif //  VK2D_UNIT_GENERATION
 }
 

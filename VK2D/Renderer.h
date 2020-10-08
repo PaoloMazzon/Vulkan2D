@@ -322,8 +322,7 @@ void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth);
 /// \param y1 First point on the line's y position
 /// \param x2 Second point on the line's x position
 /// \param y2 Second point on the line's y position
-/// \param lineWidth Width of the line
-void vk2dRendererDrawLine(float x1, float y1, float x2, float y2, float lineWidth);
+void vk2dRendererDrawLine(float x1, float y1, float x2, float y2);
 
 /// \brief Renders a texture
 /// \param tex Texture to draw
@@ -376,7 +375,7 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 #define vk2dDrawCircleOutline(x, y, r, w) vk2dRendererDrawCircleOutline(x, y, r, w)
 
 /// \brief Draws a line using the current render colour (floats)
-#define vk2dDrawLine(x1, y1, x2, y2, w) vk2dRendererDrawLine(x1, y1, x2, y2, w)
+#define vk2dDrawLine(x1, y1, x2, y2) vk2dRendererDrawLine(x1, y1, x2, y2)
 
 /// \brief Draws a texture with a shader (floats)
 #define vk2dDrawShader(shader, texture, x, y) vk2dRendererDrawShader(shader, texture, x, y, 1, 1, 0, 0, 0)
