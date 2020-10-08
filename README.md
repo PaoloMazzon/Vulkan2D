@@ -87,10 +87,10 @@ in development as lacks a few very important things (check the TODO).
 TODO
 ====
 
- + Draw line
  + Sampler should be able to be changed during runtime
  + Pipelines for a couple different blend modes (can be integrated into VK2DPipeline by having multiple pipelines internally)
  + Texture descriptor array
+ + Sub-allocations/better memory allocation
 
 Warning
 =======

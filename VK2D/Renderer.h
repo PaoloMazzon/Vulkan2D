@@ -126,6 +126,7 @@ struct VK2DRenderer {
 	VK2DPolygon unitSquareOutline; ///< Used to draw rectangle outlines
 	VK2DPolygon unitCircle;        ///< Used to draw circles
 	VK2DPolygon unitCircleOutline; ///< Used to draw circle outlines
+	VK2DPolygon unitLine;          ///< Used to draw lines
 	VK2DBuffer unitUBO;            ///< Used to draw to the whole screen
 	VkDescriptorSet unitUBOSet;    ///< Descriptor Set for the unit ubo
 
@@ -142,7 +143,7 @@ struct VK2DRenderer {
 /// \return Returns weather or not the function was successful, less than zero is an error
 ///
 /// GPUs are not guaranteed to support certain screen modes and msaa levels (integrated
-/// gpus often don't usually support triple buffering, 32x msaa is not terribly common), so if
+/// gpus often don't support triple buffering, 32x msaa is not terribly common), so if
 /// you request something that isn't supported, the next best thing is used in its place.
 ///
 /// Something important to note is that by default the renderer has three graphics pipelines that
@@ -316,6 +317,14 @@ void vk2dRendererDrawCircle(float x, float y, float r);
 /// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
 void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth);
 
+/// \brief Draws a line using the current rendering colour
+/// \param x1 First point on the line's x position
+/// \param y1 First point on the line's y position
+/// \param x2 Second point on the line's x position
+/// \param y2 Second point on the line's y position
+/// \param lineWidth Width of the line
+void vk2dRendererDrawLine(float x1, float y1, float x2, float y2, float lineWidth);
+
 /// \brief Renders a texture
 /// \param tex Texture to draw
 /// \param x x position in pixels from the top left of the window to draw it from
@@ -365,6 +374,9 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 
 /// \brief Draws a circle outline using the current render colour (floats all around)
 #define vk2dDrawCircleOutline(x, y, r, w) vk2dRendererDrawCircleOutline(x, y, r, w)
+
+/// \brief Draws a line using the current render colour (floats)
+#define vk2dDrawLine(x1, y1, x2, y2, w) vk2dRendererDrawLine(x1, y1, x2, y2, w)
 
 /// \brief Draws a texture with a shader (floats)
 #define vk2dDrawShader(shader, texture, x, y) vk2dRendererDrawShader(shader, texture, x, y, 1, 1, 0, 0, 0)

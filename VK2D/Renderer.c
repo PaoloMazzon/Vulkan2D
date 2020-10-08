@@ -76,6 +76,12 @@ vec2 unitSquareOutline[] = {
 };
 uint32_t unitSquareOutlineVertices = 4;
 
+const vec2 LINE_VERTICES[] = {
+		{0, 0},
+		{1, 0}
+};
+const uint32_t LINE_VERTEX_COUNT = 2;
+
 /******************************* Internal functions *******************************/
 
 // Renderer has to keep track of user shaders in case the swapchain gets recreated
@@ -816,6 +822,7 @@ static void _vk2dRendererCreateUnits() {
 	}
 	gRenderer->unitCircle = vk2dPolygonCreate(gRenderer->ld, circleVertices, VK2D_CIRCLE_VERTICES);
 	gRenderer->unitCircleOutline = vk2dPolygonCreateOutline(gRenderer->ld, circleVertices, VK2D_CIRCLE_VERTICES);
+	gRenderer->unitLine = vk2dPolygonCreateOutline(gRenderer->ld, (void*)LINE_VERTICES, LINE_VERTEX_COUNT);
 	vk2dLogMessage("Created unit polygons...");
 #else // VK2D_UNIT_GENERATION
 	vk2dLogMessage("Unit polygons disabled...");
@@ -828,6 +835,7 @@ static void _vk2dRendererDestroyUnits() {
 	vk2dPolygonFree(gRenderer->unitSquareOutline);
 	vk2dPolygonFree(gRenderer->unitCircle);
 	vk2dPolygonFree(gRenderer->unitCircleOutline);
+	vk2dPolygonFree(gRenderer->unitLine);
 #endif // VK2D_UNIT_GENERATION
 }
 
@@ -1302,12 +1310,20 @@ void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
 #endif //  VK2D_UNIT_GENERATION
 }
 
+void vk2dRendererDrawLine(float x1, float y1, float x2, float y2, float lineWidth) {
+#ifdef VK2D_UNIT_GENERATION
+	float x = sqrtf(powf(y2 - y1, 2) + powf(x2 - x1, 2));
+	float r = atan2f(y2 - y1, x2 - x1);
+	vk2dRendererDrawPolygon(gRenderer->unitLine, x1, y1, false, lineWidth, x, 1, r, 0, 0);
+#endif //  VK2D_UNIT_GENERATION
+}
+
 static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
 	originX *= xscale;
 	originY *= yscale;
-
+	rot *= -1;
 	// Push constants
 	VK2DPushBuffer push = {};
 	identityMatrix(push.model);

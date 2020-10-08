@@ -21,16 +21,20 @@ const VK2DVertexColour SAMPLE_TRIANGLE[] = {
 const uint32_t VERTICES = 6;
 
 int main(int argc, const char *argv[]) {
+	// Basic SDL setup
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
 	SDL_Event e;
 	bool quit = false;
-
+	int keyboardSize;
+	const uint8_t *keyboard = SDL_GetKeyboardState(&keyboardSize);
 	if (window == NULL)
 		return -1;
 
-	// For testing purposes, we just try to get the renderer to use the best possible settings
+	// Initialize vk2d
 	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Nearest};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
+	vec4 line = {1, 0, 0, 1};
+	vec4 white = {1, 1, 1, 1};
 	int32_t error = vk2dRendererInit(window, config);
 
 	if (error < 0)
@@ -39,12 +43,9 @@ int main(int argc, const char *argv[]) {
 	VK2DCamera cam = {0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
 	vk2dRendererSetCamera(cam);
 
-	// Load test assets
+	// Load Some test assets **must be done after vk2d is initialized**
 	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw(vk2dRendererGetDevice(), (void *) SAMPLE_TRIANGLE, VERTICES);
-	SDL_Surface *surf = SDL_LoadBMP("assets/caveguy.bmp");
-	VK2DImage testImage = vk2dImageFromSurface(vk2dRendererGetDevice(), surf);
-	SDL_FreeSurface(surf);
-	//VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
+	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
 	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
 
 	// Delta and fps
@@ -57,74 +58,74 @@ int main(int argc, const char *argv[]) {
 	float scaleRot = 0;
 	float xScale = 0;
 	float yScale = 0;
-	float camSpeed = 5;
-	float camRotSpeed = 0.1;
-	float camZoomSpeed = 0.15;
+	float camSpeed = 200; // per second
+	float camRotSpeed = VK2D_PI; // per second
+	float camZoomSpeed = 0.5; // per second
 
 	while (!quit) {
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_QUIT) {
 				quit = true;
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_D) {
-				cam.x += camSpeed;
-				vk2dRendererSetCamera(cam);
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_A) {
-				cam.x -= camSpeed;
-				vk2dRendererSetCamera(cam);
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_S) {
-				cam.y += camSpeed;
-				vk2dRendererSetCamera(cam);
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_W) {
-				cam.y -= camSpeed;
-				vk2dRendererSetCamera(cam);
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_Q) {
-				cam.rot += camRotSpeed;
-				vk2dRendererSetCamera(cam);
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_E) {
-				cam.rot -= camRotSpeed;
-				vk2dRendererSetCamera(cam);
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_I) {
-				cam.zoom += camZoomSpeed;
-				vk2dRendererSetCamera(cam);
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_O) {
-				cam.zoom -= camZoomSpeed;
-				vk2dRendererSetCamera(cam);
-			}
-			else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_8) {
-				config.msaa = msaa_8x;
-				vk2dRendererSetConfig(config);
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_4) {
-				config.msaa = msaa_4x;
-				vk2dRendererSetConfig(config);
-			} else if (e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_1) {
-				config.msaa = msaa_1x;
-				vk2dRendererSetConfig(config);
 			}
 		}
-
-
-		// Fancy tweening and extremely basic delta timing
+		// Calculate delta
 		double delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
 		lastTime = SDL_GetPerformanceCounter();
+
+		// Process player input
+		SDL_PumpEvents();
+		cam.x += camSpeed * delta * (float)keyboard[SDL_SCANCODE_D];
+		cam.x -= camSpeed * delta * (float)keyboard[SDL_SCANCODE_A];
+		cam.y += camSpeed * delta * (float)keyboard[SDL_SCANCODE_S];
+		cam.y -= camSpeed * delta * (float)keyboard[SDL_SCANCODE_W];
+		cam.rot += camRotSpeed * delta * (float)keyboard[SDL_SCANCODE_Q];
+		cam.rot -= camRotSpeed * delta * (float)keyboard[SDL_SCANCODE_E];
+		cam.zoom += camZoomSpeed * delta * (float)keyboard[SDL_SCANCODE_I];
+		if (keyboard[SDL_SCANCODE_O]) {
+			cam.zoom -= camZoomSpeed * delta;
+		}
+		if (keyboard[SDL_SCANCODE_8]) {
+			config.msaa = msaa_8x;
+			vk2dRendererSetConfig(config);
+		}
+		if (keyboard[SDL_SCANCODE_4]) {
+			config.msaa = msaa_4x;
+			vk2dRendererSetConfig(config);
+		}
+		if (keyboard[SDL_SCANCODE_1]) {
+			config.msaa = msaa_1x;
+			vk2dRendererSetConfig(config);
+		}
+		vk2dRendererSetCamera(cam);
+
+
+		// Move the caveguy around
 		rot += VK2D_PI * 1.5 * delta;
 		scaleRot += VK2D_PI * 3.25 * delta;
 		xScale = cos(scaleRot) * 0.25;
 		yScale = sin(scaleRot) * 0.25;
 
+		// Draw a bunch of test assets
 		vk2dRendererStartFrame(clear);
 		vk2dDrawPolygon(testPoly, 0, 0);
+		vk2dRendererSetColourMod(line);
+		vk2dDrawLine(0, 0, 32, 32, 1);
+		vk2dRendererSetColourMod(white);
 		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();
 
-		// Framerate is printed once per second
+		// Window title is set to the framerate every second
 		frameCounter += 1;
 		if (SDL_GetPerformanceCounter() - secondCounter >= SDL_GetPerformanceFrequency()) {
-			vk2dLogMessage("Frametime: %fms (%ffps)", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime());
+			char title[50];
+			sprintf(title, "Vulkan2D [%0.2fms] [%0.2ffps]", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime());
+			SDL_SetWindowTitle(window, title);
 			secondCounter = SDL_GetPerformanceCounter();
 			frameCounter = 0;
 		}
 	}
 
+	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
 	vk2dTextureFree(testTexture);
 	vk2dImageFree(testImage);
