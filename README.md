@@ -87,11 +87,10 @@ in development as lacks a few very important things (check the TODO).
 TODO
 ====
 
- + Target textures need a descriptor set for rendering without camera
- + Give textures a sampler hash so they know if they need to recreate their descriptor sets when a new sampler set is created
- + Textures shouldn't create a sampling image if the msaa is 1
+ + Draw line
+ + Sampler should be able to be changed during runtime
  + Pipelines for a couple different blend modes (can be integrated into VK2DPipeline by having multiple pipelines internally)
- + Possibly putting all textures into a texture array so there is only one descriptor binding
+ + Texture descriptor array
 
 Warning
 =======

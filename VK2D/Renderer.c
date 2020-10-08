@@ -19,6 +19,11 @@
 #include "VK2D/Math.h"
 #include "VK2D/Shader.h"
 
+// To set DPI awareness
+#ifdef WIN32
+#include <Windows.h>
+#endif // WIN32
+
 /******************************* Forward declarations *******************************/
 
 bool _vk2dFileExists(const char *filename);
@@ -919,6 +924,12 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 	int32_t errorCode = 0;
 	uint32_t totalExtensionCount, i, sdlExtensions;
 	const char** totalExtensions;
+
+	// Windows 10 dpi settings don't play nice
+#ifdef WIN32
+	SetProcessDPIAware();
+	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+#endif // WIN32
 
 	// Print all available layers
 	VkLayerProperties *systemLayers;
