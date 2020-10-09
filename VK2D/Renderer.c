@@ -746,7 +746,7 @@ static void _vk2dRendererDestroyUniformBuffers() {
 
 static void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 	if (!preserveDescCons) {
-		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSampler, VK2D_NO_LOCATION, 1);
+		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2);
 		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION);
 		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 2, VK2D_NO_LOCATION);
 
@@ -754,12 +754,8 @@ static void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 1};
 		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = vk2dInitDescriptorPoolCreateInfo(&sizes, 1, 1);
 		vk2dErrorCheck(vkCreateDescriptorPool(gRenderer->ld->dev, &descriptorPoolCreateInfo, VK_NULL_HANDLE, &gRenderer->samplerPool));
-		VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = vk2dInitDescriptorSetAllocateInfo(gRenderer->samplerPool, 1, &gRenderer->dslTexture);
+		VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = vk2dInitDescriptorSetAllocateInfo(gRenderer->samplerPool, 1, &gRenderer->dslSampler);
 		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->samplerSet));
-		VkDescriptorImageInfo imageInfo = {}; // TODO: fix the bass-ackwards sampler/tex descriptor sets
-		imageInfo.sampler = gRenderer->textureSampler;
-		VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 2, gRenderer->samplerSet, VK_NULL_HANDLE, 1, &imageInfo);
-		vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
 		vk2dLogMessage("Descriptor controllers initialized...");
 	} else {
 		vk2dLogMessage("Descriptor controllers preserved...");
@@ -820,6 +816,10 @@ static void _vk2dRendererDestroySynchronization() {
 static void _vk2dRendererCreateSampler() {
 	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode == ft_Linear, gRenderer->config.filterMode == ft_Linear ? gRenderer->config.msaa : 1, 1);
 	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler));
+	VkDescriptorImageInfo imageInfo = {}; // TODO: fix the bass-ackwards sampler/tex descriptor sets
+	imageInfo.sampler = gRenderer->textureSampler;
+	VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLER, 1, gRenderer->samplerSet, VK_NULL_HANDLE, 1, &imageInfo);
+	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
 	vk2dLogMessage("Created texture sampler...");
 }
 
@@ -1397,7 +1397,7 @@ void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y
 	sets[2] = tex->img->set;
 	sets[3] = shader->sets[shader->currentUniform];
 
-	uint32_t setCount = shader->uniformSize == 0 ? 2 : 3;
+	uint32_t setCount = shader->uniformSize == 0 ? 3 : 4;
 	_vk2dRendererDraw(sets, setCount, tex->bounds, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1);
 }
 
@@ -1409,7 +1409,7 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 		sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
 	sets[1] = gRenderer->samplerSet;
 	sets[2] = tex->img->set;
-	_vk2dRendererDraw(sets, 2, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
+	_vk2dRendererDraw(sets, 3, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
