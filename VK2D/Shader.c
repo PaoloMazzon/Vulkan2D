@@ -18,12 +18,12 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
 
-	VkDescriptorSetLayout layout[] = {renderer->dslBufferVP, renderer->dslSampler, renderer->dslBufferUser};
+	VkDescriptorSetLayout layout[] = {renderer->dslBufferVP, renderer->dslSampler, renderer->dslTexture, renderer->dslBufferUser};
 	uint32_t layoutCount;
 	if (shader->uniformSize != 0) {
-		layoutCount = 3;
+		layoutCount = 4;
 	} else {
-		layoutCount = 2;
+		layoutCount = 3;
 	}
 	shader->pipe = vk2dPipelineCreate(
 			renderer->ld,

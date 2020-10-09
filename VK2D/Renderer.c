@@ -751,11 +751,12 @@ static void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 2, VK2D_NO_LOCATION);
 
 		// And the one sampler set
-		VkDescriptorPoolSize sizes = {1, VK_DESCRIPTOR_TYPE_SAMPLER};
+		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 1};
 		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = vk2dInitDescriptorPoolCreateInfo(&sizes, 1, 1);
 		vk2dErrorCheck(vkCreateDescriptorPool(gRenderer->ld->dev, &descriptorPoolCreateInfo, VK_NULL_HANDLE, &gRenderer->samplerPool));
-		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, VK_NULL_HANDLE, &gRenderer->samplerSet));
-		VkDescriptorImageInfo imageInfo = {};
+		VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = vk2dInitDescriptorSetAllocateInfo(gRenderer->samplerPool, 1, &gRenderer->dslTexture);
+		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->samplerSet));
+		VkDescriptorImageInfo imageInfo = {}; // TODO: fix the bass-ackwards sampler/tex descriptor sets
 		imageInfo.sampler = gRenderer->textureSampler;
 		VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 2, gRenderer->samplerSet, VK_NULL_HANDLE, 1, &imageInfo);
 		vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
@@ -1387,25 +1388,27 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 }
 
 void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
-	VkDescriptorSet sets[3];
+	VkDescriptorSet sets[4];
 	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
 		sets[0] = gRenderer->targetUBOSet;
 	else
 		sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
-	sets[1] = tex->img->set;
-	sets[2] = shader->sets[shader->currentUniform];
+	sets[1] = gRenderer->samplerSet;
+	sets[2] = tex->img->set;
+	sets[3] = shader->sets[shader->currentUniform];
 
 	uint32_t setCount = shader->uniformSize == 0 ? 2 : 3;
 	_vk2dRendererDraw(sets, setCount, tex->bounds, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1);
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
-	VkDescriptorSet sets[2];
+	VkDescriptorSet sets[3];
 	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
 		sets[0] = gRenderer->targetUBOSet;
 	else
 		sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
-	sets[1] = tex->img->set;
+	sets[1] = gRenderer->samplerSet;
+	sets[2] = tex->img->set;
 	_vk2dRendererDraw(sets, 2, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
 }
 
