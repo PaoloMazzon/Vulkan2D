@@ -15,7 +15,6 @@ extern "C" {
 /// set the render target to a texture not created with vk2dTextureCreate, you can expect
 /// a segfault.
 struct VK2DTexture {
-	VkSampler *imgSampler;  ///< Sampler to make it shader visible (pointer to the universal one made by and maintained by the renderer)
 	VK2DImage img;          ///< Internal image
 	VK2DImage sampledImg;   ///< Image for MSAA
 	VK2DPolygon bounds;     ///< Needed to render and more so to store the texture coordinates

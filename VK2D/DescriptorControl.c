@@ -29,7 +29,7 @@ static void _vk2dDescConAppendList(VK2DDescCon descCon) {
 	}
 	if (descCon->sampler != VK2D_NO_LOCATION) {
 		sizes[i].descriptorCount = VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION;
-		sizes[i].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		sizes[i].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 		i++;
 	}
 	VkDescriptorPoolCreateInfo createInfo = vk2dInitDescriptorPoolCreateInfo(sizes, i, VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION);
@@ -105,8 +105,7 @@ VkDescriptorSet vk2dDescConGetSamplerSet(VK2DDescCon descCon, VK2DTexture tex) {
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	imageInfo.imageView = tex->img->view;
-	imageInfo.sampler = *tex->imgSampler;
-	VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+	VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
 																descCon->sampler, set, VK_NULL_HANDLE, 1, &imageInfo);
 	vkUpdateDescriptorSets(descCon->dev->dev, 1, &write, 0, VK_NULL_HANDLE);
 	return set;
@@ -118,8 +117,7 @@ VkDescriptorSet vk2dDescConGetSamplerBufferSet(VK2DDescCon descCon, VK2DTexture 
 	VkDescriptorImageInfo imageInfo = {};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	imageInfo.imageView = tex->img->view;
-	imageInfo.sampler = *tex->imgSampler;
-	write[1] = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, descCon->sampler, set,
+	write[1] = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, descCon->sampler, set,
 											  VK_NULL_HANDLE, 1, &imageInfo);
 	VkDescriptorBufferInfo bufferInfo = {};
 	bufferInfo.buffer = buffer->buf;

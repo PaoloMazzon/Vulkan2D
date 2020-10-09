@@ -75,7 +75,6 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 
 	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
-		out->imgSampler = &renderer->textureSampler;
 		out->bounds = poly;
 		out->img = image;
 		_vk2dTextureCreateDescriptor(out, renderer);
@@ -94,7 +93,6 @@ VK2DTexture vk2dTextureCreateFrom(VK2DImage image, VK2DPolygon poly) {
 
 	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
 		out->bounds = poly;
-		out->imgSampler = &renderer->textureSampler;
 		out->bounds = poly;
 		out->img = image;
 	} else {
@@ -150,7 +148,6 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	_vk2dCameraUpdateUBO(&ubo, &cam);
 
 	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
-		out->imgSampler = &renderer->textureSampler;
 		out->bounds = poly;
 
 		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
