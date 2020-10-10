@@ -47,6 +47,8 @@ int main(int argc, const char *argv[]) {
 	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw(vk2dRendererGetDevice(), (void *) SAMPLE_TRIANGLE, VERTICES);
 	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
 	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
+	VK2DTexture testSurface = vk2dTextureCreate(vk2dRendererGetDevice(), 100, 100);
+	bool drawnToTestSurface = false;
 
 	// Delta and fps
 	double lastTime = SDL_GetPerformanceCounter();
@@ -105,11 +107,21 @@ int main(int argc, const char *argv[]) {
 		xScale = cos(scaleRot) * 0.25;
 		yScale = sin(scaleRot) * 0.25;
 
-		// Draw a bunch of test assets
+		// All rendering must happen after this
 		vk2dRendererStartFrame(clear);
+
+		// Draw to the test surface
+		if (!drawnToTestSurface) {
+			drawnToTestSurface = true;
+			vk2dRendererSetTarget(testSurface);
+			vk2dRendererClear();
+			vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
+		}
+
+		// Draw some test assets
+		vk2dDrawTexture(testSurface, -100, -100);
 		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dRendererSetColourMod(line);
-		vk2dDrawLine(0, 0, 32, 32);
 		vk2dRendererSetColourMod(white);
 		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
 		vk2dRendererEndFrame();
@@ -127,6 +139,7 @@ int main(int argc, const char *argv[]) {
 
 	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
+	vk2dTextureFree(testSurface);
 	vk2dTextureFree(testTexture);
 	vk2dImageFree(testImage);
 	vk2dPolygonFree(testPoly);
