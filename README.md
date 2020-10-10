@@ -1,19 +1,16 @@
-![basic demo](https://i.imgur.com/zz4GT5D.gif)
+![basic demo](https://i.imgur.com/Z8Un8ZJ.gif)
 
-VK2D
-====
-VK2D is a 2D renderer using Vulkan and SDL2 in C. It aims to be simple and abstract most
-of the nasty Vulkan things away and make it relatively simple.
+Vulkan2D
+========
+VK2D is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
+simple API, requiring no Vulkan experience to use. As to prevent additional baggage, default 
+shaders are SPIR-V binary blobs in `VK2D/Blobs.h`. If you don't trust binary blobs, feel free
+to run `shaders/genblobs.py` yourself.
 
-As to prevent additional baggage, default shaders are SPIR-V binary blobs in `VK2D/Blobs.h`.
-If you don't trust binary blobs, feel free to run `shaders/genblobs.py` yourself (that being
-the tool I wrote to generate the blobs header file, its a super simple ~100 line python script).
-
-Right now, my goal is to have lots of nice little abstractions for the renderer that still
-expose the Vulkan API, and the VK2D renderer itself require no Vulkan interaction at all. This
-means that if you wish to use the abstractions like `VK2DLogicalDevice` or `VK2DImage` you
-would still be required to use Vulkan, but ideally `VK2DRenderer` would not have the user touch
-the Vulkan API at all.
+As it stands right now, VK2D is mostly ready to use, recently I made [Spacelink](https://github.com/PaoloMazzon/Spacelink)
+using it. It is not yet suitable for bigger projects simply because it does not sub-allocate
+memory (which means you can expect at best a little over ~1500 loaded textures at once before
+its crashing time) and less importantly only supports additive blending.
 
 Documentation
 =============
@@ -74,22 +71,23 @@ Features
 Right now it can do most things you would need in a game-dev environment but is still
 in development as lacks a few very important things (check the TODO).
 
- + Draw polygons easily
- + Load and draw textures (including only parts of images for spritesheets and the lot)
- + Simple configuration options you can change at any point (you need not restart to change MSAA, for example)
+ + Draw rectangles/circles/lines/polygons easily
+ + Load and draw textures (including only parts of images for sprite sheets and the lot)
+ + Simple configuration options you can change at any point
  + Simple yet powerful camera and viewport controls
- + Colour modifier that can be changed mid-frame in order to make things transparent, colour white things, and so on
- + Build options to make the renderer play with your setup
+ + Colour modifier built-in to change colour of anything on the fly
+ + Lots of build options to better optimize the renderer for your setup
  + Small amount of required features and limits to make the renderer work on most machines
- + Render to textures and/or the screen
  + Loads custom default shaders from file if available (can be disabled in BuildOptions.h)
+ + Render to textures easily
+ + Simple shader interface to utilize custom shaders
 
 TODO
 ====
 
  + Draw part of a texture
- + Pipelines for a couple different blend modes (can be integrated into VK2DPipeline by having multiple pipelines internally)
- + Texture descriptor array
+ + Support for different blend modes
+ + Put textures in a descriptor array
  + Sub-allocations/better memory allocation
 
 Warning
