@@ -62,7 +62,8 @@ struct VK2DShader {
 ///
 /// Fragment shader layouts:
 ///
-///     layout(set = 1, binding = 1) uniform sampler2D texSampler;
+///     layout(set = 1, binding = 1) uniform sampler texSampler;
+///     layout(set = 2, binding = 2) uniform texture2D tex;
 ///     layout(push_constant) uniform PushBuffer {
 ///         mat4 model;
 ///         vec4 colourMod;
@@ -75,7 +76,7 @@ struct VK2DShader {
 /// to pass data to your shaders) you must also specify the following
 /// layout in both the fragment and vertex shader:
 ///
-///     layout(set = 2, binding = 2) uniform UserData {
+///     layout(set = 3, binding = 3) uniform UserData {
 ///         // your data here...
 ///     } userData;
 ///
