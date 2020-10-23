@@ -29,7 +29,6 @@ def find_glslc():
 	
 	if sdk == "":
 		print("Failed to locate VulkanSDK")
-	
 	return "/C/VulkanSDK/" + sdk + "/Bin/glslc.exe"
 
 

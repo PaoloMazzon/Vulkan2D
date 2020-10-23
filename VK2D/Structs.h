@@ -74,6 +74,7 @@ typedef struct {
 typedef struct {
 	mat4 model;     ///< Model matrix
 	vec4 colourMod; ///< Current colour modifier
+	vec4 texCoords; ///< Where in the texture to draw from and to (x, y, w, h)
 } VK2DPushBuffer;
 
 /// \brief Describes what kind of vertices are in use

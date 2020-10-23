@@ -9,6 +9,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 layout(push_constant) uniform PushBuffer {
     mat4 model;
     vec4 colourMod;
+    vec4 textureCoords;
 } pushBuffer;
 
 layout(location = 0) in vec3 inPosition;

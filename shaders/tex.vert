@@ -9,6 +9,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 layout(push_constant) uniform PushBuffer {
     mat4 model;
     vec4 colourMod;
+    vec4 textureCoords;
 } pushBuffer;
 
 layout(location = 0) in vec3 inPosition;
@@ -23,7 +24,11 @@ out gl_PerVertex {
 };
 
 void main() {
-    gl_Position = ubo.proj * ubo.view * pushBuffer.model * vec4(inPosition, 1.0);
+    vec2 newPos;
+    newPos.x = inPosition.x * pushBuffer.textureCoords.z;
+    newPos.y = inPosition.y * pushBuffer.textureCoords.w;
+    gl_Position = ubo.proj * ubo.view * pushBuffer.model * vec4(newPos, 1.0, 1.0);
     fragColor = inColor;
-    fragTexCoord = inTexCoord;
+    fragTexCoord.x = pushBuffer.textureCoords.x + (inTexCoord.x * pushBuffer.textureCoords.z);
+    fragTexCoord.y = pushBuffer.textureCoords.y + (inTexCoord.y * pushBuffer.textureCoords.w);
 }

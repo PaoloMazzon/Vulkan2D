@@ -1359,6 +1359,10 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 	push.colourMod[1] = gRenderer->colourBlend[1];
 	push.colourMod[2] = gRenderer->colourBlend[2];
 	push.colourMod[3] = gRenderer->colourBlend[3];
+	push.texCoords[0] = 0;
+	push.texCoords[1] = 0;
+	push.texCoords[2] = 16;
+	push.texCoords[3] = 16;
 
 	// Check if we actually need to bind things
 	uint64_t hash = _vk2dHashSets(sets, setCount);

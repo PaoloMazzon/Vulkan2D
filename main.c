@@ -46,7 +46,7 @@ int main(int argc, const char *argv[]) {
 	// Load Some test assets **must be done after vk2d is initialized**
 	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw(vk2dRendererGetDevice(), (void *) SAMPLE_TRIANGLE, VERTICES);
 	VK2DImage testImage = vk2dImageLoad(vk2dRendererGetDevice(), "assets/caveguy.png");
-	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 16, 16);
+	VK2DTexture testTexture = vk2dTextureLoad(testImage, 0, 0, 1, 1);
 	VK2DTexture testSurface = vk2dTextureCreate(vk2dRendererGetDevice(), 100, 100);
 	bool drawnToTestSurface = false;
 
