@@ -40,6 +40,9 @@ VK2DTexture vk2dTextureLoad(const char *filename) {
 	if (vk2dPointerCheck(image)) {
 		out = vk2dTextureLoadFromImage(image);
 		if (vk2dPointerCheck(out)) {
+			_vk2dTextureCreateDescriptor(out, vk2dRendererGetPointer());
+			out->imgHandled = true;
+		} else {
 			vk2dImageFree(image);
 		}
 	}

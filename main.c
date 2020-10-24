@@ -114,6 +114,7 @@ int main(int argc, const char *argv[]) {
 			drawnToTestSurface = true;
 			vk2dRendererSetTarget(testSurface);
 			vk2dRendererClear();
+			vk2dDrawTexture(testTexture, 0, 0);
 			vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
 		}
 
