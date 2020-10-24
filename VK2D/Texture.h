@@ -17,25 +17,25 @@ extern "C" {
 struct VK2DTexture {
 	VK2DImage img;          ///< Internal image
 	VK2DImage sampledImg;   ///< Image for MSAA
-	VK2DPolygon bounds;     ///< Needed to render and more so to store the texture coordinates
 	VkFramebuffer fbo;      ///< Framebuffer of this texture so it can be drawn to
 	VK2DBuffer ubo;         ///< UBO that will be used when drawing to this texture
 	VkDescriptorSet uboSet; ///< Set for the UBO
+	bool imgHandled;        ///< Whether or not to free the image with the texture (if it was loaded with vk2dTextureLoad)
 };
 
 /// \brief Creates a texture from an image
 /// \param image Image to use
-/// \param xInImage X position in the image the texture begins (in pixels)
-/// \param yInImage Y position in the image the texture begins (in pixels)
-/// \param wInImage Width of the image to draw (in pixels)
-/// \param hInImage Height of the image to draw (in pixels)
 /// \return Returns a new texture or NULL if it failed
 /// \warning Textures are closely tied to the renderer and require the renderer be initialized to load and use them
 /// \warning Textures created with this function are NOT valid render targets
-///
-/// The *InImage parameters specify what regions of the image the texture is to draw. This is
-/// essentially just so you can have sprite sheets.
-VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, float wInImage, float hInImage);
+VK2DTexture vk2dTextureLoadFromImage(VK2DImage image);
+
+/// \brief Loads a texture from a file (png, bmp, jpg, tiff)
+/// \param filename File to load
+/// \return Returns a new texture or NULL if it failed
+/// \warning Textures are closely tied to the renderer and require the renderer be initialized to load and use them
+/// \warning Textures created with this function are NOT valid render targets
+VK2DTexture vk2dTextureLoad(const char *filename);
 
 /// \brief Creates a texture meant as a drawing target
 /// \param dev Device to create the texture with (this isn't required in vk2dTextureLoad because the image you pass it already knows what device to use)
@@ -44,15 +44,6 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 /// \return Returns a new texture or NULL if it failed
 /// \warning Textures are closely tied to the renderer and require the renderer be initialized to load and use them
 VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h);
-
-/// \brief Creates a texture from an image and polygon, allowing you to specify the texture's polygon
-/// \param image Image to use for the texture
-/// \param poly Polygon to use with the texture (must be created with vk2dPolygonTextureCreateRaw)
-/// \return Returns a new texture
-/// \warning Textures are closely tied to the renderer and require the renderer be initialized to load and use them
-/// \warning The polygon will be destroyed when the class is destroyed, do not free it on your own
-/// \warning Textures created with this function are NOT valid render targets
-VK2DTexture vk2dTextureCreateFrom(VK2DImage image, VK2DPolygon poly);
 
 /// \brief Frees a texture from memory
 /// \param tex Texture to free

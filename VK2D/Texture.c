@@ -11,75 +11,20 @@
 #include "VK2D/DescriptorControl.h"
 #include <malloc.h>
 
-// Will be modified to fit the texture then uploaded to a polygon
-VK2DVertexTexture baseTex[] = {
-		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}},
-		{{1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
-		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}
-};
-VK2DVertexTexture immutableFull[] = {
-		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f}},
-		{{1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
-		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 1.0f}},
-		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f}}
-};
-const uint32_t baseTexVertexCount = 6;
-
 static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer) {
 	if (tex->img->set == NULL) {
 		tex->img->set = vk2dDescConGetSamplerSet(renderer->descConSamplers, tex);
 	}
 }
 
-VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, float wInImage, float hInImage) {
-	// In order to display portions of an image, we normalize UV coordinates and stick it in a vertex buffer
-	float x1 = xInImage;
-	float y1 = yInImage;
-	float x2 = (xInImage + wInImage);
-	float y2 = (yInImage + hInImage);
-
-	// Image loads flipped so this is a really cheaty way of fixing
-	float hold = x2;
-	x2 = x1;
-	x1 = hold;
-
-	// Order of the 6 vertices are as follows:
-	//     UR, UL, UR, UR, BR, BL
-	// Where U is up or top, b is bottom, l is left, and r is right
-	baseTex[0].tex[0] = x2;
-	baseTex[0].tex[1] = y1;
-	baseTex[1].tex[0] = x1;
-	baseTex[1].tex[1] = y1;
-	baseTex[2].tex[0] = x1;
-	baseTex[2].tex[1] = y2;
-	baseTex[3].tex[0] = x1;
-	baseTex[3].tex[1] = y2;
-	baseTex[4].tex[0] = x2;
-	baseTex[4].tex[1] = y2;
-	baseTex[5].tex[0] = x2;
-	baseTex[5].tex[1] = y1;
-	baseTex[1].pos[0] = wInImage;
-	baseTex[2].pos[0] = wInImage;
-	baseTex[2].pos[1] = hInImage;
-	baseTex[3].pos[0] = wInImage;
-	baseTex[3].pos[1] = hInImage;
-	baseTex[4].pos[1] = hInImage;
-
+VK2DTexture vk2dTextureLoadFromImage(VK2DImage image) {
 	VK2DTexture out = calloc(1, sizeof(struct VK2DTexture));
-	VK2DPolygon poly = vk2dPolygonTextureCreateRaw(image->dev, baseTex, baseTexVertexCount);
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 
-	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
-		out->bounds = poly;
+	if (vk2dPointerCheck(out)) {
 		out->img = image;
 		_vk2dTextureCreateDescriptor(out, renderer);
 	} else {
-		vk2dPolygonFree(poly);
 		free(out);
 		out = NULL;
 	}
@@ -87,18 +32,16 @@ VK2DTexture vk2dTextureLoad(VK2DImage image, float xInImage, float yInImage, flo
 	return out;
 }
 
-VK2DTexture vk2dTextureCreateFrom(VK2DImage image, VK2DPolygon poly) {
-	VK2DTexture out = calloc(1, sizeof(struct VK2DTexture));
-	VK2DRenderer renderer = vk2dRendererGetPointer();
+VK2DTexture vk2dTextureLoad(const char *filename) {
+	VK2DImage image;
+	VK2DTexture out = NULL;
+	image = vk2dImageLoad(vk2dRendererGetDevice(), filename);
 
-	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
-		out->bounds = poly;
-		out->bounds = poly;
-		out->img = image;
-	} else {
-		vk2dPolygonFree(poly);
-		free(out);
-		out = NULL;
+	if (vk2dPointerCheck(image)) {
+		out = vk2dTextureLoadFromImage(image);
+		if (vk2dPointerCheck(out)) {
+			vk2dImageFree(image);
+		}
 	}
 
 	return out;
@@ -111,29 +54,6 @@ void _vk2dRendererRemoveTarget(VK2DTexture tex);
 VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
-	float x1 = w;
-	float y1 = 0;
-	float x2 = 0;
-	float y2 = h;
-	immutableFull[0].tex[0] = x2;
-	immutableFull[0].tex[1] = y1;
-	immutableFull[1].tex[0] = x1;
-	immutableFull[1].tex[1] = y1;
-	immutableFull[2].tex[0] = x1;
-	immutableFull[2].tex[1] = y2;
-	immutableFull[3].tex[0] = x1;
-	immutableFull[3].tex[1] = y2;
-	immutableFull[4].tex[0] = x2;
-	immutableFull[4].tex[1] = y2;
-	immutableFull[5].tex[0] = x2;
-	immutableFull[5].tex[1] = y1;
-	immutableFull[1].pos[0] = 1;
-	immutableFull[2].pos[0] = 1;
-	immutableFull[2].pos[1] = 1;
-	immutableFull[3].pos[0] = 1;
-	immutableFull[3].pos[1] = 1;
-	immutableFull[4].pos[1] = 1;
-	VK2DPolygon poly = vk2dPolygonTextureCreateRaw(dev, (void *) immutableFull, baseTexVertexCount);
 
 	// For the UBO
 	VK2DCamera cam = {
@@ -147,9 +67,7 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DUniformBufferObject ubo;
 	_vk2dCameraUpdateUBO(&ubo, &cam);
 
-	if (vk2dPointerCheck(out) && vk2dPointerCheck(poly)) {
-		out->bounds = poly;
-
+	if (vk2dPointerCheck(out)) {
 		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
 		out->sampledImg = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
 		_vk2dImageTransitionImageLayout(dev, out->img->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
@@ -177,7 +95,6 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 		_vk2dRendererAddTarget(out);
 		_vk2dTextureCreateDescriptor(out, renderer);
 	} else {
-		vk2dPolygonFree(poly);
 		free(out);
 		out = NULL;
 	}
@@ -193,8 +110,9 @@ void vk2dTextureFree(VK2DTexture tex) {
 			vk2dBufferFree(tex->ubo);
 			vk2dImageFree(tex->sampledImg);
 			_vk2dRendererRemoveTarget(tex);
+		} else if (tex->imgHandled) {
+			vk2dImageFree(tex->img);
 		}
-		vk2dPolygonFree(tex->bounds);
 		free(tex);
 	}
 }

@@ -130,6 +130,7 @@ struct VK2DRenderer {
 	VK2DPolygon unitCircle;        ///< Used to draw circles
 	VK2DPolygon unitCircleOutline; ///< Used to draw circle outlines
 	VK2DPolygon unitLine;          ///< Used to draw lines
+	VK2DPolygon unitTexture;       ///< Used for all textures (cannot be disabled via VK2D_UNIT_GENERATION)
 	VK2DBuffer unitUBO;            ///< Used to draw to the whole screen
 	VkDescriptorSet unitUBOSet;    ///< Descriptor Set for the unit ubo
 

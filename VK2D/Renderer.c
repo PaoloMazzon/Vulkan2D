@@ -68,6 +68,16 @@ VK2DVertexColour unitSquare[] = {
 };
 const uint32_t unitSquareVertices = 6;
 
+VK2DVertexTexture unitTexture[] = {
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f}},
+		{{1.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 0.0f}},
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+		{{0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 1.0f}},
+		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {-1.0f, 0.0f}}
+};
+const uint32_t unitTextureVertices = 6;
+
 vec2 unitSquareOutline[] = {
 		{0, 0},
 		{1, 0},
@@ -820,11 +830,15 @@ static void _vk2dRendererCreateSampler() {
 	imageInfo.sampler = gRenderer->textureSampler;
 	VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLER, 1, gRenderer->samplerSet, VK_NULL_HANDLE, 1, &imageInfo);
 	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
+
+	// Create unit texture
+	gRenderer->unitTexture = vk2dPolygonTextureCreateRaw(gRenderer->ld, unitTexture, unitTextureVertices);
 	vk2dLogMessage("Created texture sampler...");
 }
 
 static void _vk2dRendererDestroySampler() {
 	vkDestroySampler(gRenderer->ld->dev, gRenderer->textureSampler, VK_NULL_HANDLE);
+	vk2dPolygonFree(gRenderer->unitTexture);
 }
 
 static void _vk2dRendererCreateUnits() {
@@ -1406,7 +1420,7 @@ void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y
 	sets[3] = shader->sets[shader->currentUniform];
 
 	uint32_t setCount = shader->uniformSize == 0 ? 3 : 4;
-	_vk2dRendererDraw(sets, setCount, tex->bounds, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, 0, 0, tex->img->width, tex->img->height);
+	_vk2dRendererDraw(sets, setCount, gRenderer->unitTexture, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, 0, 0, tex->img->width, tex->img->height);
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
@@ -1417,7 +1431,7 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 		sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
 	sets[1] = gRenderer->samplerSet;
 	sets[2] = tex->img->set;
-	_vk2dRendererDraw(sets, 3, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex, yInTex, texWidth, texHeight);
+	_vk2dRendererDraw(sets, 3, gRenderer->unitTexture, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex, yInTex, texWidth, texHeight);
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
