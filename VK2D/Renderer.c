@@ -1299,11 +1299,11 @@ double vk2dRendererGetAverageFrameTime() {
 	return gRenderer->frameTimeAverage;
 }
 
-static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth);
+static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight);
 
 void vk2dRendererClear() {
 	VkDescriptorSet set = gRenderer->unitUBOSet;
-	_vk2dRendererDraw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1);
+	_vk2dRendererDraw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0);
 }
 
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
@@ -1338,12 +1338,16 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
 #endif //  VK2D_UNIT_GENERATION
 }
 
-static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth) {
+static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
+	// Account for various coordinate-based qualms
 	originX *= xscale;
 	originY *= yscale;
+	originX -= xInTex;
+	originY -= yInTex;
 	rot *= -1;
+
 	// Push constants
 	VK2DPushBuffer push = {};
 	identityMatrix(push.model);
@@ -1359,10 +1363,10 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 	push.colourMod[1] = gRenderer->colourBlend[1];
 	push.colourMod[2] = gRenderer->colourBlend[2];
 	push.colourMod[3] = gRenderer->colourBlend[3];
-	push.texCoords[0] = 0;
-	push.texCoords[1] = 0;
-	push.texCoords[2] = 16;
-	push.texCoords[3] = 16;
+	push.texCoords[0] = xInTex;
+	push.texCoords[1] = yInTex;
+	push.texCoords[2] = texWidth;
+	push.texCoords[3] = texHeight;
 
 	// Check if we actually need to bind things
 	uint64_t hash = _vk2dHashSets(sets, setCount);
@@ -1402,10 +1406,10 @@ void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y
 	sets[3] = shader->sets[shader->currentUniform];
 
 	uint32_t setCount = shader->uniformSize == 0 ? 3 : 4;
-	_vk2dRendererDraw(sets, setCount, tex->bounds, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1);
+	_vk2dRendererDraw(sets, setCount, tex->bounds, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, 0, 0, tex->img->width, tex->img->height);
 }
 
-void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
+void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	VkDescriptorSet sets[3];
 	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
 		sets[0] = gRenderer->targetUBOSet;
@@ -1413,7 +1417,7 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 		sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
 	sets[1] = gRenderer->samplerSet;
 	sets[2] = tex->img->set;
-	_vk2dRendererDraw(sets, 3, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1);
+	_vk2dRendererDraw(sets, 3, tex->bounds, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex, yInTex, texWidth, texHeight);
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
@@ -1422,5 +1426,5 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 		set = gRenderer->targetUBOSet;
 	else
 		set = gRenderer->uboSets[gRenderer->scImageIndex];
-	_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale, yscale, rot, originX, originY, lineWidth);
+	_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
 }

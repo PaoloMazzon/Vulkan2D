@@ -336,7 +336,7 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2);
 /// \param rot Rotation to draw the texture (VK2D only uses radians)
 /// \param originX X origin for rotation (in pixels)
 /// \param originY Y origin for rotation (in pixels)
-void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY);
+void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight);
 
 /// \brief Renders a texture
 /// \param shader Shader to draw with
@@ -384,7 +384,13 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 #define vk2dDrawShader(shader, texture, x, y) vk2dRendererDrawShader(shader, texture, x, y, 1, 1, 0, 0, 0)
 
 /// \brief Draws a texture (x and y should be floats)
-#define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0)
+#define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0, 0, 0, texture->img->width, texture->img->height)
+
+/// \brief Draws a texture in detail (floats)
+#define vk2dDrawTextureExt(texture, x, y, xscale, yscale, rot, originX, originY) vk2dRendererDrawTexture(texture, x, y, xscale, yscale, rot, originX, originY, 0, 0, texture->img->width, texture->img->height)
+
+/// \brief Draws a part of a texture (x, y, xpos, ypos, w, h should be floats)
+#define vk2dDrawTexturePart(texture, x, y, xPos, yPos, w, h) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0, xPos, yPos, w, h)
 
 /// \brief Draws a polygon's outline (x, y, and width should be floats)
 #define vk2dDrawPolygonOutline(polygon, x, y, width) vk2dRendererDrawPolygon(polygon, x, y, false, width, 1, 1, 0, 0, 0)

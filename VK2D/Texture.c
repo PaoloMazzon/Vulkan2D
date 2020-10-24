@@ -127,12 +127,12 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	immutableFull[4].tex[1] = y2;
 	immutableFull[5].tex[0] = x2;
 	immutableFull[5].tex[1] = y1;
-	immutableFull[1].pos[0] = w;
-	immutableFull[2].pos[0] = w;
-	immutableFull[2].pos[1] = h;
-	immutableFull[3].pos[0] = w;
-	immutableFull[3].pos[1] = h;
-	immutableFull[4].pos[1] = h;
+	immutableFull[1].pos[0] = 1;
+	immutableFull[2].pos[0] = 1;
+	immutableFull[2].pos[1] = 1;
+	immutableFull[3].pos[0] = 1;
+	immutableFull[3].pos[1] = 1;
+	immutableFull[4].pos[1] = 1;
 	VK2DPolygon poly = vk2dPolygonTextureCreateRaw(dev, (void *) immutableFull, baseTexVertexCount);
 
 	// For the UBO

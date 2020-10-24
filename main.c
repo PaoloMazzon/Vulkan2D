@@ -123,7 +123,7 @@ int main(int argc, const char *argv[]) {
 		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dRendererSetColourMod(line);
 		vk2dRendererSetColourMod(white);
-		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8);
+		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);
 		vk2dRendererEndFrame();
 
 		// Window title is set to the framerate every second
