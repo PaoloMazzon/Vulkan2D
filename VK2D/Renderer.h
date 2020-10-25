@@ -342,6 +342,10 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2);
 /// \param rot Rotation to draw the texture (VK2D only uses radians)
 /// \param originX X origin for rotation (in pixels)
 /// \param originY Y origin for rotation (in pixels)
+/// \param xInTex X position in the texture to start drawing from
+/// \param yInTex Y position in the texture to start drawing from
+/// \param texWidth Width of the texture to draw
+/// \param texHeight Height of the texture to draw
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight);
 
 /// \brief Renders a texture
@@ -354,7 +358,11 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 /// \param rot Rotation to draw the texture (VK2D only uses radians)
 /// \param originX X origin for rotation (in pixels)
 /// \param originY Y origin for rotation (in pixels)
-void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY);
+/// \param xInTex X position in the texture to start drawing from
+/// \param yInTex Y position in the texture to start drawing from
+/// \param texWidth Width of the texture to draw
+/// \param texHeight Height of the texture to draw
+void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight);
 
 /// \brief Renders a polygon
 /// \param polygon Polygon to draw
@@ -387,7 +395,7 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 #define vk2dDrawLine(x1, y1, x2, y2) vk2dRendererDrawLine(x1, y1, x2, y2)
 
 /// \brief Draws a texture with a shader (floats)
-#define vk2dDrawShader(shader, texture, x, y) vk2dRendererDrawShader(shader, texture, x, y, 1, 1, 0, 0, 0)
+#define vk2dDrawShader(shader, texture, x, y) vk2dRendererDrawShader(shader, texture, x, y, 1, 1, 0, 0, 0, 0, 0, texture->img->width, texture->img->height)
 
 /// \brief Draws a texture (x and y should be floats)
 #define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0, 0, 0, texture->img->width, texture->img->height)

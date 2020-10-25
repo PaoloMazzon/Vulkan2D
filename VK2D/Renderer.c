@@ -1409,7 +1409,7 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 	vkCmdDraw(buf, poly->vertexCount, 1, 0, 0);
 }
 
-void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY) {
+void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	VkDescriptorSet sets[4];
 	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
 		sets[0] = gRenderer->targetUBOSet;
@@ -1420,7 +1420,7 @@ void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y
 	sets[3] = shader->sets[shader->currentUniform];
 
 	uint32_t setCount = shader->uniformSize == 0 ? 3 : 4;
-	_vk2dRendererDraw(sets, setCount, gRenderer->unitTexture, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, 0, 0, tex->img->width, tex->img->height);
+	_vk2dRendererDraw(sets, setCount, gRenderer->unitTexture, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex, yInTex, texWidth, texHeight);
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
