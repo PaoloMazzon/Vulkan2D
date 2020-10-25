@@ -22,7 +22,7 @@ const uint32_t VERTICES = 6;
 
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
-	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
+	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 	SDL_Event e;
 	bool quit = false;
 	int keyboardSize;
@@ -97,7 +97,6 @@ int main(int argc, const char *argv[]) {
 			config.msaa = msaa_1x;
 			vk2dRendererSetConfig(config);
 		}
-		vk2dRendererSetCamera(cam);
 
 
 		// Move the caveguy around
@@ -106,6 +105,14 @@ int main(int argc, const char *argv[]) {
 		xScale = cos(scaleRot) * 0.25;
 		yScale = sin(scaleRot) * 0.25;
 
+		// Adjust for window size
+		int windowWidth, windowHeight;
+		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+		vk2dRendererSetViewport(0, 0, (float)windowWidth, (float)windowHeight);
+		cam.w = (float)windowWidth / 2;
+		cam.h = (float)windowHeight / 2;
+		vk2dRendererSetCamera(cam);
+
 		// All rendering must happen after this
 		vk2dRendererStartFrame(clear);
 
@@ -113,14 +120,17 @@ int main(int argc, const char *argv[]) {
 		if (!drawnToTestSurface) {
 			drawnToTestSurface = true;
 			vk2dRendererSetTarget(testSurface);
+			vk2dRendererSetViewport(0, 0, 100, 100);
 			vk2dRendererClear();
 			vk2dDrawTexture(testTexture, 0, 0);
 			vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
+			vk2dRendererSetViewport(0, 0, (float)windowWidth, (float)windowHeight);
 		}
 
 		// Draw some test assets
 		vk2dDrawTexture(testSurface, -100, -100);
 		vk2dDrawPolygon(testPoly, 0, 0);
+		vk2dDrawTexture(testTexture, 0, 0);
 		vk2dRendererSetColourMod(line);
 		vk2dRendererSetColourMod(white);
 		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);

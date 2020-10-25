@@ -1,4 +1,4 @@
-![basic demo](https://i.imgur.com/Z8Un8ZJ.gif)
+![basic demo](https://i.imgur.com/InP0Sou.gif)
 
 Vulkan2D
 ========

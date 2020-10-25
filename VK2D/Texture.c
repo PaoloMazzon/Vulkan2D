@@ -67,7 +67,7 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 			1,
 			0
 	};
-	VK2DUniformBufferObject ubo;
+	VK2DUniformBufferObject ubo = {};
 	_vk2dCameraUpdateUBO(&ubo, &cam);
 
 	if (vk2dPointerCheck(out)) {
