@@ -218,6 +218,11 @@ VK2DLogicalDevice vk2dRendererGetDevice();
 /// \param target Target texture to switch to or VK2D_TARGET_SCREEN for the screen
 /// \warning This can be computationally expensive so don't take this simple function lightly (it ends then starts a render pass)
 /// \warning Any time you change the target to a texture, you absolutely must change the target back to VK2D_TARGET_SCREEN when you're done drawing or else you can expect a crash
+///
+/// If things aren't being drawn the way you expect them to be, you may be forgetting
+/// to set the viewport. If you change targets to a texture smaller than the screen, you
+/// likely want to change the viewport to the size of the texture as well or you will
+/// get some strange effects.
 void vk2dRendererSetTarget(VK2DTexture target);
 
 /// \brief Sets the current colour modifier (Colour all pixels are blended with)

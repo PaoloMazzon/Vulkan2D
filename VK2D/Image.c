@@ -130,7 +130,7 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 		// Get memory requirement
 		VkMemoryRequirements imageMemoryRequirements;
 		uint32_t memoryIndex = UINT32_MAX;
-		VkMemoryPropertyFlags requiredFlags = (samples != msaa_1x ? VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT : 0) & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		VkMemoryPropertyFlags requiredFlags = (samples != (VkSampleCountFlagBits)msaa_1x ? VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT : 0) & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		vkGetImageMemoryRequirements(dev->dev, out->img, &imageMemoryRequirements);
 		for (i = 0; i < dev->pd->mem.memoryTypeCount && memoryIndex == UINT32_MAX; i++)
 			if (imageMemoryRequirements.memoryTypeBits & (1 << i))
