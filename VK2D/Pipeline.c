@@ -50,7 +50,6 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		const uint32_t colourAttachCount = 1;
 		VkPipelineColorBlendAttachmentState colourBlendAttachments[colourAttachCount];
 		for (i = 0; i < colourAttachCount; i++) {
-			colourBlendAttachments[i].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 			colourBlendAttachments[i].blendEnable = VK_TRUE;
 			colourBlendAttachments[i].srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 			colourBlendAttachments[i].dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
@@ -58,6 +57,7 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 			colourBlendAttachments[i].srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 			colourBlendAttachments[i].dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 			colourBlendAttachments[i].alphaBlendOp = VK_BLEND_OP_ADD;
+			colourBlendAttachments[i].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		}
 		VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo = vk2dInitPipelineColorBlendStateCreateInfo(colourBlendAttachments, colourAttachCount);
 

@@ -84,6 +84,16 @@ typedef enum {
 	vt_Other = 2    ///< Unspecified vertex type
 } VK2DVertexType;
 
+/// \brief Blend modes that can be used to render if VK2D_GENERATE_BLEND_MODES is enabled
+typedef enum {
+	bm_Blend = 0,    ///< Default blend mode, good for almost everything
+	bm_None = 1,     ///< No blending, new colour is law
+	bm_Add = 2,      ///< Additive blending
+	bm_Mod = 3,      ///< Modulating blending, destination alpha is law
+	bm_Subtract = 4, ///< Subtraction blending, new colour is subtracted from current colour
+	bm_Max = 5       ///< Total number of blend modes (used for looping)
+} VK2DBlendMode;
+
 /// \brief Multisampling detail
 ///
 /// While Vulkan does technically support 64 samples per pixel,

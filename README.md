@@ -85,7 +85,6 @@ in development as lacks a few very important things (check the TODO).
 TODO
 ====
 
- + Support for different blend modes
  + Put textures in a descriptor array
  + Sub-allocations/better memory allocation
  + Different push-constant ranges (slight optimization)
