@@ -230,6 +230,10 @@ void vk2dRendererSetTarget(VK2DTexture target);
 /// \param blendMode Blend mode to use for drawing
 void vk2dRendererSetBlendMode(VK2DBlendMode blendMode);
 
+/// \brief Gets the current blend mode (will return whatever was set with vk2dRendererSetBlendMode regardless of whether blend modes are enabled or not)
+/// \return Returns the current blend mode
+VK2DBlendMode vk2dRendererGetBlendMode();
+
 /// \brief Sets the current colour modifier (Colour all pixels are blended with)
 /// \param mod Colour mod to make current
 void vk2dRendererSetColourMod(vec4 mod);

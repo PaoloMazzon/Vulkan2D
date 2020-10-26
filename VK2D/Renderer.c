@@ -1283,6 +1283,14 @@ void vk2dRendererGetColourMod(vec4 dst) {
 	dst[3] = gRenderer->colourBlend[3];
 }
 
+void vk2dRendererSetBlendMode(VK2DBlendMode blendMode) {
+	gRenderer->blendMode = blendMode;
+}
+
+VK2DBlendMode vk2dRendererGetBlendMode() {
+	return gRenderer->blendMode;
+}
+
 void vk2dRendererSetCamera(VK2DCamera camera) {
 	gRenderer->camera = camera;
 }

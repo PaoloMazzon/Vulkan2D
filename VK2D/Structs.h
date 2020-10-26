@@ -85,6 +85,13 @@ typedef enum {
 } VK2DVertexType;
 
 /// \brief Blend modes that can be used to render if VK2D_GENERATE_BLEND_MODES is enabled
+///
+/// The blend modes are kind of limited because very few people need more than these, but
+/// if you require a different blend mode there is only 3 steps to adding it:
+///
+/// + Add a new blend mode to the end of this enumerator and increment `bm_Max`
+/// + Add the new blend mode to the `VK2D_BLEND_MODES` array in BlendModes.h
+/// + Make sure the indices in the array match the enumerator
 typedef enum {
 	bm_Blend = 0,    ///< Default blend mode, good for almost everything
 	bm_None = 1,     ///< No blending, new colour is law

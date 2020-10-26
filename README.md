@@ -81,6 +81,7 @@ in development as lacks a few very important things (check the TODO).
  + Loads custom default shaders from file if available (can be disabled in BuildOptions.h)
  + Render to textures easily
  + Simple shader interface to utilize custom shaders
+ + Different blend modes and easy to add new ones
 
 TODO
 ====
