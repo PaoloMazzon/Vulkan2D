@@ -55,6 +55,7 @@ struct VK2DRenderer {
 	VK2DCamera camera;             ///< Camera settings that are applied to the UBO before every frame
 	VkViewport viewport;           ///< Viewport to draw with
 	bool enableTextureCameraUBO;   ///< If true, when drawing to a texture the UBO for the internal camera is used instead of the texture's UBO
+	VK2DBlendMode blendMode;       ///< Current blend mode to draw with
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -224,6 +225,10 @@ VK2DLogicalDevice vk2dRendererGetDevice();
 /// likely want to change the viewport to the size of the texture as well or you will
 /// get some strange effects.
 void vk2dRendererSetTarget(VK2DTexture target);
+
+/// \brief Sets the rendering blend mode (does nothing if VK2D_GENERATE_BLEND_MODES is disabled)
+/// \param blendMode Blend mode to use for drawing
+void vk2dRendererSetBlendMode(VK2DBlendMode blendMode);
 
 /// \brief Sets the current colour modifier (Colour all pixels are blended with)
 /// \param mod Colour mod to make current

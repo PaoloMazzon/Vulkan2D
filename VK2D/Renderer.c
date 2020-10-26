@@ -927,7 +927,7 @@ static void _vk2dRendererResetSwapchain() {
 
 	// Free swapchain
 	_vk2dRendererDestroySynchronization();
-	//_vk2dRendererDestroySampler();
+	_vk2dRendererDestroySampler();
 	_vk2dRendererDestroyDescriptorPool(true);
 	_vk2dRendererDestroyUniformBuffers();
 	_vk2dRendererDestroyFrameBuffer();
@@ -952,7 +952,7 @@ static void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateFrameBuffer();
 	_vk2dRendererCreateDescriptorPool(true);
 	_vk2dRendererCreateUniformBuffers(false);
-	//_vk2dRendererCreateSampler();
+	_vk2dRendererCreateSampler();
 	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
 
@@ -1384,9 +1384,9 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 
 	// Check if we actually need to bind things
 	uint64_t hash = _vk2dHashSets(sets, setCount);
-	if (gRenderer->prevPipe != pipe->pipe) {
-		vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->pipe);
-		gRenderer->prevPipe = pipe->pipe;
+	if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
+		vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(pipe, gRenderer->blendMode));
+		gRenderer->prevPipe = vk2dPipelineGetPipe(pipe, gRenderer->blendMode);
 	}
 	if (gRenderer->prevSetHash != hash) {
 		vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, setCount, sets, 0, VK_NULL_HANDLE);

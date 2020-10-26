@@ -3,6 +3,7 @@
 /// \brief Simple abstraction over VkPipeline objects
 #pragma once
 #include "VK2D/Structs.h"
+#include "VK2D/BuildOptions.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,11 +13,15 @@ extern "C" {
 struct VK2DPipeline {
 	VK2DLogicalDevice dev;      ///< Device this pipeline belongs to
 	VkRenderPass renderPass;    ///< Render pass this pipeline uses
-	VkPipeline pipe;            ///< Internal pipeline
 	VkPipelineLayout layout;    ///< Internal pipeline layout
 	VkRect2D rect;              ///< For setting up command buffers
 	VkClearValue clearValue[2]; ///< Clear values for the two attachments: colour and depth
 
+#ifdef VK2D_GENERATE_BLEND_MODES
+	VkPipeline pipes[bm_Max]; ///< Internal pipelines if `VK2D_GENERATE_BLEND_MODES` is enabled
+#else // VK2D_GENERATE_BLEND_MODES
+	VkPipeline pipe; ///< Internal pipeline (blend only)
+#endif // VK2D_GENERATE_BLEND_MODES
 };
 
 /// \brief Creates a graphics pipeline
@@ -43,6 +48,12 @@ struct VK2DPipeline {
 ///
 /// (This may change in the future) .
 VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayout, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa);
+
+/// \brief Grabs a pipeline given a blend mode, returning the default one if blend mode generation is disabled
+/// \param pipe Pipeline to grab the proper blended pipeline from
+/// \param blendMode Blend mode you want to draw with
+/// \return Returns a pipeline with the desired blend mode
+VkPipeline vk2dPipelineGetPipe(VK2DPipeline pipe, VK2DBlendMode blendMode);
 
 /// \brief Frees a pipeline from memory
 /// \param pipe Pipeline to free
