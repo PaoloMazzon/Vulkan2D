@@ -89,9 +89,8 @@ typedef enum {
 	bm_Blend = 0,    ///< Default blend mode, good for almost everything
 	bm_None = 1,     ///< No blending, new colour is law
 	bm_Add = 2,      ///< Additive blending
-	bm_Mod = 3,      ///< Modulating blending, destination alpha is law
-	bm_Subtract = 4, ///< Subtraction blending, new colour is subtracted from current colour
-	bm_Max = 5       ///< Total number of blend modes (used for looping)
+	bm_Subtract = 3, ///< Subtraction blending, new colour is subtracted from current colour
+	bm_Max = 4       ///< Total number of blend modes (used for looping)
 } VK2DBlendMode;
 
 /// \brief Multisampling detail
