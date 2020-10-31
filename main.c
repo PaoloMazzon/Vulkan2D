@@ -33,8 +33,6 @@ int main(int argc, const char *argv[]) {
 	// Initialize vk2d
 	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Nearest};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
-	vec4 line = {1, 0, 0, 1};
-	vec4 white = {1, 1, 1, 1};
 	int32_t error = vk2dRendererInit(window, config);
 
 	if (error < 0)
@@ -57,8 +55,8 @@ int main(int argc, const char *argv[]) {
 	// Testing values for fanciness
 	float rot = 0;
 	float scaleRot = 0;
-	float xScale = 0;
-	float yScale = 0;
+	float xScale;
+	float yScale;
 	float camSpeed = 200; // per second
 	float camRotSpeed = VK2D_PI; // per second
 	float camZoomSpeed = 0.5; // per second

@@ -9,8 +9,8 @@ to run `shaders/genblobs.py` yourself.
 
 As it stands right now, VK2D is mostly ready to use, recently I made [Spacelink](https://github.com/PaoloMazzon/Spacelink)
 using it. It is not yet suitable for bigger projects simply because it does not sub-allocate
-memory (which means you can expect at best a little over ~1500 loaded textures at once before
-its crashing time) and less importantly only supports additive blending.
+memory (which means you can expect at best around ~4000 loaded textures at once before
+its crashing time).
 
 Documentation
 =============
