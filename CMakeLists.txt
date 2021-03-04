@@ -10,10 +10,11 @@ find_package(SDL2 REQUIRED)
 # All source files are located in the VK2D folder
 file(GLOB C_FILES VK2D/*.c)
 file(GLOB H_FILES VK2D/*.h)
+set(VMA_FILES VulkanMemoryAllocator/src/vk_mem_alloc.h VulkanMemoryAllocator/src/VmaUsage.cpp)
 
 # We don't build a library because this engine is intended to have its source
 # dropped into a host project (in this case JamEngine) and this whole cmake file
 # is just for testing purposes.
 include_directories(./ ${SDL2_INCLUDE_DIR} ${Vulkan_INCLUDE_DIRS})
-add_executable(${PROJECT_NAME} main.c ${C_FILES} ${H_FILES})
+add_executable(${PROJECT_NAME} main.c ${C_FILES} ${H_FILES} ${VMA_FILES})
 target_link_libraries(${PROJECT_NAME} m ${SDL2_LIBRARIES} ${Vulkan_LIBRARIES})

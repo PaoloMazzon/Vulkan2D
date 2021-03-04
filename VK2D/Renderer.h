@@ -6,41 +6,20 @@
 #include "Constants.h"
 #include <vulkan/vulkan.h>
 #include <SDL2/SDL.h>
+#include <VulkanMemoryAllocator/src/vk_mem_alloc.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /// \brief Core rendering data, don't modify values unless you know what you're doing
-///
-/// Drawing and drawing synchronization is kind of tricky, so an in-depth explanation
-/// is here for people looking to understand it and future me. At the start of each
-/// frame a few things happen
-///
-///  - Renderer selects a command pool to use for this frame and resets it (there are VK2D_DEVICE_COMMAND_POOLS command pools that are cycled through)
-///  - A primary command buffer is made from it and it starts a render pass, clearing the contents
-///
-/// After this, should you switch the render target, other things happen.
-///
-///  - All recorded secondary command buffers starting at `drawOffset` (in the `draws` variable) are executed in the render pass in the primary command buffer for the frame
-///  - The render pass is ended, a new one is started for the render target (screen uses the swapchain's framebuffers, textures have a framebuffer if they're a target)
-///  - `drawOffset` is updated to the current amount of secondary command buffers so the original ones are preserved and won't be executed twice in the future
-///
-/// That may happen any number of times in a frame. At the end of the frame, something similar happens:
-///
-///  - All recorded secondary command buffers starting at `drawOffset` are executed in the current render pass
-///  - `drawOffset` is not updated because it will not be needed again this frame
-///  - The screen is presented
-///
-/// Since the start of the frame starts a render pass in the screen's framebuffer and by the end of
-/// the frame that render pass is guaranteed to have ended, the image should always be in the proper
-/// KHR present source.
 struct VK2DRenderer {
 	// Devices/core functionality (these have short names because they're constantly referenced)
 	VK2DPhysicalDevice pd;       ///< Physical device (gpu)
 	VK2DLogicalDevice ld;        ///< Logical device
 	VkInstance vk;               ///< Core vulkan instance
 	VkDebugReportCallbackEXT dr; ///< Debug information
+	VmaAllocator vma;
 
 	// User-end things
 	VK2DRendererConfig config;     ///< User config

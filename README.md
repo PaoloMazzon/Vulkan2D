@@ -19,6 +19,20 @@ folder will be created containing the documentation.
 
 Usage
 =====
+There are two parts to building it with your project: you must build VK2D and also VMA since
+VK2D needs VMA to function. Simply put, you'll likely need to do something like this in CMake:
+
+    set(VMA_FILES VK2D/VulkanMemoryAllocator/src/vk_mem_alloc.h VK2D/VulkanMemoryAllocator/src/VmaUsage.cpp)
+    file(GLOB VK2D_FILES VK2D/VK2D/*.c)
+    ...
+    include_directories(... VK2D/)
+    add_executable(... ${VK2D_FILES} ${VMA_FILES})
+   
+You also need to link/include SDL2 and Vulkan but that is kind of implied. There will be no
+instructions on how to do that here since there are much better guides elsewhere.
+
+Example
+=======
 Using the renderer is quite simple, but there are some things to be aware of. For the sake
 of brevity, error checking is removed from the following example (always error check unless
 you like random crashes).
@@ -88,6 +102,7 @@ TODO
 
  + Remove depth buffer or potentially add OIT
  + Switch to VMA instead of manual (which is currently very inefficient for a lot of reasons)
+ + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)
 
 Warning
 =======
