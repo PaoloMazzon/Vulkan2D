@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
-project(VK2D C)
+project(VK2D)
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 
 # Vulkan and SDL2 (latest, since Vulkan support is fairly recent) are all that needed
@@ -16,5 +17,5 @@ set(VMA_FILES VulkanMemoryAllocator/src/vk_mem_alloc.h VulkanMemoryAllocator/src
 # dropped into a host project (in this case JamEngine) and this whole cmake file
 # is just for testing purposes.
 include_directories(./ ${SDL2_INCLUDE_DIR} ${Vulkan_INCLUDE_DIRS})
-add_executable(${PROJECT_NAME} main.c ${C_FILES} ${H_FILES} ${VMA_FILES})
+add_executable(${PROJECT_NAME} main.c ${VMA_FILES} ${C_FILES} ${H_FILES})
 target_link_libraries(${PROJECT_NAME} m ${SDL2_LIBRARIES} ${Vulkan_LIBRARIES})

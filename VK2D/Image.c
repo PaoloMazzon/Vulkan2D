@@ -116,6 +116,8 @@ void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkIma
 // End of internal functions
 
 VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height, VkFormat format, VkImageAspectFlags aspectMask, VkImageUsageFlags usage, VkSampleCountFlagBits samples) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+
 	VK2DImage out = malloc(sizeof(struct VK2DImage));
 	uint32_t i;
 
@@ -125,32 +127,16 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 		out->height = height;
 		out->set = VK_NULL_HANDLE;
 		VkImageCreateInfo imageCreateInfo = vk2dInitImageCreateInfo(width, height, format, usage, 1, samples);
-		vk2dErrorCheck(vkCreateImage(dev->dev, &imageCreateInfo, NULL, &out->img));
+		VmaAllocationCreateInfo allocationCreateInfo = {};
+		allocationCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+		vk2dErrorCheck(vmaCreateImage(gRenderer->vma, &imageCreateInfo, &allocationCreateInfo, &out->img, &out->mem, VK_NULL_HANDLE));
 
-		// Get memory requirement
-		VkMemoryRequirements imageMemoryRequirements;
-		uint32_t memoryIndex = UINT32_MAX;
-		VkMemoryPropertyFlags requiredFlags = (samples != (VkSampleCountFlagBits)msaa_1x ? VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT : 0) & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-		vkGetImageMemoryRequirements(dev->dev, out->img, &imageMemoryRequirements);
-		for (i = 0; i < dev->pd->mem.memoryTypeCount && memoryIndex == UINT32_MAX; i++)
-			if (imageMemoryRequirements.memoryTypeBits & (1 << i))
-				if ((dev->pd->mem.memoryTypes[i].propertyFlags & requiredFlags) == requiredFlags)
-					memoryIndex = i;
-
-		if (vk2dErrorInline(memoryIndex == UINT32_MAX ? -1 : VK_SUCCESS)) {
-			// Allocate memory
-			VkMemoryAllocateInfo memoryAllocateInfo = vk2dInitMemoryAllocateInfo(imageMemoryRequirements.size,
-																			   memoryIndex);
-			vk2dErrorCheck(vkAllocateMemory(dev->dev, &memoryAllocateInfo, NULL, &out->mem));
-			vk2dErrorCheck(vkBindImageMemory(dev->dev, out->img, out->mem, 0));
-
-			// Create the image view
-			VkImageViewCreateInfo imageViewCreateInfo = vk2dInitImageViewCreateInfo(out->img, format, aspectMask, 1);
-			vk2dErrorCheck(vkCreateImageView(dev->dev, &imageViewCreateInfo, NULL, &out->view));
-		} else {
-			free(out);
-			out = NULL;
-		}
+		// Create the image view
+		VkImageViewCreateInfo imageViewCreateInfo = vk2dInitImageViewCreateInfo(out->img, format, aspectMask, 1);
+		vk2dErrorCheck(vkCreateImageView(dev->dev, &imageViewCreateInfo, NULL, &out->view));
+	} else {
+		free(out);
+		out = NULL;
 	}
 
 	return out;
@@ -235,10 +221,10 @@ VK2DImage vk2dImageFromSurface(VK2DLogicalDevice dev, SDL_Surface *surface) {
 }
 
 void vk2dImageFree(VK2DImage img) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (img != NULL) {
-		vkFreeMemory(img->dev->dev, img->mem, VK_NULL_HANDLE);
 		vkDestroyImageView(img->dev->dev, img->view, VK_NULL_HANDLE);
-		vkDestroyImage(img->dev->dev, img->img, VK_NULL_HANDLE);
+		vmaDestroyImage(gRenderer->vma, img->img, img->mem);
 		free(img);
 	}
 }

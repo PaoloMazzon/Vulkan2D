@@ -1001,6 +1001,14 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		gRenderer->config.msaa = maxMSAA >= config.msaa ? config.msaa : maxMSAA;
 		gRenderer->newConfig = gRenderer->config;
 
+		// Create the VMA
+		VmaAllocatorCreateInfo allocatorCreateInfo = {};
+		allocatorCreateInfo.device = gRenderer->ld->dev;
+		allocatorCreateInfo.physicalDevice = gRenderer->pd->dev;
+		allocatorCreateInfo.instance = gRenderer->vk;
+		allocatorCreateInfo.vulkanApiVersion = VK_MAKE_VERSION(1, 1, 0);
+		vmaCreateAllocator(&allocatorCreateInfo, &gRenderer->vma);
+
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();
 		_vk2dRendererCreateWindowSurface();
@@ -1051,6 +1059,8 @@ void vk2dRendererQuit() {
 		_vk2dRendererDestroySwapchain();
 		_vk2dRendererDestroyWindowSurface();
 		_vk2dRendererDestroyDebug();
+
+		vmaDestroyAllocator(gRenderer->vma);
 
 		// Destroy core bits
 		vk2dLogicalDeviceFree(gRenderer->ld);

@@ -5,6 +5,7 @@
 #include <vulkan/vulkan.h>
 #include "VK2D/Structs.h"
 #include <SDL2/SDL.h>
+#include <VulkanMemoryAllocator/src/vk_mem_alloc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,7 +15,7 @@ extern "C" {
 struct VK2DImage {
 	VkImage img;           ///< Internal image
 	VkImageView view;      ///< Image view bound to the image
-	VkDeviceMemory mem;    ///< Memory the image is stored on
+	VmaAllocation mem;     ///< Memory the image is stored on
 	VK2DLogicalDevice dev; ///< Device this image belongs to
 	uint32_t width;        ///< Width in pixels of the image
 	uint32_t height;       ///< Height in pixels of the image
