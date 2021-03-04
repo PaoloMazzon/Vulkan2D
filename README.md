@@ -7,10 +7,9 @@ simple API, requiring no Vulkan experience to use. As to prevent additional bagg
 shaders are SPIR-V binary blobs in `VK2D/Blobs.h`. If you don't trust binary blobs, feel free
 to run `shaders/genblobs.py` yourself.
 
-As it stands right now, VK2D is mostly ready to use, recently I made [Spacelink](https://github.com/PaoloMazzon/Spacelink)
-using it. It is not yet suitable for bigger projects simply because it does not sub-allocate
-memory (which means you can expect at best around ~4000 loaded textures at once before
-its crashing time).
+As it stands right now, VK2D is mostly ready to use, recently I made [Spacelink](https://github.com/PaoloMazzon/Spacelink).
+Shader support is kind of dodgy but still usable, and since the switch to VMA was made there are
+no hard technical barriers.
 
 Documentation
 =============
