@@ -224,9 +224,9 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera) {
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
 static void _vk2dRendererFlushUBOBuffer(uint32_t frame) {
 	void *data;
-	vkMapMemory(gRenderer->ld->dev, gRenderer->uboBuffers[frame]->mem, 0, sizeof(VK2DUniformBufferObject), 0, &data);
+	vmaMapMemory(gRenderer->vma, gRenderer->uboBuffers[frame]->mem,  &data);
 	memcpy(data, &gRenderer->ubos[frame], sizeof(VK2DUniformBufferObject));
-	vkUnmapMemory(gRenderer->ld->dev, gRenderer->uboBuffers[frame]->mem);
+	vmaUnmapMemory(gRenderer->vma, gRenderer->uboBuffers[frame]->mem);
 }
 
 static void _vk2dRendererCreateDebug() {

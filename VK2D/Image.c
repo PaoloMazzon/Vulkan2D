@@ -119,7 +119,6 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 
 	VK2DImage out = malloc(sizeof(struct VK2DImage));
-	uint32_t i;
 
 	if (vk2dPointerCheck(out)) {
 		out->dev = dev;
@@ -143,6 +142,7 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 }
 
 VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VK2DImage out = NULL;
 	VK2DBuffer stage;
 	int texWidth, texHeight, texChannels;
@@ -154,9 +154,9 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 								 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		void *data;
-		vkMapMemory(dev->dev, stage->mem, 0, imageSize, 0, &data);
+		vmaMapMemory(gRenderer->vma, stage->mem, &data);
 		memcpy(data, pixels, imageSize);
-		vkUnmapMemory(dev->dev, stage->mem);
+		vmaUnmapMemory(gRenderer->vma, stage->mem);
 
 		stbi_image_free(pixels);
 
@@ -179,6 +179,7 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 }
 
 VK2DImage vk2dImageFromSurface(VK2DLogicalDevice dev, SDL_Surface *surface) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	SDL_PixelFormat format = {};
 	format.format = SDL_PIXELFORMAT_RGBA8888;
 	format.BytesPerPixel = 4;
@@ -197,9 +198,9 @@ VK2DImage vk2dImageFromSurface(VK2DLogicalDevice dev, SDL_Surface *surface) {
 								 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		void *data;
-		vkMapMemory(dev->dev, stage->mem, 0, imageSize, 0, &data);
+		vmaMapMemory(gRenderer->vma, stage->mem, &data);
 		memcpy(data, work->pixels, imageSize);
-		vkUnmapMemory(dev->dev, stage->mem);
+		vmaUnmapMemory(gRenderer->vma, stage->mem);
 
 		out = vk2dImageCreate(dev, work->w, work->h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
 							  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);

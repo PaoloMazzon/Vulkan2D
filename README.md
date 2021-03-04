@@ -101,7 +101,6 @@ TODO
 ====
 
  + Remove depth buffer or potentially add OIT
- + Switch to VMA instead of manual (which is currently very inefficient for a lot of reasons)
  + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)
 
 Warning

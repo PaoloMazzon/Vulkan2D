@@ -7,6 +7,7 @@
 #include "VK2D/Initializers.h"
 #include <malloc.h>
 #include <memory.h>
+#include "VK2D/Renderer.h"
 
 uint32_t _reVulkanBufferFindMemoryType(VkPhysicalDeviceMemoryProperties *memProps, uint32_t memoryFilter, VkMemoryPropertyFlags requirements) {
 	uint32_t i;
@@ -18,26 +19,23 @@ uint32_t _reVulkanBufferFindMemoryType(VkPhysicalDeviceMemoryProperties *memProp
 }
 
 VK2DBuffer vk2dBufferCreate(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags mem) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VK2DBuffer buf = malloc(sizeof(struct VK2DBuffer));
 
 	if (vk2dPointerCheck(buf)) {
 		buf->dev = dev;
 		buf->size = size;
 		VkBufferCreateInfo bufferCreateInfo = vk2dInitBufferCreateInfo(size, usage, &dev->pd->QueueFamily.graphicsFamily, 1);
-		vk2dErrorCheck(vkCreateBuffer(dev->dev, &bufferCreateInfo, VK_NULL_HANDLE, &buf->buf));
-
-		VkMemoryRequirements memoryRequirements;
-		vkGetBufferMemoryRequirements(dev->dev, buf->buf, &memoryRequirements);
-
-		VkMemoryAllocateInfo memoryAllocateInfo = vk2dInitMemoryAllocateInfo(memoryRequirements.size, _reVulkanBufferFindMemoryType(&dev->pd->mem, memoryRequirements.memoryTypeBits, mem));
-		vk2dErrorCheck(vkAllocateMemory(dev->dev, &memoryAllocateInfo, VK_NULL_HANDLE, &buf->mem));
-		vkBindBufferMemory(dev->dev, buf->buf, buf->mem, 0);
+		VmaAllocationCreateInfo allocationCreateInfo = {};
+		allocationCreateInfo.requiredFlags = mem;
+		vk2dErrorCheck(vmaCreateBuffer(gRenderer->vma, &bufferCreateInfo, &allocationCreateInfo, &buf->buf, &buf->mem, VK_NULL_HANDLE));
 	}
 
 	return buf;
 }
 
 VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// Create staging buffer
 	VK2DBuffer stageBuffer = vk2dBufferCreate(dev,
 			size,
@@ -46,9 +44,9 @@ VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsag
 
 	// Map data
 	void *location;
-	vk2dErrorCheck(vkMapMemory(dev->dev, stageBuffer->mem, 0, size, 0, &location));
+	vk2dErrorCheck(vmaMapMemory(gRenderer->vma, stageBuffer->mem, &location));
 	memcpy(location, data, size);
-	vkUnmapMemory(dev->dev, stageBuffer->mem);
+	vmaUnmapMemory(gRenderer->vma, stageBuffer->mem);
 
 	// Create the actual vbo
 	VK2DBuffer ret = vk2dBufferCreate(dev,
@@ -73,9 +71,9 @@ void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst) {
 }
 
 void vk2dBufferFree(VK2DBuffer buf) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (buf != NULL) {
-		vkFreeMemory(buf->dev->dev, buf->mem, VK_NULL_HANDLE);
-		vkDestroyBuffer(buf->dev->dev, buf->buf, VK_NULL_HANDLE);
+		vmaDestroyBuffer(gRenderer->vma, buf->buf, buf->mem);
 		free(buf);
 	}
 }

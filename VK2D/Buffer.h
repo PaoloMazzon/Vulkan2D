@@ -4,6 +4,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include "VK2D/Structs.h"
+#include <VulkanMemoryAllocator/src/vk_mem_alloc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +13,7 @@ extern "C" {
 /// \brief Makes managing buffers in Vulkan simpler
 struct VK2DBuffer {
 	VkBuffer buf;          ///< Internal Vulkan buffer
-	VkDeviceMemory mem;    ///< Memory for the buffer
+	VmaAllocation mem;    ///< Memory for the buffer
 	VK2DLogicalDevice dev; ///< Device the buffer belongs to
 	VkDeviceSize size;     ///< Size of this buffer in bytes
 };
