@@ -15,14 +15,6 @@ struct VK2DPolygon {
 	uint32_t vertexCount; ///< Number of vertices
 };
 
-/// \brief Creates a polygon for the texture pipeline (should be triangulated)
-/// \param dev Device to allocate the memory on
-/// \param vertexData Vertex data of the polygon (must be triangulated)
-/// \param vertexCount Number of vertices
-/// \return Returns a new polygon
-/// \warning This function is for creating fancier effects with the inner vertex data. Use vk2dPolygonCreate for creating simple shapes
-VK2DPolygon vk2dPolygonTextureCreateRaw(VK2DLogicalDevice dev, VK2DVertexTexture *vertexData, uint32_t vertexCount);
-
 /// \brief Creates a polygon for the shapes pipeline (should be triangulated)
 /// \param dev Device to allocate the memory on
 /// \param vertexData Vertex data of the polygon (must be triangulated)

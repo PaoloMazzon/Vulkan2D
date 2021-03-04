@@ -1,7 +1,6 @@
 /// \file Util.c
 /// \author Paolo Mazzon
-/// \brief These are "hidden" functions to make certain things simpler
-#include <vulkan/vulkan.h>
+#include "Util.h"
 #include <stdio.h>
 #include <malloc.h>
 #include <math.h>
@@ -10,21 +9,7 @@
 
 // Gets the vertex input information for VK2DVertexTexture (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState() {
-	static VkVertexInputBindingDescription vertexInputBindingDescription;
-	static VkVertexInputAttributeDescription vertexInputAttributeDescription[3];
-	static VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo;
-	static bool init = false;
-
-	if (!init) {
-		vertexInputBindingDescription = vk2dInitVertexInputBindingDescription(VK_VERTEX_INPUT_RATE_VERTEX, sizeof(VK2DVertexTexture), 0);
-		vertexInputAttributeDescription[0] = vk2dInitVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VK2DVertexTexture, pos));
-		vertexInputAttributeDescription[1] = vk2dInitVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(VK2DVertexTexture, colour));
-		vertexInputAttributeDescription[2] = vk2dInitVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(VK2DVertexTexture, tex));
-		pipelineVertexInputStateCreateInfo = vk2dInitPipelineVertexInputStateCreateInfo(&vertexInputBindingDescription, 1, vertexInputAttributeDescription, 3);
-		init = true;
-	}
-
-	return pipelineVertexInputStateCreateInfo;
+	return vk2dInitPipelineVertexInputStateCreateInfo(VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 0);;
 }
 
 // Gets the vertex input information for VK2DVertexColour (Uses static variables to persist attached descriptions)
@@ -36,8 +21,8 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState() {
 
 	if (!init) {
 		vertexInputBindingDescription = vk2dInitVertexInputBindingDescription(VK_VERTEX_INPUT_RATE_VERTEX, sizeof(VK2DVertexColour), 0);
-		vertexInputAttributeDescription[0] = vk2dInitVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VK2DVertexTexture, pos));
-		vertexInputAttributeDescription[1] = vk2dInitVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(VK2DVertexTexture, colour));
+		vertexInputAttributeDescription[0] = vk2dInitVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VK2DVertexColour, pos));
+		vertexInputAttributeDescription[1] = vk2dInitVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(VK2DVertexColour, colour));
 		pipelineVertexInputStateCreateInfo = vk2dInitPipelineVertexInputStateCreateInfo(&vertexInputBindingDescription, 1, vertexInputAttributeDescription, 2);
 		init = true;
 	}

@@ -12,10 +12,6 @@ layout(push_constant) uniform PushBuffer {
     vec4 textureCoords;
 } pushBuffer;
 
-layout(location = 0) in vec3 depPos;
-layout(location = 1) in vec4 depColour;
-layout(location = 2) in vec2 depTex;
-
 layout(location = 1) out vec2 fragTexCoord;
 
 vec2 vertices[] = {

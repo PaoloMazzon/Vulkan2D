@@ -86,10 +86,8 @@ in development as lacks a few very important things (check the TODO).
 TODO
 ====
 
- + Put textures in a descriptor array
- + Sub-allocations/better memory allocation
- + Different push-constant ranges (slight optimization)
  + Remove depth buffer or potentially add OIT
+ + Switch to VMA instead of manual (which is currently very inefficient for a lot of reasons)
 
 Warning
 =======

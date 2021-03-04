@@ -51,13 +51,6 @@ typedef float vec4[4];
 /// \brief 4x4 matrix of floats
 typedef float mat4[16];
 
-/// \brief Vertex data for rendering images
-typedef struct {
-	vec3 pos;    ///< Position of the vertex
-	vec4 colour; ///< Colour of this vertex
-	vec2 tex;    ///< Texture coordinate
-} VK2DVertexTexture;
-
 /// \brief Vertex data for rendering shapes
 typedef struct {
 	vec3 pos;    ///< Position of this vertex

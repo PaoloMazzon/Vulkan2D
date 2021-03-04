@@ -19,13 +19,6 @@ VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size,
 	return poly;
 }
 
-VK2DPolygon vk2dPolygonTextureCreateRaw(VK2DLogicalDevice dev, VK2DVertexTexture *vertexData, uint32_t vertexCount) {
-	VK2DPolygon poly = _vk2dPolygonCreate(dev, vertexData, sizeof(VK2DVertexTexture) * vertexCount, vt_Texture);
-	if (poly != NULL)
-		poly->vertexCount = vertexCount;
-	return poly;
-}
-
 VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DLogicalDevice dev, VK2DVertexColour *vertexData, uint32_t vertexCount) {
 	VK2DPolygon poly = _vk2dPolygonCreate(dev, vertexData, sizeof(VK2DVertexColour) * vertexCount, vt_Shape);
 	if (poly != NULL)
