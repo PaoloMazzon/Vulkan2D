@@ -57,11 +57,6 @@ struct VK2DRenderer {
 	VkFramebuffer *framebuffers;           ///< Framebuffers for the swapchain images
 	bool procedStartFrame;                 ///< End frame things are only done if this is true and start frame things are only done if this is false
 
-	// Depth stencil image things
-	bool dsiAvailable;  ///< Whether or not the depth stencil image is available
-	VkFormat dsiFormat; ///< Format of the depth stencil image
-	VK2DImage dsi;      ///< Depth stencil image
-
 	// Pipelines
 	VK2DPipeline texPipe;      ///< Pipeline for rendering textures
 	VK2DPipeline primFillPipe; ///< Pipeline for rendering filled shapes
