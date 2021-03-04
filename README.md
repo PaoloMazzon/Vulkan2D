@@ -9,7 +9,12 @@ to run `shaders/genblobs.py` yourself.
 
 As it stands right now, VK2D is mostly ready to use, recently I made [Spacelink](https://github.com/PaoloMazzon/Spacelink).
 Shader support is kind of dodgy but still usable, and since the switch to VMA was made there are
-no hard technical barriers.
+no hard technical barriers. It should also be stated that TrueType fonts will likely never be
+supported simply because this is meant to be a really minimal 2D renderer, and there is no way
+to easily support `.ttf` files without an external library (and I'm already unhappy with the VMA
+requirement, but the performance and memory benefits are too great). Bitmap font support, however,
+is planned and I may make a Python script to convert `.ttf`s to bitmaps in the future but no
+promises. 
 
 Documentation
 =============
@@ -100,6 +105,7 @@ TODO
 ====
 
  + Remove depth buffer or potentially add OIT
+ + Bitmap fonts
  + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)
 
 Warning
