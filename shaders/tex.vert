@@ -12,12 +12,29 @@ layout(push_constant) uniform PushBuffer {
     vec4 textureCoords;
 } pushBuffer;
 
-layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec4 inColor;
-layout(location = 2) in vec2 inTexCoord;
+layout(location = 0) in vec3 depPos;
+layout(location = 1) in vec4 depColour;
+layout(location = 2) in vec2 depTex;
 
-layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 fragTexCoord;
+
+vec2 vertices[] = {
+    vec2(0.0f, 0.0f),
+    vec2(1.0f, 0.0f),
+    vec2(1.0f, 1.0f),
+    vec2(1.0f, 1.0f),
+    vec2(0.0f, 1.0f),
+    vec2(0.0f, 0.0f),
+};
+
+vec2 texCoords[] = {
+    vec2(0.0f, 0.0f),
+    vec2(1.0f, 0.0f),
+    vec2(1.0f, 1.0f),
+    vec2(1.0f, 1.0f),
+    vec2(0.0f, 1.0f),
+    vec2(0.0f, 0.0f),
+};
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -25,10 +42,9 @@ out gl_PerVertex {
 
 void main() {
     vec2 newPos;
-    newPos.x = inPosition.x * pushBuffer.textureCoords.z;
-    newPos.y = inPosition.y * pushBuffer.textureCoords.w;
+    newPos.x = vertices[gl_VertexIndex].x * pushBuffer.textureCoords.z;
+    newPos.y = vertices[gl_VertexIndex].y * pushBuffer.textureCoords.w;
     gl_Position = ubo.proj * ubo.view * pushBuffer.model * vec4(newPos, 1.0, 1.0);
-    fragColor = inColor;
-    fragTexCoord.x = pushBuffer.textureCoords.x + (inTexCoord.x * pushBuffer.textureCoords.z);
-    fragTexCoord.y = pushBuffer.textureCoords.y + (inTexCoord.y * pushBuffer.textureCoords.w);
+    fragTexCoord.x = pushBuffer.textureCoords.x + (texCoords[gl_VertexIndex].x * pushBuffer.textureCoords.z);
+    fragTexCoord.y = pushBuffer.textureCoords.y + (texCoords[gl_VertexIndex].y * pushBuffer.textureCoords.w);
 }

@@ -22,14 +22,14 @@ def find_glslc():
 	sdk = ""
 	if platform == "linux" or platform == "linux2":
 		return "glslc"
-	if path.exists("/C/VulkanSDK"):
-		for f in listdir("/C/VulkanSDK"):
-			if path.isdir("/C/VulkanSDK/" + f):
+	if path.exists("C:\\VulkanSDK"):
+		for f in listdir("C:\\VulkanSDK"):
+			if path.isdir("C:\\VulkanSDK\\" + f):
 				sdk = f
 	
 	if sdk == "":
 		print("Failed to locate VulkanSDK")
-	return "/C/VulkanSDK/" + sdk + "/Bin/glslc.exe"
+	return "C:\\VulkanSDK\\" + sdk + "\\Bin\\glslc.exe"
 
 
 # Converts a filename to a fancy variable name
