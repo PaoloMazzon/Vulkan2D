@@ -35,6 +35,15 @@ VK2D needs VMA to function. Simply put, you'll likely need to do something like 
 You also need to link/include SDL2 and Vulkan but that is kind of implied. There will be no
 instructions on how to do that here since there are much better guides elsewhere.
 
+Build Options
+-------------
+Typically you would want to just include repo in your repo as a submodule (`git submodule add https://github.com/PaoloMazzon/Vulkan2D`)
+to keep up to date on improvements in this repo. This is good, but you should also look at
+and modify `VK2D/BuildOptions.h` before release or just not include that one and use your own or
+something. There are several little optimization options, but most importantly there is
+`#define VK2D_ENABLE_DEBUG`. Don't forget to disable that before building for release as the
+benefits in the test scene alone are a ~65% framerate boost.
+
 Example
 =======
 Using the renderer is quite simple, but there are some things to be aware of. For the sake
@@ -104,7 +113,6 @@ in development as lacks a few very important things (check the TODO).
 TODO
 ====
 
- + Remove depth buffer or potentially add OIT
  + Bitmap fonts
  + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)
 

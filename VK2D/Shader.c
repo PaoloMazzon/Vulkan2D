@@ -71,10 +71,11 @@ VK2DShader vk2dShaderCreate(VK2DLogicalDevice dev, const char *vertexShader, con
 }
 
 void vk2dShaderUpdate(VK2DShader shader, void *data, uint32_t size) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	void *mem;
-	vk2dErrorCheck(vkMapMemory(shader->dev->dev, shader->uniforms[shader->currentUniform]->mem, 0, size, 0, &mem));
+	vk2dErrorCheck(vmaMapMemory(gRenderer->vma, shader->uniforms[shader->currentUniform]->mem, &mem));
 	memcpy(mem, data, size);
-	vkUnmapMemory(shader->dev->dev, shader->uniforms[shader->currentUniform]->mem);
+	vmaUnmapMemory(gRenderer->vma, shader->uniforms[shader->currentUniform]->mem);
 	shader->currentUniform = (shader->currentUniform + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
 }
 
