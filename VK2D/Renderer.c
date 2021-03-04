@@ -808,8 +808,11 @@ static void _vk2dRendererDestroyUnits() {
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 static void _vk2dRendererRefreshTargets() {
 	uint32_t i;
+	uint32_t targetsRefreshed = 0;
 	for (i = 0; i < gRenderer->targetListSize; i++) {
 		if (gRenderer->targets[i] != NULL) {
+			targetsRefreshed++;
+
 			// Sampled image
 			vk2dImageFree(gRenderer->targets[i]->sampledImg);
 			gRenderer->targets[i]->sampledImg = vk2dImageCreate(
@@ -824,7 +827,7 @@ static void _vk2dRendererRefreshTargets() {
 
 			// Framebuffer
 			vkDestroyFramebuffer(gRenderer->ld->dev, gRenderer->targets[i]->fbo, VK_NULL_HANDLE);
-			const int attachCount = gRenderer->config.msaa > 1 ? 3 : 2;
+			const int attachCount = gRenderer->config.msaa > 1 ? 2 : 1;
 			VkImageView attachments[attachCount];
 			if (gRenderer->config.msaa > 1) {
 				attachments[0] = gRenderer->targets[i]->sampledImg->view;
@@ -837,7 +840,7 @@ static void _vk2dRendererRefreshTargets() {
 			vk2dErrorCheck(vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->targets[i]->fbo));
 		}
 	}
-	vk2dLogMessage("Refreshed %i render targets...", gRenderer->targetListSize);
+	vk2dLogMessage("Refreshed %i render targets...", targetsRefreshed);
 }
 
 static void _vk2dRendererDestroyTargetsList() {
