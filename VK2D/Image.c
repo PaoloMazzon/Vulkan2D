@@ -178,38 +178,28 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 	return out;
 }
 
-VK2DImage vk2dImageFromSurface(VK2DLogicalDevice dev, SDL_Surface *surface) {
+VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, void *pixels, int w, int h) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	SDL_PixelFormat format = {};
-	format.format = SDL_PIXELFORMAT_RGBA8888;
-	format.BytesPerPixel = 4;
-	format.BitsPerPixel = 32;
-	format.Rmask = rmask;
-	format.Gmask = gmask;
-	format.Bmask = bmask;
-	format.Amask = amask;
-	SDL_Surface *work = SDL_ConvertSurface(surface, &format, 0);
 	VK2DImage out = NULL;
 	VK2DBuffer stage;
-	uint32_t imageSize = work->w * work->h * 4;
 
-	if (vk2dPointerCheck(work)) {
-		stage = vk2dBufferCreate(dev, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+	if (vk2dPointerCheck(pixels)) {
+		stage = vk2dBufferCreate(dev, w * h * 4, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 								 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 		void *data;
 		vmaMapMemory(gRenderer->vma, stage->mem, &data);
-		memcpy(data, work->pixels, imageSize);
+		memcpy(data, pixels, w * h * 4);
 		vmaUnmapMemory(gRenderer->vma, stage->mem);
 
-		out = vk2dImageCreate(dev, work->w, work->h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
+		out = vk2dImageCreate(dev, w, h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
 							  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
 
 
 		if (vk2dPointerCheck(out)) {
 			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
 											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, work->w, work->h);
+			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, w, h);
 			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
@@ -217,7 +207,6 @@ VK2DImage vk2dImageFromSurface(VK2DLogicalDevice dev, SDL_Surface *surface) {
 		vk2dBufferFree(stage);
 	}
 
-	SDL_FreeSurface(work);
 	return out;
 }
 

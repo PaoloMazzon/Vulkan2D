@@ -42,9 +42,11 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename);
 
 /// \brief Creates an image from an SDL2 surface
 /// \param dev Device to create the image with
-/// \param surface Surface to get the initial pixels from
+/// \param pixels Pixels to create the image with, should be 32 bit RGBA
+/// \param w Width in pixels of the image
+/// \param h Height in pixels of the image
 /// \return Returns a new image or NULL if it failed
-VK2DImage vk2dImageFromSurface(VK2DLogicalDevice dev, SDL_Surface *surface);
+VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, void *pixels, int w, int h);
 
 /// \brief Frees an image from memory
 /// \param img Image to free
