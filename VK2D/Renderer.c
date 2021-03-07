@@ -1281,7 +1281,7 @@ void vk2dRendererDrawCircle(float x, float y, float r) {
 
 void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
 #ifdef VK2D_UNIT_GENERATION
-	vk2dRendererDrawPolygon(gRenderer->unitCircleOutline, x, y, false, lineWidth, r, r, 0, 0, 0);
+	vk2dRendererDrawPolygon(gRenderer->unitCircleOutline, x, y, false, lineWidth, r * 2, r * 2, 0, 0, 0);
 #endif //  VK2D_UNIT_GENERATION
 }
 
