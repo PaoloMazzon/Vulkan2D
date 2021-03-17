@@ -114,6 +114,12 @@ TODO
  + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)
  + General optimizations
 
+Window Resizing Doesn't Work
+============================
+It does, but its slightly more confusing in VK2D than other 2D renderers because you have full
+control over the viewport and camera. When you resize a window make sure to change the viewport
+and the camera width/height (see `vk2dRendererSetViewport`, `vk2dRendererSetCamera`).
+
 Warning
 =======
 Similar to Vulkan, VK2D does not check to see if you are passing garbage arguments (except for 
