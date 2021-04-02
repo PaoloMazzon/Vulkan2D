@@ -40,10 +40,8 @@ void _vk2dPrintMatrix(FILE* out, mat4 m, const char* prefix) {
 
 // Prints a UBO all fancy like
 void _vk2dPrintUBO(FILE* out, VK2DUniformBufferObject ubo) {
-	fprintf(out, "View:\n");
-	_vk2dPrintMatrix(out, ubo.view, "    ");
-	fprintf(out, "Projection:\n");
-	_vk2dPrintMatrix(out, ubo.proj, "    ");
+	fprintf(out, "View-Proj:\n");
+	_vk2dPrintMatrix(out, ubo.viewproj, "    ");
 	fflush(out);
 }
 

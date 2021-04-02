@@ -59,8 +59,7 @@ typedef struct {
 
 /// \brief The VP buffer
 typedef struct {
-	mat4 view;  ///< View matrix
-	mat4 proj;  ///< Projection matrix
+	mat4 viewproj; ///< View and projection matrix multiplied together
 } VK2DUniformBufferObject;
 
 /// \brief Buffer passed per-model via push constants

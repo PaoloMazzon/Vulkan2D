@@ -2,8 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(set = 0, binding = 0) uniform UniformBufferObject {
-    mat4 view;
-    mat4 proj;
+    mat4 viewproj;
 } ubo;
 
 layout(push_constant) uniform PushBuffer {
@@ -40,7 +39,7 @@ void main() {
     vec2 newPos;
     newPos.x = vertices[gl_VertexIndex].x * pushBuffer.textureCoords.z;
     newPos.y = vertices[gl_VertexIndex].y * pushBuffer.textureCoords.w;
-    gl_Position = ubo.proj * ubo.view * pushBuffer.model * vec4(newPos, 1.0, 1.0);
+    gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos, 1.0, 1.0);
     fragTexCoord.x = pushBuffer.textureCoords.x + (texCoords[gl_VertexIndex].x * pushBuffer.textureCoords.z);
     fragTexCoord.y = pushBuffer.textureCoords.y + (texCoords[gl_VertexIndex].y * pushBuffer.textureCoords.w);
 }

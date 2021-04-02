@@ -210,15 +210,22 @@ void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout ne
 }
 
 // Rebuilds the matrices for a given buffer and camera
+void _vk2dPrintMatrix(FILE* out, mat4 m, const char* prefix);
 void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera) {
 	// Assemble view
+	mat4 view = {};
 	vec3 eyes = {-camera->x - (camera->w * 0.5), camera->y + (camera->h * 0.5), 2};
 	vec3 center = {-camera->x - (camera->w * 0.5), camera->y + (camera->h * 0.5), 0};//-camera->w / 2, camera->h / 2, 0};
 	vec3 up = {sin(camera->rot), -cos(camera->rot), 0};
-	cameraMatrix(ubo->view, eyes, center, up);
+	cameraMatrix(view, eyes, center, up);
 
-	// Projection is quite a simple matter
-	orthographicMatrix(ubo->proj, camera->h / camera->zoom, camera->w / camera->h, 0.1, 10);
+	// Projection
+	mat4 proj = {};
+	orthographicMatrix(proj, camera->h / camera->zoom, camera->w / camera->h, 0.1, 10);
+
+	// Multiply together
+	memset(ubo->viewproj, 0, 64);
+	multiplyMatrix(view, proj, ubo->viewproj);
 }
 
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush

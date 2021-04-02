@@ -35,7 +35,7 @@ def find_glslc():
 # Converts a filename to a fancy variable name
 def filename_to_variable(filename):
 	period = filename.rfind(".")
-	slash = filename.rfind("/")
+	slash = filename.rfind("\\")
 	suffix = filename[slash + 1:period]
 	prefix = filename[period+1:]
 	return "VK2D" + prefix[0].upper() + prefix[1:] + suffix[0].upper() + suffix[1:]
