@@ -1209,7 +1209,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 	}
 }
 
-void vk2dRendererSetColourMod(vec4 mod) {
+void vk2dRendererSetColourMod(const vec4 mod) {
 	gRenderer->colourBlend[0] = mod[0];
 	gRenderer->colourBlend[1] = mod[1];
 	gRenderer->colourBlend[2] = mod[2];

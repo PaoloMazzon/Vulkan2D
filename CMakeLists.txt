@@ -12,6 +12,9 @@ find_package(SDL2 REQUIRED)
 file(GLOB C_FILES VK2D/*.c)
 file(GLOB H_FILES VK2D/*.h)
 set(VMA_FILES VulkanMemoryAllocator/src/vk_mem_alloc.h VulkanMemoryAllocator/src/VmaUsage.cpp)
+if(NOT DEFINED SDL2_LIBRARIES)
+	set(SDL2_LIBRARIES SDL2)
+endif()
 
 # We don't build a library because this engine is intended to have its source
 # dropped into a host project (in this case JamEngine) and this whole cmake file

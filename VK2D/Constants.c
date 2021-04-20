@@ -26,3 +26,13 @@ const VK2DTexture VK2D_TARGET_SCREEN = NULL;
 const vec4 VK2D_DEFAULT_COLOUR_MOD = {1, 1, 1, 1};
 
 const float VK2D_CIRCLE_VERTICES = 36;
+
+extern const vec4 VK2D_BLACK = {0, 0, 0, 1};
+
+extern const vec4 VK2D_WHITE = {1, 1, 1, 1};
+
+extern const vec4 VK2D_BLUE = {0, 0, 1, 1};
+
+extern const vec4 VK2D_RED = {1, 0, 0, 1};
+
+extern const vec4 VK2D_GREEN = {0, 1, 0, 1};

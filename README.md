@@ -1,5 +1,7 @@
 ![basic demo](https://i.imgur.com/InP0Sou.gif)
 
+![another demo](https://i.imgur.com/H9HR9dJ.gif)
+
 Vulkan2D
 ========
 VK2D is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
@@ -93,25 +95,24 @@ and build it with your project. It requires SDL2 and Vulkan to build.
 
 Features
 ========
-Right now it can do most things you would need in a game-dev environment but is still
-in development as lacks a few very important things (check the TODO).
+For a complete list of functions, generate the documentation and look at `VK2D/Renderer.h`
 
- + Draw rectangles/circles/lines/polygons easily
- + Load and draw textures (including only parts of images for sprite sheets and the lot)
- + Simple configuration options you can change at any point
- + Simple yet powerful camera and viewport controls
- + Colour modifier built-in to change colour of anything on the fly
- + Lots of build options to better optimize the renderer for your setup
- + Small amount of required features and limits to make the renderer work on most machines
- + Loads custom default shaders from file if available (can be disabled in BuildOptions.h)
- + Render to textures easily
- + Simple shader interface to utilize custom shaders
- + Different blend modes and easy to add new ones
+ + Simple and intuitive API built on top of SDL (you still control the window)
+ + Draw shapes/textures/arbitrary polygons to the screen or other textures
+ + Simple and fully-featured camera (try out the demo)
+ + External SPIR-V shader support
+ + Blend modes
 
 TODO
 ====
+These are in no particular order.
 
+ + ***Improve error messages***
+ + Compute particles
+ + SDF support
+ + Multiple camera support (create and update several cameras and switch between them throughout frame, as well as disable camera)
  + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)
+ + A more interesting test program
  + General optimizations
 
 Window Resizing Doesn't Work

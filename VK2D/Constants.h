@@ -28,7 +28,7 @@ extern const uint32_t VK2D_NO_LOCATION;
 /// Draw to the screen and not a texture
 extern const VK2DTexture VK2D_TARGET_SCREEN;
 
-/// Colour mod when the renderer first initializes
+/// Colour mod when the renderer first initializes, and is likely the most common colour mod (white)
 extern const vec4 VK2D_DEFAULT_COLOUR_MOD;
 
 /// Number of vertices to build the unit circle with if VK2D_UNIT_GENERATION is enabled. Higher values will result in a smoother circle but will be longer to initially create, slower to render, and consume more VRAM
@@ -37,6 +37,22 @@ extern const float VK2D_CIRCLE_VERTICES;
 
 /// Maximum number of frames to be processed at once - You generally want this and VK2D_DEVICE_COMMAND_POOLS to be the same
 #define VK2D_MAX_FRAMES_IN_FLIGHT 3
+
+/************************ Colours ************************/
+/// The colour black
+extern const vec4 VK2D_BLACK;
+
+/// The colour white
+extern const vec4 VK2D_WHITE;
+
+/// The colour blue
+extern const vec4 VK2D_BLUE;
+
+/// The colour red
+extern const vec4 VK2D_RED;
+
+/// The colour green
+extern const vec4 VK2D_GREEN;
 
 /// Not terribly difficult to figure out the usages of this
 #define VK2D_PI 3.14159265358979323846264338327950

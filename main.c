@@ -12,13 +12,27 @@ const int WINDOW_HEIGHT = 600;
 
 const VK2DVertexColour SAMPLE_TRIANGLE[] = {
 		{{0.0, 0.0, +0.0}, {1.0, 1.0, 0.5, 1}},
-		{{200, 200, +0.0}, {1.0, 0.5, 1.0, 1}},
-		{{200, 0.0, +0.0}, {0.5, 1.0, 1.0, 1}},
+		{{400, 300, +0.0}, {1.0, 0.5, 1.0, 1}},
+		{{400, 0.0, +0.0}, {0.5, 1.0, 1.0, 1}},
 		{{0.0, 0.0, +0.0}, {0.5, 0.5, 1.0, 1}},
-		{{0.0, 200, +0.0}, {0.0, 1.0, 0.5, 1}},
-		{{200, 200, +0.0}, {1.0, 1.0, 1.0, 1}}
+		{{0.0, 300, +0.0}, {0.0, 1.0, 0.5, 1}},
+		{{400, 300, +0.0}, {1.0, 1.0, 1.0, 1}}
 };
 const uint32_t VERTICES = 6;
+
+// Very basic and simple font renderer for the font in this test specifically
+void renderFont(float x, float y, VK2DTexture tex, const char *text) {
+	float ox = x;
+	for (int i = 0; i < strlen(text); i++) {
+		if (text[i] != '\n') {
+			vk2dDrawTexturePart(tex, x, y, (text[i] * 8) % 128, floorf(text[i] / 16) * 16, 8, 16);
+			x += 8;
+		} else {
+			x = ox;
+			y += 16;
+		}
+	}
+}
 
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
@@ -45,6 +59,7 @@ int main(int argc, const char *argv[]) {
 	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw(vk2dRendererGetDevice(), (void *) SAMPLE_TRIANGLE, VERTICES);
 	VK2DTexture testTexture = vk2dTextureLoad("assets/caveguy.png");
 	VK2DTexture testSurface = vk2dTextureCreate(vk2dRendererGetDevice(), 100, 100);
+	VK2DTexture testFont = vk2dTextureLoad("assets/font.png");
 	bool drawnToTestSurface = false;
 
 	// Delta and fps
@@ -114,7 +129,7 @@ int main(int argc, const char *argv[]) {
 		// All rendering must happen after this
 		vk2dRendererStartFrame(clear);
 
-		// Draw to the test surface
+		// Draw to the font surface
 		if (!drawnToTestSurface) {
 			drawnToTestSurface = true;
 			vk2dRendererSetTarget(testSurface);
@@ -125,28 +140,33 @@ int main(int argc, const char *argv[]) {
 			vk2dRendererSetViewport(0, 0, (float)windowWidth, (float)windowHeight);
 		}
 
+		vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
+		vk2dRendererSetViewport(0, 0, (float)windowWidth, (float)windowHeight);
+
 		// Draw some test assets
 		vk2dDrawTexture(testSurface, -100, -100);
 		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dDrawTexture(testTexture, 0, 0);
 		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);
+		vk2dRendererDrawTexture(testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale, (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
+
+		// Draw debug overlay TODO: Fix this not rotating with the camera lol
+		char title[50];
+		sprintf(title, "Vulkan2D [%0.2fms] [%0.2ffps]", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime());
+		vk2dRendererSetColourMod(VK2D_BLACK);
+		int w, h;
+		SDL_GetWindowSize(window, &w, &h);
+		vk2dDrawRectangle(cam.x, cam.y, (float)w, 17);
+		vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
+		renderFont(cam.x, cam.y, testFont, title);
 
 		// End the frame
 		vk2dRendererEndFrame();
-
-		// Window title is set to the framerate every second
-		frameCounter += 1;
-		if (SDL_GetPerformanceCounter() - secondCounter >= SDL_GetPerformanceFrequency()) {
-			char title[50];
-			sprintf(title, "Vulkan2D [%0.2fms] [%0.2ffps]", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime());
-			SDL_SetWindowTitle(window, title);
-			secondCounter = SDL_GetPerformanceCounter();
-			frameCounter = 0;
-		}
 	}
 
 	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
+	vk2dTextureFree(testFont);
 	vk2dTextureFree(testSurface);
 	vk2dTextureFree(testTexture);
 	vk2dPolygonFree(testPoly);

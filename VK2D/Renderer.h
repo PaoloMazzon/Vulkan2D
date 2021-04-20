@@ -209,7 +209,7 @@ VK2DBlendMode vk2dRendererGetBlendMode();
 
 /// \brief Sets the current colour modifier (Colour all pixels are blended with)
 /// \param mod Colour mod to make current
-void vk2dRendererSetColourMod(vec4 mod);
+void vk2dRendererSetColourMod(const vec4 mod);
 
 /// \brief Gets the current colour modifier
 /// \param dst Destination vector to place the current colour mod into
