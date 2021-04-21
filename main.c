@@ -23,7 +23,7 @@ const uint32_t VERTICES = 6;
 // Very basic and simple font renderer for the font in this test specifically
 void renderFont(float x, float y, VK2DTexture tex, const char *text) {
 	float ox = x;
-	for (int i = 0; i < strlen(text); i++) {
+	for (int i = 0; i < (int)strlen(text); i++) {
 		if (text[i] != '\n') {
 			vk2dDrawTexturePart(tex, x, y, (text[i] * 8) % 128, floorf(text[i] / 16) * 16, 8, 16);
 			x += 8;
@@ -63,9 +63,7 @@ int main(int argc, const char *argv[]) {
 	bool drawnToTestSurface = false;
 
 	// Delta and fps
-	double lastTime = SDL_GetPerformanceCounter();
-	double secondCounter = SDL_GetPerformanceCounter();
-	double frameCounter = 0;
+	float lastTime = SDL_GetPerformanceCounter();
 
 	// Testing values for fanciness
 	float rot = 0;
@@ -74,7 +72,7 @@ int main(int argc, const char *argv[]) {
 	float yScale;
 	float camSpeed = 200; // per second
 	float camRotSpeed = VK2D_PI; // per second
-	float camZoomSpeed = 0.5; // per second
+	float camZoomSpeed = 0.5f; // per second
 
 	while (!quit) {
 		while (SDL_PollEvent(&e)) {
@@ -83,7 +81,7 @@ int main(int argc, const char *argv[]) {
 			}
 		}
 		// Calculate delta
-		double delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
+		float delta = ((float)SDL_GetPerformanceCounter() - lastTime) / (float)SDL_GetPerformanceFrequency();
 		lastTime = SDL_GetPerformanceCounter();
 
 		// Process player input
