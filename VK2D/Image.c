@@ -149,6 +149,10 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 	unsigned char* pixels = stbi_load(filename, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
+	if (pixels == NULL) { // Print out filename if the image couldn't be loaded
+		vk2dLogMessage("Failed to load image \"%s\"", filename);
+	}
+
 	if (vk2dPointerCheck(pixels)) {
 		stage = vk2dBufferCreate(dev, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 								 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);

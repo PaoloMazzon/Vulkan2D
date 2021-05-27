@@ -108,6 +108,7 @@ TODO
 These are in no particular order.
 
  + ***Improve error messages***
+ + Remove all references to making one's own renderer
  + Compute particles
  + SDF support
  + Multiple camera support (create and update several cameras and switch between them throughout frame, as well as disable camera)
