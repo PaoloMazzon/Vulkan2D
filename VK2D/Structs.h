@@ -40,7 +40,7 @@ typedef struct VK2DPolygon *VK2DPolygon;
 typedef struct VK2DShader *VK2DShader;
 
 /// \brief Abstraction to make managing pointers easier for VK2DCamera
-typedef struct VK2DCamera *VK2DCamera;
+typedef struct VK2DCamera VK2DCamera;
 
 /// \brief 2D vector of floats
 typedef float vec2[2];

@@ -178,7 +178,7 @@ void vk2dRendererResetSwapchain();
 /// \brief Performs the tasks necessary to start rendering a frame (call before you start drawing)
 /// \param clearColour Colour to clear the screen to
 /// \warning You may only call drawing functions after vk2dRendererStartFrame is called and before vk2dRendererEndFrame is called
-void vk2dRendererStartFrame(vec4 clearColour);
+	void vk2dRendererStartFrame(vec4 clearColour);
 
 /// \brief Performs the tasks necessary to complete/present a frame (call once you're done drawing)
 /// \warning You may only call drawing functions after vk2dRendererStartFrame is called and before vk2dRendererEndFrame is called
