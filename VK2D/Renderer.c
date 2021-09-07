@@ -211,7 +211,7 @@ void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout ne
 
 // Rebuilds the matrices for a given buffer and camera
 void _vk2dPrintMatrix(FILE* out, mat4 m, const char* prefix);
-void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera) {
+void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) {
 	// Assemble view
 	mat4 view = {};
 	vec3 eyes = {-camera->x - (camera->w * 0.5), camera->y + (camera->h * 0.5), 2};
@@ -650,7 +650,7 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	gRenderer->uboSets = malloc(sizeof(VkDescriptorSet) * gRenderer->swapchainImageCount);
 	uint32_t i;
 
-	VK2DCamera cam = {
+	VK2DCameraSpec cam = {
 			0,
 			0,
 			gRenderer->surfaceWidth,
@@ -670,7 +670,7 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 		}
 	}
 
-	VK2DCamera unitCam = {
+	VK2DCameraSpec unitCam = {
 			0,
 			0,
 			1,
@@ -1231,11 +1231,11 @@ VK2DBlendMode vk2dRendererGetBlendMode() {
 	return gRenderer->blendMode;
 }
 
-void vk2dRendererSetCamera(VK2DCamera camera) {
+void vk2dRendererSetCamera(VK2DCameraSpec camera) {
 	gRenderer->camera = camera;
 }
 
-VK2DCamera vk2dRendererGetCamera() {
+VK2DCameraSpec vk2dRendererGetCamera() {
 	return gRenderer->camera;
 }
 

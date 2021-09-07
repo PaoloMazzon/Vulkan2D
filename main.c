@@ -52,7 +52,7 @@ int main(int argc, const char *argv[]) {
 	if (error < 0)
 		return -1;
 
-	VK2DCamera cam = {0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
+	VK2DCameraSpec cam = {0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
 	vk2dRendererSetCamera(cam);
 
 	// Load Some test assets **must be done after vk2d is initialized**

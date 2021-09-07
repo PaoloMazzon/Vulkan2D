@@ -38,6 +38,15 @@ extern const float VK2D_CIRCLE_VERTICES;
 /// Maximum number of frames to be processed at once - You generally want this and VK2D_DEVICE_COMMAND_POOLS to be the same
 #define VK2D_MAX_FRAMES_IN_FLIGHT 3
 
+/// Not terribly difficult to figure out the usages of this
+#define VK2D_PI 3.14159265358979323846264338327950
+
+/// Number representing an invalid camera
+extern VK2DCameraIndex VK2D_INVALID_CAMERA;
+
+/// Maximum number of cameras that can exist, enabled or disabled, at once
+#define VK2D_MAX_CAMERAS 5
+
 /************************ Colours ************************/
 /// The colour black
 extern const vec4 VK2D_BLACK;
@@ -54,8 +63,6 @@ extern const vec4 VK2D_RED;
 /// The colour green
 extern const vec4 VK2D_GREEN;
 
-/// Not terribly difficult to figure out the usages of this
-#define VK2D_PI 3.14159265358979323846264338327950
 
 #ifdef __cplusplus
 };

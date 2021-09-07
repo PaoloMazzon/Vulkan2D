@@ -31,7 +31,7 @@ struct VK2DRenderer {
 	VK2DUniformBufferObject *ubos; ///< UBOs in memory that will be applied to their respective buffer at the start of the frame
 	VK2DBuffer *uboBuffers;        ///< Buffers in memory for the UBOs (1 per swapchain image, updated at start of frame)
 	VkDescriptorSet *uboSets;      ///< Descriptor sets for the ubo buffers
-	VK2DCamera camera;             ///< Camera settings that are applied to the UBO before every frame
+	VK2DCameraSpec camera;         ///< Camera settings that are applied to the UBO before every frame
 	VkViewport viewport;           ///< Viewport to draw with
 	bool enableTextureCameraUBO;   ///< If true, when drawing to a texture the UBO for the internal camera is used instead of the texture's UBO
 	VK2DBlendMode blendMode;       ///< Current blend mode to draw with
@@ -242,7 +242,7 @@ double vk2dRendererGetAverageFrameTime();
 ///
 /// Camera settings take effect at the start of every frame when the view and projection
 /// matrices are uploaded to the gpu.
-void vk2dRendererSetCamera(VK2DCamera camera);
+void vk2dRendererSetCamera(VK2DCameraSpec camera);
 
 /// \brief Gets the current camera settings
 /// \return Returns the current camera settings
@@ -250,7 +250,7 @@ void vk2dRendererSetCamera(VK2DCamera camera);
 /// Since camera settings are only applied at the start of every frame, this may return
 /// something that has yet to take effect (Shouldn't really matter, but worth noting in
 /// case you get some unexpected results).
-VK2DCamera vk2dRendererGetCamera();
+VK2DCameraSpec vk2dRendererGetCamera();
 
 /// \brief Sets the current viewport (portion of the window that is drawn to)
 /// \param x X in window to draw to

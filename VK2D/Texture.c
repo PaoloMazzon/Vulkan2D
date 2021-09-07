@@ -50,7 +50,7 @@ VK2DTexture vk2dTextureLoad(const char *filename) {
 	return out;
 }
 
-void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCamera *camera);
+void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera);
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 void _vk2dRendererAddTarget(VK2DTexture tex);
 void _vk2dRendererRemoveTarget(VK2DTexture tex);
@@ -59,7 +59,7 @@ VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 
 	// For the UBO
-	VK2DCamera cam = {
+	VK2DCameraSpec cam = {
 			0,
 			0,
 			w,

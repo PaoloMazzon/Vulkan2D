@@ -39,6 +39,9 @@ typedef struct VK2DPolygon *VK2DPolygon;
 /// \brief Abstraction to make managing pointers easier for VK2DShader
 typedef struct VK2DShader *VK2DShader;
 
+/// \brief Abstraction to make managing pointers easier for VK2DCamera
+typedef struct VK2DCamera *VK2DCamera;
+
 /// \brief 2D vector of floats
 typedef float vec2[2];
 
@@ -50,6 +53,9 @@ typedef float vec4[4];
 
 /// \brief 4x4 matrix of floats
 typedef float mat4[16];
+
+/// \brief Type used for referencing cameras
+typedef int32_t VK2DCameraIndex;
 
 /// \brief Vertex data for rendering shapes
 typedef struct {
@@ -136,10 +142,17 @@ typedef enum {
 	ss_Vertex = VK_SHADER_STAGE_VERTEX_BIT      ///< Vertex shader
 } VK2DShaderStage;
 
+/// \brief The state a camera is in
+typedef enum {
+	cs_Normal = 0,   ///< Camera is being rendered/updated as normal
+	cs_Disabled = 1, ///< Camera is not being rendered or updated
+	cs_Deleted = 2,  ///< Camera is "deleted" and all data is invalid
+} VK2DCameraState;
+
 /// \brief User configurable settings
 typedef struct VK2DConfiguration {
-	const char* applicationName; ///< Name of this program
-	const char* engineName;      ///< Name of this engine
+	const char *applicationName; ///< Name of this program
+	const char *engineName;      ///< Name of this engine
 	uint32_t applicationVersion; ///< Version of the program
 	uint32_t engineVersion;      ///< Version of this engine
 	uint32_t apiVersion;         ///< Version of vulkan
@@ -154,11 +167,19 @@ typedef struct VK2DRendererConfig {
 } VK2DRendererConfig;
 
 /// \brief Camera information
-typedef struct VK2DCamera {
+typedef struct VK2DCameraSpec {
 	float x;    ///< X position of the camera (top left coordinates)
 	float y;    ///< Y position of the camera (top left coordinates)
 	float w;    ///< Virtual width of the screen
 	float h;    ///< Virtual height of the screen
 	float zoom; ///< Zoom percentage (Relative to the virtual width and height, not actual)
 	float rot;  ///< Rotation of the camera
-} VK2DCamera;
+	float xOnScreen; ///< x position in the window
+	float yOnScreen; ///< y position in the window
+	float wOnScreen; ///< Width of the camera in the window
+	float hOnScreen; ///< Height of the camera in the window
+} VK2DCameraSpec;
+
+#ifdef __cplusplus
+}
+#endif
