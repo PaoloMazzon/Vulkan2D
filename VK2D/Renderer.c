@@ -1077,12 +1077,16 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 		gRenderer->targetRenderPass = gRenderer->renderPass;
 		gRenderer->targetSubPass = 0;
 		gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
-		gRenderer->targetUBOSet = gRenderer->uboSets[gRenderer->scImageIndex];
+		gRenderer->targetUBOSet = gRenderer->cameras[0].uboSets[gRenderer->scImageIndex]; // TODO: Should prob be reworked
 		gRenderer->target = VK2D_TARGET_SCREEN;
-		// TODO: update all camera ubos that are active
+
 		// Flush the current ubo into its buffer for the frame
-		_vk2dCameraUpdateUBO(&gRenderer->ubos[gRenderer->scImageIndex], &gRenderer->camera);
-		_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex);
+		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+			if (gRenderer->cameras[i].state == cs_Normal) {
+				_vk2dCameraUpdateUBO(&gRenderer->cameras[i].ubos[gRenderer->scImageIndex], &gRenderer->cameras[i].spec);
+				_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex, i);
+			}
+		}
 
 		// Start the render pass
 		VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
@@ -1175,7 +1179,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 		VkRenderPass pass = target == VK2D_TARGET_SCREEN ? gRenderer->midFrameSwapRenderPass : gRenderer->externalTargetRenderPass;
 		VkFramebuffer framebuffer = target == VK2D_TARGET_SCREEN ? gRenderer->framebuffers[gRenderer->scImageIndex] : target->fbo;
 		VkImage image = target == VK2D_TARGET_SCREEN ? gRenderer->swapchainImages[gRenderer->scImageIndex] : target->img->img;
-		VkDescriptorSet buffer = target == VK2D_TARGET_SCREEN ? gRenderer->uboSets[gRenderer->scImageIndex] : target->uboSet;
+		VkDescriptorSet buffer = target == VK2D_TARGET_SCREEN ? gRenderer->cameras[0].uboSets[gRenderer->scImageIndex] : target->uboSet;
 
 		vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
 
@@ -1231,11 +1235,11 @@ VK2DBlendMode vk2dRendererGetBlendMode() {
 }
 
 void vk2dRendererSetCamera(VK2DCameraSpec camera) {
-	gRenderer->camera = camera;
+	gRenderer->defaultCameraSpec = camera;
 }
 
 VK2DCameraSpec vk2dRendererGetCamera() {
-	return gRenderer->camera;
+	return gRenderer->defaultCameraSpec;
 }
 
 void vk2dRendererSetViewport(float x, float y, float w, float h) {
@@ -1361,34 +1365,76 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 
 void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	VkDescriptorSet sets[4];
+	bool multipleCameras = false;
 	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
 		sets[0] = gRenderer->targetUBOSet;
 	else
-		sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
+		multipleCameras = true;
 	sets[1] = gRenderer->samplerSet;
 	sets[2] = tex->img->set;
 	sets[3] = shader->sets[shader->currentUniform];
 
 	uint32_t setCount = shader->uniformSize == 0 ? 3 : 4;
-	_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex, yInTex, texWidth, texHeight);
+
+	// Draw for each camera if necessary
+	if (multipleCameras) {
+		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+			if (gRenderer->cameras[i].state == cs_Normal) {
+				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+				_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
+						  yInTex, texWidth, texHeight);
+			}
+		}
+	} else {
+		_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
+						  yInTex, texWidth, texHeight);
+	}
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	VkDescriptorSet sets[3];
+	bool multipleCameras = false;
 	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
 		sets[0] = gRenderer->targetUBOSet;
 	else
-		sets[0] = gRenderer->uboSets[gRenderer->scImageIndex];
+		multipleCameras = true;
 	sets[1] = gRenderer->samplerSet;
 	sets[2] = tex->img->set;
-	_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex, yInTex, texWidth, texHeight);
+
+	// Draw for each camera if necessary -- TODO: Abstract this nonsense to another function
+	if (multipleCameras) {
+		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+			if (gRenderer->cameras[i].state == cs_Normal) {
+				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+				_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
+						  yInTex, texWidth, texHeight);
+			}
+		}
+	} else {
+		_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
+						  yInTex, texWidth, texHeight);
+	}
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
 	VkDescriptorSet set;
+	bool multipleCameras = false;
 	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
 		set = gRenderer->targetUBOSet;
 	else
-		set = gRenderer->uboSets[gRenderer->scImageIndex];
-	_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+		multipleCameras = true;
+
+	// Draw for each camera if necessary
+	if (multipleCameras) {
+		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+			if (gRenderer->cameras[i].state == cs_Normal) {
+				set = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+				_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale,
+						  yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+			}
+		}
+	} else {
+		_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale,
+						  yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+	}
 }
