@@ -229,11 +229,11 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 }
 
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
-static void _vk2dRendererFlushUBOBuffer(uint32_t frame) {
+static void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera) {
 	void *data;
-	vmaMapMemory(gRenderer->vma, gRenderer->uboBuffers[frame]->mem,  &data);
-	memcpy(data, &gRenderer->ubos[frame], sizeof(VK2DUniformBufferObject));
-	vmaUnmapMemory(gRenderer->vma, gRenderer->uboBuffers[frame]->mem);
+	vmaMapMemory(gRenderer->vma, gRenderer->cameras[camera].buffer[frame]->mem,  &data);
+	memcpy(data, &gRenderer->cameras[camera].ubos[frame], sizeof(VK2DUniformBufferObject));
+	vmaUnmapMemory(gRenderer->vma, gRenderer->cameras[camera].buffer[frame]->mem);
 }
 
 static void _vk2dRendererCreateDebug() {
@@ -645,6 +645,8 @@ static void _vk2dRendererDestroyFrameBuffer() {
 }
 
 static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
+	// TODO: Update/create each camera
+	/*
 	gRenderer->ubos = calloc(1, sizeof(VK2DUniformBufferObject) * gRenderer->swapchainImageCount);
 	gRenderer->uboBuffers = malloc(sizeof(VK2DBuffer) * gRenderer->swapchainImageCount);
 	gRenderer->uboSets = malloc(sizeof(VkDescriptorSet) * gRenderer->swapchainImageCount);
@@ -668,7 +670,7 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 			_vk2dRendererFlushUBOBuffer(i);
 			gRenderer->uboSets[i] = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->uboBuffers[i]);
 		}
-	}
+	}*/
 
 	VK2DCameraSpec unitCam = {
 			0,
@@ -688,12 +690,9 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 
 static void _vk2dRendererDestroyUniformBuffers() {
 	uint32_t i;
-	for (i = 0; i < gRenderer->swapchainImageCount; i++)
-		vk2dBufferFree(gRenderer->uboBuffers[i]);
+	for (i = 0; i < VK2D_MAX_CAMERAS; i++)
+		vk2dCameraSetState(i, cs_Reset);
 	vk2dBufferFree(gRenderer->unitUBO);
-	free(gRenderer->ubos);
-	free(gRenderer->uboBuffers);
-	free(gRenderer->uboSets);
 }
 
 static void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
@@ -1080,7 +1079,7 @@ void vk2dRendererStartFrame(vec4 clearColour) {
 		gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
 		gRenderer->targetUBOSet = gRenderer->uboSets[gRenderer->scImageIndex];
 		gRenderer->target = VK2D_TARGET_SCREEN;
-
+		// TODO: update all camera ubos that are active
 		// Flush the current ubo into its buffer for the frame
 		_vk2dCameraUpdateUBO(&gRenderer->ubos[gRenderer->scImageIndex], &gRenderer->camera);
 		_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex);

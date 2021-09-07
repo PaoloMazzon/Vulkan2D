@@ -147,6 +147,7 @@ typedef enum {
 	cs_Normal = 0,   ///< Camera is being rendered/updated as normal
 	cs_Disabled = 1, ///< Camera is not being rendered or updated
 	cs_Deleted = 2,  ///< Camera is "deleted" and all data is invalid
+	cs_Reset = 3,    ///< Camera is being reset by the renderer
 } VK2DCameraState;
 
 /// \brief User configurable settings

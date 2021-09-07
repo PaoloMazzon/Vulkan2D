@@ -4,6 +4,7 @@
 #pragma once
 #include "VK2D/Structs.h"
 #include "Constants.h"
+#include "VK2D/Camera.h"
 #include <vulkan/vulkan.h>
 #include <SDL2/SDL.h>
 #include <VulkanMemoryAllocator/src/vk_mem_alloc.h>
@@ -22,19 +23,17 @@ struct VK2DRenderer {
 	VmaAllocator vma;
 
 	// User-end things
-	VK2DRendererConfig config;     ///< User config
-	VK2DRendererConfig newConfig;  ///< In the event that its updated, we only swap out when we're ready to reset the swapchain
-	bool resetSwapchain;           ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
-	VK2DImage msaaImage;           ///< In case MSAA is enabled
-	vec4 colourBlend;              ///< Used to modify colours (and transparency) of anything drawn. Passed via push constants.
-	VkSampler textureSampler;      ///< Needed for textures
-	VK2DUniformBufferObject *ubos; ///< UBOs in memory that will be applied to their respective buffer at the start of the frame
-	VK2DBuffer *uboBuffers;        ///< Buffers in memory for the UBOs (1 per swapchain image, updated at start of frame)
-	VkDescriptorSet *uboSets;      ///< Descriptor sets for the ubo buffers
-	VK2DCameraSpec camera;         ///< Camera settings that are applied to the UBO before every frame
-	VkViewport viewport;           ///< Viewport to draw with
-	bool enableTextureCameraUBO;   ///< If true, when drawing to a texture the UBO for the internal camera is used instead of the texture's UBO
-	VK2DBlendMode blendMode;       ///< Current blend mode to draw with
+	VK2DRendererConfig config;            ///< User config
+	VK2DRendererConfig newConfig;         ///< In the event that its updated, we only swap out when we're ready to reset the swapchain
+	bool resetSwapchain;                  ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
+	VK2DImage msaaImage;                  ///< In case MSAA is enabled
+	vec4 colourBlend;                     ///< Used to modify colours (and transparency) of anything drawn. Passed via push constants.
+	VkSampler textureSampler;             ///< Needed for textures
+	VkViewport viewport;                  ///< Viewport to draw with
+	bool enableTextureCameraUBO;          ///< If true, when drawing to a texture the UBO for the internal camera is used instead of the texture's UBO
+	VK2DBlendMode blendMode;              ///< Current blend mode to draw with
+	VK2DCameraSpec defaultCameraSpec;     ///< Default camera spec (spec for camera 0)
+	VK2DCamera cameras[VK2D_MAX_CAMERAS]; ///< All cameras to be drawn to
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -240,8 +239,8 @@ double vk2dRendererGetAverageFrameTime();
 /// \brief Sets the current camera settings
 /// \param camera Camera settings to use
 ///
-/// Camera settings take effect at the start of every frame when the view and projection
-/// matrices are uploaded to the gpu.
+/// This changes the default camera of the renderer and generally you're better off just making and changing
+/// your own custom camera through vk2dCamera* functions (leave the default camera for UI stuff).
 void vk2dRendererSetCamera(VK2DCameraSpec camera);
 
 /// \brief Gets the current camera settings

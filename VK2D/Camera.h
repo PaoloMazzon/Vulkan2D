@@ -13,12 +13,13 @@ extern "C" {
 /// Due to a camera's nature of being closely tied to the renderer, the renderer
 /// will automatically update the relevant parts of a camera whenever needed.
 struct VK2DCamera {
-	VkRect2D scissor;         ///< Where to stop drawing on the screen
-	VkViewport viewport;      ///< Where to draw on the screen
-	VK2DCameraSpec spec;      ///< Info on how to create the UBO and scissor/viewport
-	VK2DBuffer *buffer;       ///< Used for updating the UBOs
-	VkDescriptorSet *uboSets; ///< List of UBO sets, 1 per swapchain image
-	VK2DCameraState state;    ///< State of this camera
+	VkRect2D scissor;              ///< Where to stop drawing on the screen
+	VkViewport viewport;           ///< Where to draw on the screen
+	VK2DCameraSpec spec;           ///< Info on how to create the UBO and scissor/viewport
+	VK2DUniformBufferObject *ubos; ///< UBO data for each frame
+	VK2DBuffer *buffer;            ///< Used for updating the UBOs
+	VkDescriptorSet *uboSets;      ///< List of UBO sets, 1 per swapchain image
+	VK2DCameraState state;         ///< State of this camera
 };
 
 /// \brief Creates a new camera and returns the index, or returns VK2D_INVALID_CAMERA if no more cameras can be created
