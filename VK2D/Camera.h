@@ -38,6 +38,8 @@ void vk2dCameraUpdate(VK2DCameraIndex index, VK2DCameraSpec spec);
 /// \brief Sets the state of a camera
 /// \param index Index of the camera to update
 /// \param state The new state of the camera, if its `cs_Deleted` the camera is completely invalidated
+///
+/// Cameras are automatically deleted with the renderer, there is no need to free each one yourself
 void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state);
 
 /// \brief Gets the state of a camera
