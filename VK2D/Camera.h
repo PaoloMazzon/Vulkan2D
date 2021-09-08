@@ -17,7 +17,7 @@ struct VK2DCamera {
 	VkViewport viewport;           ///< Where to draw on the screen
 	VK2DCameraSpec spec;           ///< Info on how to create the UBO and scissor/viewport
 	VK2DUniformBufferObject *ubos; ///< UBO data for each frame
-	VK2DBuffer *buffer;            ///< Used for updating the UBOs
+	VK2DBuffer *buffers;           ///< Used for updating the UBOs
 	VkDescriptorSet *uboSets;      ///< List of UBO sets, 1 per swapchain image
 	VK2DCameraState state;         ///< State of this camera
 };
