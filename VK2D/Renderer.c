@@ -645,32 +645,30 @@ static void _vk2dRendererDestroyFrameBuffer() {
 }
 
 static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
-	// TODO: Update/create each camera
-	/*
-	gRenderer->ubos = calloc(1, sizeof(VK2DUniformBufferObject) * gRenderer->swapchainImageCount);
-	gRenderer->uboBuffers = malloc(sizeof(VK2DBuffer) * gRenderer->swapchainImageCount);
-	gRenderer->uboSets = malloc(sizeof(VkDescriptorSet) * gRenderer->swapchainImageCount);
-	uint32_t i;
-
-	VK2DCameraSpec cam = {
-			0,
-			0,
-			gRenderer->surfaceWidth,
-			gRenderer->surfaceHeight,
-			1,
-			0
-	};
-	if (newCamera)
-		gRenderer->camera = cam;
-
-	if (vk2dPointerCheck(gRenderer->ubos) && vk2dPointerCheck(gRenderer->uboBuffers)) {
-		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
-			gRenderer->uboBuffers[i] = vk2dBufferCreate(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-			_vk2dCameraUpdateUBO(&gRenderer->ubos[i], &gRenderer->camera);
-			_vk2dRendererFlushUBOBuffer(i);
-			gRenderer->uboSets[i] = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->uboBuffers[i]);
+	if (newCamera) { // If the renderer has not yet been initialized
+		VK2DCameraSpec cam = {
+				0,
+				0,
+				gRenderer->surfaceWidth,
+				gRenderer->surfaceHeight,
+				1,
+				0,
+				0,
+				0,
+				gRenderer->surfaceWidth,
+				gRenderer->surfaceHeight
+		};
+		vk2dCameraCreate(cam);
+		for (int i = 1; i < VK2D_MAX_CAMERAS; i++)
+			gRenderer->cameras[i].state = cs_Deleted;
+	} else { // Just recreate the old cameras
+		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+			if (gRenderer->cameras[i].state == cs_Reset) {
+				gRenderer->cameras[i].state = cs_Deleted;
+				vk2dCameraCreate(gRenderer->cameras[i].spec);
+			}
 		}
-	}*/
+	}
 
 	VK2DCameraSpec unitCam = {
 			0,
