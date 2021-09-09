@@ -4,9 +4,11 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Buffer.h"
 #include "VK2D/Validation.h"
+#include "VK2D/DescriptorControl.h"
 
+void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera);
+void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera);
 VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec) {
-	// TODO: Check renderer's list of cameras for an available spot and place the camera there, creating necessary UBOs as well
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VK2DCameraIndex position = VK2D_INVALID_CAMERA;
 
@@ -30,13 +32,13 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec) {
 		vk2dPointerCheck(cam->buffers);
 		vk2dPointerCheck(cam->uboSets);
 
-		// Populate the lists TODO: This
-		/*for (i = 0; i < gRenderer->swapchainImageCount; i++) {
-			gRenderer->uboBuffers[i] = vk2dBufferCreate(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-			_vk2dCameraUpdateUBO(&gRenderer->ubos[i], &gRenderer->camera);
-			_vk2dRendererFlushUBOBuffer(i);
-			gRenderer->uboSets[i] = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->uboBuffers[i]);
-		}*/
+		// Populate the lists
+		for (int i = 0; i < gRenderer->swapchainImageCount; i++) {
+			cam->buffers[i] = vk2dBufferCreate(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+			_vk2dCameraUpdateUBO(&cam->ubos[i], &spec);
+			_vk2dRendererFlushUBOBuffer(i, position);
+			cam->uboSets[i] = vk2dDescConGetBufferSet(gRenderer->descConVP, cam->buffers[i]);
+		}
 	}
 
 	return position;

@@ -229,11 +229,11 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 }
 
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
-static void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera) {
+void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera) {
 	void *data;
-	vmaMapMemory(gRenderer->vma, gRenderer->cameras[camera].buffer[frame]->mem,  &data);
+	vmaMapMemory(gRenderer->vma, gRenderer->cameras[camera].buffers[frame]->mem,  &data);
 	memcpy(data, &gRenderer->cameras[camera].ubos[frame], sizeof(VK2DUniformBufferObject));
-	vmaUnmapMemory(gRenderer->vma, gRenderer->cameras[camera].buffer[frame]->mem);
+	vmaUnmapMemory(gRenderer->vma, gRenderer->cameras[camera].buffers[frame]->mem);
 }
 
 static void _vk2dRendererCreateDebug() {
@@ -658,9 +658,11 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 				gRenderer->surfaceWidth,
 				gRenderer->surfaceHeight
 		};
-		vk2dCameraCreate(cam);
-		for (int i = 1; i < VK2D_MAX_CAMERAS; i++)
+
+		// Set all cameras to deleted and create the default one
+		for (int i = 0; i < VK2D_MAX_CAMERAS; i++)
 			gRenderer->cameras[i].state = cs_Deleted;
+		vk2dCameraCreate(cam);
 	} else { // Just recreate the old cameras
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 			if (gRenderer->cameras[i].state == cs_Reset) {
