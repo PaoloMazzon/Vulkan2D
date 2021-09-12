@@ -1264,11 +1264,11 @@ double vk2dRendererGetAverageFrameTime() {
 	return gRenderer->frameTimeAverage;
 }
 
-static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight);
+static inline void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam);
 
 void vk2dRendererClear() {
 	VkDescriptorSet set = gRenderer->unitUBOSet;
-	_vk2dRendererDraw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0);
+	_vk2dRendererDrawRaw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0);
 }
 
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
@@ -1303,7 +1303,7 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
 #endif //  VK2D_UNIT_GENERATION
 }
 
-static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
+static inline void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam) {
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
 	// Account for various coordinate-based qualms
@@ -1348,12 +1348,21 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 		vkCmdBindVertexBuffers(buf, 0, 1, &poly->vertices->buf, offsets);
 		gRenderer->prevVBO = poly->vertices->buf;
 	}
-	VkRect2D scissor = {};
-	scissor.extent.width = gRenderer->surfaceWidth;
-	scissor.extent.height = gRenderer->surfaceHeight;
 
 	// Dynamic state that can't be optimized further and the draw call
-	vkCmdSetViewport(buf, 0, 1, &gRenderer->viewport);
+	VkViewport viewport = {
+			gRenderer->cameras[cam].spec.xOnScreen,
+			gRenderer->cameras[cam].spec.yOnScreen,
+			gRenderer->cameras[cam].spec.wOnScreen,
+			gRenderer->cameras[cam].spec.hOnScreen,
+			0,
+			10
+	};
+	VkRect2D scissor = {
+			{gRenderer->cameras[cam].spec.xOnScreen, gRenderer->cameras[cam].spec.yOnScreen},
+			{gRenderer->cameras[cam].spec.wOnScreen, gRenderer->cameras[cam].spec.hOnScreen}
+	};
+	vkCmdSetViewport(buf, 0, 1, &viewport);
 	vkCmdSetScissor(buf, 0, 1, &scissor);
 	vkCmdSetLineWidth(buf, lineWidth);
 	vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
@@ -1361,6 +1370,11 @@ static inline void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, V
 		vkCmdDraw(buf, poly->vertexCount, 1, 0, 0);
 	else // The only time this would be the case is for textures, where the shader provides the vertices
 		vkCmdDraw(buf, 6, 1, 0, 0);
+}
+
+// This is the upper level internal draw function that draws to each camera and not just with a static scissor/viewport
+void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
+	// TODO: Draw once per active camera, removing the bits from the other draw functions that account for cameras
 }
 
 void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
@@ -1381,13 +1395,14 @@ void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 			if (gRenderer->cameras[i].state == cs_Normal) {
 				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-				_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
-						  yInTex, texWidth, texHeight);
+				_vk2dRendererDrawRaw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1,
+									 xInTex,
+									 yInTex, texWidth, texHeight);
 			}
 		}
 	} else {
-		_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
-						  yInTex, texWidth, texHeight);
+		_vk2dRendererDrawRaw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
+							 yInTex, texWidth, texHeight);
 	}
 }
 
@@ -1406,13 +1421,14 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 			if (gRenderer->cameras[i].state == cs_Normal) {
 				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-				_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
-						  yInTex, texWidth, texHeight);
+				_vk2dRendererDrawRaw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1,
+									 xInTex,
+									 yInTex, texWidth, texHeight);
 			}
 		}
 	} else {
-		_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
-						  yInTex, texWidth, texHeight);
+		_vk2dRendererDrawRaw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
+							 yInTex, texWidth, texHeight);
 	}
 }
 
@@ -1429,12 +1445,13 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 			if (gRenderer->cameras[i].state == cs_Normal) {
 				set = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-				_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale,
-						  yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+				_vk2dRendererDrawRaw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y,
+									 xscale,
+									 yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
 			}
 		}
 	} else {
-		_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale,
-						  yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+		_vk2dRendererDrawRaw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale,
+							 yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
 	}
 }
