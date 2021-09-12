@@ -51,7 +51,8 @@ void vk2dCameraUpdate(VK2DCameraIndex index, VK2DCameraSpec spec) {
 
 void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	if (state == cs_Deleted || state == cs_Reset) { // Free internal resources
+	// Free internal resources
+	if ((state == cs_Deleted || state == cs_Reset) && (gRenderer->cameras[index].state == cs_Disabled || gRenderer->cameras[index].state == cs_Normal)) {
 		for (int i = 0; i < gRenderer->swapchainImageCount; i++)
 			vk2dBufferFree(gRenderer->cameras[index].buffers[i]);
 		free(gRenderer->cameras[index].ubos);
