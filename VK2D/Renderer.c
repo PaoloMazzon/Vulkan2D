@@ -664,6 +664,13 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 			gRenderer->cameras[i].state = cs_Deleted;
 		vk2dCameraCreate(cam);
 	} else { // Just recreate the old cameras
+		// Default camera needs new window stuff updated
+		gRenderer->cameras[0].spec.wOnScreen = gRenderer->surfaceWidth;
+		gRenderer->cameras[0].spec.hOnScreen = gRenderer->surfaceHeight;
+		gRenderer->cameras[0].spec.w = gRenderer->surfaceWidth;
+		gRenderer->cameras[0].spec.h = gRenderer->surfaceHeight;
+
+		// Recreate camera buffers with new screen
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 			if (gRenderer->cameras[i].state == cs_Reset) {
 				gRenderer->cameras[i].state = cs_Deleted;
