@@ -1275,7 +1275,7 @@ static inline void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount
 
 void vk2dRendererClear() {
 	VkDescriptorSet set = gRenderer->unitUBOSet;
-	_vk2dRendererDrawRaw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0);
+	_vk2dRendererDrawRaw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, VK2D_INVALID_CAMERA);
 }
 
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
@@ -1356,7 +1356,7 @@ static inline void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount
 		gRenderer->prevVBO = poly->vertices->buf;
 	}
 
-	// Dynamic state that can't be optimized further and the draw call
+	// Dynamic state that can't be optimized further and the draw call TODO: Account for VK2D_INVALID_CAMERA
 	VkViewport viewport = {
 			gRenderer->cameras[cam].spec.xOnScreen,
 			gRenderer->cameras[cam].spec.yOnScreen,
@@ -1381,84 +1381,40 @@ static inline void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount
 
 // This is the upper level internal draw function that draws to each camera and not just with a static scissor/viewport
 void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
-	// TODO: Draw once per active camera, removing the bits from the other draw functions that account for cameras
+	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
+		sets[0] = gRenderer->targetUBOSet;
+		_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, VK2D_INVALID_CAMERA);
+	} else {
+		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+			if (gRenderer->cameras[i].state == cs_Normal) {
+				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+				_vk2dRendererDrawRaw(sets, setCount, NULL, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
+			}
+		}
+	}
 }
 
 void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	VkDescriptorSet sets[4];
-	bool multipleCameras = false;
-	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
-		sets[0] = gRenderer->targetUBOSet;
-	else
-		multipleCameras = true;
 	sets[1] = gRenderer->samplerSet;
 	sets[2] = tex->img->set;
 	sets[3] = shader->sets[shader->currentUniform];
 
 	uint32_t setCount = shader->uniformSize == 0 ? 3 : 4;
-
-	// Draw for each camera if necessary
-	if (multipleCameras) {
-		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-			if (gRenderer->cameras[i].state == cs_Normal) {
-				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-				_vk2dRendererDrawRaw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1,
-									 xInTex,
-									 yInTex, texWidth, texHeight);
-			}
-		}
-	} else {
-		_vk2dRendererDrawRaw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
+	_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
 							 yInTex, texWidth, texHeight);
-	}
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	VkDescriptorSet sets[3];
-	bool multipleCameras = false;
-	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
-		sets[0] = gRenderer->targetUBOSet;
-	else
-		multipleCameras = true;
 	sets[1] = gRenderer->samplerSet;
 	sets[2] = tex->img->set;
-
-	// Draw for each camera if necessary -- TODO: Abstract this nonsense to another function
-	if (multipleCameras) {
-		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-			if (gRenderer->cameras[i].state == cs_Normal) {
-				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-				_vk2dRendererDrawRaw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1,
-									 xInTex,
-									 yInTex, texWidth, texHeight);
-			}
-		}
-	} else {
-		_vk2dRendererDrawRaw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
+	_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
 							 yInTex, texWidth, texHeight);
-	}
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
 	VkDescriptorSet set;
-	bool multipleCameras = false;
-	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO)
-		set = gRenderer->targetUBOSet;
-	else
-		multipleCameras = true;
-
-	// Draw for each camera if necessary
-	if (multipleCameras) {
-		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-			if (gRenderer->cameras[i].state == cs_Normal) {
-				set = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-				_vk2dRendererDrawRaw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y,
-									 xscale,
-									 yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
-			}
-		}
-	} else {
-		_vk2dRendererDrawRaw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale,
+	_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale,
 							 yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
-	}
 }
