@@ -35,6 +35,11 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec);
 /// called. Any calls to this function will only be visible the next time `vk2dRendererStartFrame` is called.
 void vk2dCameraUpdate(VK2DCameraIndex index, VK2DCameraSpec spec);
 
+/// \brief Returns the spec of a specified camera
+/// \param index Index of the camera to return
+/// \return Returns the specified camera's spec
+VK2DCameraSpec vk2dCameraGetSpec(VK2DCameraIndex index);
+
 /// \brief Sets the state of a camera
 /// \param index Index of the camera to update
 /// \param state The new state of the camera, if its `cs_Deleted` the camera is completely invalidated

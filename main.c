@@ -139,7 +139,6 @@ int main(int argc, const char *argv[]) {
 		}
 
 		vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
-		vk2dRendererSetViewport(0, 0, (float)windowWidth, (float)windowHeight);
 
 		// Draw some test assets
 		vk2dDrawTexture(testSurface, -100, -100);

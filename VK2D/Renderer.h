@@ -239,16 +239,13 @@ double vk2dRendererGetAverageFrameTime();
 /// \brief Sets the current camera settings
 /// \param camera Camera settings to use
 ///
-/// This changes the default camera of the renderer and generally you're better off just making and changing
-/// your own custom camera through vk2dCamera* functions (leave the default camera for UI stuff).
+/// This changes the default camera of the renderer, this is effectively a safer version of calling vk2dCameraUpdate with
+/// the default camera because this function does not allow the `w/hOnScreen` to change (the default camera's `w/hOnScreen`
+/// should almost always be the window size - if you need something else create a new camera).
 void vk2dRendererSetCamera(VK2DCameraSpec camera);
 
-/// \brief Gets the current camera settings
+/// \brief Returns the camera spec of the default camera, this is equivalent to calling `vk2dCameraGetSpec(VK2D_DEFAULT_CAMERA)`.
 /// \return Returns the current camera settings
-///
-/// Since camera settings are only applied at the start of every frame, this may return
-/// something that has yet to take effect (Shouldn't really matter, but worth noting in
-/// case you get some unexpected results).
 VK2DCameraSpec vk2dRendererGetCamera();
 
 /// \brief Sets the current viewport (portion of the window that is drawn to)

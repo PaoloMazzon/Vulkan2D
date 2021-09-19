@@ -49,6 +49,11 @@ void vk2dCameraUpdate(VK2DCameraIndex index, VK2DCameraSpec spec) {
 	memcpy(&gRenderer->cameras[index].spec, &spec, sizeof(VK2DCameraSpec));
 }
 
+VK2DCameraSpec vk2dCameraGetSpec(VK2DCameraIndex index) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	return gRenderer->cameras[index].spec;
+}
+
 void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// Free internal resources

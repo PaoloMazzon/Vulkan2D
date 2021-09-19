@@ -1242,7 +1242,11 @@ VK2DBlendMode vk2dRendererGetBlendMode() {
 }
 
 void vk2dRendererSetCamera(VK2DCameraSpec camera) {
-	gRenderer->defaultCameraSpec = camera;
+	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec = camera;
+	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.wOnScreen = gRenderer->surfaceWidth;
+	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.hOnScreen = gRenderer->surfaceHeight;
+	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.xOnScreen = 0;
+	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.yOnScreen = 0;
 }
 
 VK2DCameraSpec vk2dRendererGetCamera() {
