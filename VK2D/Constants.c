@@ -23,6 +23,8 @@ const uint32_t VK2D_NO_LOCATION = UINT32_MAX;
 
 const VK2DTexture VK2D_TARGET_SCREEN = NULL;
 
+const VK2DCameraIndex VK2D_DEFAULT_CAMERA = 0;
+
 const vec4 VK2D_DEFAULT_COLOUR_MOD = {1, 1, 1, 1};
 
 const float VK2D_CIRCLE_VERTICES = 36;

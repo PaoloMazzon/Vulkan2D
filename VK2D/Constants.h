@@ -47,6 +47,9 @@ extern VK2DCameraIndex VK2D_INVALID_CAMERA;
 /// Maximum number of cameras that can exist, enabled or disabled, at once
 #define VK2D_MAX_CAMERAS 5
 
+/// The default camera created and updated by the renderer itself
+extern const VK2DCameraIndex VK2D_DEFAULT_CAMERA;
+
 /************************ Colours ************************/
 /// The colour black
 extern const vec4 VK2D_BLACK;

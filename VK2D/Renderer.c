@@ -663,13 +663,7 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++)
 			gRenderer->cameras[i].state = cs_Deleted;
 		vk2dCameraCreate(cam);
-	} else { // Just recreate the old cameras
-		// Default camera needs new window stuff updated
-		gRenderer->cameras[0].spec.wOnScreen = gRenderer->surfaceWidth;
-		gRenderer->cameras[0].spec.hOnScreen = gRenderer->surfaceHeight;
-		gRenderer->cameras[0].spec.w = gRenderer->surfaceWidth;
-		gRenderer->cameras[0].spec.h = gRenderer->surfaceHeight;
-
+	} else {
 		// Recreate camera buffers with new screen
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 			if (gRenderer->cameras[i].state == cs_Reset) {
@@ -678,6 +672,12 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 			}
 		}
 	}
+
+	// Set default camera new viewport/scissor
+	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.wOnScreen = gRenderer->surfaceWidth;
+	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.hOnScreen = gRenderer->surfaceHeight;
+	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.w = gRenderer->surfaceWidth;
+	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.h = gRenderer->surfaceHeight;
 
 	VK2DCameraSpec unitCam = {
 			0,
@@ -1356,14 +1356,15 @@ static inline void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount
 		gRenderer->prevVBO = poly->vertices->buf;
 	}
 
-	// Dynamic state that can't be optimized further and the draw call TODO: Account for VK2D_INVALID_CAMERA
+	// Dynamic state that can't be optimized further and the draw call
+	cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
 	VkViewport viewport = {
 			gRenderer->cameras[cam].spec.xOnScreen,
 			gRenderer->cameras[cam].spec.yOnScreen,
 			gRenderer->cameras[cam].spec.wOnScreen,
 			gRenderer->cameras[cam].spec.hOnScreen,
 			0,
-			10
+			1
 	};
 	VkRect2D scissor = {
 			{gRenderer->cameras[cam].spec.xOnScreen, gRenderer->cameras[cam].spec.yOnScreen},
@@ -1388,7 +1389,7 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 			if (gRenderer->cameras[i].state == cs_Normal) {
 				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-				_vk2dRendererDrawRaw(sets, setCount, NULL, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
+				_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
 			}
 		}
 	}
