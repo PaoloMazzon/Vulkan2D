@@ -102,6 +102,7 @@ For a complete list of functions, generate the documentation and look at `VK2D/R
  + Simple and fully-featured camera (try out the demo)
  + External SPIR-V shader support
  + Blend modes
+ + Multiple camera support (render to one or all of them concurrently)
 
 TODO
 ====
@@ -111,7 +112,6 @@ These are in no particular order.
  + Remove all references to making one's own renderer
  + Compute particles
  + SDF support
- + Multiple camera support (create and update several cameras and switch between them throughout frame, as well as disable camera)
  + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)
  + A more interesting test program
  + General optimizations
