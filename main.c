@@ -64,7 +64,8 @@ int main(int argc, const char *argv[]) {
 	bool drawnToTestSurface = false;
 
 	// Delta and fps
-	float lastTime = SDL_GetPerformanceCounter();
+	double lastTime = SDL_GetPerformanceCounter();
+	double delta = 0;
 
 	// Testing values for fanciness
 	float rot = 0;
@@ -76,14 +77,14 @@ int main(int argc, const char *argv[]) {
 	float camZoomSpeed = 0.5f; // per second
 
 	while (!quit) {
+		delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
+		lastTime = SDL_GetPerformanceCounter();
+
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_QUIT) {
 				quit = true;
 			}
 		}
-		// Calculate delta
-		float delta = ((float)SDL_GetPerformanceCounter() - lastTime) / (float)SDL_GetPerformanceFrequency();
-		lastTime = SDL_GetPerformanceCounter();
 
 		// Process player input
 		SDL_PumpEvents();
@@ -109,7 +110,6 @@ int main(int argc, const char *argv[]) {
 			config.msaa = msaa_1x;
 			vk2dRendererSetConfig(config);
 		}
-
 
 		// Move the caveguy around
 		rot += VK2D_PI * 1.5 * delta;
@@ -163,6 +163,8 @@ int main(int argc, const char *argv[]) {
 
 		// End the frame
 		vk2dRendererEndFrame();
+
+
 	}
 
 	// vk2dRendererWait must be called before freeing things
