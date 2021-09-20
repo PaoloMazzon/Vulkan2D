@@ -34,6 +34,7 @@ struct VK2DRenderer {
 	VK2DBlendMode blendMode;              ///< Current blend mode to draw with
 	VK2DCameraSpec defaultCameraSpec;     ///< Default camera spec (spec for camera 0)
 	VK2DCamera cameras[VK2D_MAX_CAMERAS]; ///< All cameras to be drawn to
+	bool cameraLocked;                    ///< If true, only the default camera will be drawn to
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -247,6 +248,12 @@ void vk2dRendererSetCamera(VK2DCameraSpec camera);
 /// \brief Returns the camera spec of the default camera, this is equivalent to calling `vk2dCameraGetSpec(VK2D_DEFAULT_CAMERA)`.
 /// \return Returns the current camera settings
 VK2DCameraSpec vk2dRendererGetCamera();
+
+/// \brief Locking cameras means that only the default camera will be drawn to and all others ignored
+void vk2dRendererLockCameras();
+
+/// \brief Unlocking cameras means that all cameras will be drawn to again
+void vk2dRendererUnlockCameras();
 
 /// \brief Sets the current viewport (portion of the window that is drawn to)
 /// \param x X in window to draw to
