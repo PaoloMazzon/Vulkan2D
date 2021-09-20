@@ -21,7 +21,7 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec) {
 	if (position != VK2D_INVALID_CAMERA) {
 		// Setup pointer and basic info
 		VK2DCamera *cam = &gRenderer->cameras[position];
-		cam->spec = spec;
+		vk2dCameraUpdate(position, spec);
 		cam->state = cs_Normal;
 
 		// Create the lists first
@@ -46,7 +46,13 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec) {
 
 void vk2dCameraUpdate(VK2DCameraIndex index, VK2DCameraSpec spec) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	memcpy(&gRenderer->cameras[index].spec, &spec, sizeof(VK2DCameraSpec));
+	gRenderer->cameras[index].spec = spec;
+
+	// Make sure the w/h on screen is not zero
+	if (gRenderer->cameras[index].spec.wOnScreen == 0)
+		gRenderer->cameras[index].spec.wOnScreen = gRenderer->surfaceWidth;
+	if (gRenderer->cameras[index].spec.hOnScreen == 0)
+		gRenderer->cameras[index].spec.hOnScreen = gRenderer->surfaceHeight;
 }
 
 VK2DCameraSpec vk2dCameraGetSpec(VK2DCameraIndex index) {

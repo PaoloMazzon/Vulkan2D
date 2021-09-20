@@ -60,6 +60,7 @@ int main(int argc, const char *argv[]) {
 	VK2DTexture testTexture = vk2dTextureLoad("assets/caveguy.png");
 	VK2DTexture testSurface = vk2dTextureCreate(vk2dRendererGetDevice(), 100, 100);
 	VK2DTexture testFont = vk2dTextureLoad("assets/font.png");
+	VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
 	bool drawnToTestSurface = false;
 
 	// Delta and fps
@@ -122,7 +123,7 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererSetViewport(0, 0, (float)windowWidth, (float)windowHeight);
 		cam.w = (float)windowWidth / 2;
 		cam.h = (float)windowHeight / 2;
-		vk2dRendererSetCamera(cam);
+		vk2dCameraUpdate(testCamera, cam);
 
 		// All rendering must happen after this
 		vk2dRendererStartFrame(clear);
@@ -141,21 +142,24 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
 
 		// Draw some test assets
+		vk2dRendererLockCameras(testCamera);
 		vk2dDrawTexture(testSurface, -100, -100);
 		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dDrawTexture(testTexture, 0, 0);
 		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);
 		vk2dRendererDrawTexture(testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale, (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
 
-		// Draw debug overlay TODO: Fix this not rotating with the camera lol
+		// Draw debug overlay
+		vk2dRendererLockCameras(VK2D_DEFAULT_CAMERA);
 		char title[50];
 		sprintf(title, "Vulkan2D [%0.2fms] [%0.2ffps]", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime());
 		vk2dRendererSetColourMod(VK2D_BLACK);
 		int w, h;
 		SDL_GetWindowSize(window, &w, &h);
-		vk2dDrawRectangle(cam.x, cam.y, (float)w, 17);
+		vk2dDrawRectangle(0, 0, (float)w, 17);
 		vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
-		renderFont(cam.x, cam.y, testFont, title);
+		renderFont(0, 0, testFont, title);
+		vk2dRendererUnlockCameras();
 
 		// End the frame
 		vk2dRendererEndFrame();

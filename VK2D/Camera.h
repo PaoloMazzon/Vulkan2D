@@ -33,6 +33,7 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec);
 ///
 /// This can be called at any time, but the actual camera is only updated whenever `vk2dRendererStartFrame` is
 /// called. Any calls to this function will only be visible the next time `vk2dRendererStartFrame` is called.
+/// If `wOnScreen` or `hOnScreen` is 0, it will be replaced with the window width/height.
 void vk2dCameraUpdate(VK2DCameraIndex index, VK2DCameraSpec spec);
 
 /// \brief Returns the spec of a specified camera

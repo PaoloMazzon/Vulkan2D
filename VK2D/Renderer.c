@@ -1271,12 +1271,12 @@ void vk2dRendererSetTextureCamera(bool useCameraOnTextures) {
 	gRenderer->enableTextureCameraUBO = useCameraOnTextures;
 }
 
-void vk2dRendererLockCameras() {
-	gRenderer->cameraLocked = true;
+void vk2dRendererLockCameras(VK2DCameraIndex cam) {
+	gRenderer->cameraLocked = cam;
 }
 
 void vk2dRendererUnlockCameras() {
-	gRenderer->cameraLocked = false;
+	gRenderer->cameraLocked = VK2D_INVALID_CAMERA;
 }
 
 double vk2dRendererGetAverageFrameTime() {
@@ -1399,7 +1399,7 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
 		_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, VK2D_INVALID_CAMERA);
 	} else {
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-			if (gRenderer->cameras[i].state == cs_Normal && (i == 0 || !gRenderer->cameraLocked)) {
+			if (gRenderer->cameras[i].state == cs_Normal && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
 				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
 				_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
 			}
