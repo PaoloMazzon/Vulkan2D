@@ -1292,13 +1292,13 @@ void vk2dRendererClear() {
 
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
 #ifdef VK2D_UNIT_GENERATION
-	vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox, oy);
+	vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox / w, oy / h);
 #endif // VK2D_UNIT_GENERATION
 }
 
 void vk2dRendererDrawRectangleOutline(float x, float y, float w, float h, float r, float ox, float oy, float lineWidth) {
 #ifdef VK2D_UNIT_GENERATION
-	vk2dRendererDrawPolygon(gRenderer->unitSquareOutline, x, y, false, lineWidth, w, h, r, ox, oy);
+	vk2dRendererDrawPolygon(gRenderer->unitSquareOutline, x, y, false, lineWidth, w, h, r, ox / w, oy / h);
 #endif //  VK2D_UNIT_GENERATION
 }
 
