@@ -48,11 +48,11 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		VkPipelineMultisampleStateCreateInfo pipelineMultisampleStateCreateInfo = vk2dInitPipelineMultisampleStateCreateInfo((VkSampleCountFlagBits)msaa);
 		VkPipelineDepthStencilStateCreateInfo pipelineDepthStencilStateCreateInfo = vk2dInitPipelineDepthStencilStateCreateInfo();
 
-		const uint32_t stateCount = 2;
+		const uint32_t stateCount = 3;
 		VkDynamicState states[] = {
 				VK_DYNAMIC_STATE_LINE_WIDTH,
+				VK_DYNAMIC_STATE_SCISSOR,
 				VK_DYNAMIC_STATE_VIEWPORT,
-				VK_DYNAMIC_STATE_SCISSOR
 		};
 		VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo = vk2dInitPipelineDynamicStateCreateInfo(states, stateCount);
 		VkPushConstantRange range = {};
