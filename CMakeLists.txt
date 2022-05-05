@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(VK2D)
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 
 # Vulkan and SDL2 (latest, since Vulkan support is fairly recent) are all that needed
 find_package(Vulkan)
@@ -11,7 +11,7 @@ find_package(SDL2 REQUIRED)
 # All source files are located in the VK2D folder
 file(GLOB C_FILES VK2D/*.c)
 file(GLOB H_FILES VK2D/*.h)
-set(VMA_FILES VulkanMemoryAllocator/src/vk_mem_alloc.h VulkanMemoryAllocator/src/VmaUsage.cpp)
+set(VMA_FILES VulkanMemoryAllocator/src/VmaUsage.cpp)
 if(NOT DEFINED SDL2_LIBRARIES)
 	set(SDL2_LIBRARIES SDL2)
 endif()
@@ -21,4 +21,4 @@ endif()
 # is just for testing purposes.
 include_directories(./ ${SDL2_INCLUDE_DIR} ${Vulkan_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} main.c ${VMA_FILES} ${C_FILES} ${H_FILES})
-target_link_libraries(${PROJECT_NAME} m ${SDL2_LIBRARIES} ${Vulkan_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} m ${SDL2_LIBRARIES} ${Vulkan_LIBRARIES} vulkan)

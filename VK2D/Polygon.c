@@ -3,6 +3,7 @@
 #include "VK2D/Polygon.h"
 #include "VK2D/Buffer.h"
 #include "VK2D/Validation.h"
+#include "VK2D/Renderer.h"
 #include <malloc.h>
 
 VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size, VK2DVertexType type) {
@@ -19,7 +20,8 @@ VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size,
 	return poly;
 }
 
-VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DLogicalDevice dev, VK2DVertexColour *vertexData, uint32_t vertexCount) {
+VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DVertexColour *vertexData, uint32_t vertexCount) {
+	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 	VK2DPolygon poly = _vk2dPolygonCreate(dev, vertexData, sizeof(VK2DVertexColour) * vertexCount, vt_Shape);
 	if (poly != NULL)
 		poly->vertexCount = vertexCount;
@@ -35,13 +37,14 @@ VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DLogicalDevice dev, VK2DVertexColour *v
    *    c. Add the vertex before the current one in the polygon to the final list
    *  3. Push the final vertex list off to vk2dPolygonShapeCreateRaw
 */
-VK2DPolygon vk2dPolygonCreate(VK2DLogicalDevice dev, vec2 *vertices, uint32_t vertexCount) {
+VK2DPolygon vk2dPolygonCreate(vec2 *vertices, uint32_t vertexCount) {
 	uint32_t finalVertexCount = (vertexCount - 2) * 3;
 	VK2DVertexColour *colourVertices = malloc(sizeof(VK2DVertexColour) * finalVertexCount);
 	uint32_t i;
 	uint32_t v = 0; // Current element in final vertex list
 	VK2DVertexColour defVert = {{0, 0, 0}, {1, 1, 1, 1}};
 	VK2DPolygon out = NULL;
+	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
 	if (vk2dPointerCheck(colourVertices)) {
 		for (i = 2; i < vertexCount; i++) {
@@ -56,18 +59,19 @@ VK2DPolygon vk2dPolygonCreate(VK2DLogicalDevice dev, vec2 *vertices, uint32_t ve
 			colourVertices[v++] = defVert;
 		}
 
-		out = vk2dPolygonShapeCreateRaw(dev, colourVertices, finalVertexCount);
+		out = vk2dPolygonShapeCreateRaw(colourVertices, finalVertexCount);
 		free(colourVertices);
 	}
 
 	return out;
 }
 
-VK2DPolygon vk2dPolygonCreateOutline(VK2DLogicalDevice dev, vec2 *vertices, uint32_t vertexCount) {
+VK2DPolygon vk2dPolygonCreateOutline(vec2 *vertices, uint32_t vertexCount) {
 	uint32_t i;
 	VK2DVertexColour defVert = {{0, 0, 0}, {1, 1, 1, 1}};
 	VK2DPolygon out = NULL;
 	VK2DVertexColour *colourVertices = malloc(sizeof(VK2DVertexColour) * (vertexCount + 1));
+	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
 	if (vk2dPointerCheck(colourVertices)) {
 		for (i = 0; i < vertexCount; i++) {
@@ -78,7 +82,7 @@ VK2DPolygon vk2dPolygonCreateOutline(VK2DLogicalDevice dev, vec2 *vertices, uint
 		defVert.pos[0] = vertices[0][0];
 		defVert.pos[1] = vertices[0][1];
 		colourVertices[vertexCount] = defVert;
-		out = vk2dPolygonShapeCreateRaw(dev, colourVertices, vertexCount + 1);
+		out = vk2dPolygonShapeCreateRaw(colourVertices, vertexCount + 1);
 	}
 
 	return out;

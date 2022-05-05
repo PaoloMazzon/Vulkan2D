@@ -97,7 +97,7 @@ void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkIma
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 		destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
 	} else {
-		vk2dLogMessage("!!!Unsupported image transition!!!");
+		vk2dLogMessage("Unsupported image transition");
 		vk2dErrorCheck(-1);
 	}
 

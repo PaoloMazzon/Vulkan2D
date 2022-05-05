@@ -38,12 +38,11 @@ VK2DTexture vk2dTextureLoadFromImage(VK2DImage image);
 VK2DTexture vk2dTextureLoad(const char *filename);
 
 /// \brief Creates a texture meant as a drawing target
-/// \param dev Device to create the texture with (this isn't required in vk2dTextureLoad because the image you pass it already knows what device to use)
 /// \param w Width of the texture
 /// \param h Height of the texture
 /// \return Returns a new texture or NULL if it failed
 /// \warning Textures are closely tied to the renderer and require the renderer be initialized to load and use them
-VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h);
+VK2DTexture vk2dTextureCreate(float w, float h);
 
 /// \brief Frees a texture from memory
 /// \param tex Texture to free

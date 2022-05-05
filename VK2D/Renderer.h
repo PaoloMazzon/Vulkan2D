@@ -7,7 +7,7 @@
 #include "VK2D/Camera.h"
 #include <vulkan/vulkan.h>
 #include <SDL2/SDL.h>
-#include <VulkanMemoryAllocator/src/vk_mem_alloc.h>
+#include <VulkanMemoryAllocator/src/VmaUsage.h>
 
 #ifdef __cplusplus
 extern "C" {

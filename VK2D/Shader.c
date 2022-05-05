@@ -41,12 +41,13 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
 			renderer->config.msaa);
 }
 
-VK2DShader vk2dShaderCreate(VK2DLogicalDevice dev, const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize) {
+VK2DShader vk2dShaderCreate(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize) {
 	VK2DShader out = malloc(sizeof(struct VK2DShader));
 	uint32_t vertFileSize, fragFileSize, i;
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 	unsigned char *vertFile = _vk2dLoadFile(vertexShader, &vertFileSize);
 	unsigned char *fragFile = _vk2dLoadFile(fragmentShader, &fragFileSize);
+	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
 	if (vk2dPointerCheck(out) && vk2dPointerCheck(vertFile) && vk2dPointerCheck(fragFile)) {
 		out->spvFrag = fragFile;

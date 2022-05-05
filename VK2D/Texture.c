@@ -54,9 +54,10 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera);
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 void _vk2dRendererAddTarget(VK2DTexture tex);
 void _vk2dRendererRemoveTarget(VK2DTexture tex);
-VK2DTexture vk2dTextureCreate(VK2DLogicalDevice dev, float w, float h) {
+VK2DTexture vk2dTextureCreate(float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
+	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
 	// For the UBO
 	VK2DCameraSpec cam = {

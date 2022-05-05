@@ -82,7 +82,7 @@ struct VK2DShader {
 ///
 /// The specified uniform buffer size must match the size of the data you
 /// use in `UserData` exactly and it must also be a multiple of 4.
-VK2DShader vk2dShaderCreate(VK2DLogicalDevice dev, const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize);
+VK2DShader vk2dShaderCreate(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize);
 
 /// \brief Updates a uniform in a shader
 /// \param shader Shader to update the uniform data for

@@ -789,8 +789,8 @@ static void _vk2dRendererDestroySampler() {
 static void _vk2dRendererCreateUnits() {
 #ifdef VK2D_UNIT_GENERATION
 	// Squares are simple
-	gRenderer->unitSquare = vk2dPolygonShapeCreateRaw(gRenderer->ld, unitSquare, unitSquareVertices);
-	gRenderer->unitSquareOutline = vk2dPolygonCreateOutline(gRenderer->ld, unitSquareOutline, unitSquareOutlineVertices);
+	gRenderer->unitSquare = vk2dPolygonShapeCreateRaw(unitSquare, unitSquareVertices);
+	gRenderer->unitSquareOutline = vk2dPolygonCreateOutline(unitSquareOutline, unitSquareOutlineVertices);
 
 	// Now to generate the circle
 	vec2 *circleVertices = malloc(sizeof(vec2) * VK2D_CIRCLE_VERTICES);
@@ -799,9 +799,9 @@ static void _vk2dRendererCreateUnits() {
 		circleVertices[i][0] = cos(((double)i / VK2D_CIRCLE_VERTICES) * (VK2D_PI * 2)) * 0.5;
 		circleVertices[i][1] = sin(((double)i / VK2D_CIRCLE_VERTICES) * (VK2D_PI * 2)) * 0.5;
 	}
-	gRenderer->unitCircle = vk2dPolygonCreate(gRenderer->ld, circleVertices, VK2D_CIRCLE_VERTICES);
-	gRenderer->unitCircleOutline = vk2dPolygonCreateOutline(gRenderer->ld, circleVertices, VK2D_CIRCLE_VERTICES);
-	gRenderer->unitLine = vk2dPolygonCreateOutline(gRenderer->ld, (void*)LINE_VERTICES, LINE_VERTEX_COUNT);
+	gRenderer->unitCircle = vk2dPolygonCreate(circleVertices, VK2D_CIRCLE_VERTICES);
+	gRenderer->unitCircleOutline = vk2dPolygonCreateOutline(circleVertices, VK2D_CIRCLE_VERTICES);
+	gRenderer->unitLine = vk2dPolygonCreateOutline((void*)LINE_VERTICES, LINE_VERTEX_COUNT);
 	vk2dLogMessage("Created unit polygons...");
 #else // VK2D_UNIT_GENERATION
 	vk2dLogMessage("Unit polygons disabled...");

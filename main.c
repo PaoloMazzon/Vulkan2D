@@ -56,9 +56,9 @@ int main(int argc, const char *argv[]) {
 	vk2dRendererSetCamera(cam);
 
 	// Load Some test assets **must be done after vk2d is initialized**
-	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw(vk2dRendererGetDevice(), (void *) SAMPLE_TRIANGLE, VERTICES);
+	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw((void *) SAMPLE_TRIANGLE, VERTICES);
 	VK2DTexture testTexture = vk2dTextureLoad("assets/caveguy.png");
-	VK2DTexture testSurface = vk2dTextureCreate(vk2dRendererGetDevice(), 100, 100);
+	VK2DTexture testSurface = vk2dTextureCreate(100, 100);
 	VK2DTexture testFont = vk2dTextureLoad("assets/font.png");
 	VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
 	bool drawnToTestSurface = false;

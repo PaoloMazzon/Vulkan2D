@@ -5,7 +5,7 @@
 #include <vulkan/vulkan.h>
 #include "VK2D/Structs.h"
 #include <SDL2/SDL.h>
-#include <VulkanMemoryAllocator/src/vk_mem_alloc.h>
+#include <VulkanMemoryAllocator/src/VmaUsage.h>
 
 #ifdef __cplusplus
 extern "C" {
