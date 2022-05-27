@@ -19,30 +19,11 @@
 #include "VK2D/Polygon.h"
 #include "VK2D/Math.h"
 #include "VK2D/Shader.h"
+#include "VK2D/Util.h"
 
 // For debugging
 PFN_vkCreateDebugReportCallbackEXT fvkCreateDebugReportCallbackEXT;
 PFN_vkDestroyDebugReportCallbackEXT fvkDestroyDebugReportCallbackEXT;
-
-#ifdef VK2D_ENABLE_DEBUG
-static const char* EXTENSIONS[] = {
-		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
-};
-static const char* LAYERS[] = {
-		"VK_LAYER_KHRONOS_validation"
-};
-static const int LAYER_COUNT = 1;
-static const int EXTENSION_COUNT = 1;
-#else // VK2D_ENABLE_DEBUG
-static const char* EXTENSIONS[] = {
-
-};
-static const char* LAYERS[] = {
-
-};
-static const int LAYER_COUNT = 0;
-static const int EXTENSION_COUNT = 0;
-#endif // VK2D_ENABLE_DEBUG
 
 VK2DVertexColour unitSquare[] = {
 		{{0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
@@ -98,7 +79,7 @@ void _vk2dRendererRemoveShader(VK2DShader shader) {
 			gRenderer->customShaders[i] = NULL;
 }
 
-static uint64_t inline _vk2dHashSets(VkDescriptorSet *sets, uint32_t setCount) {
+uint64_t _vk2dHashSets(VkDescriptorSet *sets, uint32_t setCount) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint64_t hash = 0;
 	for (uint32_t i = 0; i < setCount; i++) {
@@ -108,7 +89,7 @@ static uint64_t inline _vk2dHashSets(VkDescriptorSet *sets, uint32_t setCount) {
 	return hash;
 }
 
-static void _vk2dRendererResetBoundPointers() {
+void _vk2dRendererResetBoundPointers() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	gRenderer->prevPipe = VK_NULL_HANDLE;
 	gRenderer->prevSetHash = 0;
@@ -229,7 +210,7 @@ void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera) {
 	vmaUnmapMemory(gRenderer->vma, gRenderer->cameras[camera].buffers[frame]->mem);
 }
 
-static void _vk2dRendererCreateDebug() {
+void _vk2dRendererCreateDebug() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 #ifdef VK2D_ENABLE_DEBUG
 	fvkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(gRenderer->vk, "vkCreateDebugReportCallbackEXT");
@@ -270,7 +251,7 @@ void _vk2dRendererGetSurfaceSize() {
 	}
 }
 
-static void _vk2dRendererCreateWindowSurface() {
+void _vk2dRendererCreateWindowSurface() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// Create the surface then load up surface relevant values
 	vk2dErrorCheck(SDL_Vulkan_CreateSurface(gRenderer->window, gRenderer->vk, &gRenderer->surface) == SDL_TRUE ? VK_SUCCESS : -1);
@@ -287,13 +268,13 @@ static void _vk2dRendererCreateWindowSurface() {
 	}
 }
 
-static void _vk2dRendererDestroyWindowSurface() {
+void _vk2dRendererDestroyWindowSurface() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vkDestroySurfaceKHR(gRenderer->vk, gRenderer->surface, VK_NULL_HANDLE);
 	free(gRenderer->presentModes);
 }
 
-static void _vk2dRendererCreateSwapchain() {
+void _vk2dRendererCreateSwapchain() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 
@@ -328,7 +309,7 @@ static void _vk2dRendererCreateSwapchain() {
 	vk2dLogMessage("Swapchain (%i images) initialized...", swapchainCreateInfoKHR.minImageCount);
 }
 
-static void _vk2dRendererDestroySwapchain() {
+void _vk2dRendererDestroySwapchain() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 	for (i = 0; i < gRenderer->swapchainImageCount; i++)
@@ -337,7 +318,7 @@ static void _vk2dRendererDestroySwapchain() {
 	vkDestroySwapchainKHR(gRenderer->ld->dev, gRenderer->swapchain, VK_NULL_HANDLE);
 }
 
-static void _vk2dRendererCreateColourResources() {
+void _vk2dRendererCreateColourResources() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer->config.msaa != msaa_1x) {
 		gRenderer->msaaImage = vk2dImageCreate(
@@ -354,14 +335,14 @@ static void _vk2dRendererCreateColourResources() {
 	}
 }
 
-static void _vk2dRendererDestroyColourResources() {
+void _vk2dRendererDestroyColourResources() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer->msaaImage != NULL)
 		vk2dImageFree(gRenderer->msaaImage);
 	gRenderer->msaaImage = NULL;
 }
 
-static void _vk2dRendererCreateRenderPass() {
+void _vk2dRendererCreateRenderPass() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t attachCount;
 	if (gRenderer->config.msaa != 1) {
@@ -453,14 +434,14 @@ static void _vk2dRendererCreateRenderPass() {
 	vk2dLogMessage("Render pass initialized...");
 }
 
-static void _vk2dRendererDestroyRenderPass() {
+void _vk2dRendererDestroyRenderPass() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->renderPass, VK_NULL_HANDLE);
 	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->externalTargetRenderPass, VK_NULL_HANDLE);
 	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->midFrameSwapRenderPass, VK_NULL_HANDLE);
 }
 
-static void _vk2dRendererCreateDescriptorSetLayouts() {
+void _vk2dRendererCreateDescriptorSetLayouts() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// For texture samplers
 	const uint32_t layoutCount = 1;
@@ -493,7 +474,7 @@ static void _vk2dRendererCreateDescriptorSetLayouts() {
 	vk2dLogMessage("Descriptor set layout initialized...");
 }
 
-static void _vk2dRendererDestroyDescriptorSetLayout() {
+void _vk2dRendererDestroyDescriptorSetLayout() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslSampler, VK_NULL_HANDLE);
 	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferVP, VK_NULL_HANDLE);
@@ -504,7 +485,7 @@ static void _vk2dRendererDestroyDescriptorSetLayout() {
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
 VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState();
 void _vk2dShaderBuildPipe(VK2DShader shader);
-static void _vk2dRendererCreatePipelines() {
+void _vk2dRendererCreatePipelines() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
@@ -611,7 +592,7 @@ static void _vk2dRendererCreatePipelines() {
 	vk2dLogMessage("Pipelines initialized...");
 }
 
-static void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
+void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vk2dPipelineFree(gRenderer->primLinePipe);
 	vk2dPipelineFree(gRenderer->primFillPipe);
@@ -621,7 +602,7 @@ static void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
 		free(gRenderer->customShaders);
 }
 
-static void _vk2dRendererCreateFrameBuffer() {
+void _vk2dRendererCreateFrameBuffer() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 	gRenderer->framebuffers = malloc(sizeof(VkFramebuffer) * gRenderer->swapchainImageCount);
@@ -647,7 +628,7 @@ static void _vk2dRendererCreateFrameBuffer() {
 	vk2dLogMessage("Framebuffers initialized...");
 }
 
-static void _vk2dRendererDestroyFrameBuffer() {
+void _vk2dRendererDestroyFrameBuffer() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 	for (i = 0; i < gRenderer->swapchainImageCount; i++)
@@ -655,7 +636,7 @@ static void _vk2dRendererDestroyFrameBuffer() {
 	free(gRenderer->framebuffers);
 }
 
-static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
+void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (newCamera) { // If the renderer has not yet been initialized
 		VK2DCameraSpec cam = {
@@ -707,7 +688,7 @@ static void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	vk2dLogMessage("UBO initialized...");
 }
 
-static void _vk2dRendererDestroyUniformBuffers() {
+void _vk2dRendererDestroyUniformBuffers() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 	for (i = 0; i < VK2D_MAX_CAMERAS; i++)
@@ -715,7 +696,7 @@ static void _vk2dRendererDestroyUniformBuffers() {
 	vk2dBufferFree(gRenderer->unitUBO);
 }
 
-static void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
+void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (!preserveDescCons) {
 		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2);
@@ -734,7 +715,7 @@ static void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 	}
 }
 
-static void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
+void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (!preserveDescCons) {
 		vk2dDescConFree(gRenderer->descConSamplers);
@@ -744,7 +725,7 @@ static void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 	}
 }
 
-static void _vk2dRendererCreateSynchronization() {
+void _vk2dRendererCreateSynchronization() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 	VkSemaphoreCreateInfo semaphoreCreateInfo = vk2dInitSemaphoreCreateInfo(0);
@@ -772,7 +753,7 @@ static void _vk2dRendererCreateSynchronization() {
 	vk2dLogMessage("Synchronization initialized...");
 }
 
-static void _vk2dRendererDestroySynchronization() {
+void _vk2dRendererDestroySynchronization() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 
@@ -788,7 +769,7 @@ static void _vk2dRendererDestroySynchronization() {
 	free(gRenderer->commandBuffer);
 }
 
-static void _vk2dRendererCreateSampler() {
+void _vk2dRendererCreateSampler() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode == ft_Linear, gRenderer->config.filterMode == ft_Linear ? gRenderer->config.msaa : 1, 1);
 	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler));
@@ -800,12 +781,12 @@ static void _vk2dRendererCreateSampler() {
 	vk2dLogMessage("Created texture sampler...");
 }
 
-static void _vk2dRendererDestroySampler() {
+void _vk2dRendererDestroySampler() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vkDestroySampler(gRenderer->ld->dev, gRenderer->textureSampler, VK_NULL_HANDLE);
 }
 
-static void _vk2dRendererCreateUnits() {
+void _vk2dRendererCreateUnits() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 #ifdef VK2D_UNIT_GENERATION
 	// Squares are simple
@@ -828,7 +809,7 @@ static void _vk2dRendererCreateUnits() {
 #endif // VK2D_UNIT_GENERATION
 }
 
-static void _vk2dRendererDestroyUnits() {
+void _vk2dRendererDestroyUnits() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 #ifdef VK2D_UNIT_GENERATION
 	vk2dPolygonFree(gRenderer->unitSquare);
@@ -840,7 +821,7 @@ static void _vk2dRendererDestroyUnits() {
 }
 
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
-static void _vk2dRendererRefreshTargets() {
+void _vk2dRendererRefreshTargets() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 	uint32_t targetsRefreshed = 0;
@@ -878,13 +859,13 @@ static void _vk2dRendererRefreshTargets() {
 	vk2dLogMessage("Refreshed %i render targets...", targetsRefreshed);
 }
 
-static void _vk2dRendererDestroyTargetsList() {
+void _vk2dRendererDestroyTargetsList() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	free(gRenderer->targets);
 }
 
 // If the window is resized or minimized or whatever
-static void _vk2dRendererResetSwapchain() {
+void _vk2dRendererResetSwapchain() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// Hang while minimized
 	SDL_WindowFlags flags;
@@ -927,7 +908,7 @@ static void _vk2dRendererResetSwapchain() {
 	vk2dLogMessage("Recreated swapchain assets...");
 }
 
-static inline void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam) {
+void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
@@ -998,7 +979,7 @@ static inline void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount
 		vkCmdDraw(buf, 6, 1, 0, 0);
 }
 
-// This is the upper level internal draw function that draws to each camera and not just with a static scissor/viewport
+// This is the upper level internal draw function that draws to each camera and not just with a scissor/viewport
 void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
