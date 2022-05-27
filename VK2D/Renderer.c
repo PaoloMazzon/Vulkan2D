@@ -16,7 +16,6 @@
 #include "VK2D/Buffer.h"
 #include "VK2D/DescriptorControl.h"
 #include "VK2D/Polygon.h"
-#include "VK2D/Math.h"
 #include "VK2D/Shader.h"
 
 // To set DPI awareness
