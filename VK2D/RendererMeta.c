@@ -915,8 +915,8 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 	// Account for various coordinate-based qualms
 	originX *= xscale;
 	originY *= yscale;
-	originX -= xInTex;
-	originY -= yInTex;
+	//originX -= xInTex;
+	//originY -= yInTex;
 	rot *= -1;
 
 	// Push constants
