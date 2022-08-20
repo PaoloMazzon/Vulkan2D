@@ -692,7 +692,8 @@ void _vk2dRendererDestroyUniformBuffers() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 	for (i = 0; i < VK2D_MAX_CAMERAS; i++)
-		vk2dCameraSetState(i, cs_Reset);
+		if (vk2dCameraGetState(i) == cs_Normal || vk2dCameraGetState(i) == cs_Disabled)
+			vk2dCameraSetState(i, cs_Reset);
 	vk2dBufferFree(gRenderer->unitUBO);
 }
 
