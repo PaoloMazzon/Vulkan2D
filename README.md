@@ -5,20 +5,12 @@
 Vulkan2D
 ========
 VK2D is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
-simple API, requiring no Vulkan experience to use. As to prevent additional baggage, default 
-shaders are SPIR-V binary blobs in `VK2D/Blobs.h`. If you don't trust binary blobs, feel free
-to run `shaders/genblobs.py` yourself.
-
-As it stands right now, VK2D is mostly ready to use, recently I made [Spacelink](https://github.com/PaoloMazzon/Spacelink).
-Shader support is kind of dodgy but still usable, and since the switch to VMA was made there are
-no hard technical barriers. It should also be stated that TrueType fonts will likely never be
-supported simply because this is meant to be a really minimal 2D renderer, and there is no way
-to easily support `.ttf` files without an external library (and I'm already unhappy with the VMA
-requirement, but the performance and memory benefits are too great). 
+simple API, requiring no Vulkan experience to use. For examples of Vulkan2D in use, [Peace & Liberty](https://github.com/PaoloMazzon/PeacenLiberty)
+and [Spacelink](https://github.com/PaoloMazzon/Spacelink) are two jam games I wrote in a weekend using Vulkan2D.
 
 Documentation
 =============
-Every file in VK2D is properly documented for doxygen, just run `doxygen Doxyconfig` and an html
+Every file in VK2D is properly documented for doxygen, just run `doxygen` in `Vulkan2D/` and an html
 folder will be created containing the documentation.
 
 Usage
@@ -41,8 +33,8 @@ Typically you would want to just include repo in your repo as a submodule (`git 
 to keep up to date on improvements in this repo. This is good, but you should also look at
 and modify `VK2D/BuildOptions.h` before release or just not include that one and use your own or
 something. There are several little optimization options, but most importantly there is
-`#define VK2D_ENABLE_DEBUG`. Don't forget to disable that before building for release as the
-benefits in the test scene alone are a ~65% framerate boost.
+`#define VK2D_ENABLE_DEBUG`. Don't forget to disable that before building for release as the debug layers
+impact performance severely and more importantly usually aren't available on most PCs.
 
 Example
 =======
@@ -100,36 +92,28 @@ For a complete list of functions, generate the documentation and look at `VK2D/R
  + Simple and intuitive API built on top of SDL (you still control the window)
  + Draw shapes/textures/arbitrary polygons to the screen or other textures
  + Simple and fully-featured camera (try out the demo)
- + External SPIR-V shader support
- + Blend modes
  + Multiple camera support (render to one or all of them concurrently)
+ + External SPIR-V shader support
+ + Optional blend mode support
+ + Reasonably fast, built with Vulkan 1.2 without any device extension requirements
 
 TODO
 ====
-These are in no particular order.
 
  + ***Improve error messages***
- + Remove all references to making one's own renderer
+ + User-visible functions (`Renderer.c` and `Shader.c` mostly) should check for garbage pointers
+ + Basic 3D rendering support
  + Compute particles
- + SDF support
  + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)
- + A more interesting test program
- + General optimizations
 
 Window Resizing Doesn't Work
 ============================
-It does, but its slightly more confusing in VK2D than other 2D renderers because you have full
-control over the viewport and camera. When you resize a window make sure to change the viewport
-and the camera width/height (see `vk2dRendererSetViewport`, `vk2dRendererSetCamera`).
+When the window is resized, whatever cameras you may be using are not automatically updated. This means your main
+camera(s) may need to have the viewport updated to the new window size. The test program in `main.c` does this if you
+want an example (see `vk2dRendererSetViewport`, `vk2dRendererSetCamera`).
 
 Warning
 =======
-Similar to Vulkan, VK2D does not check to see if you are passing garbage arguments (except for 
-free functions). If you pass a null pointer, you can expect a segfault. Should VK2D return a null
-pointer, an error message was most likely printed (and possibly logged to a file) to accompany it.
-While not as specific as the Vulkan spec, every function has its arguments documented and states 
-what each argument is so there should be no issues in that sense (use doxygen to generate the docs).
-Also, most things in VK2D are for  internal use and the only real user-friendly thing is `vk2dRenderer*`
-functions. That said, all of the "internal" bits are properly documented and you are free to string
-together your own renderer with the nice abstractions VK2D provides. The only exception to this is the
-`Initializers.h/c` file, which is really unnecessary but I like it.
+As of right now, VK2D does not check for garbage pointers. This was done because the user should be checking
+that the pointers they are creating are made properly but I plan to change it so the user-accessible portions
+of VK2D check pointers.
