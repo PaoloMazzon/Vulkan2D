@@ -10,7 +10,7 @@
 # Where name and extension both have their first letter #
 # capitalized.                                          #
 #                                                       #
-#     ONLY CALL THIS FROM THE ROOT PROJECT DIRECTORY    #
+#     Call from this directory                          #
 #########################################################
 from subprocess import call
 from os import listdir, path, remove
@@ -99,7 +99,7 @@ extern "C" {
 def main():
 	if len(argv) > 1:
 		header = compile_blob_file(compile_shaders(argv[1:]))
-		with open("VK2D/Blobs.h", "w") as f:
+		with open("../VK2D/Blobs.h", "w") as f:
 			f.write(header)
 		print("Done.")
 	else:

@@ -59,6 +59,7 @@ struct VK2DRenderer {
 
 	// Pipelines
 	VK2DPipeline texPipe;      ///< Pipeline for rendering textures
+	VK2DPipeline modelPipe;    ///< Pipeline for 3D models
 	VK2DPipeline primFillPipe; ///< Pipeline for rendering filled shapes
 	VK2DPipeline primLinePipe; ///< Pipeline for rendering shape outlines
 	uint32_t shaderListSize;   ///< Size of the list of customShaders

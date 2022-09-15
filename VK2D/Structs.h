@@ -81,6 +81,12 @@ typedef struct {
 	vec4 texCoords; ///< Where in the texture to draw from and to (x, y, w, h)
 } VK2DPushBuffer;
 
+/// \brief Push buffer used for 3D models
+typedef struct {
+	mat4 model;     ///< Model matrix
+	vec4 colourMod; ///< Color modifier
+} VK2D3DPushBuffer;
+
 /// \brief Describes what kind of vertices are in use
 typedef enum {
 	vt_Texture = 0, ///< Vertex meant for the texture pipeline
