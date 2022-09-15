@@ -100,8 +100,6 @@ For a complete list of functions, generate the documentation and look at `VK2D/R
 TODO
 ====
 
- + ***Improve error messages***
- + User-visible functions (`Renderer.c` and `Shader.c` mostly) should check for garbage pointers
  + Basic 3D rendering support
  + Compute particles
  + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)

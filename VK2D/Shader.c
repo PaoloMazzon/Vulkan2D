@@ -49,40 +49,53 @@ VK2DShader vk2dShaderCreate(const char *vertexShader, const char *fragmentShader
 	unsigned char *fragFile = _vk2dLoadFile(fragmentShader, &fragFileSize);
 	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
-	if (vk2dPointerCheck(out) && vk2dPointerCheck(vertFile) && vk2dPointerCheck(fragFile)) {
-		out->spvFrag = fragFile;
-		out->spvVert = vertFile;
-		out->spvVertSize = vertFileSize;
-		out->spvFragSize = fragFileSize;
-		out->uniformSize = uniformBufferSize;
-		out->dev = dev;
-		out->currentUniform = 0;
+	if (vk2dRendererGetPointer() != NULL) {
+		if (vk2dPointerCheck(out) && vk2dPointerCheck(vertFile) && vk2dPointerCheck(fragFile)) {
+			out->spvFrag = fragFile;
+			out->spvVert = vertFile;
+			out->spvVertSize = vertFileSize;
+			out->spvFragSize = fragFileSize;
+			out->uniformSize = uniformBufferSize;
+			out->dev = dev;
+			out->currentUniform = 0;
 
-		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
-			out->uniforms[i] = vk2dBufferCreate(dev, uniformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-												VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-												VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-			out->sets[i] = vk2dDescConGetBufferSet(renderer->descConUser, out->uniforms[i]);
+			for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
+				out->uniforms[i] = vk2dBufferCreate(dev, uniformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+													VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+													VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+				out->sets[i] = vk2dDescConGetBufferSet(renderer->descConUser, out->uniforms[i]);
+			}
+
+			_vk2dShaderBuildPipe(out);
 		}
-
-		_vk2dShaderBuildPipe(out);
+	} else {
+		free(out);
+		out = NULL;
+		vk2dLogMessage("Renderer is not initialized");
 	}
+	free(vertFile);
+	free(fragFile);
 
 	return out;
 }
 
 void vk2dShaderUpdate(VK2DShader shader, void *data, uint32_t size) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	void *mem;
-	vk2dErrorCheck(vmaMapMemory(gRenderer->vma, shader->uniforms[shader->currentUniform]->mem, &mem));
-	memcpy(mem, data, size);
-	vmaUnmapMemory(gRenderer->vma, shader->uniforms[shader->currentUniform]->mem);
-	shader->currentUniform = (shader->currentUniform + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
+	if (gRenderer != NULL) {
+		void *mem;
+		vk2dErrorCheck(vmaMapMemory(gRenderer->vma, shader->uniforms[shader->currentUniform]->mem, &mem));
+		memcpy(mem, data, size);
+		vmaUnmapMemory(gRenderer->vma, shader->uniforms[shader->currentUniform]->mem);
+		shader->currentUniform = (shader->currentUniform + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
+	} else {
+		vk2dLogMessage("Renderer is not initialized");
+	}
 }
 
 void vk2dShaderFree(VK2DShader shader) {
 	uint32_t i;
-	_vk2dRendererRemoveShader(shader);
+	if (vk2dRendererGetPointer() != NULL)
+		_vk2dRendererRemoveShader(shader);
 	if (shader != NULL) {
 		vk2dPipelineFree(shader->pipe);
 
