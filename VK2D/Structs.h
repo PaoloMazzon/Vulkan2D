@@ -63,6 +63,12 @@ typedef struct {
 	vec4 colour; ///< Colour of this vertex
 } VK2DVertexColour;
 
+/// \brief Vertex data for 3D models
+typedef struct {
+	vec3 pos; ///< Position of the vertex
+	vec2 uv;  ///< UV coordinates for this vertex
+} VK2DVertex3D;
+
 /// \brief The VP buffer
 typedef struct {
 	mat4 viewproj; ///< View and projection matrix multiplied together
@@ -150,6 +156,13 @@ typedef enum {
 	cs_Reset = 3,    ///< Camera is being reset by the renderer
 } VK2DCameraState;
 
+/// \brief Type of camera
+typedef enum {
+	ct_Default = 0,      ///< Default camera used for 2D games in VK2D
+	ct_Orthographic = 1, ///< Orthographic camera for 3D rendering
+	ct_Perspective = 2,  ///< Perspective camera for 3D rendering
+} VK2DCameraType;
+
 /// \brief User configurable settings
 typedef struct VK2DConfiguration {
 	const char *applicationName; ///< Name of this program
@@ -169,16 +182,24 @@ typedef struct VK2DRendererConfig {
 
 /// \brief Camera information
 typedef struct VK2DCameraSpec {
-	float x;    ///< X position of the camera (top left coordinates)
-	float y;    ///< Y position of the camera (top left coordinates)
-	float w;    ///< Virtual width of the screen
-	float h;    ///< Virtual height of the screen
-	float zoom; ///< Zoom percentage (Relative to the virtual width and height, not actual)
-	float rot;  ///< Rotation of the camera
-	float xOnScreen; ///< x position in the window
-	float yOnScreen; ///< y position in the window
-	float wOnScreen; ///< Width of the camera in the window
-	float hOnScreen; ///< Height of the camera in the window
+	VK2DCameraType  type; ///< What type of camera this is
+	float x;              ///< X position of the camera (top left coordinates) (only used in default camera type)
+	float y;              ///< Y position of the camera (top left coordinates) (only used in default camera type)
+	float w;              ///< Virtual width of the screen
+	float h;              ///< Virtual height of the screen
+	float zoom;           ///< Zoom percentage (Relative to the virtual width and height, not actual)
+	float rot;            ///< Rotation of the camera
+	float xOnScreen;      ///< x position in the window
+	float yOnScreen;      ///< y position in the window
+	float wOnScreen;      ///< Width of the camera in the window
+	float hOnScreen;      ///< Height of the camera in the window
+
+	///< Things used for perspective and orthographic cameras in place of the x/y variables
+	struct {
+		vec3 eyes;   ///< Where the 3D camera is
+		vec3 centre; ///< Where the 3D camera is looking
+		vec3 up;     ///< Which direction is up for the 3D camera
+	} Perspective;
 } VK2DCameraSpec;
 
 #ifdef __cplusplus

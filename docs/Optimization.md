@@ -3,7 +3,8 @@ Optimization Tips and Tricks
 *Quick note*: if you're just making jam games or something really small
 it is very likely that you don't even have many resources in your game
 and these optimization techniques won't really yield you any noticeable
-improvements. 
+improvements. It should also be noted that most of these are very minor
+optimizations and shouldn't be considered unless you are lacking performance.
 
 Use Sprite Sheets
 -----------------
