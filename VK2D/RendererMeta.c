@@ -203,7 +203,20 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 		memset(ubo->viewproj, 0, 64);
 		multiplyMatrix(view, proj, ubo->viewproj);
 	} else {
-		// TODO: 3D camera setup
+		// Assemble view
+		mat4 view = {};
+		cameraMatrix(view, camera->Perspective.eyes, camera->Perspective.center, camera->Perspective.up);
+
+		// Projection
+		mat4 proj = {};
+		if (camera->type == ct_Orthographic)
+			orthographicMatrix(proj, camera->h / camera->zoom, camera->w / camera->h, 0.1, 10);
+		else
+			perspectiveMatrix(proj, camera->Perspective.fov, camera.w /camera.h, 0.1, 10);
+
+		// Multiply together
+		memset(ubo->viewproj, 0, 64);
+		multiplyMatrix(view, proj, ubo->viewproj);
 	}
 }
 

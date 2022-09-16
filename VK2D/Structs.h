@@ -209,6 +209,7 @@ typedef struct VK2DCameraSpec {
 		vec3 eyes;   ///< Where the 3D camera is
 		vec3 centre; ///< Where the 3D camera is looking
 		vec3 up;     ///< Which direction is up for the 3D camera
+		float fov;   ///< Field of view of the camera
 	} Perspective;
 } VK2DCameraSpec;
 
