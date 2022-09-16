@@ -42,6 +42,9 @@ typedef struct VK2DShader *VK2DShader;
 /// \brief Abstraction to make managing pointers easier for VK2DCamera
 typedef struct VK2DCamera VK2DCamera;
 
+/// \brief Abstraction to make managing pointers easier for VK2DModel
+typedef struct VK2DModel *VK2DModel;
+
 /// \brief 2D vector of floats
 typedef float vec2[2];
 
@@ -91,7 +94,8 @@ typedef struct {
 typedef enum {
 	vt_Texture = 0, ///< Vertex meant for the texture pipeline
 	vt_Shape = 1,   ///< Vertex meant for the shapes pipelines
-	vt_Other = 2    ///< Unspecified vertex type
+	vt_Model = 2,   ///< Vertex meant for models
+	vt_Other = 3,   ///< Unspecified vertex type
 } VK2DVertexType;
 
 /// \brief Blend modes that can be used to render if VK2D_GENERATE_BLEND_MODES is enabled
