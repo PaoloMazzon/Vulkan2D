@@ -20,6 +20,19 @@ const VK2DVertexColour SAMPLE_TRIANGLE[] = {
 };
 const uint32_t VERTICES = 6;
 
+const VK2DVertex3D SAMPLE_MODEL[] = {
+		{{000, 000, 000}, {0, 0}},
+		{{100, 100, 000}, {1, 1}},
+		{{100, 000, 000}, {1, 0}},
+		{{000, 000, 000}, {0, 0}},
+		{{000, 100, 000}, {0, 1}},
+		{{100, 100, 000}, {0, 1}},
+		{{000, 000, 000}, {0, 0}},
+		{{-50, 050, 000}, {0, 0}},
+		{{000, 100, 000}, {0, 0}},
+};
+const uint32_t SAMPLE_MODEL_VERTICES = 9;
+
 // Very basic and simple font renderer for the font in this test specifically
 void renderFont(float x, float y, VK2DTexture tex, const char *text) {
 	float ox = x;
@@ -62,6 +75,15 @@ int main(int argc, const char *argv[]) {
 	VK2DTexture testFont = vk2dTextureLoad("assets/font.png");
 	VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
 	bool drawnToTestSurface = false;
+
+	// Setup 3D camera and model
+	VK2DCameraSpec cameraSpec3D = {ct_Perspective, 0, 0, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, 0, 0, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+	cameraSpec3D.Perspective.eyes[0] = -20;
+	cameraSpec3D.Perspective.eyes[0] = 0;
+	cameraSpec3D.Perspective.eyes[0] = 20;
+	cameraSpec3D.Perspective.fov = 70;
+	VK2DCameraIndex camera3D = vk2dCameraCreate(cameraSpec3D);
+	VK2DModel testModel = vk2dModelCreate(SAMPLE_MODEL, SAMPLE_MODEL_VERTICES, testTexture);
 
 	// Delta and fps
 	double lastTime = SDL_GetPerformanceCounter();
@@ -149,6 +171,10 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);
 		vk2dRendererDrawTexture(testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale, (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
 
+		// Lock to 3D camera for 3D model
+		vk2dRendererLockCameras(camera3D);
+		vk2dRendererDrawModel(testModel, 0, 0, 0, 1, 1, 1, rot, 1, 5, 5, 0);
+
 		// Draw debug overlay
 		vk2dRendererLockCameras(VK2D_DEFAULT_CAMERA);
 		char title[50];
@@ -169,6 +195,7 @@ int main(int argc, const char *argv[]) {
 
 	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
+	vk2dModelFree(testModel);
 	vk2dTextureFree(testFont);
 	vk2dTextureFree(testSurface);
 	vk2dTextureFree(testTexture);

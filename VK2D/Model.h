@@ -16,4 +16,4 @@ struct VK2DModel {
 VK2DModel vk2dModelCreate(VK2DVertex3D *vertices, uint32_t vertexCount, VK2DTexture tex);
 
 /// \brief The texture stored in the model is not destroyed
-void vk2dModelDestroy(VK2DModel model);
+void vk2dModelFree(VK2DModel model);

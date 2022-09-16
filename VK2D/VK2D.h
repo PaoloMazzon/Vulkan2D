@@ -8,3 +8,4 @@
 #include "VK2D/Texture.h"
 #include "VK2D/Image.h"
 #include "VK2D/Shader.h"
+#include "VK2D/Model.h"

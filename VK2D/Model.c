@@ -19,7 +19,7 @@ VK2DModel vk2dModelCreate(VK2DVertex3D *vertices, uint32_t vertexCount, VK2DText
 	return model;
 }
 
-void vk2dModelDestroy(VK2DModel model) {
+void vk2dModelFree(VK2DModel model) {
 	if (model != NULL) {
 		vk2dBufferFree(model->vertices);
 		free(model);

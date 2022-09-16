@@ -583,14 +583,19 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
 
 void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	if (gRenderer != NULL) {
-		VkDescriptorSet sets[4];
-		sets[1] = gRenderer->samplerSet;
-		sets[2] = tex->img->set;
-		sets[3] = shader->sets[shader->currentUniform];
+		if (shader != NULL) {
+			VkDescriptorSet sets[4];
+			sets[1] = gRenderer->samplerSet;
+			sets[2] = tex->img->set;
+			sets[3] = shader->sets[shader->currentUniform];
 
-		uint32_t setCount = shader->uniformSize == 0 ? 3 : 4;
-		_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
-						  yInTex, texWidth, texHeight);
+			uint32_t setCount = shader->uniformSize == 0 ? 3 : 4;
+			_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1,
+							  xInTex,
+							  yInTex, texWidth, texHeight);
+		} else {
+			vk2dLogMessage("Shader does not exist");
+		}
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
@@ -598,11 +603,15 @@ void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	if (gRenderer != NULL) {
-		VkDescriptorSet sets[3];
-		sets[1] = gRenderer->samplerSet;
-		sets[2] = tex->img->set;
-		_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
-						  yInTex, texWidth, texHeight);
+		if (tex != NULL) {
+			VkDescriptorSet sets[3];
+			sets[1] = gRenderer->samplerSet;
+			sets[2] = tex->img->set;
+			_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
+							  yInTex, texWidth, texHeight);
+		} else {
+			vk2dLogMessage("Texture does not exist");
+		}
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
@@ -610,9 +619,14 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
 	if (gRenderer != NULL) {
-		VkDescriptorSet set;
-		_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale,
-						  yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+		if (polygon != NULL) {
+			VkDescriptorSet set;
+			_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y,
+							  xscale,
+							  yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+		} else {
+			vk2dLogMessage("Polygon does not exist");
+		}
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
@@ -620,10 +634,15 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 
 void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, float zrot, float originX, float originY, float originZ) {
 	if (gRenderer != NULL) {
-		VkDescriptorSet sets[3];
-		sets[1] = gRenderer->samplerSet;
-		sets[2] = model->tex->img->set;
-		_vk2dRendererDraw3D(sets, 3, NULL, gRenderer->texPipe, x, y, z, xscale, yscale, zscale, rot, zrot, originX, originY, originZ);
+		if (model != NULL) {
+			VkDescriptorSet sets[3];
+			sets[1] = gRenderer->samplerSet;
+			sets[2] = model->tex->img->set;
+			_vk2dRendererDraw3D(sets, 3, model, gRenderer->modelPipe, x, y, z, xscale, yscale, zscale, rot, zrot, originX,
+								originY, originZ);
+		} else {
+			vk2dLogMessage("Model does not exist");
+		}
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
