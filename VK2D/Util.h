@@ -9,6 +9,9 @@
 /// \brief Gets the vertex input information for VK2DVertexTexture (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
 
+/// \brief Gets the vertex input information for VK2DVertex3D (Uses static variables to persist attached descriptions)
+VkPipelineVertexInputStateCreateInfo _vk2dGetModelVertexInputState();
+
 /// \brief Gets the vertex input information for VK2DVertexColour (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState();
 
