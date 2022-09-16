@@ -364,6 +364,23 @@ void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y
 /// \param originY Y origin for rotation (in pixels)
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY);
 
+/// \brief Renders a 3D model
+/// \param model Model to render
+/// \param x x position to draw at
+/// \param y y position to draw at
+/// \param z z position to draw at
+/// \param xscale Scale that will be applied to the x-plane of the model
+/// \param yscale Scale that will be applied to the y-plane of the model
+/// \param zscale Scale that will be applied to the z-plane of the model
+/// \param rot Rotation of the model
+/// \param zrot Z axis to rotate on
+/// \param originX x origin to rotate around
+/// \param originY y origin to rotate around
+/// \param originZ z origin to rotate around
+/// \warning This function will only render to 3D-enabled cameras (which you must set up yourself) and if there are
+/// none available this function will simply do nothing.
+void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, float zrot, float originX, float originY, float originZ);
+
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)
@@ -398,3 +415,9 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 
 /// \brief Draws a polygon (x and y should be floats)
 #define vk2dDrawPolygon(polygon, x, y) vk2dRendererDrawPolygon(polygon, x, y, true, 0, 1, 1, 0, 0, 0)
+
+/// \brief Draws a model (all floats)
+#define vk2dDrawModel(model, x, y, z) vk2dRendererDrawModel(model, x, y, z, 1, 1, 1, 0, 1, 0, 0, 0)
+
+/// \brief Draws a model with some extra parts (all floats)
+#define vk2dDrawModelExt(model, x, y, z, xscale, yscale, zscale) vk2dRendererDrawModel(model, x, y, z, xscale, yscale, zscale, 0, 1, 0, 0, 0)

@@ -2,6 +2,7 @@
 /// \author Paolo Mazzon
 #include <vulkan/vulkan.h>
 #include <SDL2/SDL_vulkan.h>
+
 #include "VK2D/RendererMeta.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/BuildOptions.h"
@@ -13,6 +14,7 @@
 #include "VK2D/Texture.h"
 #include "VK2D/Shader.h"
 #include "VK2D/Image.h"
+#include "VK2D/Model.h"
 
 // To set DPI awareness
 #ifdef WIN32
@@ -611,6 +613,17 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 		VkDescriptorSet set;
 		_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y, xscale,
 						  yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+	} else {
+		vk2dLogMessage("Renderer is not initialized");
+	}
+}
+
+void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, float zrot, float originX, float originY, float originZ) {
+	if (gRenderer != NULL) {
+		VkDescriptorSet sets[3];
+		sets[1] = gRenderer->samplerSet;
+		sets[2] = model->tex->img->set;
+		_vk2dRendererDraw3D(sets, 3, NULL, gRenderer->texPipe, x, y, z, xscale, yscale, zscale, rot, zrot, originX, originY, originZ);
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}

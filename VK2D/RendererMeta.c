@@ -2,6 +2,7 @@
 /// \author Paolo Mazzon
 #include <vulkan/vulkan.h>
 #include <SDL2/SDL_vulkan.h>
+
 #include "VK2D/RendererMeta.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/BuildOptions.h"
@@ -20,6 +21,7 @@
 #include "VK2D/Math.h"
 #include "VK2D/Shader.h"
 #include "VK2D/Util.h"
+#include "VK2D/Model.h"
 
 // For debugging
 PFN_vkCreateDebugReportCallbackEXT fvkCreateDebugReportCallbackEXT;
@@ -205,14 +207,14 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 	} else {
 		// Assemble view
 		mat4 view = {};
-		cameraMatrix(view, camera->Perspective.eyes, camera->Perspective.center, camera->Perspective.up);
+		cameraMatrix(view, camera->Perspective.eyes, camera->Perspective.centre, camera->Perspective.up);
 
 		// Projection
 		mat4 proj = {};
 		if (camera->type == ct_Orthographic)
 			orthographicMatrix(proj, camera->h / camera->zoom, camera->w / camera->h, 0.1, 10);
 		else
-			perspectiveMatrix(proj, camera->Perspective.fov, camera.w /camera.h, 0.1, 10);
+			perspectiveMatrix(proj, camera->Perspective.fov, camera->w /camera->h, 0.1, 10);
 
 		// Multiply together
 		memset(ubo->viewproj, 0, 64);
@@ -1036,6 +1038,83 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 		vkCmdDraw(buf, 6, 1, 0, 0);
 }
 
+// Same as above but for 3D rendering
+void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, float zrot, float originX, float originY, float originZ, VK2DCameraIndex cam) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
+
+	// Account for various coordinate-based qualms
+	originX *= xscale;
+	originY *= yscale;
+	originZ *= zscale;
+	//originX -= xInTex;
+	//originY -= yInTex;
+	rot *= -1;
+
+	// Push constants
+	VK2D3DPushBuffer push = {};
+	identityMatrix(push.model);
+	vec3 axis = {0, 0, zrot};
+	vec3 originTranslation = {originX, -originY, originZ};
+	vec3 origin2 = {-originX - x, originY + y, originZ + z};
+	vec3 scale = {-xscale, yscale, zscale};
+	translateMatrix(push.model, origin2);
+	rotateMatrix(push.model, axis, rot);
+	translateMatrix(push.model, originTranslation);
+	scaleMatrix(push.model, scale);
+	push.colourMod[0] = gRenderer->colourBlend[0];
+	push.colourMod[1] = gRenderer->colourBlend[1];
+	push.colourMod[2] = gRenderer->colourBlend[2];
+	push.colourMod[3] = gRenderer->colourBlend[3];
+
+	// Check if we actually need to bind things
+	uint64_t hash = _vk2dHashSets(sets, setCount);
+	if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
+		vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(pipe, gRenderer->blendMode));
+		gRenderer->prevPipe = vk2dPipelineGetPipe(pipe, gRenderer->blendMode);
+	}
+	if (gRenderer->prevSetHash != hash) {
+		vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, setCount, sets, 0, VK_NULL_HANDLE);
+		gRenderer->prevSetHash = hash;
+	}
+	if (gRenderer->prevVBO != model->vertices->buf) {
+		VkDeviceSize offsets[] = {0};
+		vkCmdBindVertexBuffers(buf, 0, 1, &model->vertices->buf, offsets);
+		gRenderer->prevVBO = model->vertices->buf;
+	}
+
+	// Dynamic state that can't be optimized further and the draw call
+	cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
+	VkViewport viewport = {
+			gRenderer->cameras[cam].spec.xOnScreen,
+			gRenderer->cameras[cam].spec.yOnScreen,
+			gRenderer->cameras[cam].spec.wOnScreen,
+			gRenderer->cameras[cam].spec.hOnScreen,
+			0,
+			1
+	};
+	VkRect2D scissor = {
+			{gRenderer->cameras[cam].spec.xOnScreen, gRenderer->cameras[cam].spec.yOnScreen},
+			{gRenderer->cameras[cam].spec.wOnScreen, gRenderer->cameras[cam].spec.hOnScreen}
+	};
+	vkCmdSetViewport(buf, 0, 1, &viewport);
+	vkCmdSetScissor(buf, 0, 1, &scissor);
+	vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2D3DPushBuffer), &push);
+	vkCmdDraw(buf, model->vertexCount, 1, 0, 0);
+}
+
+// Same as _vk2dRendererDraw below but specifically for 3D rendering
+void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, float zrot, float originX, float originY, float originZ) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	// Only render to 3D cameras
+	for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+		if (gRenderer->cameras[i].state == cs_Normal && gRenderer->cameras[i].spec.type != ct_Default && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+			sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+			_vk2dRendererDrawRaw3D(sets, setCount, model, pipe, x, y, z, xscale, yscale, zscale, rot, zrot, originX, originY, originZ, i);
+		}
+	}
+}
+
 // This is the upper level internal draw function that draws to each camera and not just with a scissor/viewport
 void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
@@ -1043,8 +1122,9 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
 		sets[0] = gRenderer->targetUBOSet;
 		_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, VK2D_INVALID_CAMERA);
 	} else {
+		// Only render to 2D cameras
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-			if (gRenderer->cameras[i].state == cs_Normal && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+			if (gRenderer->cameras[i].state == cs_Normal && gRenderer->cameras[i].spec.type == ct_Default && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
 				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
 				_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
 			}
