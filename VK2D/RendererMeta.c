@@ -1058,10 +1058,10 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 	vec3 originTranslation = {originX, -originY, originZ};
 	vec3 origin2 = {-originX - x, originY + y, originZ + z};
 	vec3 scale = {-xscale, yscale, zscale};
-	translateMatrix(push.model, origin2);
-	rotateMatrix(push.model, axis, rot);
-	translateMatrix(push.model, originTranslation);
-	scaleMatrix(push.model, scale);
+	//translateMatrix(push.model, origin2);
+	//rotateMatrix(push.model, axis, rot);
+	//translateMatrix(push.model, originTranslation);
+	//scaleMatrix(push.model, scale); // TODO: Re-enable this stuff
 	push.colourMod[0] = gRenderer->colourBlend[0];
 	push.colourMod[1] = gRenderer->colourBlend[1];
 	push.colourMod[2] = gRenderer->colourBlend[2];
@@ -1077,14 +1077,11 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 		vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, setCount, sets, 0, VK_NULL_HANDLE);
 		gRenderer->prevSetHash = hash;
 	}
-	/*if (gRenderer->prevVBO != model->vertices->buf) {
+	if (gRenderer->prevVBO != model->vertices->buf) {
 		VkDeviceSize offsets[] = {0};
 		vkCmdBindVertexBuffers(buf, 0, 1, &model->vertices->buf, offsets);
 		gRenderer->prevVBO = model->vertices->buf;
-	}*/
-
-	VkDeviceSize offsets[] = {0};
-	vkCmdBindVertexBuffers(buf, 0, 1, &model->vertices->buf, offsets);
+	}
 
 	// Dynamic state that can't be optimized further and the draw call
 	cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera

@@ -21,15 +21,15 @@ const VK2DVertexColour SAMPLE_TRIANGLE[] = {
 const uint32_t VERTICES = 6;
 
 const VK2DVertex3D SAMPLE_MODEL[] = {
-		{{000, 000, 000}, {0, 0}},
-		{{100, 100, 000}, {1, 1}},
-		{{100, 000, 000}, {1, 0}},
-		{{000, 000, 000}, {0, 0}},
-		{{000, 100, 000}, {0, 1}},
-		{{100, 100, 000}, {0, 1}},
-		{{000, 000, 000}, {0, 0}},
-		{{-50, 050, 000}, {0, 0}},
-		{{000, 100, 000}, {0, 0}},
+		{{-.5, -.5, 000}, {0, 0}},
+		{{0.5, 0.5, 000}, {1, 1}},
+		{{-.5, 0.5, 000}, {1, 0}},
+		{{-.5, -.5, 000}, {0, 0}},
+		{{0.5, -.5, 000}, {0, 1}},
+		{{0.5, 0.5, 000}, {0, 1}},
+		{{-.5, -.5, 000}, {0, 0}},
+		{{-.6, 000, 000}, {0, 0}},
+		{{-.5, 0.5, 000}, {0, 0}},
 };
 const uint32_t SAMPLE_MODEL_VERTICES = 9;
 
@@ -78,9 +78,10 @@ int main(int argc, const char *argv[]) {
 
 	// Setup 3D camera and model
 	VK2DCameraSpec cameraSpec3D = {ct_Perspective, 0, 0, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, 0, 0, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
-	cameraSpec3D.Perspective.eyes[0] = -20;
-	cameraSpec3D.Perspective.eyes[0] = 0;
-	cameraSpec3D.Perspective.eyes[0] = 20;
+	cameraSpec3D.Perspective.eyes[0] = 2;
+	cameraSpec3D.Perspective.eyes[1] = 2;
+	cameraSpec3D.Perspective.eyes[2] = 2;
+	cameraSpec3D.Perspective.up[2] = 1;
 	cameraSpec3D.Perspective.fov = 70;
 	VK2DCameraIndex camera3D = vk2dCameraCreate(cameraSpec3D);
 	VK2DModel testModel = vk2dModelCreate(SAMPLE_MODEL, SAMPLE_MODEL_VERTICES, testTexture);
