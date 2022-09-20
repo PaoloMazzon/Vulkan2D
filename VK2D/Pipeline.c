@@ -7,7 +7,7 @@
 #include "VK2D/BlendModes.h"
 #include <malloc.h>
 
-VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayouts, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa) {
+VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayouts, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa, bool for3D) {
 	VK2DPipeline pipe = malloc(sizeof(struct VK2DPipeline));
 	uint32_t i;
 
@@ -61,6 +61,11 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 1, &range);
 		vkCreatePipelineLayout(dev->dev, &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &pipe->layout);
 		VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo = vk2dInitPipelineInputAssemblyStateCreateInfo(fill);
+
+		// 3D settings
+		if (for3D) {
+			pipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+		}
 
 #ifdef VK2D_GENERATE_BLEND_MODES
 		for (i = 0; i < bm_Max; i++) {

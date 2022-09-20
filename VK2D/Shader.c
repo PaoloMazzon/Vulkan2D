@@ -38,7 +38,8 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
 			layoutCount,
 			&textureVertexInfo,
 			true,
-			renderer->config.msaa);
+			renderer->config.msaa,
+			false);
 }
 
 VK2DShader vk2dShaderCreate(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize) {

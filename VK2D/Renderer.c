@@ -636,7 +636,7 @@ void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xsc
 	if (gRenderer != NULL) {
 		if (model != NULL) {
 			VkDescriptorSet sets[3];
-			sets[1] = gRenderer->samplerSet;
+			sets[1] = gRenderer->modelSamplerSet;
 			sets[2] = model->tex->img->set;
 			_vk2dRendererDraw3D(sets, 3, model, gRenderer->modelPipe, x, y, z, xscale, yscale, zscale, rot, zrot, originX,
 								originY, originZ);

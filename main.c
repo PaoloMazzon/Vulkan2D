@@ -21,17 +21,15 @@ const VK2DVertexColour SAMPLE_TRIANGLE[] = {
 const uint32_t VERTICES = 6;
 
 const VK2DVertex3D SAMPLE_MODEL[] = {
-		{{-.5, -.5, 000}, {0, 0}},
-		{{0.5, 0.5, 000}, {1, 1}},
-		{{-.5, 0.5, 000}, {1, 0}},
-		{{-.5, -.5, 000}, {0, 0}},
-		{{0.5, -.5, 000}, {0, 1}},
+		{{-0.5, -0.5, 000}, {1, 0}},
+		{{0.5, -0.5, 000}, {0, 0}},
 		{{0.5, 0.5, 000}, {0, 1}},
-		{{-.5, -.5, 000}, {0, 0}},
-		{{-.6, 000, 000}, {0, 0}},
-		{{-.5, 0.5, 000}, {0, 0}},
+		{{0.5, 0.5, 000}, {0, 1}},
+		{{-0.5, 0.5, 000}, {1, 1}},
+		{{-0.5, -0.5, 000}, {1, 0}},
 };
-const uint32_t SAMPLE_MODEL_VERTICES = 9;
+
+const uint32_t SAMPLE_MODEL_VERTICES = 6;
 
 // Very basic and simple font renderer for the font in this test specifically
 void renderFont(float x, float y, VK2DTexture tex, const char *text) {
@@ -174,7 +172,7 @@ int main(int argc, const char *argv[]) {
 
 		// Lock to 3D camera for 3D model
 		vk2dRendererLockCameras(camera3D);
-		vk2dRendererDrawModel(testModel, 0, 0, 0, 1, 1, 1, rot, 1, 5, 5, 0);
+		vk2dRendererDrawModel(testModel, 0, 0, 0, 1, 1, 1, rot, 1, 0, 0, 0);
 
 		// Draw debug overlay
 		vk2dRendererLockCameras(VK2D_DEFAULT_CAMERA);

@@ -29,6 +29,7 @@ struct VK2DRenderer {
 	VK2DImage msaaImage;                  ///< In case MSAA is enabled
 	vec4 colourBlend;                     ///< Used to modify colours (and transparency) of anything drawn. Passed via push constants.
 	VkSampler textureSampler;             ///< Needed for textures
+	VkSampler modelSampler;               ///< Same as textureSampler but for 3D (normalized coordinates)
 	VkViewport viewport;                  ///< Viewport to draw with
 	bool enableTextureCameraUBO;          ///< If true, when drawing to a texture the UBO for the internal camera is used instead of the texture's UBO
 	VK2DBlendMode blendMode;              ///< Current blend mode to draw with
@@ -75,6 +76,7 @@ struct VK2DRenderer {
 	VK2DDescCon descConUser;             ///< Descriptor controller for user buffers
 	VkDescriptorPool samplerPool;        ///< Sampler pool for 1 sampler
 	VkDescriptorSet samplerSet;          ///< Sampler for all textures
+	VkDescriptorSet modelSamplerSet;     ///< Sampler for all 3D models
 
 	// Frame synchronization
 	uint32_t currentFrame;                 ///< Current frame being looped through

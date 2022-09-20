@@ -576,7 +576,8 @@ void _vk2dRendererCreatePipelines() {
 			3,
 			&textureVertexInfo,
 			true,
-			gRenderer->config.msaa);
+			gRenderer->config.msaa,
+			false);
 
 	// Polygon pipelines
 	gRenderer->primFillPipe = vk2dPipelineCreate(
@@ -592,7 +593,8 @@ void _vk2dRendererCreatePipelines() {
 			1,
 			&colourVertexInfo,
 			true,
-			gRenderer->config.msaa);
+			gRenderer->config.msaa,
+			false);
 	gRenderer->primLinePipe = vk2dPipelineCreate(
 			gRenderer->ld,
 			gRenderer->renderPass,
@@ -606,7 +608,8 @@ void _vk2dRendererCreatePipelines() {
 			1,
 			&colourVertexInfo,
 			false,
-			gRenderer->config.msaa);
+			gRenderer->config.msaa,
+			false);
 
 	// Model pipeline
 	gRenderer->modelPipe = vk2dPipelineCreate(
@@ -621,8 +624,9 @@ void _vk2dRendererCreatePipelines() {
 			layout,
 			3,
 			&modelVertexInfo,
-			false,
-			gRenderer->config.msaa);
+			true,
+			gRenderer->config.msaa,
+			true);
 
 	// Shader pipelines
 	for (i = 0; i < gRenderer->shaderListSize; i++) {
@@ -764,10 +768,11 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 
 		// And the one sampler set
 		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 1};
-		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = vk2dInitDescriptorPoolCreateInfo(&sizes, 1, 1);
+		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = vk2dInitDescriptorPoolCreateInfo(&sizes, 1, 2);
 		vk2dErrorCheck(vkCreateDescriptorPool(gRenderer->ld->dev, &descriptorPoolCreateInfo, VK_NULL_HANDLE, &gRenderer->samplerPool));
 		VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = vk2dInitDescriptorSetAllocateInfo(gRenderer->samplerPool, 1, &gRenderer->dslSampler);
 		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->samplerSet));
+		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->modelSamplerSet));
 		vk2dLogMessage("Descriptor controllers initialized...");
 	} else {
 		vk2dLogMessage("Descriptor controllers preserved...");
@@ -830,11 +835,23 @@ void _vk2dRendererDestroySynchronization() {
 
 void _vk2dRendererCreateSampler() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+
+	// 2D sampler
 	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode == ft_Linear, gRenderer->config.filterMode == ft_Linear ? gRenderer->config.msaa : 1, 1);
 	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler));
 	VkDescriptorImageInfo imageInfo = {}; // TODO: fix the bass-ackwards sampler/tex descriptor sets
 	imageInfo.sampler = gRenderer->textureSampler;
 	VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLER, 1, gRenderer->samplerSet, VK_NULL_HANDLE, 1, &imageInfo);
+	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
+
+	// 3D sampler
+	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->modelSampler));
+	imageInfo.sampler = gRenderer->modelSampler;
+	write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLER, 1, gRenderer->modelSamplerSet, VK_NULL_HANDLE, 1, &imageInfo);
 	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
 
 	vk2dLogMessage("Created texture sampler...");
@@ -843,6 +860,7 @@ void _vk2dRendererCreateSampler() {
 void _vk2dRendererDestroySampler() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vkDestroySampler(gRenderer->ld->dev, gRenderer->textureSampler, VK_NULL_HANDLE);
+	vkDestroySampler(gRenderer->ld->dev, gRenderer->modelSampler, VK_NULL_HANDLE);
 }
 
 void _vk2dRendererCreateUnits() {
@@ -1059,9 +1077,9 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 	vec3 origin2 = {-originX - x, originY + y, originZ + z};
 	vec3 scale = {-xscale, yscale, zscale};
 	//translateMatrix(push.model, origin2);
-	//rotateMatrix(push.model, axis, rot);
+	rotateMatrix(push.model, axis, rot);
 	//translateMatrix(push.model, originTranslation);
-	//scaleMatrix(push.model, scale); // TODO: Re-enable this stuff
+	//scaleMatrix(push.model, scale);
 	push.colourMod[0] = gRenderer->colourBlend[0];
 	push.colourMod[1] = gRenderer->colourBlend[1];
 	push.colourMod[2] = gRenderer->colourBlend[2];
