@@ -1057,7 +1057,7 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 }
 
 // Same as above but for 3D rendering
-void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, float zrot, float originX, float originY, float originZ, VK2DCameraIndex cam) {
+void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, VK2DCameraIndex cam) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
@@ -1072,14 +1072,13 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 	// Push constants
 	VK2D3DPushBuffer push = {};
 	identityMatrix(push.model);
-	vec3 axis = {0, 0, zrot};
-	vec3 originTranslation = {originX, -originY, originZ};
-	vec3 origin2 = {-originX - x, originY + y, originZ + z};
-	vec3 scale = {-xscale, yscale, zscale};
-	//translateMatrix(push.model, origin2);
+	vec3 originTranslation = {-originX, -originY, -originZ};
+	vec3 origin2 = {originX + x, originY + y, originZ + z};
+	vec3 scale = {xscale, yscale, zscale};
+	translateMatrix(push.model, origin2);
 	rotateMatrix(push.model, axis, rot);
-	//translateMatrix(push.model, originTranslation);
-	//scaleMatrix(push.model, scale);
+	translateMatrix(push.model, originTranslation);
+	scaleMatrix(push.model, scale);
 	push.colourMod[0] = gRenderer->colourBlend[0];
 	push.colourMod[1] = gRenderer->colourBlend[1];
 	push.colourMod[2] = gRenderer->colourBlend[2];
@@ -1122,13 +1121,13 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 }
 
 // Same as _vk2dRendererDraw below but specifically for 3D rendering
-void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, float zrot, float originX, float originY, float originZ) {
+void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// Only render to 3D cameras
 	for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 		if (gRenderer->cameras[i].state == cs_Normal && gRenderer->cameras[i].spec.type != ct_Default && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
 			sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-			_vk2dRendererDrawRaw3D(sets, setCount, model, pipe, x, y, z, xscale, yscale, zscale, rot, zrot, originX, originY, originZ, i);
+			_vk2dRendererDrawRaw3D(sets, setCount, model, pipe, x, y, z, xscale, yscale, zscale, rot, axis, originX, originY, originZ, i);
 		}
 	}
 }

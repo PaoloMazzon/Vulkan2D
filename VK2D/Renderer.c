@@ -632,13 +632,13 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 	}
 }
 
-void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, float zrot, float originX, float originY, float originZ) {
+void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ) {
 	if (gRenderer != NULL) {
 		if (model != NULL) {
 			VkDescriptorSet sets[3];
 			sets[1] = gRenderer->modelSamplerSet;
 			sets[2] = model->tex->img->set;
-			_vk2dRendererDraw3D(sets, 3, model, gRenderer->modelPipe, x, y, z, xscale, yscale, zscale, rot, zrot, originX,
+			_vk2dRendererDraw3D(sets, 3, model, gRenderer->modelPipe, x, y, z, xscale, yscale, zscale, rot, axis, originX,
 								originY, originZ);
 		} else {
 			vk2dLogMessage("Model does not exist");

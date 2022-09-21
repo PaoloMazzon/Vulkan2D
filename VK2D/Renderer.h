@@ -381,7 +381,7 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 /// \param originZ z origin to rotate around
 /// \warning This function will only render to 3D-enabled cameras (which you must set up yourself) and if there are
 /// none available this function will simply do nothing.
-void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, float zrot, float originX, float originY, float originZ);
+void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ);
 
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 

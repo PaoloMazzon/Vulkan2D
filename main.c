@@ -172,7 +172,8 @@ int main(int argc, const char *argv[]) {
 
 		// Lock to 3D camera for 3D model
 		vk2dRendererLockCameras(camera3D);
-		vk2dRendererDrawModel(testModel, 0, 0, 0, 1, 1, 1, rot, 1, 0, 0, 0);
+		vec3 axis = {0, 0, 1};
+		vk2dRendererDrawModel(testModel, 0, 0, 0, 1, 1, 1, -rot, axis, 0, 0, 0);
 
 		// Draw debug overlay
 		vk2dRendererLockCameras(VK2D_DEFAULT_CAMERA);
