@@ -735,12 +735,11 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.h = gRenderer->surfaceHeight;
 
 	VK2DCameraSpec unitCam = {
+			ct_Default,
 			0,
 			0,
 			1,
 			1,
-			1,
-			0
 	};
 	VK2DUniformBufferObject unitUBO = {};
 	_vk2dCameraUpdateUBO(&unitUBO, &unitCam);

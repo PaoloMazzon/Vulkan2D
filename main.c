@@ -169,6 +169,7 @@ int main(int argc, const char *argv[]) {
 		vk2dDrawTexture(testTexture, 0, 0);
 		vk2dRendererDrawTexture(testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);
 		vk2dRendererDrawTexture(testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale, (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
+		vk2dRendererClear();
 
 		// Lock to 3D camera for 3D model
 		vk2dRendererLockCameras(camera3D);
