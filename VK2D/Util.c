@@ -65,7 +65,7 @@ void _vk2dPrintUBO(FILE* out, VK2DUniformBufferObject ubo) {
 bool _vk2dFileExists(const char *filename) {
 	FILE* file = fopen(filename, "r");
 	bool out = file == NULL ? false : true;
-	fclose(file);
+	if (file != NULL) {fclose(file);}
 	return out;
 }
 
