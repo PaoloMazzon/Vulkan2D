@@ -61,12 +61,12 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 
 	// For the UBO
 	VK2DCameraSpec cam = {
+			ct_Default,
 			0,
 			0,
 			w,
 			h,
-			1,
-			0
+			1
 	};
 	VK2DUniformBufferObject ubo = {};
 	_vk2dCameraUpdateUBO(&ubo, &cam);

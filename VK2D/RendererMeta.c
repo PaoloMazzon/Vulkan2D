@@ -740,6 +740,7 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 			0,
 			1,
 			1,
+			1,
 	};
 	VK2DUniformBufferObject unitUBO = {};
 	_vk2dCameraUpdateUBO(&unitUBO, &unitCam);
