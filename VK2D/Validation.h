@@ -22,7 +22,8 @@ void vk2dLogMessage(const char* fmt, ...);
 #define vk2dPointerCheck(ptr) ((ptr) == NULL ? _vk2dPointerCheck(ptr, __FUNCTION__, __LINE__, #ptr) : 1)
 
 /// \brief Checks for an error without returning anything
-#define vk2dErrorCheck(vkresult) if ((vkresult) < 0) _vk2dErrorRaise(vkresult, __FUNCTION__, __LINE__, #vkresult)
+#define vk2dErrorCheck(vkresult) {VkResult tmpres = (vkresult);\
+if (tmpres < 0) _vk2dErrorRaise(tmpres, __FUNCTION__, __LINE__, #vkresult);}
 
 /// \brief Returns false if an error has occurred, printing that error as well
 #define vk2dErrorInline(vkresult) (vkresult) < 0 ? _vk2dErrorRaise(vkresult, __FUNCTION__, __LINE__, #vkresult) : true

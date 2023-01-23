@@ -96,7 +96,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 
 		// Create instance, physical, and logical device
 		VkInstanceCreateInfo instanceCreateInfo = vk2dInitInstanceCreateInfo((void*)&VK2D_DEFAULT_CONFIG, LAYERS, LAYER_COUNT, totalExtensions, totalExtensionCount);
-		vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
+		vk2dErrorCheck(vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk))
 		gRenderer->pd = vk2dPhysicalDeviceFind(gRenderer->vk, VK2D_DEVICE_BEST_FIT);
 		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true);
 		gRenderer->window = window;

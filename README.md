@@ -1,6 +1,6 @@
 ![basic demo](https://i.imgur.com/InP0Sou.gif)
 
-![another demo](https://i.imgur.com/H9HR9dJ.gif)
+![another demo](assets/gif.gif)
 
 Vulkan2D
 ========
