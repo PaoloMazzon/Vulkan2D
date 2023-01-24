@@ -468,28 +468,6 @@ VK2DCameraSpec vk2dRendererGetCamera() {
 	return c;
 }
 
-void vk2dRendererSetViewport(float x, float y, float w, float h) {
-	if (gRenderer != NULL) {
-		gRenderer->viewport.x = x;
-		gRenderer->viewport.y = y;
-		gRenderer->viewport.width = w;
-		gRenderer->viewport.height = h;
-	} else {
-		vk2dLogMessage("Renderer is not initialized");
-	}
-}
-
-void vk2dRendererGetViewport(float *x, float *y, float *w, float *h) {
-	if (gRenderer != NULL) {
-		*x = gRenderer->viewport.x;
-		*y = gRenderer->viewport.y;
-		*w = gRenderer->viewport.width;
-		*h = gRenderer->viewport.height;
-	} else {
-		vk2dLogMessage("Renderer is not initialized");
-	}
-}
-
 void vk2dRendererSetTextureCamera(bool useCameraOnTextures) {
 	if (gRenderer != NULL)
 		gRenderer->enableTextureCameraUBO = useCameraOnTextures;

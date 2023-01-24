@@ -1034,14 +1034,22 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 
 	// Dynamic state that can't be optimized further and the draw call
 	cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
-	VkViewport viewport = {
-			gRenderer->cameras[cam].spec.xOnScreen,
-			gRenderer->cameras[cam].spec.yOnScreen,
-			gRenderer->cameras[cam].spec.wOnScreen,
-			gRenderer->cameras[cam].spec.hOnScreen,
-			0,
-			1
-	};
+	VkViewport viewport;
+	if (gRenderer->target == NULL) {
+			viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
+			viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
+			viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
+			viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
+			viewport.minDepth = 0;
+			viewport.maxDepth = 1;
+	} else {
+		viewport.x = 0;
+		viewport.y = 0;
+		viewport.width = gRenderer->target->img->width;
+		viewport.height = gRenderer->target->img->height;
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+	}
 	VkRect2D scissor = {
 			{gRenderer->cameras[cam].spec.xOnScreen, gRenderer->cameras[cam].spec.yOnScreen},
 			{gRenderer->cameras[cam].spec.wOnScreen, gRenderer->cameras[cam].spec.hOnScreen}

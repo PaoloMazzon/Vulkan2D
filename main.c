@@ -141,7 +141,6 @@ int main(int argc, const char *argv[]) {
 		// Adjust for window size
 		int windowWidth, windowHeight;
 		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-		vk2dRendererSetViewport(0, 0, (float)windowWidth, (float)windowHeight);
 		cam.w = (float)windowWidth / 2;
 		cam.h = (float)windowHeight / 2;
 		vk2dCameraUpdate(testCamera, cam);
@@ -153,11 +152,9 @@ int main(int argc, const char *argv[]) {
 		if (!drawnToTestSurface) {
 			drawnToTestSurface = true;
 			vk2dRendererSetTarget(testSurface);
-			vk2dRendererSetViewport(0, 0, 100, 100);
 			vk2dRendererClear();
 			vk2dDrawTexture(testTexture, 0, 0);
 			vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
-			vk2dRendererSetViewport(0, 0, (float)windowWidth, (float)windowHeight);
 		}
 
 		vk2dRendererSetTarget(VK2D_TARGET_SCREEN);

@@ -259,20 +259,6 @@ void vk2dRendererLockCameras(VK2DCameraIndex cam);
 /// \brief Unlocking cameras means that all cameras will be drawn to again
 void vk2dRendererUnlockCameras();
 
-/// \brief Sets the current viewport (portion of the window that is drawn to)
-/// \param x X in window to draw to
-/// \param y Y in window to draw to
-/// \param w Width to draw
-/// \param h Height to draw
-void vk2dRendererSetViewport(float x, float y, float w, float h);
-
-/// \brief Gets the current viewport
-/// \param x Will be given the current x
-/// \param y Will be given the current y
-/// \param w Will be given the current w
-/// \param h Will be given the current h
-void vk2dRendererGetViewport(float *x, float *y, float *w, float *h);
-
 /// \brief Clears the current render target to the current renderer colour
 /// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
 void vk2dRendererClear();
