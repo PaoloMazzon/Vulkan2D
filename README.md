@@ -10,7 +10,7 @@ and [Spacelink](https://github.com/PaoloMazzon/Spacelink) are two jam games I wr
 
 Documentation
 =============
-Every file in VK2D is properly documented for doxygen, just run `doxygen` in `Vulkan2D/` and an html
+Every file in VK2D is properly documented for doxygen, run `doxygen` in `Vulkan2D/` and an html
 folder will be created containing the documentation.
 
 Usage
@@ -34,13 +34,12 @@ to keep up to date on improvements in this repo. This is good, but you should al
 and modify `VK2D/BuildOptions.h` before release or just not include that one and use your own or
 something. There are several little optimization options, but most importantly there is
 `#define VK2D_ENABLE_DEBUG`. Don't forget to disable that before building for release as the debug layers
-impact performance severely and more importantly usually aren't available on most PCs.
+are not present on most PCs.
 
 Example
 =======
 Using the renderer is quite simple, but there are some things to be aware of. For the sake
-of brevity, error checking is removed from the following example (always error check unless
-you like random crashes).
+of brevity, error checking is removed from the following example
 
     SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
    	SDL_Event e;
@@ -79,39 +78,20 @@ call `vk2dRendererWait()` before you start free your resources in case they're s
 the GPU (and of course call `vk2dRendererQuit()` after). Check the documentation on Renderer.h
 to see all the fun stuff you can do.
 
-Testing
-=======
-The CMakeLists.txt is there for testing purposes, not for use in projects. If you
-wish to use this in your project, just drop the VK2D directory into your project
-and build it with your project. It requires SDL2 and Vulkan to build.
-
 Features
 ========
 For a complete list of functions, generate the documentation and look at `VK2D/Renderer.h`
 
  + Simple and intuitive API built on top of SDL (you still control the window)
  + Draw shapes/textures/arbitrary polygons to the screen or other textures
- + Simple and fully-featured camera (try out the demo)
- + Multiple camera support (render to one or all of them concurrently)
+ + Fast, built with Vulkan 1.2 without any device extension requirements
+ + Simple and fully-featured camera
+ + Multiple camera support
  + External SPIR-V shader support
  + Optional blend mode support
- + Reasonably fast, built with Vulkan 1.2 without any device extension requirements
 
 TODO
 ====
 
- + Basic 3D rendering support
- + Compute particles
- + PostFX passes like in RetroArch (load shaders as post-effects that get applied to the final image of the frame)
-
-Window Resizing Doesn't Work
-============================
-When the window is resized, whatever cameras you may be using are not automatically updated. This means your main
-camera(s) may need to have the viewport updated to the new window size. The test program in `main.c` does this if you
-want an example (see `vk2dRendererSetViewport`, `vk2dRendererSetCamera`).
-
-Warning
-=======
-As of right now, VK2D does not check for garbage pointers. This was done because the user should be checking
-that the pointers they are creating are made properly but I plan to change it so the user-accessible portions
-of VK2D check pointers.
+ + More detailed 3D rendering
+ + Error checking on common user mistakes instead of relying on Vulkan layers
