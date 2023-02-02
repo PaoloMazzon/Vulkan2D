@@ -1034,14 +1034,19 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 
 	// Dynamic state that can't be optimized further and the draw call
 	cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
+	VkRect2D scissor;
 	VkViewport viewport;
 	if (gRenderer->target == NULL) {
-			viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
-			viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
-			viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
-			viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
-			viewport.minDepth = 0;
-			viewport.maxDepth = 1;
+		viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
+		viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
+		viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
+		viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+		scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
+		scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
+		scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
+		scissor.offset.y = gRenderer->cameras[cam].spec.xOnScreen;
 	} else {
 		viewport.x = 0;
 		viewport.y = 0;
@@ -1049,11 +1054,11 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 		viewport.height = gRenderer->target->img->height;
 		viewport.minDepth = 0;
 		viewport.maxDepth = 1;
+		scissor.extent.width = gRenderer->target->img->width;
+		scissor.extent.height = gRenderer->target->img->height;
+		scissor.offset.x = 0;
+		scissor.offset.y = 0;
 	}
-	VkRect2D scissor = {
-			{gRenderer->cameras[cam].spec.xOnScreen, gRenderer->cameras[cam].spec.yOnScreen},
-			{gRenderer->cameras[cam].spec.wOnScreen, gRenderer->cameras[cam].spec.hOnScreen}
-	};
 	vkCmdSetViewport(buf, 0, 1, &viewport);
 	vkCmdSetScissor(buf, 0, 1, &scissor);
 	vkCmdSetLineWidth(buf, lineWidth);
@@ -1110,18 +1115,31 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 
 	// Dynamic state that can't be optimized further and the draw call
 	cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
-	VkViewport viewport = {
-			gRenderer->cameras[cam].spec.xOnScreen,
-			gRenderer->cameras[cam].spec.yOnScreen,
-			gRenderer->cameras[cam].spec.wOnScreen,
-			gRenderer->cameras[cam].spec.hOnScreen,
-			0,
-			1
-	};
-	VkRect2D scissor = {
-			{gRenderer->cameras[cam].spec.xOnScreen, gRenderer->cameras[cam].spec.yOnScreen},
-			{gRenderer->cameras[cam].spec.wOnScreen, gRenderer->cameras[cam].spec.hOnScreen}
-	};
+	VkRect2D scissor;
+	VkViewport viewport;
+	if (gRenderer->target == NULL) {
+		viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
+		viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
+		viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
+		viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+		scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
+		scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
+		scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
+		scissor.offset.y = gRenderer->cameras[cam].spec.xOnScreen;
+	} else {
+		viewport.x = 0;
+		viewport.y = 0;
+		viewport.width = gRenderer->target->img->width;
+		viewport.height = gRenderer->target->img->height;
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+		scissor.extent.width = gRenderer->target->img->width;
+		scissor.extent.height = gRenderer->target->img->height;
+		scissor.offset.x = 0;
+		scissor.offset.y = 0;
+	}
 	vkCmdSetViewport(buf, 0, 1, &viewport);
 	vkCmdSetScissor(buf, 0, 1, &scissor);
 	vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2D3DPushBuffer), &push);
