@@ -41,7 +41,7 @@ struct VK2DLogicalDevice {
 /// B) the VK2DLogicalDevice will likely never change beyond the command pools getting reset, its
 /// not at all unreasonable to just store the logical device on anything that needs it constantly.
 /// TL;DR, always free VK2DLogicalDevice last (or ignore this if you're using VK2DRenderer).
-VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice);
+VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug);
 
 /// \brief Frees a logical device from memory
 void vk2dLogicalDeviceFree(VK2DLogicalDevice dev);

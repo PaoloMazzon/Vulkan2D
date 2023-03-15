@@ -3,7 +3,6 @@
 /// \brief Simple abstraction over VkPipeline objects
 #pragma once
 #include "VK2D/Structs.h"
-#include "VK2D/BuildOptions.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,12 +15,8 @@ struct VK2DPipeline {
 	VkPipelineLayout layout;    ///< Internal pipeline layout
 	VkRect2D rect;              ///< For setting up command buffers
 	VkClearValue clearValue[2]; ///< Clear values for the two attachments: colour and depth
+	VkPipeline pipes[bm_Max];   ///< Internal pipelines if `VK2D_GENERATE_BLEND_MODES` is enabled
 
-#ifdef VK2D_GENERATE_BLEND_MODES
-	VkPipeline pipes[bm_Max]; ///< Internal pipelines if `VK2D_GENERATE_BLEND_MODES` is enabled
-#else // VK2D_GENERATE_BLEND_MODES
-	VkPipeline pipe; ///< Internal pipeline (blend only)
-#endif // VK2D_GENERATE_BLEND_MODES
 };
 
 /// \brief Creates a graphics pipeline

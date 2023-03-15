@@ -5,7 +5,6 @@
 
 #include "VK2D/RendererMeta.h"
 #include "VK2D/Renderer.h"
-#include "VK2D/BuildOptions.h"
 #include "VK2D/Validation.h"
 #include "VK2D/Initializers.h"
 #include "VK2D/Constants.h"
@@ -15,11 +14,6 @@
 #include "VK2D/Shader.h"
 #include "VK2D/Image.h"
 #include "VK2D/Model.h"
-
-// To set DPI awareness
-#ifdef WIN32
-#include <Windows.h>
-#endif // WIN32
 
 /******************************* Forward declarations *******************************/
 
@@ -31,40 +25,47 @@ unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
 // For everything
 VK2DRenderer gRenderer = NULL;
 
-#ifdef VK2D_ENABLE_DEBUG
-static const char* EXTENSIONS[] = {
+static const char* DEBUG_EXTENSIONS[] = {
 		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
 };
-static const char* LAYERS[] = {
+static const char* DEBUG_LAYERS[] = {
 		"VK_LAYER_KHRONOS_validation"
 };
-static const int LAYER_COUNT = 1;
-static const int EXTENSION_COUNT = 1;
-#else // VK2D_ENABLE_DEBUG
-static const char* EXTENSIONS[] = {
+static const int DEBUG_LAYER_COUNT = 1;
+static const int DEBUG_EXTENSION_COUNT = 1;
+
+static const char* BASE_EXTENSIONS[] = {
 
 };
-static const char* LAYERS[] = {
+static const char* BASE_LAYERS[] = {
 
 };
-static const int LAYER_COUNT = 0;
-static const int EXTENSION_COUNT = 0;
-#endif // VK2D_ENABLE_DEBUG
+static const int BASE_LAYER_COUNT = 0;
+static const int BASE_EXTENSION_COUNT = 0;
 
+static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
+		false,
+		true,
+		true,
+		"vk2derror.txt",
+		false
+};
 
 /******************************* User-visible functions *******************************/
 
-int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
+int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options) {
 	gRenderer = calloc(1, sizeof(struct VK2DRenderer));
 	int32_t errorCode = 0;
 	uint32_t totalExtensionCount, i, sdlExtensions;
 	const char** totalExtensions;
 
-	// Windows 10 dpi settings don't play nice
-#ifdef WIN32
-	SetProcessDPIAware();
-	SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-#endif // WIN32
+	// Find the startup options
+	VK2DStartupOptions userOptions;
+	if (options == NULL) {
+		userOptions = DEFAULT_STARTUP_OPTIONS;
+	} else {
+		userOptions = *options;
+	}
 
 	// Print all available layers
 	VkLayerProperties *systemLayers;
@@ -80,13 +81,21 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 
 	// Find number of total number of extensions
 	SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, VK_NULL_HANDLE);
-	totalExtensionCount = sdlExtensions + EXTENSION_COUNT;
+	if (userOptions.enableDebug) {
+		totalExtensionCount = sdlExtensions + DEBUG_EXTENSION_COUNT;
+	} else {
+		totalExtensionCount = sdlExtensions + BASE_EXTENSION_COUNT;
+	}
 	totalExtensions = malloc(totalExtensionCount * sizeof(char*));
 
 	if (vk2dPointerCheck(gRenderer)) {
 		// Load extensions
 		SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, totalExtensions);
-		for (i = sdlExtensions; i < totalExtensionCount; i++) totalExtensions[i] = EXTENSIONS[i - sdlExtensions];
+		if (userOptions.enableDebug) {
+			for (i = sdlExtensions; i < totalExtensionCount; i++) totalExtensions[i] = DEBUG_EXTENSIONS[i - sdlExtensions];
+		} else {
+			for (i = sdlExtensions; i < totalExtensionCount; i++) totalExtensions[i] = BASE_EXTENSIONS[i - sdlExtensions];
+		}
 
 		// Log all used extensions
 		vk2dLogMessage("Vulkan Enabled Extensions: ");
@@ -95,10 +104,19 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		vk2dLogMessage(""); // Newline
 
 		// Create instance, physical, and logical device
-		VkInstanceCreateInfo instanceCreateInfo = vk2dInitInstanceCreateInfo((void*)&VK2D_DEFAULT_CONFIG, LAYERS, LAYER_COUNT, totalExtensions, totalExtensionCount);
+		VkInstanceCreateInfo instanceCreateInfo;
+		if (userOptions.enableDebug) {
+			instanceCreateInfo = vk2dInitInstanceCreateInfo((void *) &VK2D_DEFAULT_CONFIG, DEBUG_LAYERS,
+																				 DEBUG_LAYER_COUNT, totalExtensions,
+																				 totalExtensionCount);
+		} else {
+			instanceCreateInfo = vk2dInitInstanceCreateInfo((void *) &VK2D_DEFAULT_CONFIG, BASE_LAYERS,
+																				 BASE_LAYER_COUNT, totalExtensions,
+																				 totalExtensionCount);
+		}
 		vk2dErrorCheck(vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk))
 		gRenderer->pd = vk2dPhysicalDeviceFind(gRenderer->vk, VK2D_DEVICE_BEST_FIT);
-		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true);
+		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true, userOptions.enableDebug);
 		gRenderer->window = window;
 
 		// Assign user settings, except for screen mode which will be handled later
@@ -114,6 +132,9 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config) {
 		allocatorCreateInfo.instance = gRenderer->vk;
 		allocatorCreateInfo.vulkanApiVersion = VK_MAKE_VERSION(1, 1, 0);
 		vmaCreateAllocator(&allocatorCreateInfo, &gRenderer->vma);
+
+		// Copy user options
+		gRenderer->options = userOptions;
 
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();
@@ -170,10 +191,9 @@ void vk2dRendererQuit() {
 		vk2dLogicalDeviceFree(gRenderer->ld);
 		vk2dPhysicalDeviceFree(gRenderer->pd);
 
+		vk2dLogMessage("VK2D has been uninitialized.");
 		free(gRenderer);
 		gRenderer = NULL;
-
-		vk2dLogMessage("VK2D has been uninitialized.");
 	}
 }
 
@@ -215,7 +235,7 @@ void vk2dRendererSetConfig(VK2DRendererConfig config) {
 	}
 }
 
-void vk2dRendererStartFrame(vec4 clearColour) {
+void vk2dRendererStartFrame(const vec4 clearColour) {
 	if (gRenderer != NULL) {
 		if (!gRenderer->procedStartFrame) {
 			gRenderer->procedStartFrame = true;
@@ -509,9 +529,7 @@ void vk2dRendererClear() {
 
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
 	if (gRenderer != NULL) {
-#ifdef VK2D_UNIT_GENERATION
 		vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox / w, oy / h);
-#endif // VK2D_UNIT_GENERATION
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
@@ -519,9 +537,7 @@ void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, floa
 
 void vk2dRendererDrawRectangleOutline(float x, float y, float w, float h, float r, float ox, float oy, float lineWidth) {
 	if (gRenderer != NULL) {
-#ifdef VK2D_UNIT_GENERATION
 		vk2dRendererDrawPolygon(gRenderer->unitSquareOutline, x, y, false, lineWidth, w, h, r, ox / w, oy / h);
-#endif //  VK2D_UNIT_GENERATION
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
@@ -529,9 +545,7 @@ void vk2dRendererDrawRectangleOutline(float x, float y, float w, float h, float 
 
 void vk2dRendererDrawCircle(float x, float y, float r) {
 	if (gRenderer != NULL) {
-#ifdef VK2D_UNIT_GENERATION
 		vk2dRendererDrawPolygon(gRenderer->unitCircle, x, y, true, 1, r * 2, r * 2, 0, 0, 0);
-#endif //  VK2D_UNIT_GENERATION
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
@@ -539,9 +553,7 @@ void vk2dRendererDrawCircle(float x, float y, float r) {
 
 void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
 	if (gRenderer != NULL) {
-#ifdef VK2D_UNIT_GENERATION
 		vk2dRendererDrawPolygon(gRenderer->unitCircleOutline, x, y, false, lineWidth, r * 2, r * 2, 0, 0, 0);
-#endif //  VK2D_UNIT_GENERATION
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
@@ -549,11 +561,9 @@ void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
 
 void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
 	if (gRenderer != NULL) {
-#ifdef VK2D_UNIT_GENERATION
 		float x = sqrtf(powf(y2 - y1, 2) + powf(x2 - x1, 2));
 		float r = atan2f(y2 - y1, x2 - x1);
 		vk2dRendererDrawPolygon(gRenderer->unitLine, x1, y1, false, 1, x, 1, r, 0, 0);
-#endif //  VK2D_UNIT_GENERATION
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}

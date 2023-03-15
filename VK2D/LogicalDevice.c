@@ -6,7 +6,7 @@
 #include "VK2D/PhysicalDevice.h"
 #include <malloc.h>
 
-VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice) {
+VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug) {
 	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice));
 	uint32_t queueFamily = graphicsDevice == true ? dev->QueueFamily.graphicsFamily : dev->QueueFamily.computeFamily;
 
@@ -24,7 +24,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 
 		float priority = 1;
 		VkDeviceQueueCreateInfo queueCreateInfo = vk2dInitDeviceQueueCreateInfo(queueFamily, &priority);
-		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(&queueCreateInfo, 1, &feats);
+		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(&queueCreateInfo, 1, &feats, debug);
 		VkCommandPoolCreateInfo commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 		vk2dErrorCheck(vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev));
 		ldev->pd = dev;

@@ -182,6 +182,15 @@ typedef struct VK2DConfiguration {
 	uint32_t apiVersion;         ///< Version of vulkan
 } VK2DConfiguration;
 
+/// \brief Startup options that dictate some basic VK2D stuff
+typedef struct VK2DStartupOptions {
+	bool enableDebug;       ///< Enables Vulkan compatibility layers
+	bool stdoutLogging;     ///< Print VK2D information to stdout
+	bool quitOnError;       ///< Crash the program when an error occurs
+	const char *errorFile;  ///< The file to output errors to, or NULL to disable file output
+	bool loadCustomShaders; ///< Whether or not to load shaders from a file instead of the built-in ones
+} VK2DStartupOptions;
+
 /// \brief User configurable settings
 /// \warning Currently filterMode cannot be changed after the renderer is created but this is likely going to be fixed later
 typedef struct VK2DRendererConfig {

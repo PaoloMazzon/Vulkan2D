@@ -1,29 +1,26 @@
 /// \file Initializers.c
 /// \author Paolo Mazzon
 #include "VK2D/Initializers.h"
-#include "VK2D/BuildOptions.h"
 #include "VK2D/Structs.h"
 #include <SDL2/SDL_vulkan.h>
 
-#ifdef VK2D_ENABLE_DEBUG
-static const char* EXTENSIONS[] = {
+static const char* DEBUG_EXTENSIONS[] = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
-static const char* LAYERS[] = {
+static const char* DEBUG_LAYERS[] = {
 		"VK_LAYER_LUNARG_standard_validation"
 };
-static const int LAYER_COUNT = 1;
-static const int EXTENSION_COUNT = 1;
-#else // VK2D_ENABLE_DEBUG
-static const char* EXTENSIONS[] = {
+static const int DEBUG_LAYER_COUNT = 1;
+static const int DEBUG_EXTENSION_COUNT = 1;
+
+static const char* BASE_EXTENSIONS[] = {
 		VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
-static const char* LAYERS[] = {
+static const char* BASE_LAYERS[] = {
 
 };
-static const int LAYER_COUNT = 0;
-static const int EXTENSION_COUNT = 1;
-#endif // VK2D_ENABLE_DEBUG
+static const int BASE_LAYER_COUNT = 0;
+static const int BASE_EXTENSION_COUNT = 1;
 
 VkApplicationInfo vk2dInitApplicationInfo(VK2DConfiguration *info) {
 	VkApplicationInfo ret;
@@ -58,16 +55,23 @@ VkDeviceQueueCreateInfo vk2dInitDeviceQueueCreateInfo(uint32_t queueFamilyIndex,
 }
 
 VkDeviceCreateInfo vk2dInitDeviceCreateInfo(VkDeviceQueueCreateInfo *info, uint32_t size,
-										  VkPhysicalDeviceFeatures *features) {
+										  VkPhysicalDeviceFeatures *features, bool debug) {
 	VkDeviceCreateInfo createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	createInfo.pQueueCreateInfos = info;
 	createInfo.queueCreateInfoCount = size;
 	createInfo.pEnabledFeatures = features;
-	createInfo.ppEnabledLayerNames = LAYERS;
-	createInfo.ppEnabledExtensionNames = EXTENSIONS;
-	createInfo.enabledLayerCount = LAYER_COUNT;
-	createInfo.enabledExtensionCount = EXTENSION_COUNT;
+	if (debug) {
+		createInfo.ppEnabledLayerNames = DEBUG_LAYERS;
+		createInfo.ppEnabledExtensionNames = DEBUG_EXTENSIONS;
+		createInfo.enabledLayerCount = DEBUG_LAYER_COUNT;
+		createInfo.enabledExtensionCount = DEBUG_EXTENSION_COUNT;
+	} else {
+		createInfo.ppEnabledLayerNames = BASE_LAYERS;
+		createInfo.ppEnabledExtensionNames = BASE_EXTENSIONS;
+		createInfo.enabledLayerCount = BASE_LAYER_COUNT;
+		createInfo.enabledExtensionCount = BASE_EXTENSION_COUNT;
+	}
 	return createInfo;
 }
 

@@ -5,7 +5,6 @@
 
 #include "VK2D/RendererMeta.h"
 #include "VK2D/Renderer.h"
-#include "VK2D/BuildOptions.h"
 #include "VK2D/Validation.h"
 #include "VK2D/Initializers.h"
 #include "VK2D/Constants.h"
@@ -233,22 +232,25 @@ void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera) {
 
 void _vk2dRendererCreateDebug() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-#ifdef VK2D_ENABLE_DEBUG
-	fvkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(gRenderer->vk, "vkCreateDebugReportCallbackEXT");
-	fvkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(gRenderer->vk, "vkDestroyDebugReportCallbackEXT");
+	if (gRenderer->options.enableDebug) {
+		fvkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT) vkGetInstanceProcAddr(gRenderer->vk,
+																									 "vkCreateDebugReportCallbackEXT");
+		fvkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(gRenderer->vk,
+																									   "vkDestroyDebugReportCallbackEXT");
 
-	if (vk2dPointerCheck(fvkCreateDebugReportCallbackEXT) && vk2dPointerCheck(fvkDestroyDebugReportCallbackEXT)) {
-		VkDebugReportCallbackCreateInfoEXT callbackCreateInfoEXT = vk2dInitDebugReportCallbackCreateInfoEXT(_vk2dDebugCallback);
-		fvkCreateDebugReportCallbackEXT(gRenderer->vk, &callbackCreateInfoEXT, VK_NULL_HANDLE, &gRenderer->dr);
+		if (vk2dPointerCheck(fvkCreateDebugReportCallbackEXT) && vk2dPointerCheck(fvkDestroyDebugReportCallbackEXT)) {
+			VkDebugReportCallbackCreateInfoEXT callbackCreateInfoEXT = vk2dInitDebugReportCallbackCreateInfoEXT(
+					_vk2dDebugCallback);
+			fvkCreateDebugReportCallbackEXT(gRenderer->vk, &callbackCreateInfoEXT, VK_NULL_HANDLE, &gRenderer->dr);
+		}
 	}
-#endif // VK2D_ENABLE_DEBUG
 }
 
 void _vk2dRendererDestroyDebug() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-#ifdef VK2D_ENABLE_DEBUG
-	fvkDestroyDebugReportCallbackEXT(gRenderer->vk, gRenderer->dr, VK_NULL_HANDLE);
-#endif // VK2D_ENABLE_DEBUG
+	if (gRenderer->options.enableDebug) {
+		fvkDestroyDebugReportCallbackEXT(gRenderer->vk, gRenderer->dr, VK_NULL_HANDLE);
+	}
 }
 
 // Grabs a preferred present mode if available returning FIFO if its unavailable
@@ -534,32 +536,32 @@ void _vk2dRendererCreatePipelines() {
 	unsigned char *shaderModelFrag = (void*)VK2DFragModel;
 
 	// Potentially load some different ones
-#ifdef VK2D_LOAD_CUSTOM_SHADERS
-	if (_vk2dFileExists("shaders/texvert.spv")) {
-		CustomTexVertShader = true;
-		shaderTexVert = _vk2dLoadFile("shaders/texvert.spv", &shaderTexVertSize);
+	if (gRenderer->options.loadCustomShaders) {
+		if (_vk2dFileExists("shaders/texvert.spv")) {
+			CustomTexVertShader = true;
+			shaderTexVert = _vk2dLoadFile("shaders/texvert.spv", &shaderTexVertSize);
+		}
+		if (_vk2dFileExists("shaders/texfrag.spv")) {
+			CustomTexFragShader = true;
+			shaderTexFrag = _vk2dLoadFile("shaders/texfrag.spv", &shaderTexFragSize);
+		}
+		if (_vk2dFileExists("shaders/colourvert.spv")) {
+			CustomColourVertShader = true;
+			shaderColourVert = _vk2dLoadFile("shaders/colourvert.spv", &shaderColourVertSize);
+		}
+		if (_vk2dFileExists("shaders/colourfrag.spv")) {
+			CustomColourFragShader = true;
+			shaderColourFrag = _vk2dLoadFile("shaders/colourfrag.spv", &shaderColourFragSize);
+		}
+		if (_vk2dFileExists("shaders/modelvert.spv")) {
+			CustomModelVertShader = true;
+			shaderModelVert = _vk2dLoadFile("shaders/modelvert.spv", &shaderModelVertSize);
+		}
+		if (_vk2dFileExists("shaders/modelfrag.spv")) {
+			CustomModelFragShader = true;
+			shaderModelFrag = _vk2dLoadFile("shaders/modelfrag.spv", &shaderModelFragSize);
+		}
 	}
-	if (_vk2dFileExists("shaders/texfrag.spv")) {
-		CustomTexFragShader = true;
-		shaderTexFrag = _vk2dLoadFile("shaders/texfrag.spv", &shaderTexFragSize);
-	}
-	if (_vk2dFileExists("shaders/colourvert.spv")) {
-		CustomColourVertShader = true;
-		shaderColourVert = _vk2dLoadFile("shaders/colourvert.spv", &shaderColourVertSize);
-	}
-	if (_vk2dFileExists("shaders/colourfrag.spv")) {
-		CustomColourFragShader = true;
-		shaderColourFrag = _vk2dLoadFile("shaders/colourfrag.spv", &shaderColourFragSize);
-	}
-	if (_vk2dFileExists("shaders/modelvert.spv")) {
-		CustomModelVertShader = true;
-		shaderModelVert = _vk2dLoadFile("shaders/modelvert.spv", &shaderModelVertSize);
-	}
-	if (_vk2dFileExists("shaders/modelfrag.spv")) {
-		CustomModelFragShader = true;
-		shaderModelFrag = _vk2dLoadFile("shaders/modelfrag.spv", &shaderModelFragSize);
-	}
-#endif // VK2D_LOAD_CUSTOM_SHADERS
 
 	// Texture pipeline
 	VkDescriptorSetLayout layout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTexture};
@@ -865,7 +867,6 @@ void _vk2dRendererDestroySampler() {
 
 void _vk2dRendererCreateUnits() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-#ifdef VK2D_UNIT_GENERATION
 	// Squares are simple
 	gRenderer->unitSquare = vk2dPolygonShapeCreateRaw(unitSquare, unitSquareVertices);
 	gRenderer->unitSquareOutline = vk2dPolygonCreateOutline(unitSquareOutline, unitSquareOutlineVertices);
@@ -881,20 +882,15 @@ void _vk2dRendererCreateUnits() {
 	gRenderer->unitCircleOutline = vk2dPolygonCreateOutline(circleVertices, VK2D_CIRCLE_VERTICES);
 	gRenderer->unitLine = vk2dPolygonCreateOutline((void*)LINE_VERTICES, LINE_VERTEX_COUNT);
 	vk2dLogMessage("Created unit polygons...");
-#else // VK2D_UNIT_GENERATION
-	vk2dLogMessage("Unit polygons disabled...");
-#endif // VK2D_UNIT_GENERATION
 }
 
 void _vk2dRendererDestroyUnits() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-#ifdef VK2D_UNIT_GENERATION
 	vk2dPolygonFree(gRenderer->unitSquare);
 	vk2dPolygonFree(gRenderer->unitSquareOutline);
 	vk2dPolygonFree(gRenderer->unitCircle);
 	vk2dPolygonFree(gRenderer->unitCircleOutline);
 	vk2dPolygonFree(gRenderer->unitLine);
-#endif // VK2D_UNIT_GENERATION
 }
 
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);

@@ -36,6 +36,7 @@ struct VK2DRenderer {
 	VK2DCameraSpec defaultCameraSpec;     ///< Default camera spec (spec for camera 0)
 	VK2DCamera cameras[VK2D_MAX_CAMERAS]; ///< All cameras to be drawn to
 	VK2DCameraIndex cameraLocked;         ///< If true, only the default camera will be drawn to
+	VK2DStartupOptions options;           ///< Root options for the renderer
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -121,6 +122,7 @@ struct VK2DRenderer {
 /// \brief Initializes VK2D's renderer
 /// \param window An SDL window created with the flag SDL_WINDOW_VULKAN
 /// \param config Initial renderer configuration settings
+/// \param options Renderer options, or just NULL for defaults
 /// \return Returns weather or not the function was successful, less than zero is an error
 ///
 /// GPUs are not guaranteed to support certain screen modes and msaa levels (integrated
@@ -140,7 +142,7 @@ struct VK2DRenderer {
 /// renderer will recreate the pipelines without the user ever needing to get involved. This means
 /// all pipeline settings and shaders are copied and stored inside the renderer should they need
 /// to be remade.
-int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config);
+int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options);
 
 /// \brief Waits until current GPU tasks are done before moving on
 ///
@@ -181,7 +183,7 @@ void vk2dRendererResetSwapchain();
 /// \brief Performs the tasks necessary to start rendering a frame (call before you start drawing)
 /// \param clearColour Colour to clear the screen to
 /// \warning You may only call drawing functions after vk2dRendererStartFrame is called and before vk2dRendererEndFrame is called
-void vk2dRendererStartFrame(vec4 clearColour);
+void vk2dRendererStartFrame(const vec4 clearColour);
 
 /// \brief Performs the tasks necessary to complete/present a frame (call once you're done drawing)
 /// \warning You may only call drawing functions after vk2dRendererStartFrame is called and before vk2dRendererEndFrame is called

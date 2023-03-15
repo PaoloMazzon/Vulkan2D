@@ -58,7 +58,8 @@ int main(int argc, const char *argv[]) {
 	// Initialize vk2d
 	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Nearest};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
-	int32_t error = vk2dRendererInit(window, config);
+	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
+	int32_t error = vk2dRendererInit(window, config, &options);
 
 	if (error < 0)
 		return -1;

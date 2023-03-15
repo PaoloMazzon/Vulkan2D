@@ -12,7 +12,7 @@ extern "C" {
 VkApplicationInfo vk2dInitApplicationInfo(VK2DConfiguration *info);
 VkInstanceCreateInfo vk2dInitInstanceCreateInfo(VkApplicationInfo *appInfo, const char **layers, int layerCount, const char **extensions, int extensionCount);
 VkDeviceQueueCreateInfo vk2dInitDeviceQueueCreateInfo(uint32_t queueFamilyIndex, float *priority);
-VkDeviceCreateInfo vk2dInitDeviceCreateInfo(VkDeviceQueueCreateInfo *info, uint32_t size, VkPhysicalDeviceFeatures *features);
+VkDeviceCreateInfo vk2dInitDeviceCreateInfo(VkDeviceQueueCreateInfo *info, uint32_t size, VkPhysicalDeviceFeatures *features, bool debug);
 VkCommandPoolCreateInfo vk2dInitCommandPoolCreateInfo(uint32_t queueFamilyIndex, VkCommandPoolCreateFlags flags);
 VkCommandBufferAllocateInfo vk2dInitCommandBufferAllocateInfo(VkCommandPool pool, uint32_t count);
 VkDebugReportCallbackCreateInfoEXT vk2dInitDebugReportCallbackCreateInfoEXT(PFN_vkDebugReportCallbackEXT callback);

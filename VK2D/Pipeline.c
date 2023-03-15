@@ -67,7 +67,6 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 			pipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 		}
 
-#ifdef VK2D_GENERATE_BLEND_MODES
 		for (i = 0; i < bm_Max; i++) {
 			VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo = vk2dInitPipelineColorBlendStateCreateInfo(&VK2D_BLEND_MODES[i], 1);
 			VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo = vk2dInitGraphicsPipelineCreateInfo(
@@ -85,23 +84,6 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 					renderPass);
 			vk2dErrorCheck(vkCreateGraphicsPipelines(dev->dev, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, VK_NULL_HANDLE, &pipe->pipes[i]));
 		}
-#else // VK2D_GENERATE_BLEND_MODES
-		VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo = vk2dInitPipelineColorBlendStateCreateInfo(&VK2D_BLEND_MODES[0], 1);
-		VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo = vk2dInitGraphicsPipelineCreateInfo(
-				shaderStageCreateInfo,
-				shaderStageCount,
-				vertexInfo,
-				&pipelineInputAssemblyStateCreateInfo,
-				&pipelineViewportStateCreateInfo,
-				&pipelineRasterizationStateCreateInfo,
-				&pipelineMultisampleStateCreateInfo,
-				&pipelineDepthStencilStateCreateInfo,
-				&pipelineColorBlendStateCreateInfo,
-				&pipelineDynamicStateCreateInfo,
-				pipe->layout,
-				renderPass);
-		vk2dErrorCheck(vkCreateGraphicsPipelines(dev->dev, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, VK_NULL_HANDLE, &pipe->pipe));
-#endif // VK2D_GENERATE_BLEND_MODES
 
 		vkDestroyShaderModule(dev->dev, vertShader, VK_NULL_HANDLE);
 		vkDestroyShaderModule(dev->dev, fragShader, VK_NULL_HANDLE);
@@ -111,23 +93,15 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 }
 
 VkPipeline vk2dPipelineGetPipe(VK2DPipeline pipe, VK2DBlendMode blendMode) {
-#ifdef VK2D_GENERATE_BLEND_MODES
 	return pipe->pipes[blendMode];
-#else // VK2D_GENERATE_BLEND_MODES
-	return pipe->pipe;
-#endif // VK2D_GENERATE_BLEND_MODES
 }
 
 void vk2dPipelineFree(VK2DPipeline pipe) {
 	if (pipe != NULL) {
 		vkDestroyPipelineLayout(pipe->dev->dev, pipe->layout, VK_NULL_HANDLE);
-#ifdef VK2D_GENERATE_BLEND_MODES
 		uint32_t i;
 		for (i = 0; i < bm_Max; i++)
 			vkDestroyPipeline(pipe->dev->dev, pipe->pipes[i], VK_NULL_HANDLE);
-#else // VK2D_GENERATE_BLEND_MODES
-		vkDestroyPipeline(pipe->dev->dev, pipe->pipe, VK_NULL_HANDLE);
-#endif // VK2D_GENERATE_BLEND_MODES
 		free(pipe);
 	}
 }
