@@ -44,7 +44,7 @@ of brevity, error checking is removed from the following example
     SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
    	SDL_Event e;
    	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Nearest};
-    vk2dRendererInit(window, config);
+    vk2dRendererInit(window, config, NULL);
     vec4 clearColour = {0.0, 0.0, 0.0, 1.0}; // Black
     bool stopRunning = false;
     
