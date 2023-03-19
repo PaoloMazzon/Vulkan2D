@@ -381,7 +381,19 @@ VK2DLogicalDevice vk2dRendererGetDevice() {
 void vk2dRendererSetTarget(VK2DTexture target) {
 	if (gRenderer != NULL) {
 		if (target != gRenderer->target) {
+			// In case the user attempts to switch targets from one texture to another
+			if (target != VK2D_TARGET_SCREEN && gRenderer->target != VK2D_TARGET_SCREEN) {
+				vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
+			}
+
+			// Dont let the user bind textures that are not targets
+			if (target != VK2D_TARGET_SCREEN && !vk2dTextureIsTarget(target)) {
+				vk2dLogMessage("Texture cannot be used as a target.");
+				return;
+			}
+
 			gRenderer->target = target;
+
 			// Figure out which render pass to use
 			VkRenderPass pass = target == VK2D_TARGET_SCREEN ? gRenderer->midFrameSwapRenderPass
 															 : gRenderer->externalTargetRenderPass;

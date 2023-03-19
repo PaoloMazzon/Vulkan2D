@@ -9,6 +9,7 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Buffer.h"
 #include "VK2D/DescriptorControl.h"
+#include "VK2D/stb_image.h"
 #include <malloc.h>
 
 static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer) {
@@ -27,6 +28,32 @@ VK2DTexture vk2dTextureLoadFromImage(VK2DImage image) {
 	} else {
 		free(out);
 		out = NULL;
+	}
+
+	return out;
+}
+
+VK2DTexture vk2dTextureFrom(void *data, int size) {
+	VK2DImage image;
+	VK2DTexture out = NULL;
+
+	int x, y, channels;
+	void *pixels = stbi_load_from_memory(data, size, &x, &y, &channels, 4);
+	if (pixels != NULL) {
+		image = vk2dImageFromPixels(vk2dRendererGetDevice(), pixels, x, y);
+		if (vk2dPointerCheck(image)) {
+			out = vk2dTextureLoadFromImage(image);
+			if (vk2dPointerCheck(out)) {
+				_vk2dTextureCreateDescriptor(out, vk2dRendererGetPointer());
+				out->imgHandled = true;
+			} else {
+				vk2dImageFree(image);
+			}
+		}
+	}
+
+	if (pixels != NULL) {
+		stbi_image_free(pixels);
 	}
 
 	return out;
@@ -107,6 +134,10 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 	}
 
 	return out;
+}
+
+bool vk2dTextureIsTarget(VK2DTexture tex) {
+	return tex->fbo != VK_NULL_HANDLE;
 }
 
 void vk2dTextureFree(VK2DTexture tex) {
