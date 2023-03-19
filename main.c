@@ -84,6 +84,7 @@ int main(int argc, const char *argv[]) {
 	cameraSpec3D.Perspective.fov = 70;
 	VK2DCameraIndex camera3D = vk2dCameraCreate(cameraSpec3D);
 	VK2DModel testModel = vk2dModelCreate(SAMPLE_MODEL, SAMPLE_MODEL_VERTICES, testTexture);
+	//VK2DShader shader = vk2dShaderCreate("assets/tex.vert.spv", "assets/tex.frag.spv", 0);
 
 	// Delta and fps
 	double lastTime = SDL_GetPerformanceCounter();
@@ -193,6 +194,7 @@ int main(int argc, const char *argv[]) {
 
 	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
+	//vk2dShaderFree(shader);
 	vk2dModelFree(testModel);
 	vk2dTextureFree(testFont);
 	vk2dTextureFree(testSurface);

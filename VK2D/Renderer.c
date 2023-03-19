@@ -317,6 +317,12 @@ void vk2dRendererEndFrame() {
 	if (gRenderer != NULL) {
 		if (gRenderer->procedStartFrame) {
 			gRenderer->procedStartFrame = false;
+
+			// Make sure we're not in the wrong pipeline
+			if (gRenderer->target != VK2D_TARGET_SCREEN) {
+				vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
+			}
+
 			// Finish the primary command buffer, its time to PRESENT things
 			vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
 			vk2dErrorCheck(vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]));
