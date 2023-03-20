@@ -26,3 +26,6 @@ bool _vk2dFileExists(const char *filename);
 
 /// \brief Loads a file into a buffer and returns it (as well as its size)
 unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
+
+/// \brief Copies a string
+unsigned char *_vk2dCopyBuffer(void *buffer, int size);

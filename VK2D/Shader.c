@@ -7,6 +7,7 @@
 #include "VK2D/LogicalDevice.h"
 #include "VK2D/Validation.h"
 #include "VK2D/DescriptorControl.h"
+#include "VK2D/Util.h"
 #include <malloc.h>
 
 void _vk2dRendererAddShader(VK2DShader shader);
@@ -42,16 +43,62 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
 			false);
 }
 
-VK2DShader vk2dShaderCreate(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize) {
+VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize) {
+	if (uniformBufferSize % 4 != 0) {
+		vk2dLogMessage("Uniform buffer size for shader is invalid, must be multiple of 4");
+		return NULL;
+	}
+
 	VK2DShader out = malloc(sizeof(struct VK2DShader));
-	uint32_t vertFileSize, fragFileSize, i;
+	int i;
 	VK2DRenderer renderer = vk2dRendererGetPointer();
-	unsigned char *vertFile = _vk2dLoadFile(vertexShader, &vertFileSize);
-	unsigned char *fragFile = _vk2dLoadFile(fragmentShader, &fragFileSize);
+	uint8_t *vertFile = _vk2dCopyBuffer(vertexShaderBuffer, vertexShaderBufferSize);
+	uint8_t *fragFile = _vk2dCopyBuffer(fragmentShaderBuffer, fragmentShaderBufferSize);
 	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
 	if (vk2dRendererGetPointer() != NULL) {
-		if (vk2dPointerCheck(out) && vk2dPointerCheck(vertFile) && vk2dPointerCheck(fragFile)) {
+		if (vk2dPointerCheck(out) && vk2dPointerCheck((void*)vertFile) && vk2dPointerCheck((void*)fragFile)) {
+			out->spvFrag = fragFile;
+			out->spvVert = vertFile;
+			out->spvVertSize = vertexShaderBufferSize;
+			out->spvFragSize = fragmentShaderBufferSize;
+			out->uniformSize = uniformBufferSize;
+			out->dev = dev;
+			out->currentUniform = 0;
+
+			for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
+				out->uniforms[i] = vk2dBufferCreate(dev, uniformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+													VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+													VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+				out->sets[i] = vk2dDescConGetBufferSet(renderer->descConUser, out->uniforms[i]);
+			}
+
+			_vk2dShaderBuildPipe(out);
+		}
+	} else {
+		free(out);
+		out = NULL;
+		vk2dLogMessage("Renderer is not initialized");
+	}
+
+	return out;
+}
+
+VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize) {
+	if (uniformBufferSize % 4 != 0) {
+		vk2dLogMessage("Uniform buffer size for shader \"%s\"/\"%s\" is invalid, must be multiple of 4", vertexShader, fragmentShader);
+		return NULL;
+	}
+
+	VK2DShader out = malloc(sizeof(struct VK2DShader));
+	uint32_t vertFileSize, fragFileSize, i;
+	VK2DRenderer renderer = vk2dRendererGetPointer();
+	uint8_t *vertFile = _vk2dLoadFile(vertexShader, &vertFileSize);
+	uint8_t *fragFile = _vk2dLoadFile(fragmentShader, &fragFileSize);
+	VK2DLogicalDevice dev = vk2dRendererGetDevice();
+
+	if (vk2dRendererGetPointer() != NULL) {
+		if (vk2dPointerCheck(out) && vk2dPointerCheck((void*)vertFile) && vk2dPointerCheck((void*)fragFile)) {
 			out->spvFrag = fragFile;
 			out->spvVert = vertFile;
 			out->spvVertSize = vertFileSize;
@@ -74,18 +121,16 @@ VK2DShader vk2dShaderCreate(const char *vertexShader, const char *fragmentShader
 		out = NULL;
 		vk2dLogMessage("Renderer is not initialized");
 	}
-	free(vertFile);
-	free(fragFile);
 
 	return out;
 }
 
-void vk2dShaderUpdate(VK2DShader shader, void *data, uint32_t size) {
+void vk2dShaderUpdate(VK2DShader shader, void *data) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer != NULL) {
 		void *mem;
 		vk2dErrorCheck(vmaMapMemory(gRenderer->vma, shader->uniforms[shader->currentUniform]->mem, &mem));
-		memcpy(mem, data, size);
+		memcpy(mem, data, shader->uniformSize);
 		vmaUnmapMemory(gRenderer->vma, shader->uniforms[shader->currentUniform]->mem);
 		shader->currentUniform = (shader->currentUniform + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
 	} else {

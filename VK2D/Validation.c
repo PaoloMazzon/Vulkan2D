@@ -56,17 +56,24 @@ void vk2dLogMessage(const char* fmt, ...) {
 
 VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	char firstHalf[1000];
 	FILE* output;
 	if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
 		output = stderr;
 	else
 		output = stdout;
-	fprintf(output, "[VK2D] Callback: %i/%i/%" PRIu64 "/%" PRIu64 "/%i (%s) %s\n", flags, objectType, sourceObject, (uint64_t)location, messageCode, layerPrefix, message);
+	snprintf(firstHalf, 999, "%s", layerPrefix);
+	fprintf(output, "%s\n", firstHalf);
+	for (int i = 0; i < strlen(firstHalf); i++)
+		fprintf(output, "-");
+	fprintf(output, "\n%s\n", message);
 	fflush(output);
 	if (gRenderer->options.errorFile != NULL) {
 		FILE *file = fopen(gRenderer->options.errorFile, "a");
-		fprintf(file, "[VK2D] Callback: %i/%i/%" PRIu64 "/%" PRIu64 "/%i (%s) %s\n", flags, objectType, sourceObject,
-				(uint64_t) location, messageCode, layerPrefix, message);
+		fprintf(file, "%s\n", firstHalf);
+		for (int i = 0; i < strlen(firstHalf); i++)
+			fprintf(file, "-");
+		fprintf(file, "\n%s\n", message);
 		fclose(file);
 	}
 	if (gRenderer->options.quitOnError)

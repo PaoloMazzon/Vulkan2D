@@ -5,8 +5,20 @@
 Vulkan2D
 ========
 VK2D is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
-simple API, requiring no Vulkan experience to use. For examples of Vulkan2D in use, [Peace & Liberty](https://github.com/PaoloMazzon/PeacenLiberty)
-and [Spacelink](https://github.com/PaoloMazzon/Spacelink) are two jam games I wrote in a weekend using Vulkan2D.
+simple API, requiring no Vulkan experience to use. [Astro](https://github.com/PaoloMazzon/Astro)
+and more recently [Bedlam](https://github.com/PaoloMazzon/Bedlam) internally use Vulkan2D for
+rendering. My other projects [Spacelink](https://github.com/PaoloMazzon/Spacelink) and
+[Peace & Liberty](https://github.com/PaoloMazzon/PeacenLiberty) also used Vulkan2D, although
+a much older version of it.
+
+Features
+========
+
+ + Simple and intuitive API built on top of SDL
+ + Draw shapes/textures/arbitrary polygons to the screen or other textures
+ + Fast, built with Vulkan 1.2 without any device extension requirements
+ + Simple and fully-featured cameras, allowing for multiple concurrent cameras
+ + Load custom shaders to replace the renderer's built-in ones and extra custom shaders
 
 Documentation
 =============
@@ -16,7 +28,7 @@ folder will be created containing the documentation.
 Usage
 =====
 There are two parts to building it with your project: you must build VK2D and also VMA since
-VK2D needs VMA to function. Simply put, you'll likely need to do something like this in CMake:
+VK2D needs VMA to function. You'll likely need to do something like this in CMake:
 
     set(VMA_FILES VK2D/VulkanMemoryAllocator/src/vk_mem_alloc.h VK2D/VulkanMemoryAllocator/src/VmaUsage.cpp)
     file(GLOB VK2D_FILES VK2D/VK2D/*.c)
@@ -24,17 +36,8 @@ VK2D needs VMA to function. Simply put, you'll likely need to do something like 
     include_directories(... VK2D/)
     add_executable(... ${VK2D_FILES} ${VMA_FILES})
    
-You also need to link/include SDL2 and Vulkan but that is kind of implied. There will be no
-instructions on how to do that here since there are much better guides elsewhere.
-
-Build Options
--------------
-Typically you would want to just include repo in your repo as a submodule (`git submodule add https://github.com/PaoloMazzon/Vulkan2D`)
-to keep up to date on improvements in this repo. This is good, but you should also look at
-and modify `VK2D/BuildOptions.h` before release or just not include that one and use your own or
-something. There are several little optimization options, but most importantly there is
-`#define VK2D_ENABLE_DEBUG`. Don't forget to disable that before building for release as the debug layers
-are not present on most PCs.
+You also need to link/include SDL2 and Vulkan but that will not be covered here as there are 
+great guides elsewhere. Feel free to use the included CMakeLists.txt as a starting point.
 
 Example
 =======
@@ -69,29 +72,11 @@ of brevity, error checking is removed from the following example
    	vk2dRendererQuit();
    	SDL_DestroyWindow(window);
 
-SDL functions were included the example to remove any confusion on how the two integrate, but
-SDL is very simple to use and won't be discussed here beyond don't forget to give the window the
-`SDL_WINDOW_VULKAN` flag. You first initialize the renderer with some configuration (which can
-be changed whenever), then at the start of the frame you call `vk2dRendererStartFrame()` and at
-the end of the frame you call `vk2dRendererEndFrame()`. Other than that, its crucial that you
-call `vk2dRendererWait()` before you start free your resources in case they're still in use by
-the GPU (and of course call `vk2dRendererQuit()` after). Check the documentation on Renderer.h
-to see all the fun stuff you can do.
-
-Features
-========
-For a complete list of functions, generate the documentation and look at `VK2D/Renderer.h`
-
- + Simple and intuitive API built on top of SDL (you still control the window)
- + Draw shapes/textures/arbitrary polygons to the screen or other textures
- + Fast, built with Vulkan 1.2 without any device extension requirements
- + Simple and fully-featured camera
- + Multiple camera support
- + External SPIR-V shader support
- + Optional blend mode support
+And that's about all you need. You can freely manipulate the window, if Vulkan2D detects
+a window change the renderer will automatically adjust.
 
 TODO
 ====
 
  + More detailed 3D rendering
- + Error checking on common user mistakes instead of relying on Vulkan layers
+ + Variable number of buffers per shader

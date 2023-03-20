@@ -21,9 +21,9 @@ extern "C" {
 /// (push constants, vertex attributes, and uniforms) in addition to a user-defined uniform
 /// buffer.
 struct VK2DShader {
-	unsigned char *spvVert;  ///< Vertex shader in SPIR-V
+	uint8_t *spvVert;        ///< Vertex shader in SPIR-V
 	uint32_t spvVertSize;    ///< Size of the vertex shader (in bytes)
-	unsigned char *spvFrag;  ///< Fragment shader in SPIR-V
+	uint8_t *spvFrag;        ///< Fragment shader in SPIR-V
 	uint32_t spvFragSize;    ///< Size of the fragment shader (in bytes)
 	VK2DPipeline pipe;       ///< Pipeline associated with this shader
 	uint32_t uniformSize;    ///< Uniform buffer size in bytes
@@ -34,63 +34,49 @@ struct VK2DShader {
 };
 
 /// \brief Creates a shader you can use to render textures
-/// \param dev Device to create the shader with
 /// \param vertexShader File containing the compiled SPIR-V vertex shader
 /// \param fragmentShader File containing the compiled SPIR-V fragment shader
-/// \param uniformBufferSize Size of the shader's expected uniform buffer (0 is valid)
+/// \param uniformBufferSize Size of the shader's expected uniform buffer (0 is valid, must be a multiple of 4)
 /// \return Returns a new shader or NULL
 /// \warning There are strict requirements for how the shader should be constructed
 ///
-/// The following layout variables are a requirement for shaders uploaded to this
-/// function.
-///
-/// Vertex shader layouts:
-///
-///     layout(set = 0, binding = 0) uniform UniformBufferObject {
-///         mat4 view;
-///         mat4 proj;
-///     } ubo;
-///     layout(push_constant) uniform PushBuffer {
-///         mat4 model;
-///         vec4 colourMod;
-///     } pushBuffer;
-///     layout(location = 0) in vec3 inPosition;
-///     layout(location = 1) in vec4 inColor;
-///     layout(location = 2) in vec2 inTexCoord;
-///     layout(location = 0) out vec4 fragColor;
-///     layout(location = 1) out vec2 fragTexCoord;
-///
-/// Fragment shader layouts:
-///
-///     layout(set = 1, binding = 1) uniform sampler texSampler;
-///     layout(set = 2, binding = 2) uniform texture2D tex;
-///     layout(push_constant) uniform PushBuffer {
-///         mat4 model;
-///         vec4 colourMod;
-///     } pushBuffer;
-///     layout(location = 0) in vec4 fragColor;
-///     layout(location = 1) in vec2 fragTexCoord;
-///     layout(location = 0) out vec4 outColor;
-///
-/// Optionally if you specify a size for uniform data (if you need
-/// to pass data to your shaders) you must also specify the following
-/// layout in both the fragment and vertex shader:
+/// Check the shaders shaders/tex.vert and shaders/tex.frag for information on how
+/// the shaders should be laid out. Additionally, if you provide a uniformBufferSize other
+/// than 0, you must specify
 ///
 ///     layout(set = 3, binding = 3) uniform UserData {
 ///         // your data here...
 ///     } userData;
 ///
-/// The specified uniform buffer size must match the size of the data you
-/// use in `UserData` exactly and it must also be a multiple of 4.
-VK2DShader vk2dShaderCreate(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize);
+/// At the top of both shaders.
+VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize);
+
+/// \brief Creates a shader you can use to render textures from an in-memory buffer
+/// \param vertexShaderBuffer Buffer containing compiled SPIR-V shader code
+/// \param vertexShaderBufferSize Size of the vertexShaderBuffer buffer in bytes
+/// \param fragmentShaderBuffer File containing the compiled SPIR-V fragment shader
+/// \param fragmentShaderBufferSize Size of the fragmentShaderBuffer buffer in bytes
+/// \param uniformBufferSize Size of the shader's expected uniform buffer (0 is valid, must be a multiple of 4)
+/// \return Returns a new shader or NULL
+/// \warning There are strict requirements for how the shader should be constructed
+///
+/// Check the shaders shaders/tex.vert and shaders/tex.frag for information on how
+/// the shaders should be laid out. Additionally, if you provide a uniformBufferSize other
+/// than 0, you must specify
+///
+///     layout(set = 3, binding = 3) uniform UserData {
+///         // your data here...
+///     } userData;
+///
+/// At the top of both shaders.
+VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize);
 
 /// \brief Updates a uniform in a shader
 /// \param shader Shader to update the uniform data for
 /// \param data Data to upload to the uniform
-/// \param size Size of data in bytes
 /// \warning Do not call this more than once a frame
-/// \warning If you specified 0 for `size` in vk2dShaderCreate you cannot call this
-void vk2dShaderUpdate(VK2DShader shader, void *data, uint32_t size);
+/// \warning If you specified 0 for `size` in vk2dShaderLoad you cannot call this
+void vk2dShaderUpdate(VK2DShader shader, void *data);
 
 /// \brief Frees a shader from memory
 /// \param shader Shader to free

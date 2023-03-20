@@ -3,6 +3,7 @@
 #include "Util.h"
 #include <stdio.h>
 #include <malloc.h>
+#include <string.h>
 #include <math.h>
 #include "VK2D/Initializers.h"
 #include "VK2D/Structs.h"
@@ -90,4 +91,15 @@ unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size) {
 	}
 
 	return buffer;
+}
+
+unsigned char *_vk2dCopyBuffer(void *buffer, int size) {
+	char *new = NULL;
+	if (buffer != NULL && size != 0) {
+		new = malloc(size);
+		if (new != NULL) {
+			memcpy(new, buffer, size);
+		}
+	}
+	return new;
 }
