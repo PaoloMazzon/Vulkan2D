@@ -223,19 +223,13 @@ void vk2dRendererSetColourMod(const vec4 mod);
 void vk2dRendererGetColourMod(vec4 dst);
 
 /// \brief Allows you to enable or disable the use of the renderer's camera when drawing to textures
-/// \param useCameraOnTextures If true, the renderer's camera will be used when drawing to textures
+/// \param useCameraOnTextures See below
 ///
-/// This is kind of unintuitive to explain with a quick sentence, so here is a very long explanation.
-/// Whenever you create a texture that is meant to be drawn to, a view and projection matrix are made
-/// for it that account for its internal width and height (in order to properly render things. Look
-/// into model-view-projection matrices if you're interested). The renderer stores several of these
-/// (one per swapchain image as to allow for multi-frame rendering, this is not something the user
-/// needs to think about) that use the user-provided camera so you can have simple 2D camera controls.
-/// Should you want to render your game to a texture before drawing it to screen (possibly for pixel-
-/// perfect scaling or to apply fragment shaders) you can enable this to make the renderer use the
-/// internal camera matrices instead of the texture ones which allows you to use your camera transformations
-/// when you draw to your textures. If you choose to do this, you most likely want to make the camera's
-/// virtual width and height equal to the texture's actual width and height.
+/// If enabled, your cameras will be used when rendering to textures. If disabled, all drawing
+/// to the texture will be done in texture space; ie, drawing at pos (20, 20) means 20
+/// pixels to the right in the texture and 20 pixels down in the texture from the origin which
+/// is the top-left corner just like the screen. You will often want to enable this so you
+/// may draw your game to a texture.
 void vk2dRendererSetTextureCamera(bool useCameraOnTextures);
 
 /// \brief Gets the average amount of time frames are taking to process from the start of vk2dRendererStartFrame to the end of vk2dRendererEndFrame
@@ -262,8 +256,10 @@ void vk2dRendererLockCameras(VK2DCameraIndex cam);
 void vk2dRendererUnlockCameras();
 
 /// \brief Clears the current render target to the current renderer colour
-/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
 void vk2dRendererClear();
+
+/// \brief Clears the content so that every pixel in the target is set to be complete transparent (useful for new texture targets)
+void vk2dRendererEmpty();
 
 /// \brief Draws a rectangle using the current rendering colour
 /// \param x X position to draw the rectangle

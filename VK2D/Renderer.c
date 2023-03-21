@@ -545,6 +545,26 @@ void vk2dRendererClear() {
 	}
 }
 
+void vk2dRendererEmpty() {
+	if (gRenderer != NULL) {
+		// Save old renderer state to revert back
+		VK2DBlendMode bm = vk2dRendererGetBlendMode();
+		vec4 c;
+		vk2dRendererGetColourMod(c);
+
+		// Set the render mode to be blend mode none, and the colour to be a flat 0
+		const vec4 clearColour = {0, 0, 0, 0};
+		vk2dRendererSetColourMod(clearColour);
+		vk2dRendererSetBlendMode(bm_None);
+		vk2dRendererClear();
+
+		vk2dRendererSetColourMod(c);
+		vk2dRendererSetBlendMode(bm);
+	} else {
+		vk2dLogMessage("Renderer is not initialized");
+	}
+}
+
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
 	if (gRenderer != NULL) {
 		vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox / w, oy / h);

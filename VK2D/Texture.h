@@ -47,8 +47,17 @@ VK2DTexture vk2dTextureFrom(void *data, int size);
 /// \param w Width of the texture
 /// \param h Height of the texture
 /// \return Returns a new texture or NULL if it failed
-/// \warning Textures are closely tied to the renderer and require the renderer be initialized to load and use them
 VK2DTexture vk2dTextureCreate(float w, float h);
+
+/// \brief Gets the width in pixels of a texture
+/// \param tex Texture to get the width from
+/// \return Returns the width in pixels
+float vk2dTextureWidth(VK2DTexture tex);
+
+/// \brief Gets the height in pixels of a texture
+/// \param tex Texture to get the height from
+/// \return Returns the height in pixels
+float vk2dTextureHeight(VK2DTexture tex);
 
 /// \brief Checks if a texture was created as a target or not
 /// \param Texture to check

@@ -136,6 +136,14 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 	return out;
 }
 
+float vk2dTextureWidth(VK2DTexture tex) {
+	return tex->img->width;
+}
+
+float vk2dTextureHeight(VK2DTexture tex) {
+	return tex->img->height;
+}
+
 bool vk2dTextureIsTarget(VK2DTexture tex) {
 	return tex->fbo != VK_NULL_HANDLE;
 }
