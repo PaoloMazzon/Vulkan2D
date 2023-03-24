@@ -129,19 +129,9 @@ struct VK2DRenderer {
 /// gpus often don't support triple buffering, 32x msaa is not terribly common), so if
 /// you request something that isn't supported, the next best thing is used in its place.
 ///
-/// Something important to note is that by default the renderer has three graphics pipelines that
-/// you can add to. Those three pipelines are as follows:
-///
-///  - Texture pipeline that uses VK2DVertexTexture as vertices
-///  - Primitives pipeline that draws filled triangles that uses VK2DVertexColour as vertices
-///  - Primitives pipeline that draws wireframe triangles that uses VK2DVertexColour as vertices
-///
-/// That should cover ~95% of all 2D drawing requirements, for specifics just check the shaders'
-/// source code. Pipelines that are added by the user are tracked by the renderer and should
-/// the swapchain need to be reconstructed (config change, window resize, user requested) the
-/// renderer will recreate the pipelines without the user ever needing to get involved. This means
-/// all pipeline settings and shaders are copied and stored inside the renderer should they need
-/// to be remade.
+/// VK2DStartupOptions lets you control how some meta things in the renderer, such as
+/// whether or not to enable stdout logging or enable the Vulkan validation layers. Leave this
+/// null for options that would generally be fine for most things.
 int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options);
 
 /// \brief Waits until current GPU tasks are done before moving on
@@ -154,39 +144,37 @@ void vk2dRendererQuit();
 
 /// \brief Gets the internal renderer's pointer
 /// \return Returns the internal VK2DRenderer pointer (can be NULL)
-/// \warning This could be referred to as the ***DANGER ZONE***, read the documentation before trying anything
+/// \warning Probably don't use this.
 VK2DRenderer vk2dRendererGetPointer();
 
 /// \brief Gets the current user configuration of the renderer
 /// \return Returns the structure containing the config information
 ///
-/// This returns the *ACTUAL* user configuration, not what you've requested. If you've
-/// requested for a setting that isn't available on the current device, this will return
-/// what was actually used instead (for example, if you request 32x MSAA but only 8x was
-/// available, 8x will be returned).
+/// This returns what is actually being used in the renderer and not what you may
+/// have requested; for example, if you requested 16x msaa but the host only supports
+/// up to 8x msaa, this function will return a configuration with 8x msaa.
 VK2DRendererConfig vk2dRendererGetConfig();
 
 /// \brief Resets the renderer with a new configuration
 /// \param config New render user configuration to use
 ///
-/// Changes take effect when vk2dRendererResetSwapchain would normally take effect. That
-/// also means vk2dRendererGetConfig will continue to return the same thing until this
-/// configuration takes effect at the end of the frame.
+/// Changes take effect generally at the end of the frame.
 void vk2dRendererSetConfig(VK2DRendererConfig config);
 
-/// \brief Resets the rendering pipeline after the next frame is rendered
+/// \brief Forces the renderer to rebuild itself (VK2D does this automatically)
 ///
 /// This is automatically done when Vulkan detects the window is no longer suitable,
-/// but this is still available to do manually if you so desire.
+/// but this is still available to do manually if you so desire. Generally there is
+/// no reason to use this.
 void vk2dRendererResetSwapchain();
 
-/// \brief Performs the tasks necessary to start rendering a frame (call before you start drawing)
+/// \brief Sets up the renderer to prepare for drawing
 /// \param clearColour Colour to clear the screen to
-/// \warning You may only call drawing functions after vk2dRendererStartFrame is called and before vk2dRendererEndFrame is called
+/// \warning Camera updates are applied in this function and any camera updates called after this
+/// function will not be applied until the next time this function is called.
 void vk2dRendererStartFrame(const vec4 clearColour);
 
-/// \brief Performs the tasks necessary to complete/present a frame (call once you're done drawing)
-/// \warning You may only call drawing functions after vk2dRendererStartFrame is called and before vk2dRendererEndFrame is called
+/// \brief Completes the end-of-frame drawing tasks
 void vk2dRendererEndFrame();
 
 /// \brief Returns the logical device being used by the renderer
@@ -195,13 +183,10 @@ VK2DLogicalDevice vk2dRendererGetDevice();
 
 /// \brief Changes the render target to a texture or the screen
 /// \param target Target texture to switch to or VK2D_TARGET_SCREEN for the screen
-/// \warning This can be computationally expensive so don't take this simple function lightly (it ends then starts a render pass)
-/// \warning Any time you change the target to a texture, you absolutely must change the target back to VK2D_TARGET_SCREEN when you're done drawing or else you can expect a crash
+/// \warning This is mildly taxing on the GPU
 ///
-/// If things aren't being drawn the way you expect them to be, you may be forgetting
-/// to set the viewport. If you change targets to a texture smaller than the screen, you
-/// likely want to change the viewport to the size of the texture as well or you will
-/// get some strange effects.
+/// Switches drawing operations so that they will be performed on the specified target.
+/// Target must be either a texture that was created for rendering or VK2D_TARGET_SCREEN.
 void vk2dRendererSetTarget(VK2DTexture target);
 
 /// \brief Sets the rendering blend mode (does nothing if VK2D_GENERATE_BLEND_MODES is disabled)

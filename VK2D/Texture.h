@@ -26,7 +26,6 @@ struct VK2DTexture {
 /// \brief Creates a texture from an image
 /// \param image Image to use
 /// \return Returns a new texture or NULL if it failed
-/// \warning Textures are closely tied to the renderer and require the renderer be initialized to load and use them
 /// \warning Textures created with this function are NOT valid render targets
 VK2DTexture vk2dTextureLoadFromImage(VK2DImage image);
 

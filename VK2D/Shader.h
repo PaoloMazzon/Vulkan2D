@@ -19,7 +19,7 @@ extern "C" {
 /// And most importantly, these shaders are all treated as texture shaders, which is to
 /// say they will all receive the same data that the tex.vert and tex.frag shaders would
 /// (push constants, vertex attributes, and uniforms) in addition to a user-defined uniform
-/// buffer.
+/// buffer if one is specified.
 struct VK2DShader {
 	uint8_t *spvVert;        ///< Vertex shader in SPIR-V
 	uint32_t spvVertSize;    ///< Size of the vertex shader (in bytes)
@@ -45,6 +45,8 @@ struct VK2DShader {
 /// than 0, you must specify
 ///
 ///     layout(set = 3, binding = 3) uniform UserData {
+///         float myval; // examples, you may pass whatever here.
+///         vec3 mycolour;
 ///         // your data here...
 ///     } userData;
 ///
@@ -65,6 +67,8 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 /// than 0, you must specify
 ///
 ///     layout(set = 3, binding = 3) uniform UserData {
+///         float myval; // examples, you may pass whatever here.
+///         vec3 mycolour;
 ///         // your data here...
 ///     } userData;
 ///
@@ -76,6 +80,12 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
 /// \param data Data to upload to the uniform
 /// \warning Do not call this more than once a frame
 /// \warning If you specified 0 for `size` in vk2dShaderLoad you cannot call this
+///
+/// Because of how VK2D works you cannot just call this once and depend on the same
+/// data being present in following frames. VK2D updates (by default) 3 frames at a
+/// time so internally there are 3 shaders buffers meaning you must call this 3 times
+/// before the same data is present on each buffer, but much more practically just call
+/// this once a frame.
 void vk2dShaderUpdate(VK2DShader shader, void *data);
 
 /// \brief Frees a shader from memory
