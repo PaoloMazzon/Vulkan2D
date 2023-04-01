@@ -300,7 +300,7 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			clearValues[0].color.float32[1] = clearColour[1];
 			clearValues[0].color.float32[2] = clearColour[2];
 			clearValues[0].color.float32[3] = clearColour[3];
-			clearValues[1].depthStencil.depth = 0;
+			clearValues[1].depthStencil.depth = 1;
 			VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
 					gRenderer->renderPass,
 					gRenderer->framebuffers[gRenderer->scImageIndex],

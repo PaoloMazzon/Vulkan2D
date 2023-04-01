@@ -65,6 +65,12 @@ void _vk2dRendererAddShader(VK2DShader shader) {
 		if (vk2dPointerCheck(newList)) {
 			found = gRenderer->shaderListSize;
 			gRenderer->customShaders = newList;
+
+			// Set the new slots to null
+			for (i = gRenderer->shaderListSize; i < gRenderer->shaderListSize + VK2D_DEFAULT_ARRAY_EXTENSION; i++) {
+				gRenderer->customShaders[i] = NULL;
+			}
+
 			gRenderer->shaderListSize += VK2D_DEFAULT_ARRAY_EXTENSION;
 		}
 	}
@@ -383,7 +389,7 @@ void _vk2dRendererCreateColourResources() {
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 				(VkSampleCountFlagBits) gRenderer->config.msaa);
-		vk2dLogMessage("Colour resources initialized...");
+		vk2dLogMessage("Colour resources initialized for MSAA of %i...", gRenderer->config.msaa);
 	} else {
 		vk2dLogMessage("Colour resources not enabled...");
 	}

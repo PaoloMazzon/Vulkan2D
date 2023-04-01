@@ -65,6 +65,9 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		// 3D settings
 		if (for3D) {
 			pipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+			pipelineDepthStencilStateCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+			pipelineDepthStencilStateCreateInfo.depthTestEnable = VK_TRUE;
+			pipelineDepthStencilStateCreateInfo.depthWriteEnable = VK_TRUE;
 		}
 
 		for (i = 0; i < bm_Max; i++) {

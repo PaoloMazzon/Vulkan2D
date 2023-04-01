@@ -73,6 +73,7 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
 				out->sets[i] = vk2dDescConGetBufferSet(renderer->descConUser, out->uniforms[i]);
 			}
 
+			_vk2dRendererAddShader(out);
 			_vk2dShaderBuildPipe(out);
 		}
 	} else {
@@ -114,6 +115,7 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 				out->sets[i] = vk2dDescConGetBufferSet(renderer->descConUser, out->uniforms[i]);
 			}
 
+			_vk2dRendererAddShader(out);
 			_vk2dShaderBuildPipe(out);
 		}
 	} else {
