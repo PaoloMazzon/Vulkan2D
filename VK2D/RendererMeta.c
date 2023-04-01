@@ -358,7 +358,7 @@ void _vk2dRendererCreateDepthBuffer() {
 
 	if (selectedFormat != VK_FORMAT_MAX_ENUM) {
 		gRenderer->depthBufferFormat = selectedFormat;
-		gRenderer->depthBuffer = vk2dImageCreate(gRenderer->ld, gRenderer->surfaceWidth, gRenderer->surfaceHeight, gRenderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 1);
+		gRenderer->depthBuffer = vk2dImageCreate(gRenderer->ld, gRenderer->surfaceWidth, gRenderer->surfaceHeight, gRenderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, (VkSampleCountFlagBits)gRenderer->config.msaa);
 		vk2dLogMessage("Depth buffer initialized...");
 	} else {
 		vk2dLogMessage("Failed to create depth buffer.");
@@ -400,9 +400,9 @@ void _vk2dRendererCreateRenderPass() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t attachCount;
 	if (gRenderer->config.msaa != 1) {
-		attachCount = 2; // colour, resolve
+		attachCount = 3; // colour, depth, resolve
 	} else {
-		attachCount = 1; // colour
+		attachCount = 2; // colour, depth
 	}
 	VkAttachmentReference resolveAttachment;
 	VkAttachmentDescription attachments[attachCount];
@@ -413,16 +413,24 @@ void _vk2dRendererCreateRenderPass() {
 	attachments[0].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	attachments[0].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	attachments[0].finalLayout = gRenderer->config.msaa > 1 ? VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	attachments[1].format = gRenderer->depthBufferFormat;
+	attachments[1].samples = (VkSampleCountFlagBits)gRenderer->config.msaa;
+	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	if (gRenderer->config.msaa != 1) {
-		attachments[1].format = gRenderer->surfaceFormat.format;
-		attachments[1].samples = VK_SAMPLE_COUNT_1_BIT;
-		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		attachments[1].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		resolveAttachment.attachment = 1;
+		attachments[2].format = gRenderer->surfaceFormat.format;
+		attachments[2].samples = VK_SAMPLE_COUNT_1_BIT;
+		attachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[2].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+		attachments[2].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+		attachments[2].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		attachments[2].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		attachments[2].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		resolveAttachment.attachment = 2;
 		resolveAttachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	}
 
@@ -435,13 +443,18 @@ void _vk2dRendererCreateRenderPass() {
 		subpassColourAttachments0[i].layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 	}
 
+	// Subpass depth attachment
+	VkAttachmentReference subpassDepthAttachmentReference = {};
+	subpassDepthAttachmentReference.attachment = 1;
+	subpassDepthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
 	// Set up subpass
 	const uint32_t subpassCount = 1;
 	VkSubpassDescription subpasses[1] = {};
 	subpasses[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpasses[0].colorAttachmentCount = colourAttachCount;
 	subpasses[0].pColorAttachments = subpassColourAttachments0;
-	subpasses[0].pDepthStencilAttachment = VK_NULL_HANDLE;
+	subpasses[0].pDepthStencilAttachment = &subpassDepthAttachmentReference;
 	subpasses[0].pResolveAttachments = gRenderer->config.msaa > 1 ? &resolveAttachment : VK_NULL_HANDLE;
 
 	// Subpass dependency
@@ -461,13 +474,19 @@ void _vk2dRendererCreateRenderPass() {
 		attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachments[1].initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		attachments[1].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachments[2].initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		attachments[2].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+		attachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	} else {
 		attachments[0].initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 		attachments[0].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 		attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	}
 	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->midFrameSwapRenderPass));
 
@@ -475,13 +494,19 @@ void _vk2dRendererCreateRenderPass() {
 		attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-		attachments[1].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		attachments[1].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachments[2].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[2].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+		attachments[2].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	} else {
 		attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[0].finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 		attachments[0].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+		attachments[1].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	}
 	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->externalTargetRenderPass));
 
@@ -705,13 +730,15 @@ void _vk2dRendererCreateFrameBuffer() {
 	if (vk2dPointerCheck(gRenderer->framebuffers)) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			// There is no 3rd attachment if msaa is disabled
-			const int attachCount = gRenderer->config.msaa > 1 ? 2 : 1;
+			const int attachCount = gRenderer->config.msaa > 1 ? 3 : 2;
 			VkImageView attachments[attachCount];
 			if (gRenderer->config.msaa > 1) {
 				attachments[0] = gRenderer->msaaImage->view;
-				attachments[1] = gRenderer->swapchainImageViews[i];
+				attachments[1] = gRenderer->depthBuffer->view;
+				attachments[2] = gRenderer->swapchainImageViews[i];
 			} else {
 				attachments[0] = gRenderer->swapchainImageViews[i];
+				attachments[1] = gRenderer->depthBuffer->view;
 			}
 
 			VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(gRenderer->renderPass, gRenderer->surfaceWidth, gRenderer->surfaceHeight, attachments, attachCount);
@@ -947,13 +974,15 @@ void _vk2dRendererRefreshTargets() {
 
 			// Framebuffer
 			vkDestroyFramebuffer(gRenderer->ld->dev, gRenderer->targets[i]->fbo, VK_NULL_HANDLE);
-			const int attachCount = gRenderer->config.msaa > 1 ? 2 : 1;
+			const int attachCount = gRenderer->config.msaa > 1 ? 3 : 2;
 			VkImageView attachments[attachCount];
 			if (gRenderer->config.msaa > 1) {
 				attachments[0] = gRenderer->targets[i]->sampledImg->view;
-				attachments[1] = gRenderer->targets[i]->img->view;
+				attachments[1] = gRenderer->depthBuffer->view;
+				attachments[2] = gRenderer->targets[i]->img->view;
 			} else {
 				attachments[0] = gRenderer->targets[i]->img->view;
+				attachments[1] = gRenderer->depthBuffer->view;
 			}
 
 			VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(gRenderer->externalTargetRenderPass, gRenderer->targets[i]->img->width, gRenderer->targets[i]->img->height, attachments, attachCount);

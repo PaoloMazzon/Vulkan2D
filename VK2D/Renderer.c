@@ -294,12 +294,13 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			VkRect2D rect = {};
 			rect.extent.width = gRenderer->surfaceWidth;
 			rect.extent.height = gRenderer->surfaceHeight;
-			const uint32_t clearCount = 1;
-			VkClearValue clearValues[1] = {};
+			const uint32_t clearCount = 2;
+			VkClearValue clearValues[2] = {};
 			clearValues[0].color.float32[0] = clearColour[0];
 			clearValues[0].color.float32[1] = clearColour[1];
 			clearValues[0].color.float32[2] = clearColour[2];
 			clearValues[0].color.float32[3] = clearColour[3];
+			clearValues[1].depthStencil.depth = 0;
 			VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
 					gRenderer->renderPass,
 					gRenderer->framebuffers[gRenderer->scImageIndex],

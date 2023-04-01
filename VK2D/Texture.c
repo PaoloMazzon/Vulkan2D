@@ -110,13 +110,15 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 		_vk2dImageTransitionImageLayout(dev, out->sampledImg->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
 		// Set up FBO
-		const int attachCount = renderer->config.msaa > 1 ? 2 : 1;
+		const int attachCount = renderer->config.msaa > 1 ? 3 : 2;
 		VkImageView attachments[attachCount];
 		if (renderer->config.msaa > 1) {
 			attachments[0] = out->sampledImg->view;
-			attachments[1] = out->img->view;
+			attachments[1] = renderer->depthBuffer->view;
+			attachments[2] = out->img->view;
 		} else {
 			attachments[0] = out->img->view;
+			attachments[1] = renderer->depthBuffer->view;
 		}
 
 		VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(renderer->externalTargetRenderPass, w, h, attachments, attachCount);
