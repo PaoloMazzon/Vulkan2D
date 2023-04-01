@@ -21,15 +21,17 @@ const VK2DVertexColour SAMPLE_TRIANGLE[] = {
 const uint32_t VERTICES = 6;
 
 const VK2DVertex3D SAMPLE_MODEL[] = {
-		{{-0.5, -0.5, 000}, {1, 0}},
-		{{0.5, -0.5, 000}, {0, 0}},
-		{{0.5, 0.5, 000}, {0, 1}},
-		{{0.5, 0.5, 000}, {0, 1}},
-		{{-0.5, 0.5, 000}, {1, 1}},
-		{{-0.5, -0.5, 000}, {1, 0}},
+		{{-0.5, -0.5, 0}, {1, 0}}, // 0
+		{{0.5, -0.5, 0}, {0, 0}},  // 1
+		{{0.5, 0.5, 0}, {0, 1}},   // 2
+		{{-0.5, 0.5, 0}, {1, 1}},  // 3
 };
 
-const uint32_t SAMPLE_MODEL_VERTICES = 6;
+const uint32_t SAMPLE_MODEL_VERTICES = 4;
+
+const uint16_t SAMPLE_INDICES[] = {0, 1, 2, 2, 3, 0};
+
+const uint32_t SAMPLE_INDEX_COUNT = 6;
 
 // Very basic and simple font renderer for the font in this test specifically
 void renderFont(float x, float y, VK2DTexture tex, const char *text) {
@@ -83,7 +85,7 @@ int main(int argc, const char *argv[]) {
 	cameraSpec3D.Perspective.up[2] = 1;
 	cameraSpec3D.Perspective.fov = 70;
 	VK2DCameraIndex camera3D = vk2dCameraCreate(cameraSpec3D);
-	VK2DModel testModel = vk2dModelCreate(SAMPLE_MODEL, SAMPLE_MODEL_VERTICES, testTexture);
+	VK2DModel testModel = vk2dModelCreate(SAMPLE_MODEL, SAMPLE_MODEL_VERTICES, SAMPLE_INDICES, SAMPLE_INDEX_COUNT, testTexture);
 	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 4);
 
 	// Delta and fps

@@ -60,6 +60,33 @@ VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsag
 	return ret;
 }
 
+VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data, VkDeviceSize size2, void *data2) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	// Create staging buffer
+	VK2DBuffer stageBuffer = vk2dBufferCreate(dev,
+											  size + size2,
+											  VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+											  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	// Map data
+	void *location;
+	vk2dErrorCheck(vmaMapMemory(gRenderer->vma, stageBuffer->mem, &location));
+	memcpy(location, data, size);
+	memcpy(location + size, data2, size2);
+	vmaUnmapMemory(gRenderer->vma, stageBuffer->mem);
+
+	// Create the buffer
+	VK2DBuffer ret = vk2dBufferCreate(dev,
+									  size + size2,
+									  usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+									  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	vk2dBufferCopy(stageBuffer, ret);
+
+	vk2dBufferFree(stageBuffer);
+
+	return ret;
+}
+
 void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst) {
 	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev);
 	VkBufferCopy copyRegion = {};
