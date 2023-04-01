@@ -341,6 +341,37 @@ void _vk2dRendererDestroySwapchain() {
 	vkDestroySwapchainKHR(gRenderer->ld->dev, gRenderer->swapchain, VK_NULL_HANDLE);
 }
 
+void _vk2dRendererCreateDepthBuffer() {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+
+	// Find a supported depth buffer format
+	VkFormat formats[] = {VK_FORMAT_D16_UNORM, VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
+	int formatCount = 4;
+	VkFormat selectedFormat = VK_FORMAT_MAX_ENUM;
+
+	for (int i = 0; i < formatCount && selectedFormat == VK_FORMAT_MAX_ENUM; i++) {
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(gRenderer->pd->dev, formats[i], &props);
+		if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+			selectedFormat = formats[i];
+	}
+
+	if (selectedFormat != VK_FORMAT_MAX_ENUM) {
+		gRenderer->depthBufferFormat = selectedFormat;
+		gRenderer->depthBuffer = vk2dImageCreate(gRenderer->ld, gRenderer->surfaceWidth, gRenderer->surfaceHeight, gRenderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 1);
+		vk2dLogMessage("Depth buffer initialized...");
+	} else {
+		vk2dLogMessage("Failed to create depth buffer.");
+	}
+}
+
+void _vk2dRendererDestroyDepthBuffer() {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	vk2dImageFree(gRenderer->depthBuffer);
+	gRenderer->depthBuffer = NULL;
+}
+
+
 void _vk2dRendererCreateColourResources() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer->config.msaa != msaa_1x) {
@@ -957,6 +988,7 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererDestroyFrameBuffer();
 	_vk2dRendererDestroyPipelines(true);
 	_vk2dRendererDestroyRenderPass();
+	_vk2dRendererDestroyDepthBuffer();
 	_vk2dRendererDestroyColourResources();
 	_vk2dRendererDestroySwapchain();
 
@@ -969,6 +1001,7 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererGetSurfaceSize();
 	_vk2dRendererCreateSwapchain();
 	_vk2dRendererCreateColourResources();
+	_vk2dRendererCreateDepthBuffer();
 	_vk2dRendererCreateRenderPass();
 	_vk2dRendererCreatePipelines();
 	_vk2dRendererCreateFrameBuffer();

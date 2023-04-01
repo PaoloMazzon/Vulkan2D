@@ -141,6 +141,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		_vk2dRendererCreateWindowSurface();
 		_vk2dRendererCreateSwapchain();
 		_vk2dRendererCreateColourResources();
+		_vk2dRendererCreateDepthBuffer();
 		_vk2dRendererCreateRenderPass();
 		_vk2dRendererCreateDescriptorSetLayouts();
 		_vk2dRendererCreatePipelines();
@@ -180,6 +181,7 @@ void vk2dRendererQuit() {
 		_vk2dRendererDestroyPipelines(false);
 		_vk2dRendererDestroyDescriptorSetLayout();
 		_vk2dRendererDestroyRenderPass();
+		_vk2dRendererDestroyDepthBuffer();
 		_vk2dRendererDestroyColourResources();
 		_vk2dRendererDestroySwapchain();
 		_vk2dRendererDestroyWindowSurface();

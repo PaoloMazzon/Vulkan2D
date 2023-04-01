@@ -57,6 +57,8 @@ struct VK2DRenderer {
 	VkRenderPass midFrameSwapRenderPass;   ///< Render pass for mid-frame switching back to the swapchain as a target
 	VkRenderPass externalTargetRenderPass; ///< Render pass for rendering to textures
 	VkFramebuffer *framebuffers;           ///< Framebuffers for the swapchain images
+	VK2DImage depthBuffer;                 ///< Depth buffer for 3D rendering
+	VkFormat depthBufferFormat;            ///< Depth buffer format
 	bool procedStartFrame;                 ///< End frame things are only done if this is true and start frame things are only done if this is false
 
 	// Pipelines

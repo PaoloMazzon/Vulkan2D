@@ -51,6 +51,8 @@ void _vk2dRendererCreateWindowSurface();
 void _vk2dRendererDestroyWindowSurface();
 void _vk2dRendererCreateSwapchain();
 void _vk2dRendererDestroySwapchain();
+void _vk2dRendererCreateDepthBuffer();
+void _vk2dRendererDestroyDepthBuffer();
 void _vk2dRendererCreateColourResources();
 void _vk2dRendererDestroyColourResources();
 void _vk2dRendererCreateRenderPass();
