@@ -352,6 +352,10 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 /// \param originZ z origin to rotate around
 /// \warning This function will only render to 3D-enabled cameras (which you must set up yourself) and if there are
 /// none available this function will simply do nothing.
+///
+/// VK2D is not optimized for 3D rendering and this is more of a fun option you can use to add cool
+/// effects to your 2D games; the save points in Castlevania SoTN are a good example. VK2D provides
+/// a depth buffer by default.
 void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ);
 
 /************************* Shorthand for simpler drawing at no performance cost *************************/

@@ -78,5 +78,5 @@ a window change the renderer will automatically adjust.
 TODO
 ====
 
- + More detailed 3D rendering
+ + Index buffers/3D shaders/.obj loading
  + Variable number of buffers per shader
