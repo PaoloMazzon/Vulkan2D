@@ -22,7 +22,21 @@ struct VK2DModel {
 /// \param indexCount Number of indices in the list
 /// \param tex Texture bound to the texture
 /// \return Returns a new VK2DModel or NULL if it fails
+/// \warning The input must be triangulated.
 VK2DModel vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, const uint16_t *indices, uint32_t indexCount, VK2DTexture tex);
+
+/// \brief Loads a .obj model from a binary buffer
+/// \param objFile .obj file binary buffer
+/// \param objFileSize Size of the buffer in bytes
+/// \param texture Texture the .obj file expects
+/// \return Returns a new model or NULL if it fails
+VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture texture);
+
+/// \brief Loads a model from a .obj file
+/// \param objFile Path to the .obj file
+/// \param texture Texture the .obj file expects
+/// \return Returns a new model or NULL if it fails
+VK2DModel vk2dModelLoad(const char *objFile, VK2DTexture texture);
 
 /// \brief The texture stored in the model is not destroyed
 /// \param model Model to free from memory
