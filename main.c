@@ -20,29 +20,16 @@ const VK2DVertexColour SAMPLE_TRIANGLE[] = {
 };
 const uint32_t VERTICES = 6;
 
-const VK2DVertex3D SAMPLE_MODEL[] = {
-		{{-0.5, -0.5, 0}, {1, 0}}, // 0
-		{{0.5, -0.5, 0}, {0, 0}},  // 1
-		{{0.5, 0.5, 0}, {0, 1}},   // 2
-		{{-0.5, 0.5, 0}, {1, 1}},  // 3
-};
-
-const uint32_t SAMPLE_MODEL_VERTICES = 4;
-
-const uint16_t SAMPLE_INDICES[] = {0, 1, 2, 2, 3, 0};
-
-const uint32_t SAMPLE_INDEX_COUNT = 6;
-
 // Very basic and simple font renderer for the font in this test specifically
 void renderFont(float x, float y, VK2DTexture tex, const char *text) {
 	float ox = x;
 	for (int i = 0; i < (int)strlen(text); i++) {
 		if (text[i] != '\n') {
-			vk2dDrawTexturePart(tex, x, y, (text[i] * 8) % 128, floorf(text[i] / 16) * 16, 8, 16);
-			x += 8;
+			vk2dRendererDrawTexture(tex, x, y, 2, 2, 0, 0, 0, (text[i] * 8) % 128, floorf(text[i] / 16) * 16, 8, 16);
+			x += 8 * 2;
 		} else {
 			x = ox;
-			y += 16;
+			y += 16 * 2;
 		}
 	}
 }
@@ -66,28 +53,32 @@ int main(int argc, const char *argv[]) {
 	if (error < 0)
 		return -1;
 
-	VK2DCameraSpec cam = {ct_Default, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
-	vk2dRendererSetCamera(cam);
+	VK2DCameraSpec defcam = {ct_Default, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0};
+	vk2dRendererSetCamera(defcam);
 
-	// Load Some test assets **must be done after vk2d is initialized**
+	// Load Some test assets
 	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw((void *) SAMPLE_TRIANGLE, VERTICES);
 	VK2DTexture testTexture = vk2dTextureLoad("assets/caveguy.png");
 	VK2DTexture testSurface = vk2dTextureCreate(100, 100);
 	VK2DTexture testFont = vk2dTextureLoad("assets/font.png");
+	VK2DCameraSpec cam = {ct_Default, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
 	VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
 	bool drawnToTestSurface = false;
 
-	// Setup 3D camera and model
-	VK2DCameraSpec cameraSpec3D = {ct_Perspective, 0, 0, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, 0, 0, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
-	cameraSpec3D.Perspective.eyes[0] = 2;
-	cameraSpec3D.Perspective.eyes[1] = 2;
-	cameraSpec3D.Perspective.eyes[2] = 2;
-	cameraSpec3D.Perspective.up[2] = 1;
-	cameraSpec3D.Perspective.fov = 70;
-	VK2DCameraIndex camera3D = vk2dCameraCreate(cameraSpec3D);
-	VK2DModel testModel = vk2dModelCreate(SAMPLE_MODEL, SAMPLE_MODEL_VERTICES, SAMPLE_INDICES, SAMPLE_INDEX_COUNT, testTexture);
+	// Setup 3D camera and models
+	VK2DCameraSpec cam3D = {ct_Perspective, 0, 0, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, 0, 0, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+	cam3D.Perspective.eyes[0] = 2;
+	cam3D.Perspective.eyes[1] = 2;
+	cam3D.Perspective.eyes[2] = 2;
+	cam3D.Perspective.up[2] = 1;
+	cam3D.Perspective.fov = 70;
+	float xyrot = (-VK2D_PI * 3) / 4;
+	float zrot = -VK2D_PI / 5;
+	VK2DCameraIndex camera3D = vk2dCameraCreate(cam3D);
 	VK2DTexture texVikingRoom = vk2dTextureLoad("assets/viking_room.png");
 	VK2DModel modelVikingRoom = vk2dModelLoad("assets/viking_room.obj", texVikingRoom);
+	VK2DTexture texCaveguyUV = vk2dTextureLoad("assets/caveguyuv.png");
+	VK2DModel modelCaveguy = vk2dModelLoad("assets/caveguy.obj", texCaveguyUV);
 	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 4);
 
 	// Delta and fps
@@ -102,6 +93,8 @@ int main(int argc, const char *argv[]) {
 	float camSpeed = 200; // per second
 	float camRotSpeed = VK2D_PI; // per second
 	float camZoomSpeed = 0.5f; // per second
+	float prevMX = 0;
+	float prevMY = 0;
 
 	while (!quit) {
 		delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
@@ -112,9 +105,9 @@ int main(int argc, const char *argv[]) {
 				quit = true;
 			}
 		}
-
-		// Process player input
 		SDL_PumpEvents();
+
+		// 2D camera movement
 		cam.x += camSpeed * delta * (float)keyboard[SDL_SCANCODE_D];
 		cam.x -= camSpeed * delta * (float)keyboard[SDL_SCANCODE_A];
 		cam.y += camSpeed * delta * (float)keyboard[SDL_SCANCODE_S];
@@ -125,24 +118,35 @@ int main(int argc, const char *argv[]) {
 		if (keyboard[SDL_SCANCODE_O]) {
 			cam.zoom -= camZoomSpeed * delta;
 		}
-		if (keyboard[SDL_SCANCODE_8]) {
-			config.msaa = msaa_8x;
-			vk2dRendererSetConfig(config);
-		}
-		if (keyboard[SDL_SCANCODE_4]) {
-			config.msaa = msaa_4x;
-			vk2dRendererSetConfig(config);
-		}
-		if (keyboard[SDL_SCANCODE_1]) {
-			config.msaa = msaa_1x;
-			vk2dRendererSetConfig(config);
-		}
-
-		// Move the caveguy around
 		rot += VK2D_PI * 1.5 * delta;
 		scaleRot += VK2D_PI * 3.25 * delta;
 		xScale = cos(scaleRot) * 0.25;
 		yScale = sin(scaleRot) * 0.25;
+
+		// 3D camera movements
+		int mmx, mmy;
+		int button = SDL_GetMouseState(&mmx, &mmy);
+		float mx = mmx;
+		float my = mmy;
+		if (button & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+			xyrot -= (mx - prevMX) * delta;
+			zrot += (my - prevMY) * delta;
+		}
+		prevMX = mx;
+		prevMY = my;
+
+		// MSAA controls
+		if (keyboard[SDL_SCANCODE_8] || keyboard[SDL_SCANCODE_4] || keyboard[SDL_SCANCODE_2] || keyboard[SDL_SCANCODE_1]) {
+			if (keyboard[SDL_SCANCODE_8])
+				config.msaa = msaa_8x;
+			if (keyboard[SDL_SCANCODE_4])
+				config.msaa = msaa_4x;
+			if (keyboard[SDL_SCANCODE_2])
+				config.msaa = msaa_2x;
+			if (keyboard[SDL_SCANCODE_1])
+				config.msaa = msaa_1x;
+			vk2dRendererSetConfig(config);
+		}
 
 		// Adjust for window size
 		int windowWidth, windowHeight;
@@ -150,6 +154,17 @@ int main(int argc, const char *argv[]) {
 		cam.w = (float)windowWidth / 2;
 		cam.h = (float)windowHeight / 2;
 		vk2dCameraUpdate(testCamera, cam);
+
+		// Update 3D camera
+		cam3D.Perspective.centre[0] = cam3D.Perspective.eyes[0] + sin(xyrot);
+		cam3D.Perspective.centre[1] = cam3D.Perspective.eyes[1] + cos(xyrot);
+		cam3D.Perspective.centre[2] = cam3D.Perspective.eyes[2] + tan(zrot);
+		cam3D.Perspective.fov = (button & SDL_BUTTON(SDL_BUTTON_RIGHT)) ? VK2D_PI * 0.1 : VK2D_PI * 0.3;
+		cam3D.wOnScreen = windowWidth;
+		cam3D.hOnScreen = windowHeight;
+		cam3D.w = windowWidth / 4;
+		cam3D.h = windowHeight / 4;
+		vk2dCameraUpdate(camera3D, cam3D);
 
 		// Update shader buffer
 		float x = 1;
@@ -167,9 +182,7 @@ int main(int argc, const char *argv[]) {
 			vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
 		}
 
-		vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
-
-		// Draw some test assets
+		// Draw 2D portions
 		vk2dRendererLockCameras(testCamera);
 		vk2dDrawTexture(testSurface, -100, -100);
 		vk2dDrawPolygon(testPoly, 0, 0);
@@ -177,19 +190,21 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererDrawShader(shader, testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);
 		vk2dRendererDrawTexture(testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale, (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
 
-		// Lock to 3D camera for 3D model
+		// Draw 3D portions
 		vk2dRendererLockCameras(camera3D);
 		vec3 axis = {0, 0, 1};
 		vk2dRendererDrawModel(modelVikingRoom, 0, 0, -0.25, 0.75, 0.75, 0.75, sin(-rot / 3) * 0.5, axis, 0, 0, 0);
+		vk2dRendererDrawModel(modelCaveguy, 3, 0, -2, 1, 1, 1, -rot / 3, axis, 0, 0, 0);
 
 		// Draw debug overlay
 		vk2dRendererLockCameras(VK2D_DEFAULT_CAMERA);
 		char title[50];
-		sprintf(title, "Vulkan2D [%0.2fms] [%0.2ffps]", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime());
+		VK2DRendererConfig conf = vk2dRendererGetConfig();
+		sprintf(title, "Vulkan2D [%0.2fms] [%0.2ffps] %ix MSAA", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime(), conf.msaa);
 		vk2dRendererSetColourMod(VK2D_BLACK);
 		int w, h;
 		SDL_GetWindowSize(window, &w, &h);
-		vk2dDrawRectangle(0, 0, (float)w, 17);
+		vk2dDrawRectangle(0, 0, (float)w, 17*2);
 		vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
 		renderFont(0, 0, testFont, title);
 		vk2dRendererUnlockCameras();
@@ -203,9 +218,10 @@ int main(int argc, const char *argv[]) {
 	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
 	vk2dShaderFree(shader);
-	vk2dModelFree(testModel);
 	vk2dModelFree(modelVikingRoom);
 	vk2dTextureFree(texVikingRoom);
+	vk2dModelFree(modelCaveguy);
+	vk2dTextureFree(texCaveguyUV);
 	vk2dTextureFree(testFont);
 	vk2dTextureFree(testSurface);
 	vk2dTextureFree(testTexture);
