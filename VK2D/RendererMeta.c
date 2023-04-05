@@ -768,6 +768,7 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (newCamera) { // If the renderer has not yet been initialized
 		VK2DCameraSpec cam = {
+				ct_Default,
 				0,
 				0,
 				gRenderer->surfaceWidth,
