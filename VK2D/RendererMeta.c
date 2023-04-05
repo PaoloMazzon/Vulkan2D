@@ -422,7 +422,7 @@ void _vk2dRendererCreateRenderPass() {
 	attachments[1].format = gRenderer->depthBufferFormat;
 	attachments[1].samples = (VkSampleCountFlagBits)gRenderer->config.msaa;
 	attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	attachments[1].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	attachments[1].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	attachments[1].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	attachments[1].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;

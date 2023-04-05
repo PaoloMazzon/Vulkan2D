@@ -31,7 +31,7 @@ int main(int argc, const char *argv[]) {
 
 	// Initialize vk2d
 	VK2DRendererConfig config = {msaa_1x, sm_TripleBuffer, ft_Nearest};
-	vec4 clear = {0.2, 0.0, 0.2, 1.0};
+	vec4 clear = {0.1, 0.0, 0.2, 1.0};
 	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
 	if (vk2dRendererInit(window, config, &options) < 0)
 		return -1;
@@ -51,14 +51,7 @@ int main(int argc, const char *argv[]) {
 	// Create cameras
 	VK2DCameraSpec camera3D = {ct_Perspective, 0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT, 1, 0, 0, 0, LOGICAL_WIDTH, LOGICAL_WIDTH};
 	camera3D.Perspective.eyes[0] = -4;
-	camera3D.Perspective.eyes[1] = 0;
-	camera3D.Perspective.eyes[2] = 0;
-	camera3D.Perspective.centre[0] = 0;
-	camera3D.Perspective.centre[1] = 0;
-	camera3D.Perspective.centre[2] = 0;
-	camera3D.Perspective.up[0] = 0;
 	camera3D.Perspective.up[1] = 1;
-	camera3D.Perspective.up[2] = 0;
 	camera3D.Perspective.fov = VK2D_PI * 0.3;
 	VK2DCameraIndex modelCamera = vk2dCameraCreate(camera3D);
 

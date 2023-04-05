@@ -2,6 +2,8 @@
 
 ![another demo](assets/gif.gif)
 
+![another demo](examples/retrolook/example.gif)
+
 Vulkan2D
 ========
 VK2D is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
