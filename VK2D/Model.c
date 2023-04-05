@@ -93,7 +93,6 @@ VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture t
 				}
 			}
 
-			vk2dLogMessage("Vertices - %i\nIndices - %i", vertexCount, indexCount);
 			m = vk2dModelCreate(vertices, vertexCount, indices, indexCount, texture);
 		} else {
 			error = true;
