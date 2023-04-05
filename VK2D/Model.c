@@ -37,10 +37,12 @@ VK2DModel vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, co
 	return model;
 }
 
-static const size_t OBJ_SIZE = sizeof(float) * 3 // pos
-							   + sizeof(float) * 3 // normal
-							   + sizeof(float) * 3 // color (based on normal)
-							   + sizeof(float) * 3; // color from material file.
+static inline bool verticesAreEqual(VK2DVertex3D *v1, VK2DVertex3D *v2) {
+	if (v1->uv[0] == v2->uv[0] && v1->uv[1] == v2->uv[1] && v1->pos[0] == v2->pos[0] &&
+			v1->pos[1] == v2->pos[1] && v1->pos[2] == v2->pos[2])
+		return true;
+	return false;
+}
 
 VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture texture) {
 	gTinyObjBuffer = objFile;
@@ -63,10 +65,6 @@ VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture t
 		int indexCount = 0;
 
 		if (vk2dPointerCheck(vertices) && vk2dPointerCheck(indices)) {
-			// TODO: Properly parse vertices and build a good index list
-
-			// attrib.num_face_num_verts for number of faces, multiply by 3 for number of vertices
-			// attrib.face_num_verts[n] will always be 3 because of triangulation
 			for (int faceIndex = 0; faceIndex < attrib.num_faces; faceIndex++) {
 				VK2DVertex3D vertex = {};
 
@@ -79,14 +77,23 @@ VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture t
 				vertex.uv[0] = attrib.texcoords[(textureIndex * 2) + 0];
 				vertex.uv[1] = 1 - attrib.texcoords[(textureIndex * 2) + 1];
 
-				// Copy vertex into buffer
-				vertices[vertexCount] = vertex;
-				indices[indexCount] = indexCount;
-				vertexCount++;
-				indexCount++;
+				// Check if this vertex is the same as any of the previous 6 (kinda arbitrary)
+				int found = -1;
+				for (int i = 0; i < vertexIndex && found == -1; i++)
+					if (verticesAreEqual(&vertex, &vertices[i]))
+						found = i;
+
+				if (found != -1) {
+					// Vertex is already at vertices[found]
+					indices[indexCount++] = found;
+				} else {
+					// Vertex was not found in the vertex list
+					vertices[vertexCount++] = vertex;
+					indices[indexCount++] = vertexCount - 1;
+				}
 			}
 
-
+			vk2dLogMessage("Vertices - %i\nIndices - %i", vertexCount, indexCount);
 			m = vk2dModelCreate(vertices, vertexCount, indices, indexCount, texture);
 		} else {
 			error = true;
