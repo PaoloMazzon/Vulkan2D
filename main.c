@@ -86,6 +86,8 @@ int main(int argc, const char *argv[]) {
 	cameraSpec3D.Perspective.fov = 70;
 	VK2DCameraIndex camera3D = vk2dCameraCreate(cameraSpec3D);
 	VK2DModel testModel = vk2dModelCreate(SAMPLE_MODEL, SAMPLE_MODEL_VERTICES, SAMPLE_INDICES, SAMPLE_INDEX_COUNT, testTexture);
+	VK2DTexture texVikingRoom = vk2dTextureLoad("assets/viking_room.png");
+	VK2DModel modelVikingRoom = vk2dModelLoad("assets/viking_room.obj", texVikingRoom);
 	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 4);
 
 	// Delta and fps
@@ -178,7 +180,7 @@ int main(int argc, const char *argv[]) {
 		// Lock to 3D camera for 3D model
 		vk2dRendererLockCameras(camera3D);
 		vec3 axis = {0, 0, 1};
-		vk2dRendererDrawModel(testModel, 0, 0, 0, 1, 1, 1, -rot, axis, 0, 0, 0);
+		vk2dRendererDrawModel(modelVikingRoom, 0, 0, -0.25, 0.75, 0.75, 0.75, sin(-rot / 3) * 0.5, axis, 0, 0, 0);
 
 		// Draw debug overlay
 		vk2dRendererLockCameras(VK2D_DEFAULT_CAMERA);
@@ -202,6 +204,8 @@ int main(int argc, const char *argv[]) {
 	vk2dRendererWait();
 	vk2dShaderFree(shader);
 	vk2dModelFree(testModel);
+	vk2dModelFree(modelVikingRoom);
+	vk2dTextureFree(texVikingRoom);
 	vk2dTextureFree(testFont);
 	vk2dTextureFree(testSurface);
 	vk2dTextureFree(testTexture);
