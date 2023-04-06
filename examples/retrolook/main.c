@@ -52,7 +52,7 @@ int main(int argc, const char *argv[]) {
 	VK2DCameraSpec camera3D = {ct_Perspective, 0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT, 1, 0, 0, 0, LOGICAL_WIDTH, LOGICAL_WIDTH};
 	camera3D.Perspective.eyes[0] = -4;
 	camera3D.Perspective.up[1] = 1;
-	camera3D.Perspective.fov = VK2D_PI * 0.3;
+	camera3D.Perspective.fov = VK2D_PI * 0.2;
 	VK2DCameraIndex modelCamera = vk2dCameraCreate(camera3D);
 
 	while (!quit) {
