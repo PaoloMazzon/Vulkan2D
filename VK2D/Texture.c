@@ -106,19 +106,21 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 	if (vk2dPointerCheck(out)) {
 		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
 		out->sampledImg = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
+		out->depthBuffer = vk2dImageCreate(dev, w, h, renderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
 		_vk2dImageTransitionImageLayout(dev, out->img->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		_vk2dImageTransitionImageLayout(dev, out->sampledImg->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+		//_vk2dImageTransitionImageLayout(dev, out->depthBuffer->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 
 		// Set up FBO
 		const int attachCount = renderer->config.msaa > 1 ? 3 : 2;
 		VkImageView attachments[attachCount];
 		if (renderer->config.msaa > 1) {
 			attachments[0] = out->sampledImg->view;
-			attachments[1] = renderer->depthBuffer->view;
+			attachments[1] = out->depthBuffer->view;
 			attachments[2] = out->img->view;
 		} else {
 			attachments[0] = out->img->view;
-			attachments[1] = renderer->depthBuffer->view;
+			attachments[1] = out->depthBuffer->view;
 		}
 
 		VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(renderer->externalTargetRenderPass, w, h, attachments, attachCount);
@@ -157,6 +159,7 @@ void vk2dTextureFree(VK2DTexture tex) {
 			vk2dImageFree(tex->img);
 			vk2dBufferFree(tex->ubo);
 			vk2dImageFree(tex->sampledImg);
+			vk2dImageFree(tex->depthBuffer);
 			_vk2dRendererRemoveTarget(tex);
 		} else if (tex->imgHandled) {
 			vk2dImageFree(tex->img);

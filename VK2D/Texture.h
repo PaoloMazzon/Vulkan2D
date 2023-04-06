@@ -16,6 +16,7 @@ extern "C" {
 /// a segfault.
 struct VK2DTexture {
 	VK2DImage img;          ///< Internal image
+	VK2DImage depthBuffer;  ///< For 3D rendering when its a target
 	VK2DImage sampledImg;   ///< Image for MSAA
 	VkFramebuffer fbo;      ///< Framebuffer of this texture so it can be drawn to
 	VK2DBuffer ubo;         ///< UBO that will be used when drawing to this texture

@@ -434,12 +434,14 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 			VkRect2D rect = {};
 			rect.extent.width = target == VK2D_TARGET_SCREEN ? gRenderer->surfaceWidth : target->img->width;
 			rect.extent.height = target == VK2D_TARGET_SCREEN ? gRenderer->surfaceHeight : target->img->height;
+			VkClearValue clear[2] = {};
+			clear[1].depthStencil.depth = 1;
 			VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
 					pass,
 					framebuffer,
 					rect,
-					VK_NULL_HANDLE,
-					0);
+					clear,
+					2);
 
 			vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo,
 								 VK_SUBPASS_CONTENTS_INLINE);
