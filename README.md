@@ -35,7 +35,7 @@ VK2D needs VMA to function. You'll likely need to do something like this in CMak
     set(VMA_FILES VK2D/VulkanMemoryAllocator/src/vk_mem_alloc.h VK2D/VulkanMemoryAllocator/src/VmaUsage.cpp)
     file(GLOB VK2D_FILES VK2D/VK2D/*.c)
     ...
-    include_directories(... VK2D/)
+    include_directories(... Vulkan2D/ tinyobjloader-c VulkanMemoryAllocator/src/)
     add_executable(... ${VK2D_FILES} ${VMA_FILES})
    
 You also need to link/include SDL2 and Vulkan but that will not be covered here as there are 
@@ -75,7 +75,8 @@ of brevity, error checking is removed from the following example
    	SDL_DestroyWindow(window);
 
 And that's about all you need. You can freely manipulate the window, if Vulkan2D detects
-a window change the renderer will automatically adjust.
+a window change the renderer will automatically adjust. Check the examples in `examples/`
+for full examples you can compile.
 
 TODO
 ====

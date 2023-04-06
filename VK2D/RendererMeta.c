@@ -1111,7 +1111,7 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 		scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
 		scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
 		scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
-		scissor.offset.y = gRenderer->cameras[cam].spec.xOnScreen;
+		scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
 	} else {
 		viewport.x = 0;
 		viewport.y = 0;
@@ -1191,7 +1191,7 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 		scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
 		scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
 		scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
-		scissor.offset.y = gRenderer->cameras[cam].spec.xOnScreen;
+		scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
 	} else {
 		viewport.x = 0;
 		viewport.y = 0;

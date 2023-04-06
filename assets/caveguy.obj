@@ -1,5 +1,5 @@
 # picocad model
-mtllib unnamed_2.mtl
+mtllib caveguy.mtl
 o unnamed_2
 v -0.5 0.5 0.5
 v 0.5 0.5 0.5

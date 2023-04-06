@@ -11,16 +11,6 @@
 const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
-const VK2DVertexColour SAMPLE_TRIANGLE[] = {
-		{{0.0, 0.0, +0.0}, {1.0, 1.0, 0.5, 1}},
-		{{400, 300, +0.0}, {1.0, 0.5, 1.0, 1}},
-		{{400, 0.0, +0.0}, {0.5, 1.0, 1.0, 1}},
-		{{0.0, 0.0, +0.0}, {0.5, 0.5, 1.0, 1}},
-		{{0.0, 300, +0.0}, {0.0, 1.0, 0.5, 1}},
-		{{400, 300, +0.0}, {1.0, 1.0, 1.0, 1}}
-};
-const uint32_t VERTICES = 6;
-
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
