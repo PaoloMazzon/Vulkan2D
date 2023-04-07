@@ -345,6 +345,8 @@ void _vk2dRendererDestroySwapchain() {
 		vkDestroyImageView(gRenderer->ld->dev, gRenderer->swapchainImageViews[i], VK_NULL_HANDLE);
 
 	vkDestroySwapchainKHR(gRenderer->ld->dev, gRenderer->swapchain, VK_NULL_HANDLE);
+	free(gRenderer->swapchainImageViews);
+	free(gRenderer->swapchainImages);
 }
 
 void _vk2dRendererCreateDepthBuffer() {
@@ -387,7 +389,7 @@ void _vk2dRendererCreateColourResources() {
 				gRenderer->surfaceHeight,
 				gRenderer->surfaceFormat.format,
 				VK_IMAGE_ASPECT_COLOR_BIT,
-				VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 				(VkSampleCountFlagBits) gRenderer->config.msaa);
 		vk2dLogMessage("Colour resources initialized for MSAA of %i...", gRenderer->config.msaa);
 	} else {
@@ -976,7 +978,7 @@ void _vk2dRendererRefreshTargets() {
 					gRenderer->targets[i]->img->height,
 					VK_FORMAT_B8G8R8A8_SRGB,
 					VK_IMAGE_ASPECT_COLOR_BIT,
-					VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
+					VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 					(VkSampleCountFlagBits)gRenderer->config.msaa);
 			_vk2dImageTransitionImageLayout(gRenderer->ld, gRenderer->targets[i]->sampledImg->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 			//_vk2dImageTransitionImageLayout(gRenderer->ld, gRenderer->targets[i]->depthBuffer->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);

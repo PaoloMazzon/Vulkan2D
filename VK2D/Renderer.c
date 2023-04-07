@@ -89,6 +89,9 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 	totalExtensions = malloc(totalExtensionCount * sizeof(char*));
 
 	if (vk2dPointerCheck(gRenderer)) {
+		// Copy user options
+		gRenderer->options = userOptions;
+
 		// Load extensions
 		SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, totalExtensions);
 		if (userOptions.enableDebug) {
@@ -119,6 +122,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true, userOptions.enableDebug);
 		gRenderer->maxLineWidth = gRenderer->pd->props.limits.lineWidthRange[1];
 		gRenderer->window = window;
+		vk2dLogMessage("Vulkan Version: %i.%i.%i", VK_VERSION_MAJOR(gRenderer->pd->props.apiVersion), VK_VERSION_MINOR(gRenderer->pd->props.apiVersion), VK_VERSION_PATCH(gRenderer->pd->props.apiVersion));
 
 		// Assign user settings, except for screen mode which will be handled later
 		VK2DMSAA maxMSAA = vk2dPhysicalDeviceGetMSAA(gRenderer->pd);
@@ -133,9 +137,6 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		allocatorCreateInfo.instance = gRenderer->vk;
 		allocatorCreateInfo.vulkanApiVersion = VK_MAKE_VERSION(1, 1, 0);
 		vmaCreateAllocator(&allocatorCreateInfo, &gRenderer->vma);
-
-		// Copy user options
-		gRenderer->options = userOptions;
 
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();
