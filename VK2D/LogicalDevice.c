@@ -16,7 +16,8 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		if (enableAllFeatures) {
 			feats = dev->feats;
 		} else {
-			feats.wideLines = VK_TRUE;
+			if (dev->feats.wideLines)
+				feats.wideLines = VK_TRUE;
 			feats.fillModeNonSolid = VK_TRUE;
 			feats.samplerAnisotropy = VK_TRUE;
 			feats.shaderStorageImageMultisample = VK_TRUE;

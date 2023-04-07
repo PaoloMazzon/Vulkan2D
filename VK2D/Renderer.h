@@ -37,6 +37,7 @@ struct VK2DRenderer {
 	VK2DCamera cameras[VK2D_MAX_CAMERAS]; ///< All cameras to be drawn to
 	VK2DCameraIndex cameraLocked;         ///< If true, only the default camera will be drawn to
 	VK2DStartupOptions options;           ///< Root options for the renderer
+	float maxLineWidth;                   ///< For user safety
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to

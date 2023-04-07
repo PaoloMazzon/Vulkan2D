@@ -1072,8 +1072,10 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 	vec3 origin2 = {-originX - x, originY + y, 0};
 	vec3 scale = {-xscale, yscale, 1};
 	translateMatrix(push.model, origin2);
-	rotateMatrix(push.model, axis, rot);
-	translateMatrix(push.model, originTranslation);
+	if (rot != 0) {
+		rotateMatrix(push.model, axis, rot);
+		translateMatrix(push.model, originTranslation);
+	}
 	scaleMatrix(push.model, scale);
 	push.colourMod[0] = gRenderer->colourBlend[0];
 	push.colourMod[1] = gRenderer->colourBlend[1];
@@ -1129,7 +1131,10 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 	}
 	vkCmdSetViewport(buf, 0, 1, &viewport);
 	vkCmdSetScissor(buf, 0, 1, &scissor);
-	vkCmdSetLineWidth(buf, lineWidth);
+	if (gRenderer->maxLineWidth != 1)
+		vkCmdSetLineWidth(buf, lineWidth);
+	else
+		vkCmdSetLineWidth(buf, 1);
 	vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
 	if (poly != NULL)
 		vkCmdDraw(buf, poly->vertexCount, 1, 0, 0);

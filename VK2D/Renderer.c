@@ -117,6 +117,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		vk2dErrorCheck(vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk))
 		gRenderer->pd = vk2dPhysicalDeviceFind(gRenderer->vk, VK2D_DEVICE_BEST_FIT);
 		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true, userOptions.enableDebug);
+		gRenderer->maxLineWidth = gRenderer->pd->props.limits.lineWidthRange[1];
 		gRenderer->window = window;
 
 		// Assign user settings, except for screen mode which will be handled later
