@@ -1086,8 +1086,8 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 	translateMatrix(push.model, origin2);
 	if (rot != 0) {
 		rotateMatrix(push.model, axis, rot);
-		translateMatrix(push.model, originTranslation);
 	}
+	translateMatrix(push.model, originTranslation);
 	scaleMatrix(push.model, scale);
 	push.colourMod[0] = gRenderer->colourBlend[0];
 	push.colourMod[1] = gRenderer->colourBlend[1];
