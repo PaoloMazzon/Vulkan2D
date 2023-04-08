@@ -5,6 +5,7 @@
 #include "VK2D/Buffer.h"
 #include "VK2D/Validation.h"
 #include "VK2D/LogicalDevice.h"
+#include "VK2D/Renderer.h"
 
 static void _vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
 	// Potentially increase the size of the buffer list
@@ -34,7 +35,13 @@ static void _vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
 
 VK2DDescriptorBuffer vk2dDescriptorBufferCreate() {
 	// TODO: Create the buffer memory, call _vk2dDescriptorBufferAppendBuffer on it, then create the event
-	return NULL;
+	VK2DDescriptorBuffer db = calloc(1, sizeof(struct VK2DDescriptorBuffer));
+	vk2dPointerCheck(db);
+	db->dev = vk2dRendererGetDevice();
+	_vk2dDescriptorBufferAppendBuffer(db);
+	VkEventCreateInfo eventCreateInfo = {VK_STRUCTURE_TYPE_EVENT_CREATE_INFO};
+	vk2dErrorCheck(vkCreateEvent(db->dev->dev, &eventCreateInfo, VK_NULL_HANDLE, &db->waitForCopyEvent));
+	return db;
 }
 
 void vk2dDescriptorBufferFree(VK2DDescriptorBuffer db) {
