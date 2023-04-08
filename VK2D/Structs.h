@@ -45,6 +45,9 @@ typedef struct VK2DCamera VK2DCamera;
 /// \brief Abstraction to make managing pointers easier for VK2DModel
 typedef struct VK2DModel *VK2DModel;
 
+/// \brief Abstraction to make managing pointers easier for VK2DDescriptorBuffer
+typedef struct VK2DDescriptorBuffer *VK2DDescriptorBuffer;
+
 /// \brief 2D vector of floats
 typedef float vec2[2];
 

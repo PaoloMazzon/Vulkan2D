@@ -29,6 +29,8 @@ const vec4 VK2D_DEFAULT_COLOUR_MOD = {1, 1, 1, 1};
 
 const float VK2D_CIRCLE_VERTICES = 36;
 
+const VkDeviceSize VK2D_DESCRIPTOR_BUFFER_EXTEND_SIZE = (64 + 16 + 16) * 1000;
+
 const VK2DCameraIndex VK2D_INVALID_CAMERA = -1;
 
 const vec4 VK2D_BLACK = {0, 0, 0, 1};
