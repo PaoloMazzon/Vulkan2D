@@ -119,15 +119,13 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		}
 		vk2dErrorCheck(vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk))
 		gRenderer->pd = vk2dPhysicalDeviceFind(gRenderer->vk, VK2D_DEVICE_BEST_FIT);
-		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true, userOptions.enableDebug);
-		gRenderer->maxLineWidth = gRenderer->pd->props.limits.lineWidthRange[1];
+		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true, userOptions.enableDebug, &gRenderer->limits);
 		gRenderer->window = window;
 		vk2dLogMessage("Vulkan Version: %i.%i.%i", VK_VERSION_MAJOR(gRenderer->pd->props.apiVersion), VK_VERSION_MINOR(gRenderer->pd->props.apiVersion), VK_VERSION_PATCH(gRenderer->pd->props.apiVersion));
 
 		// Assign user settings, except for screen mode which will be handled later
-		VK2DMSAA maxMSAA = vk2dPhysicalDeviceGetMSAA(gRenderer->pd);
 		gRenderer->config = config;
-		gRenderer->config.msaa = maxMSAA >= config.msaa ? config.msaa : maxMSAA;
+		gRenderer->config.msaa = gRenderer->limits.maxMSAA >= config.msaa ? config.msaa : gRenderer->limits.maxMSAA;
 		gRenderer->newConfig = gRenderer->config;
 
 		// Create the VMA
@@ -231,8 +229,7 @@ VK2DRendererConfig vk2dRendererGetConfig() {
 void vk2dRendererSetConfig(VK2DRendererConfig config) {
 	if (gRenderer != NULL) {
 		gRenderer->newConfig = config;
-		VK2DMSAA maxMSAA = vk2dPhysicalDeviceGetMSAA(gRenderer->pd);
-		gRenderer->newConfig.msaa = maxMSAA >= config.msaa ? config.msaa : maxMSAA;
+		gRenderer->newConfig.msaa = gRenderer->limits.maxMSAA >= config.msaa ? config.msaa : gRenderer->limits.maxMSAA;
 		vk2dRendererResetSwapchain();
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
@@ -570,6 +567,16 @@ void vk2dRendererEmpty() {
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
+}
+
+VK2DRendererLimits vk2dRendererGetLimits() {
+	if (gRenderer != NULL) {
+		return gRenderer->limits;
+	} else {
+		vk2dLogMessage("Renderer is not initialized");
+	}
+	VK2DRendererLimits l = {};
+	return l;
 }
 
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {

@@ -6,7 +6,7 @@
 #include "VK2D/PhysicalDevice.h"
 #include <malloc.h>
 
-VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug) {
+VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug, VK2DRendererLimits *limits) {
 	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice));
 	uint32_t queueFamily = graphicsDevice == true ? dev->QueueFamily.graphicsFamily : dev->QueueFamily.computeFamily;
 
@@ -16,11 +16,24 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		if (enableAllFeatures) {
 			feats = dev->feats;
 		} else {
-			if (dev->feats.wideLines)
+			if (dev->feats.wideLines) {
 				feats.wideLines = VK_TRUE;
-			feats.fillModeNonSolid = VK_TRUE;
-			feats.samplerAnisotropy = VK_TRUE;
-			feats.shaderStorageImageMultisample = VK_TRUE;
+				limits->maxLineWidth = dev->props.limits.lineWidthRange[1];
+			} else {
+				limits->maxLineWidth = 1;
+			}
+			if (dev->feats.fillModeNonSolid) {
+				feats.fillModeNonSolid = VK_TRUE;
+				limits->supportsWireframe = true;
+			} else {
+				limits->supportsWireframe = false;
+			}
+			if (dev->feats.samplerAnisotropy) {
+				feats.samplerAnisotropy = VK_TRUE;
+				limits->maxMSAA = vk2dPhysicalDeviceGetMSAA(dev);
+			} else {
+				limits->maxMSAA = 1;
+			}
 		}
 
 		float priority = 1;

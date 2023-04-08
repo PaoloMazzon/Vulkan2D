@@ -6,12 +6,19 @@
 #include "VK2D/LogicalDevice.h"
 #include "VK2D/BlendModes.h"
 #include <malloc.h>
+#include "VK2D/Renderer.h"
 
 VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayouts, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa, bool for3D) {
 	VK2DPipeline pipe = malloc(sizeof(struct VK2DPipeline));
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 
 	if (vk2dPointerCheck(pipe)) {
+		// Figure out if wireframe is allowed
+		bool polygonFill = fill;
+		if (!polygonFill && !gRenderer->limits.supportsWireframe)
+			polygonFill = true;
+
 		// Load pipeline base values
 		pipe->dev = dev;
 		pipe->renderPass = renderPass;
@@ -44,7 +51,8 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		scissor.extent.width = width;
 		scissor.extent.height = height;
 		VkPipelineViewportStateCreateInfo pipelineViewportStateCreateInfo = vk2dInitPipelineViewportStateCreateInfo(VK_NULL_HANDLE, &scissor);
-		VkPipelineRasterizationStateCreateInfo pipelineRasterizationStateCreateInfo = vk2dInitPipelineRasterizationStateCreateInfo(fill);
+		VkPipelineRasterizationStateCreateInfo pipelineRasterizationStateCreateInfo = vk2dInitPipelineRasterizationStateCreateInfo(polygonFill);
+
 		VkPipelineMultisampleStateCreateInfo pipelineMultisampleStateCreateInfo = vk2dInitPipelineMultisampleStateCreateInfo((VkSampleCountFlagBits)msaa);
 		VkPipelineDepthStencilStateCreateInfo pipelineDepthStencilStateCreateInfo = vk2dInitPipelineDepthStencilStateCreateInfo();
 

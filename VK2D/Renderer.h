@@ -37,7 +37,7 @@ struct VK2DRenderer {
 	VK2DCamera cameras[VK2D_MAX_CAMERAS]; ///< All cameras to be drawn to
 	VK2DCameraIndex cameraLocked;         ///< If true, only the default camera will be drawn to
 	VK2DStartupOptions options;           ///< Root options for the renderer
-	float maxLineWidth;                   ///< For user safety
+	VK2DRendererLimits limits;            ///< For user safety
 
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
@@ -248,6 +248,10 @@ void vk2dRendererClear();
 
 /// \brief Clears the content so that every pixel in the target is set to be complete transparent (useful for new texture targets)
 void vk2dRendererEmpty();
+
+/// \brief Returns the limits of the renderer on the current host
+/// \return Returns a struct containing all limit information
+VK2DRendererLimits vk2dRendererGetLimits();
 
 /// \brief Draws a rectangle using the current rendering colour
 /// \param x X position to draw the rectangle

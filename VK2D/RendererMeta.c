@@ -262,8 +262,18 @@ void _vk2dRendererDestroyDebug() {
 // Grabs a preferred present mode if available returning FIFO if its unavailable
 VkPresentModeKHR _vk2dRendererGetPresentMode(VkPresentModeKHR mode) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	uint32_t i;
-	for (i = 0; i < gRenderer->presentModeCount; i++)
+
+	// Put present modes in the limits
+	gRenderer->limits.supportsImmediate = false;
+	gRenderer->limits.supportsTripleBuffering = false;
+	for (int i = 0; i < gRenderer->presentModeCount; i++) {
+		if (gRenderer->presentModes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR)
+			gRenderer->limits.supportsImmediate = true;
+		if (gRenderer->presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR)
+			gRenderer->limits.supportsTripleBuffering = true;
+	}
+
+	for (int i = 0; i < gRenderer->presentModeCount; i++)
 		if (gRenderer->presentModes[i] == mode)
 			return mode;
 	return VK_PRESENT_MODE_FIFO_KHR;
@@ -1133,7 +1143,7 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 	}
 	vkCmdSetViewport(buf, 0, 1, &viewport);
 	vkCmdSetScissor(buf, 0, 1, &scissor);
-	if (gRenderer->maxLineWidth != 1)
+	if (gRenderer->limits.maxLineWidth != 1)
 		vkCmdSetLineWidth(buf, lineWidth);
 	else
 		vkCmdSetLineWidth(buf, 1);

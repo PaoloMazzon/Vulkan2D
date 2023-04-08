@@ -150,9 +150,6 @@ typedef enum {
 } VK2DFilterType;
 
 /// \brief A bitwise-able enum representing different shader stages
-///
-/// Right now VK2D only supports vertex and fragment shaders, but it is possible that
-/// it may support geometry and tesselation in the future (I don't see a use case right now).
 typedef enum {
 	ss_Fragment = VK_SHADER_STAGE_FRAGMENT_BIT, ///< Fragment (pixel) shader
 	ss_Vertex = VK_SHADER_STAGE_VERTEX_BIT      ///< Vertex shader
@@ -221,6 +218,22 @@ typedef struct VK2DCameraSpec {
 		float fov;   ///< Field of view of the camera
 	} Perspective;
 } VK2DCameraSpec;
+
+/// \brief Renderer limitations for the host
+///
+/// Even though the host may not support something you request of the renderer
+/// (for example, if you request triple buffering but the host doesn't support
+/// it), VK2D will simply use the next best option. You don't "need" to worry
+/// about any of the host limits, but they are available to the user in case of
+/// something like an options screen where you would only want to show the user
+/// the available MSAA modes, for example.
+typedef struct {
+	VK2DMSAA maxMSAA;             ///< Maximum MSAA the host supports (may be msaa_1x)
+	bool supportsTripleBuffering; ///< Whether or not the host supports triple buffering
+	bool supportsImmediate;       ///< Whether or not the host supports immediate mode
+	bool supportsWireframe;       ///< Whether or not the host supports wireframe rendering
+	float maxLineWidth;           ///< Maximum line width supported on the platform (may be 1, VK2D will automatically clamp line width values above this limit)
+} VK2DRendererLimits;
 
 #ifdef __cplusplus
 }
