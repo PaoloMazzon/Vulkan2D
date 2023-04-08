@@ -37,7 +37,7 @@ extern const float VK2D_CIRCLE_VERTICES;
 
 /// How big the default descriptor buffer should be, as well as how much it will
 /// grow by whenever it needs to grow.
-extern const VkDeviceSize VK2D_DESCRIPTOR_BUFFER_EXTEND_SIZE;
+extern const VkDeviceSize VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE;
 
 /// Maximum number of frames to be processed at once - You generally want this and VK2D_DEVICE_COMMAND_POOLS to be the same
 #define VK2D_MAX_FRAMES_IN_FLIGHT 3

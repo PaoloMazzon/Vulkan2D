@@ -30,9 +30,10 @@ typedef struct _VK2DDescriptorBufferInternal {
 /// frame so Vulkan copies the buffer to device memory all at once instead of tiny increments.
 struct VK2DDescriptorBuffer {
 	_VK2DDescriptorBufferInternal *buffers; ///< List of internal buffers so that we can allocate more on the fly
-	int bufferCount;     ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
-	int bufferListSize;  ///< Actual number of elements in the buffer lists
-	VkEvent waitForCopy; ///< Vulkan event for synchronizing the buffer copy across command buffers
+	int bufferCount;          ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
+	int bufferListSize;       ///< Actual number of elements in the buffer lists
+	VkEvent waitForCopyEvent; ///< Vulkan event for synchronizing the buffer copy across command buffers
+	VK2DLogicalDevice dev;    ///< Device this lives on
 };
 
 /// \brief Creates an empty descriptor buffer of default size
@@ -54,6 +55,7 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
 /// \param size Size in bytes of the data
 /// \param outBuffer Will be filled with the pointer to the internal Vulkan buffer that the memory is located in
 /// \param offset Location in outBuffer where the copied data is
+/// \warning size ***MUST*** be less than VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE (which is ~90kb by default)
 void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *offset);
 
 /// \brief Finishes tasks that need to be done in command buffers before the queue is submitted
