@@ -8,7 +8,7 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Initializers.h"
 
-static void _vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
+static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
 	// Potentially increase the size of the buffer list
 	if (db->bufferCount == db->bufferListSize) {
 		db->buffers = realloc(db->buffers, sizeof(_VK2DDescriptorBufferInternal) * (db->bufferListSize + VK2D_DEFAULT_ARRAY_EXTENSION));
@@ -32,6 +32,8 @@ static void _vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
 			VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+	return buffer;
 }
 
 VK2DDescriptorBuffer vk2dDescriptorBufferCreate() {
@@ -40,8 +42,6 @@ VK2DDescriptorBuffer vk2dDescriptorBufferCreate() {
 	vk2dPointerCheck(db);
 	db->dev = vk2dRendererGetDevice();
 	_vk2dDescriptorBufferAppendBuffer(db);
-	VkEventCreateInfo eventCreateInfo = {VK_STRUCTURE_TYPE_EVENT_CREATE_INFO};
-	vk2dErrorCheck(vkCreateEvent(db->dev->dev, &eventCreateInfo, VK_NULL_HANDLE, &db->waitForCopyEvent));
 	return db;
 }
 
@@ -52,7 +52,6 @@ void vk2dDescriptorBufferFree(VK2DDescriptorBuffer db) {
 			vk2dBufferFree(db->buffers[i].stageBuffer);
 		}
 		free(db->buffers);
-		vkDestroyEvent(db->dev->dev, db->waitForCopyEvent, VK_NULL_HANDLE);
 		free(db);
 	}
 }
@@ -64,23 +63,44 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
 		vmaMapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem, &db->buffers[i].hostData);
 	}
 
-	vkResetEvent(db->dev->dev, db->waitForCopyEvent);
-	vkCmdWaitEvents(
+	vkCmdPipelineBarrier(
 			drawBuffer,
-			1,
-			&db->waitForCopyEvent,
-			VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+			0,
 			0,
 			VK_NULL_HANDLE,
 			0,
 			VK_NULL_HANDLE,
 			0,
-			VK_NULL_HANDLE);
+			VK_NULL_HANDLE
+	);
 }
 
 void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *offset) {
-	// TODO: Find a buffer with available space, creating a new one if not found, then copy the data to that buffer's stage, then copy the output data
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (size < VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE) {
+		// Find a buffer with enough space
+		_VK2DDescriptorBufferInternal *spot = NULL;
+		for (int i = 0; i < db->bufferCount && spot == NULL; i++) {
+			if (size < VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE - db->buffers[i].size) {
+				spot = &db->buffers[i];
+			}
+		}
+
+		// If no buffer exists, make a new one
+		if (spot == NULL) {
+			spot = _vk2dDescriptorBufferAppendBuffer(db);
+			spot->size = 0;
+			vmaMapMemory(gRenderer->vma, spot->stageBuffer->mem, &spot->hostData);
+		}
+
+		// Copy data over
+		memcpy(spot->hostData + spot->size, data, size);
+		*outBuffer = spot->deviceBuffer->buf;
+		*offset = spot->size;
+		spot->size += size;
+	}
 }
 
 void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyBuffer) {
@@ -95,7 +115,4 @@ void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyB
 			vkCmdCopyBuffer(copyBuffer, db->buffers[i].stageBuffer->buf, db->buffers[i].deviceBuffer->buf, 1, &bufferCopy);
 		}
 	}
-
-	// Set off the event when complete
-	vkCmdSetEvent(copyBuffer, db->waitForCopyEvent, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
 }

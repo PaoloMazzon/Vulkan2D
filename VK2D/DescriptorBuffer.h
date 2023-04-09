@@ -33,7 +33,6 @@ struct VK2DDescriptorBuffer {
 	_VK2DDescriptorBufferInternal *buffers; ///< List of internal buffers so that we can allocate more on the fly
 	int bufferCount;          ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
 	int bufferListSize;       ///< Actual number of elements in the buffer lists
-	VkEvent waitForCopyEvent; ///< Vulkan event for synchronizing the buffer copy across command buffers
 	VK2DLogicalDevice dev;    ///< Device this lives on
 };
 
