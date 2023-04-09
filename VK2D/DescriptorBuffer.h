@@ -55,7 +55,7 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
 /// \param size Size in bytes of the data
 /// \param outBuffer Will be filled with the pointer to the internal Vulkan buffer that the memory is located in
 /// \param offset Location in outBuffer where the copied data is
-/// \warning size ***MUST*** be less than VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE (which is ~90kb by default)
+/// \warning size ***MUST*** be less than VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE (which is 250kb by default)
 void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *offset);
 
 /// \brief Finishes tasks that need to be done in command buffers before the queue is submitted

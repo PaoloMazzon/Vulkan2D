@@ -100,6 +100,10 @@ VkDescriptorSet vk2dDescConGetBufferSet(VK2DDescCon descCon, VK2DBuffer buffer) 
 	return set;
 }
 
+VkDescriptorSet vk2dDescConGetSet(VK2DDescCon descCon) {
+	return _vk2dDescConGetAvailableSet(descCon);
+}
+
 VkDescriptorSet vk2dDescConGetSamplerSet(VK2DDescCon descCon, VK2DTexture tex) {
 	VkDescriptorSet set = _vk2dDescConGetAvailableSet(descCon);
 	VkDescriptorImageInfo imageInfo = {};

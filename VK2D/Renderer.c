@@ -276,15 +276,6 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			gRenderer->targetUBOSet = gRenderer->cameras[0].uboSets[gRenderer->scImageIndex]; // TODO: Should prob be reworked
 			gRenderer->target = VK2D_TARGET_SCREEN;
 
-			// Flush the current ubo into its buffer for the frame
-			for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-				if (gRenderer->cameras[i].state == cs_Normal) {
-					_vk2dCameraUpdateUBO(&gRenderer->cameras[i].ubos[gRenderer->scImageIndex],
-										 &gRenderer->cameras[i].spec);
-					_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex, i);
-				}
-			}
-
 			// Start the render pass
 			VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(
 					VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
@@ -296,6 +287,15 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 
 			// Begin descriptor buffer
 			vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->scImageIndex], gRenderer->commandBuffer[gRenderer->scImageIndex]);
+
+			// Flush the current ubo into its buffer for the frame
+			for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+				if (gRenderer->cameras[i].state == cs_Normal) {
+					_vk2dCameraUpdateUBO(&gRenderer->cameras[i].ubos[gRenderer->scImageIndex],
+										 &gRenderer->cameras[i].spec);
+					_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex, i);
+				}
+			}
 
 			// Setup render pass
 			VkRect2D rect = {};

@@ -7,6 +7,7 @@
 #include "VK2D/LogicalDevice.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/Initializers.h"
+#include "VK2D/PhysicalDevice.h"
 
 static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
 	// Potentially increase the size of the buffer list
@@ -99,7 +100,13 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
 		memcpy(spot->hostData + spot->size, data, size);
 		*outBuffer = spot->deviceBuffer->buf;
 		*offset = spot->size;
-		spot->size += size;
+
+		// We may only move size in accordance with minUniformBufferOffsetAlignment
+		if (size % gRenderer->pd->props.limits.minUniformBufferOffsetAlignment != 0) {
+			spot->size += ((size / gRenderer->pd->props.limits.minUniformBufferOffsetAlignment) + 1) * gRenderer->pd->props.limits.minUniformBufferOffsetAlignment;
+		} else {
+			spot->size += size;
+		}
 	}
 }
 
@@ -111,7 +118,7 @@ void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyB
 		vmaUnmapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem);
 		if (db->buffers[i].size > 0) {
 			VkBufferCopy bufferCopy = {};
-			bufferCopy.size = db->buffers[i].size;
+			bufferCopy.size = (db->buffers[i].size < VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE) ? db->buffers[i].size : VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE;
 			vkCmdCopyBuffer(copyBuffer, db->buffers[i].stageBuffer->buf, db->buffers[i].deviceBuffer->buf, 1, &bufferCopy);
 		}
 	}

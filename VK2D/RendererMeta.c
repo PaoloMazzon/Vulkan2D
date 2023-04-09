@@ -231,10 +231,17 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
 void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	void *data;
-	vmaMapMemory(gRenderer->vma, gRenderer->cameras[camera].buffers[frame]->mem,  &data);
-	memcpy(data, &gRenderer->cameras[camera].ubos[frame], sizeof(VK2DUniformBufferObject));
-	vmaUnmapMemory(gRenderer->vma, gRenderer->cameras[camera].buffers[frame]->mem);
+	VkBuffer buffer;
+	VkDeviceSize offset;
+	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[frame], &gRenderer->cameras[camera].ubos[frame], sizeof(VK2DUniformBufferObject), &buffer, &offset);
+	VkDescriptorBufferInfo bufferInfo = {buffer, offset, sizeof(VK2DUniformBufferObject)};
+	VkWriteDescriptorSet write = {};
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.descriptorCount = 1;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	write.pBufferInfo = &bufferInfo;
+	write.dstSet = gRenderer->cameras[camera].uboSets[frame];
+	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
 }
 
 void _vk2dRendererCreateDebug() {

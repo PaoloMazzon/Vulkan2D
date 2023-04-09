@@ -40,6 +40,11 @@ void vk2dDescConFree(VK2DDescCon descCon);
 /// \return Returns a new descriptor set ready to be bound to a command buffer (valid until vk2dDescConReset is called)
 VkDescriptorSet vk2dDescConGetBufferSet(VK2DDescCon descCon, VK2DBuffer buffer);
 
+/// \brief Creates, updates, and returns a blank descriptor set
+/// \param descCon Descriptor controller to pull the set from
+/// \return Returns a new descriptor set
+VkDescriptorSet vk2dDescConGetSet(VK2DDescCon descCon);
+
 /// \brief Creates, updates, and returns a descriptor set ready to be bound to a command buffer
 /// \param descCon Descriptor controller to pull the set from
 /// \param tex Texture to bind to the descriptor set (namely the sampler and image view)

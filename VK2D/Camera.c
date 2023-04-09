@@ -27,21 +27,14 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec) {
 
 			// Create the lists first
 			cam->ubos = calloc(1, sizeof(VK2DUniformBufferObject) * gRenderer->swapchainImageCount);
-			cam->buffers = malloc(sizeof(VK2DBuffer) * gRenderer->swapchainImageCount);
 			cam->uboSets = malloc(sizeof(VkDescriptorSet) * gRenderer->swapchainImageCount);
 			vk2dPointerCheck(cam->ubos);
-			vk2dPointerCheck(cam->buffers);
 			vk2dPointerCheck(cam->uboSets);
 
 			// Populate the lists
 			for (int i = 0; i < gRenderer->swapchainImageCount; i++) {
-				cam->buffers[i] = vk2dBufferCreate(gRenderer->ld, sizeof(VK2DUniformBufferObject),
-												   VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-												   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-												   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 				_vk2dCameraUpdateUBO(&cam->ubos[i], &spec);
-				_vk2dRendererFlushUBOBuffer(i, position);
-				cam->uboSets[i] = vk2dDescConGetBufferSet(gRenderer->descConVP, cam->buffers[i]);
+				cam->uboSets[i] = vk2dDescConGetSet(gRenderer->descConVP);
 			}
 		} else {
 			vk2dLogMessage("Cannot create more cameras");
@@ -82,10 +75,7 @@ void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state) {
 		// Free internal resources
 		if ((state == cs_Deleted || state == cs_Reset) &&
 			(gRenderer->cameras[index].state == cs_Disabled || gRenderer->cameras[index].state == cs_Normal)) {
-			for (int i = 0; i < gRenderer->swapchainImageCount; i++)
-				vk2dBufferFree(gRenderer->cameras[index].buffers[i]);
 			free(gRenderer->cameras[index].ubos);
-			free(gRenderer->cameras[index].buffers);
 			free(gRenderer->cameras[index].uboSets);
 		}
 		gRenderer->cameras[index].state = state;
