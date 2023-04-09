@@ -6,6 +6,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/LogicalDevice.h"
 #include "VK2D/Renderer.h"
+#include "VK2D/Initializers.h"
 
 static void _vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
 	// Potentially increase the size of the buffer list
@@ -68,8 +69,8 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
 			drawBuffer,
 			1,
 			&db->waitForCopyEvent,
-			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+			VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+			VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
 			0,
 			VK_NULL_HANDLE,
 			0,
@@ -84,9 +85,17 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
 
 void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyBuffer) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+
+	// Unmap all of the buffers then queue a buffer copy if their size is greater than 0
 	for (int i = 0; i < db->bufferCount; i++) {
 		vmaUnmapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem);
-		// TODO: Copy this buffer if it has non-zero size
+		if (db->buffers[i].size > 0) {
+			VkBufferCopy bufferCopy = {};
+			bufferCopy.size = db->buffers[i].size;
+			vkCmdCopyBuffer(copyBuffer, db->buffers[i].stageBuffer->buf, db->buffers[i].deviceBuffer->buf, 1, &bufferCopy);
+		}
 	}
-	vkCmdSetEvent(copyBuffer, db->waitForCopyEvent, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
+
+	// Set off the event when complete
+	vkCmdSetEvent(copyBuffer, db->waitForCopyEvent, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
 }

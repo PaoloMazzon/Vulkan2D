@@ -148,6 +148,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		_vk2dRendererCreatePipelines();
 		_vk2dRendererCreateFrameBuffer();
 		_vk2dRendererCreateDescriptorPool(false);
+		_vk2dRendererCreateDescriptorBuffers();
 		_vk2dRendererCreateUniformBuffers(true);
 		_vk2dRendererCreateSampler();
 		_vk2dRendererCreateUnits();
@@ -177,6 +178,7 @@ void vk2dRendererQuit() {
 		_vk2dRendererDestroyUnits();
 		_vk2dRendererDestroySampler();
 		_vk2dRendererDestroyDescriptorPool(false);
+		_vk2dRendererDestroyDescriptorBuffers();
 		_vk2dRendererDestroyUniformBuffers();
 		_vk2dRendererDestroyFrameBuffer();
 		_vk2dRendererDestroyPipelines(false);
@@ -288,7 +290,12 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 					VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
 					VK_NULL_HANDLE);
 			vkResetCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], 0);
+			vkResetCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], 0);
 			vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], &beginInfo));
+			vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], &beginInfo));
+
+			// Begin descriptor buffer
+			vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->scImageIndex], gRenderer->commandBuffer[gRenderer->scImageIndex]);
 
 			// Setup render pass
 			VkRect2D rect = {};
@@ -328,13 +335,16 @@ void vk2dRendererEndFrame() {
 
 			// Finish the primary command buffer, its time to PRESENT things
 			vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
+			vk2dDescriptorBufferEndFrame(gRenderer->descriptorBuffers[gRenderer->scImageIndex], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
 			vk2dErrorCheck(vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]));
+			vk2dErrorCheck(vkEndCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex]));
 
 			// Wait for image before doing things
 			VkPipelineStageFlags waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+			VkCommandBuffer bufs[] = {gRenderer->commandBuffer[gRenderer->scImageIndex], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]};
 			VkSubmitInfo submitInfo = vk2dInitSubmitInfo(
-					&gRenderer->commandBuffer[gRenderer->scImageIndex],
-					1,
+					bufs,
+					2,
 					&gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
 					1,
 					&gRenderer->imageAvailableSemaphores[gRenderer->currentFrame],

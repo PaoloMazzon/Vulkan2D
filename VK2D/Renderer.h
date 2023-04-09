@@ -71,16 +71,17 @@ struct VK2DRenderer {
 	VK2DShader *customShaders; ///< Custom shaders the user creates
 
 	// Uniform things
-	VkDescriptorSetLayout dslSampler;    ///< Descriptor set layout for texture samplers
-	VkDescriptorSetLayout dslBufferVP;   ///< Descriptor set layout for the view-projection buffer
-	VkDescriptorSetLayout dslBufferUser; ///< Descriptor set layout for user data buffers (custom shaders uniforms)
-	VkDescriptorSetLayout dslTexture;    ///< Descriptor set layout for the textures
-	VK2DDescCon descConSamplers;         ///< Descriptor controller for samplers
-	VK2DDescCon descConVP;               ///< Descriptor controller for view projection buffers
-	VK2DDescCon descConUser;             ///< Descriptor controller for user buffers
-	VkDescriptorPool samplerPool;        ///< Sampler pool for 1 sampler
-	VkDescriptorSet samplerSet;          ///< Sampler for all textures
-	VkDescriptorSet modelSamplerSet;     ///< Sampler for all 3D models
+	VkDescriptorSetLayout dslSampler;        ///< Descriptor set layout for texture samplers
+	VkDescriptorSetLayout dslBufferVP;       ///< Descriptor set layout for the view-projection buffer
+	VkDescriptorSetLayout dslBufferUser;     ///< Descriptor set layout for user data buffers (custom shaders uniforms)
+	VkDescriptorSetLayout dslTexture;        ///< Descriptor set layout for the textures
+	VK2DDescCon descConSamplers;             ///< Descriptor controller for samplers
+	VK2DDescCon descConVP;                   ///< Descriptor controller for view projection buffers
+	VK2DDescCon descConUser;                 ///< Descriptor controller for user buffers
+	VkDescriptorPool samplerPool;            ///< Sampler pool for 1 sampler
+	VkDescriptorSet samplerSet;              ///< Sampler for all textures
+	VkDescriptorSet modelSamplerSet;         ///< Sampler for all 3D models
+	VK2DDescriptorBuffer *descriptorBuffers; ///< Descriptor buffer, one per swapchain image
 
 	// Frame synchronization
 	uint32_t currentFrame;                 ///< Current frame being looped through
@@ -90,6 +91,7 @@ struct VK2DRenderer {
 	VkFence *inFlightFences;               ///< Fences for each frame
 	VkFence *imagesInFlight;               ///< Individual images in flight
 	VkCommandBuffer *commandBuffer;        ///< Command buffers, recreated each frame
+	VkCommandBuffer *dbCommandBuffer;      ///< Command buffers for descriptor buffers
 
 	// Render targeting info
 	uint32_t targetSubPass;          ///< Current sub pass being rendered to

@@ -21,6 +21,7 @@
 #include "VK2D/Shader.h"
 #include "VK2D/Util.h"
 #include "VK2D/Model.h"
+#include "VK2D/DescriptorBuffer.h"
 
 // For debugging
 PFN_vkCreateDebugReportCallbackEXT fvkCreateDebugReportCallbackEXT;
@@ -413,6 +414,24 @@ void _vk2dRendererDestroyColourResources() {
 		vk2dImageFree(gRenderer->msaaImage);
 	gRenderer->msaaImage = NULL;
 }
+
+void _vk2dRendererCreateDescriptorBuffers() {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	gRenderer->descriptorBuffers = malloc(sizeof(VK2DDescriptorBuffer) * VK2D_MAX_FRAMES_IN_FLIGHT);
+
+	vk2dPointerCheck(gRenderer->descriptorBuffers);
+	for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+		gRenderer->descriptorBuffers[i] = vk2dDescriptorBufferCreate();
+	}
+}
+
+void _vk2dRendererDestroyDescriptorBuffers() {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
+		vk2dDescriptorBufferFree(gRenderer->descriptorBuffers[i]);
+	free(gRenderer->descriptorBuffers);
+}
+
 
 void _vk2dRendererCreateRenderPass() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
@@ -878,6 +897,7 @@ void _vk2dRendererCreateSynchronization() {
 	gRenderer->inFlightFences = malloc(sizeof(VkFence) * VK2D_MAX_FRAMES_IN_FLIGHT);
 	gRenderer->imagesInFlight = calloc(1, sizeof(VkFence) * gRenderer->swapchainImageCount);
 	gRenderer->commandBuffer = malloc(sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
+	gRenderer->dbCommandBuffer = malloc(sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
 
 	if (vk2dPointerCheck(gRenderer->imageAvailableSemaphores) && vk2dPointerCheck(gRenderer->renderFinishedSemaphores)
 		&& vk2dPointerCheck(gRenderer->inFlightFences) && vk2dPointerCheck(gRenderer->imagesInFlight)) {
@@ -888,9 +908,11 @@ void _vk2dRendererCreateSynchronization() {
 		}
 	}
 
-	if (vk2dPointerCheck(gRenderer->commandBuffer)) {
-		for (i = 0; i < gRenderer->swapchainImageCount; i++)
+	if (vk2dPointerCheck(gRenderer->commandBuffer) && vk2dPointerCheck(gRenderer->dbCommandBuffer)) {
+		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			gRenderer->commandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
+			gRenderer->dbCommandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
+		}
 	}
 
 	vk2dLogMessage("Synchronization initialized...");

@@ -53,6 +53,8 @@ void _vk2dRendererCreateSwapchain();
 void _vk2dRendererDestroySwapchain();
 void _vk2dRendererCreateDepthBuffer();
 void _vk2dRendererDestroyDepthBuffer();
+void _vk2dRendererCreateDescriptorBuffers();
+void _vk2dRendererDestroyDescriptorBuffers();
 void _vk2dRendererCreateColourResources();
 void _vk2dRendererDestroyColourResources();
 void _vk2dRendererCreateRenderPass();
