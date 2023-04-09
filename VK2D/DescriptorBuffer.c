@@ -57,7 +57,25 @@ void vk2dDescriptorBufferFree(VK2DDescriptorBuffer db) {
 }
 
 void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer drawBuffer) {
-	// TODO: Map stage buffer's memory, reset all of the buffers sizes to 0, queue the event wait in drawBuffer, and reset the event for this frame
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	for (int i = 0; i < db->bufferCount; i++) {
+		db->buffers[i].size = 0;
+		vmaMapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem, &db->buffers[i].hostData);
+	}
+
+	vkResetEvent(db->dev->dev, db->waitForCopyEvent);
+	vkCmdWaitEvents(
+			drawBuffer,
+			1,
+			&db->waitForCopyEvent,
+			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+			VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+			0,
+			VK_NULL_HANDLE,
+			0,
+			VK_NULL_HANDLE,
+			0,
+			VK_NULL_HANDLE);
 }
 
 void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *offset) {
@@ -65,5 +83,10 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
 }
 
 void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyBuffer) {
-	// TODO: Unmap memory, queue the copy command for each buffer with > 0 size in copyBuffer, and set off the event after the command
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	for (int i = 0; i < db->bufferCount; i++) {
+		vmaUnmapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem);
+		// TODO: Copy this buffer if it has non-zero size
+	}
+	vkCmdSetEvent(copyBuffer, db->waitForCopyEvent, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT);
 }

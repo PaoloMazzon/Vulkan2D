@@ -13,6 +13,7 @@ extern "C" {
 typedef struct _VK2DDescriptorBufferInternal {
 	VK2DBuffer deviceBuffer; ///< Device-local (on vram) buffer that the shaders will access
 	VK2DBuffer stageBuffer;  ///< Host-local (on ram) buffer that data will be copied into
+	void *hostData;          ///< For when stageBuffer is mapped
 	VkDeviceSize size;       ///< Amount of data currently in this buffer
 } _VK2DDescriptorBufferInternal;
 
