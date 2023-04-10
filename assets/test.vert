@@ -47,6 +47,7 @@ void main() {
     gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos, 1.0, 1.0);
     fragTexCoord.x = pushBuffer.textureCoords.x + (texCoords[gl_VertexIndex].x * pushBuffer.textureCoords.z);
     fragTexCoord.y = pushBuffer.textureCoords.y + (texCoords[gl_VertexIndex].y * pushBuffer.textureCoords.w);
-    float val = (sin(userData.colour) + 1) / 2;
-    fragColour = vec4(val, val, val, 1);
+    /*float val = (sin(userData.colour) + 1) / 2;
+    fragColour = vec4(val, val, val, 1);*/
+    fragColour = vec4(1, 1, 1, 1);
 }
