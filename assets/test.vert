@@ -16,6 +16,7 @@ layout(push_constant) uniform PushBuffer {
 } pushBuffer;
 
 layout(location = 1) out vec2 fragTexCoord;
+layout(location = 2) out vec4 fragColour;
 
 vec2 vertices[] = {
 vec2(0.0f, 0.0f),
@@ -46,4 +47,6 @@ void main() {
     gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos, 1.0, 1.0);
     fragTexCoord.x = pushBuffer.textureCoords.x + (texCoords[gl_VertexIndex].x * pushBuffer.textureCoords.z);
     fragTexCoord.y = pushBuffer.textureCoords.y + (texCoords[gl_VertexIndex].y * pushBuffer.textureCoords.w);
+    float val = (sin(userData.colour) + 1) / 2;
+    fragColour = vec4(val, val, val, 1);
 }

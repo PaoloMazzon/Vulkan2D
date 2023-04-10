@@ -15,14 +15,15 @@ layout(push_constant) uniform PushBuffer {
 } pushBuffer;
 
 layout(location = 1) in vec2 fragTexCoord;
+layout(location = 2) in vec4 fragColour;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
     vec4 colour = texture(sampler2D(tex, texSampler), fragTexCoord);
     outColor = vec4(
-        colour.r * pushBuffer.colourMod.r,
-        colour.g * pushBuffer.colourMod.g,
-        colour.b * pushBuffer.colourMod.b,
-        colour.a * pushBuffer.colourMod.a);
+        colour.r * pushBuffer.colourMod.r * fragColour.r,
+        colour.g * pushBuffer.colourMod.g * fragColour.g,
+        colour.b * pushBuffer.colourMod.b * fragColour.b,
+        colour.a * pushBuffer.colourMod.a * fragColour.a);
 }

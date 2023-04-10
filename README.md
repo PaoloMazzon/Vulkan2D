@@ -20,7 +20,7 @@ Features
  + Draw shapes/textures/3D models/arbitrary polygons to the screen or other textures
  + Fast, built with Vulkan 1.2 and doesn't require any device features (but it can make use of some)
  + Simple and fully-featured cameras, allowing for multiple concurrent cameras
- + Load custom shaders to replace the renderer's built-in ones and extra custom shaders
+ + Powerful and very simple shader interface
 
 Documentation
 =============
@@ -82,4 +82,4 @@ TODO
 ====
 
  + 3D shaders and wireframe rendering
- + Variable number of buffers per shader
+ + Compute particles

@@ -56,7 +56,7 @@ int main(int argc, const char *argv[]) {
 	VK2DModel modelVikingRoom = vk2dModelLoad("assets/viking_room.obj", texVikingRoom);
 	VK2DTexture texCaveguyUV = vk2dTextureLoad("assets/caveguyuv.png");
 	VK2DModel modelCaveguy = vk2dModelLoad("assets/caveguy.obj", texCaveguyUV);
-	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 16);
+	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 4);
 
 	// Delta and fps
 	double lastTime = SDL_GetPerformanceCounter();
@@ -72,6 +72,7 @@ int main(int argc, const char *argv[]) {
 	float camZoomSpeed = 0.5f; // per second
 	float prevMX = 0;
 	float prevMY = 0;
+	float shaderFloat = 0;
 
 	while (!quit) {
 		delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
@@ -144,8 +145,7 @@ int main(int argc, const char *argv[]) {
 		vk2dCameraUpdate(camera3D, cam3D);
 
 		// Update shader buffer
-		vec4 colour = {1, 0.5, 0, 1};
-		vec4 colour2 = {0, 0.5, 1, 1};
+		shaderFloat += delta * 5;
 
 		// All rendering must happen after this
 		vk2dRendererStartFrame(clear);
@@ -165,9 +165,9 @@ int main(int argc, const char *argv[]) {
 		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dDrawTexture(testTexture, 0, 0);
 		for (int i = 0; i < 10; i++) {
-			vk2dRendererDrawShader(shader, colour, testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0,
+			vk2dRendererDrawShader(shader, &shaderFloat, testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0,
 								   16, 16);
-			vk2dRendererDrawShader(shader, colour2, testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale,
+			vk2dRendererDrawShader(shader, &shaderFloat, testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale,
 								   (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
 		}
 
