@@ -67,7 +67,7 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
 	vkCmdPipelineBarrier(
 			drawBuffer,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+			VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
 			0,
 			0,
 			VK_NULL_HANDLE,
