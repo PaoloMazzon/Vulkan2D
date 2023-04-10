@@ -27,10 +27,8 @@ struct VK2DShader {
 	uint32_t spvFragSize;    ///< Size of the fragment shader (in bytes)
 	VK2DPipeline pipe;       ///< Pipeline associated with this shader
 	uint32_t uniformSize;    ///< Uniform buffer size in bytes
-	uint32_t currentUniform; ///< Current uniform buffer that is allowed to be modified
 	VK2DLogicalDevice dev;   ///< Device this belongs to
-	VK2DBuffer uniforms[VK2D_MAX_FRAMES_IN_FLIGHT];  ///< Uniform buffers
-	VkDescriptorSet sets[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor sets for the uniform buffers
+	VK2DDescCon descCons[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor sets for the uniform buffers
 };
 
 /// \brief Creates a shader you can use to render textures
@@ -74,19 +72,6 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 ///
 /// At the top of both shaders.
 VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize);
-
-/// \brief Updates a uniform in a shader
-/// \param shader Shader to update the uniform data for
-/// \param data Data to upload to the uniform
-/// \warning Do not call this more than once a frame
-/// \warning If you specified 0 for `size` in vk2dShaderLoad you cannot call this
-///
-/// Because of how VK2D works you cannot just call this once and depend on the same
-/// data being present in following frames. VK2D updates (by default) 3 frames at a
-/// time so internally there are 3 shaders buffers meaning you must call this 3 times
-/// before the same data is present on each buffer, but much more practically just call
-/// this once a frame.
-void vk2dShaderUpdate(VK2DShader shader, void *data);
 
 /// \brief Frees a shader from memory
 /// \param shader Shader to free

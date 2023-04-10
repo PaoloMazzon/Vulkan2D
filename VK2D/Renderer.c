@@ -15,6 +15,7 @@
 #include "VK2D/Image.h"
 #include "VK2D/Model.h"
 #include "VK2D/DescriptorBuffer.h"
+#include "VK2D/DescriptorControl.h"
 
 /******************************* Forward declarations *******************************/
 
@@ -295,6 +296,12 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 										 &gRenderer->cameras[i].spec);
 					_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex, i);
 				}
+			}
+
+			// Reset shader desc cons
+			for (int i = 0; i < gRenderer->shaderListSize; i++) {
+				if (gRenderer->customShaders[i] != NULL)
+					vk2dDescConReset(gRenderer->customShaders[i]->descCons[gRenderer->scImageIndex]);
 			}
 
 			// Setup render pass
@@ -632,15 +639,31 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
 	}
 }
 
-void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
+void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	if (gRenderer != NULL) {
 		if (shader != NULL) {
 			VkDescriptorSet sets[4];
 			sets[1] = gRenderer->samplerSet;
 			sets[2] = tex->img->set;
-			sets[3] = shader->sets[shader->currentUniform];
 
-			uint32_t setCount = shader->uniformSize == 0 ? 3 : 4;
+			// Create the data uniform
+			uint32_t setCount = 3;
+			if (shader->uniformSize != 0) {
+				sets[3] = vk2dDescConGetSet(shader->descCons[gRenderer->scImageIndex]);
+				VkBuffer buffer;
+				VkDeviceSize offset;
+				vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->scImageIndex], data, shader->uniformSize, &buffer, &offset);
+				VkDescriptorBufferInfo bufferInfo = {buffer,offset,shader->uniformSize};
+				VkWriteDescriptorSet write = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
+				write.pBufferInfo = &bufferInfo;
+				write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				write.dstBinding = 3;
+				write.dstSet = sets[3];
+				write.descriptorCount = 1;
+				vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
+				setCount = 4;
+			}
+
 			_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1,
 							  xInTex,
 							  yInTex, texWidth, texHeight);

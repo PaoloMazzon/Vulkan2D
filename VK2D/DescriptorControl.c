@@ -101,7 +101,7 @@ VkDescriptorSet vk2dDescConGetBufferSet(VK2DDescCon descCon, VK2DBuffer buffer) 
 }
 
 VkDescriptorSet vk2dDescConGetSet(VK2DDescCon descCon) {
-	return _vk2dDescConGetAvailableSet(descCon);
+	return _vk2dDescConGetAvailableSet(descCon); // TODO: Memory leak
 }
 
 VkDescriptorSet vk2dDescConGetSamplerSet(VK2DDescCon descCon, VK2DTexture tex) {

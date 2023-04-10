@@ -56,7 +56,7 @@ int main(int argc, const char *argv[]) {
 	VK2DModel modelVikingRoom = vk2dModelLoad("assets/viking_room.obj", texVikingRoom);
 	VK2DTexture texCaveguyUV = vk2dTextureLoad("assets/caveguyuv.png");
 	VK2DModel modelCaveguy = vk2dModelLoad("assets/caveguy.obj", texCaveguyUV);
-	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 4);
+	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 16);
 
 	// Delta and fps
 	double lastTime = SDL_GetPerformanceCounter();
@@ -144,8 +144,8 @@ int main(int argc, const char *argv[]) {
 		vk2dCameraUpdate(camera3D, cam3D);
 
 		// Update shader buffer
-		float x = 1;
-		vk2dShaderUpdate(shader, &x);
+		vec4 colour = {1, 0.5, 0, 1};
+		vec4 colour2 = {0, 0.5, 1, 1};
 
 		// All rendering must happen after this
 		vk2dRendererStartFrame(clear);
@@ -164,8 +164,12 @@ int main(int argc, const char *argv[]) {
 		vk2dDrawTexture(testSurface, -100, -100);
 		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dDrawTexture(testTexture, 0, 0);
-		vk2dRendererDrawShader(shader, testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);
-		vk2dRendererDrawTexture(testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale, (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
+		for (int i = 0; i < 10; i++) {
+			vk2dRendererDrawShader(shader, colour, testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0,
+								   16, 16);
+			vk2dRendererDrawShader(shader, colour2, testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale,
+								   (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
+		}
 
 		// Draw 3D portions
 		vk2dRendererLockCameras(camera3D);

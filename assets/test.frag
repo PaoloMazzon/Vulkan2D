@@ -5,7 +5,7 @@ layout(set = 1, binding = 1) uniform sampler texSampler;
 layout(set = 2, binding = 2) uniform texture2D tex;
 
 layout(set = 3, binding = 3) uniform UserData {
-    float x;
+    vec4 colour;
 } userData;
 
 layout(push_constant) uniform PushBuffer {
@@ -20,9 +20,5 @@ layout(location = 0) out vec4 outColor;
 
 void main() {
     vec4 colour = texture(sampler2D(tex, texSampler), fragTexCoord);
-    outColor = vec4(
-    colour.r * pushBuffer.colourMod.r,
-    colour.g * pushBuffer.colourMod.g,
-    colour.b * pushBuffer.colourMod.b,
-    colour.a * pushBuffer.colourMod.a);
+    outColor = userData.colour;
 }

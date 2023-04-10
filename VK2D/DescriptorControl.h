@@ -11,7 +11,6 @@ extern "C" {
 /// \brief Abstraction for descriptor pools and sets so you can dynamically use them
 struct VK2DDescCon {
 	VkDescriptorPool *pools;      ///< List of pools
-	VkDescriptorSet *sets;        ///< List of all sets allocated with this
 	VkDescriptorSetLayout layout; ///< Layout for these sets
 	uint32_t buffer;              ///< Whether or not pools support uniform buffers
 	uint32_t sampler;             ///< Whether or not pools support texture samplers

@@ -317,6 +317,7 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 
 /// \brief Renders a texture
 /// \param shader Shader to draw with
+/// \param data Uniform buffer data the shader expects; should be the size specified when the shader was created or NULL if a size of 0 was given
 /// \param tex Texture to draw
 /// \param x x position in pixels from the top left of the window to draw it from
 /// \param y y position in pixels from the top left of the window to draw it from
@@ -329,7 +330,7 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 /// \param yInTex Y position in the texture to start drawing from
 /// \param texWidth Width of the texture to draw
 /// \param texHeight Height of the texture to draw
-void vk2dRendererDrawShader(VK2DShader shader, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight);
+void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight);
 
 /// \brief Renders a polygon
 /// \param polygon Polygon to draw
