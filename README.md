@@ -11,7 +11,7 @@ simple API, requiring no Vulkan experience to use. [Astro](https://github.com/Pa
 and more recently [Bedlam](https://github.com/PaoloMazzon/Bedlam) internally use Vulkan2D for
 rendering. My other projects [Spacelink](https://github.com/PaoloMazzon/Spacelink) and
 [Peace & Liberty](https://github.com/PaoloMazzon/PeacenLiberty) also used Vulkan2D, although
-a much older version of it.
+a much older version of it. Check out the [quick-start](docs/QuickStart.md) guide.
 
 Features
 ========
@@ -83,4 +83,3 @@ TODO
 
  + 3D shaders and wireframe rendering
  + Compute particles
- + Write a quick-start guide for basic render explanation stuff like the change-able state, how rotation/drawing works/etc...

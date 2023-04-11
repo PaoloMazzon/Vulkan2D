@@ -199,7 +199,7 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 		mat4 view = {};
 		vec3 eyes = {camera->x + (camera->w * 0.5), camera->y + (camera->h * 0.5), -2};
 		vec3 center = {eyes[0], eyes[1], 0};
-		vec3 up = {sin(camera->rot), -cos(camera->rot), 0};
+		vec3 up = {sin(-camera->rot), -cos(-camera->rot), 0};
 		cameraMatrix(view, eyes, center, up);
 
 		// Projection

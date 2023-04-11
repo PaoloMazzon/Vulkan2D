@@ -384,7 +384,7 @@ void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xsc
 #define vk2dDrawLine(x1, y1, x2, y2) vk2dRendererDrawLine(x1, y1, x2, y2)
 
 /// \brief Draws a texture with a shader (floats)
-#define vk2dDrawShader(shader, texture, x, y) vk2dRendererDrawShader(shader, texture, x, y, 1, 1, 0, 0, 0, 0, 0, texture->img->width, texture->img->height)
+#define vk2dDrawShader(shader, data, texture, x, y) vk2dRendererDrawShader(shader, data, texture, x, y, 1, 1, 0, 0, 0, 0, 0, texture->img->width, texture->img->height)
 
 /// \brief Draws a texture (x and y should be floats)
 #define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0, 0, 0, texture->img->width, texture->img->height)
