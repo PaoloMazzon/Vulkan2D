@@ -287,7 +287,7 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], &beginInfo));
 
 			// Begin descriptor buffer
-			vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->scImageIndex], gRenderer->commandBuffer[gRenderer->scImageIndex]);
+			vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->commandBuffer[gRenderer->scImageIndex]);
 
 			// Flush the current ubo into its buffer for the frame
 			for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
@@ -342,7 +342,7 @@ void vk2dRendererEndFrame() {
 
 			// Finish the primary command buffer, its time to PRESENT things
 			vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
-			vk2dDescriptorBufferEndFrame(gRenderer->descriptorBuffers[gRenderer->scImageIndex], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
+			vk2dDescriptorBufferEndFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
 			vk2dErrorCheck(vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]));
 			vk2dErrorCheck(vkEndCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex]));
 
@@ -652,7 +652,7 @@ void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, floa
 				sets[3] = vk2dDescConGetSet(shader->descCons[gRenderer->scImageIndex]);
 				VkBuffer buffer;
 				VkDeviceSize offset;
-				vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->scImageIndex], data, shader->uniformSize, &buffer, &offset);
+				vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], data, shader->uniformSize, &buffer, &offset);
 				VkDescriptorBufferInfo bufferInfo = {buffer,offset,shader->uniformSize};
 				VkWriteDescriptorSet write = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
 				write.pBufferInfo = &bufferInfo;
