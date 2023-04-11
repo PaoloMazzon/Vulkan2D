@@ -28,9 +28,7 @@ struct VK2DModel {
 /// \param tex Texture bound to the texture
 /// \return Returns a new VK2DModel or NULL if it fails
 /// \warning The input must be triangulated.
-VK2DModel
-vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, const uint16_t *indices, uint32_t indexCount,
-				VK2DTexture tex);
+VK2DModel vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, const uint16_t *indices, uint32_t indexCount, VK2DTexture tex);
 
 /// \brief Loads a .obj model from a binary buffer
 /// \param objFile .obj file binary buffer

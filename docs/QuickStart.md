@@ -2,14 +2,20 @@
 Vulkan2D (VK2D) is a 2D/3D renderer written in C with Vulkan for small 2D games. It is
 simple enough to use, but of course there is this guide to help with some of the details.
 
+ + [The Basics](#the-basics)
+ + [Drawing](#drawing)
+ + [Textures](#textures)
+ + [Polygons](#polygons)
+ + [Cameras](#cameras)
+ + [Models](#models)
+ + [Shaders](#shaders)
+
 ## The Basics
 Everything that will be mentioned in this guide is mentioned in greater detail in the
 documentation for any given function. Feel free to generate the doxygen docs or simply
 read the header file containing the function for more information. The functions of
 interest to the average user will be `vk2dRenderer*`, `vk2dTexture*`, `vk2dPolygon*`,
 `vk2dCamera*`, `vk2dModel*`, and `vk2dShader*`.
-
-/a/das/d/asd TODO - talk about the renderer and state management as well as coordinate space
 
 Controlling the renderer is quite simple and only requires a few things:
 
@@ -82,8 +88,33 @@ By default, circle's origins are at their center, however. 3D models play by com
 defined by your models and however your 3D cameras are set up.
 
 ## Textures
-TODO - Talk about texture coordinate space and render targets
+Textures are the primary way of drawing images to the screen. You can load textures with `vk2dTextureLoad`
+and `vk2dTextureFrom`, then draw them however you want. More interestingly, you can create textures to
+render to with `vk2dTextureCreate`. Textures created this way can be rendered to in the same way you would
+draw to the screen, just call `vk2dRendererSetTarget` on it then you can render whatever you want to the
+texture. This is useful when you want to render a lot of something once, then just display that instead
+of rendering a lot of it every frame. Some common pitfalls to avoid here are:
+
+ + Textures are stored in VRAM, and you have limited amounts of it
+ + Switching render targets is often heavy on the graphics card
+ + Textures must be drawn to completely before rendering them, usually you may simply use `vk2dRendererEmpty`
+ after setting the render target to a texture
+ + You may only render textures created this way when they are not the current render target
+
+Additionally, texture targets have a coordinate space identical to that of the screen by default - the origin
+is the top-left and the y-axis goes down. You may use `vk2dRendererSetTextureCamera` to use user-defined cameras
+on texture targets instead of their default texture space. This still has the side effect of ignoring the cameras'
+`xOnScreen`, `yOnScreen`, `wOnScreen`, and `hOnScreen` parameters because the viewport will simply be set to the
+texture's dimensions.
+
 ## Polygons
+VK2D provides a few drawing primitives, but if you want more detailed shapes, you may load your own with
+`vk2dPolygonShapeCreateRaw` and `vk2dPolygonCreate`. `vk2dPolygonShapeCreateRaw` lets you specify your own vertices
+with specified colours, but the input must be triangulated; the example in `examples/main` does this. `vk2dPolygonCreate`
+lets you create arbitrary polygons with just a list of `vec2`'s, and will automatically triangulate the input. Polygons
+created with `vk2dPolygonCreate` will be solid white and their colour can be modified by changing the renderer's
+colour modifier.
+
 ## Cameras
 Cameras are a way to look into the game world with lots of powerful features. You may create up to a certain
 number of cameras yourself, and by default the renderer will render to all of them at once to allow for things
@@ -116,4 +147,35 @@ much smaller than `wOnScreen` and `hOnScreen`, in fact the example in `examples/
 ![image](cameraexample-3.png)
 
 ## Models
+Models are a way of drawing 3D models, and they are loaded in similar fashion to Polygons. You may load a model from
+vertices using `vk2dModelCreate`, which also expects that the input be triangulated. You may load models from a .obj
+file using `vk2dModelLoad` or `vk2dModelFrom`. All models are expected to be UV mapped and you must provide the texture
+yourself.
+
+To actually draw the 3D models, you need a 3D camera. Cameras in general were described above but some specifics for 3D
+will be discussed here
+
+ + 3D cameras must have the type `ct_Perspective` or `ct_Orthogonal` for VK2D to actually render 3D models to them
+ + Cameras with the type `ct_Default` will simply not have 3D models drawn to them even if you call `vk2dRendererDrawModel`
+ with the renderer locked to such cameras
+ + The camera spec parameters `x`, `y`, `w`, `h`, `zoom`, and `rot` are ignored for 3D cameras in favour of the parameters
+ in `VK2DCameraSpec.Perspective.*`
+
+The example `examples/retrolook` shows a very simple setup and usage of a 3D camera, and the example `examples/main`
+has a 3D camera moving with the mouse.
+
 ## Shaders
+You may provide your own SPIR-V compiled shaders to render textures with. For a detailed example check `examples/main`.
+
+Shaders may be loaded with `vk2dShaderLoad` and `vk2dShaderFrom`, and if you specify a buffer size other than 0 you
+must provide `vk2dRendererDrawShader` with a data buffer of at least that size. For some specifics,
+
+ + Your shaders must have the same inputs and outputs as the shader in `shaders/tex.frag`/`shaders/tex.vert`
+ + Shader buffer size must be a multiple of 4
+ + To specify a uniform buffer, you must specify the size when you create the shader and use
+
+
+    layout(set = 3, binding = 3) uniform UserData {
+        // your data here
+    } userData;
+
