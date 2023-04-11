@@ -197,9 +197,8 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 	if (camera->type == ct_Default) {
 		// Assemble view
 		mat4 view = {};
-		vec3 eyes = {-camera->x - (camera->w * 0.5), camera->y + (camera->h * 0.5), 2};
-		vec3 center = {-camera->x - (camera->w * 0.5), camera->y + (camera->h * 0.5),
-					   0};//-camera->w / 2, camera->h / 2, 0};
+		vec3 eyes = {camera->x + (camera->w * 0.5), camera->y + (camera->h * 0.5), -2};
+		vec3 center = {eyes[0], eyes[1], 0};
 		vec3 up = {sin(camera->rot), -cos(camera->rot), 0};
 		cameraMatrix(view, eyes, center, up);
 
@@ -1099,25 +1098,31 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
 	// Account for various coordinate-based qualms
-	originX *= xscale;
+	originX *= -xscale;
 	originY *= yscale;
 	//originX -= xInTex;
 	//originY -= yInTex;
-	rot *= -1;
 
 	// Push constants
 	VK2DPushBuffer push = {};
 	identityMatrix(push.model);
-	vec3 axis = {0, 0, 1};
-	vec3 originTranslation = {originX, -originY, 0};
-	vec3 origin2 = {-originX - x, originY + y, 0};
-	vec3 scale = {-xscale, yscale, 1};
-	translateMatrix(push.model, origin2);
+	// Only do rotation matrices if a rotation is specified for optimization purposes
 	if (rot != 0) {
+		vec3 axis = {0, 0, 1};
+		vec3 origin = {-originX + x, originY + y, 0};
+		vec3 originTranslation = {originX, -originY, 0};
+		translateMatrix(push.model, origin);
 		rotateMatrix(push.model, axis, rot);
+		translateMatrix(push.model, originTranslation);
+	} else {
+		vec3 origin = {x, y, 0};
+		translateMatrix(push.model, origin);
 	}
-	translateMatrix(push.model, originTranslation);
-	scaleMatrix(push.model, scale);
+	// Only scale matrix if specified for optimization purposes
+	if (xscale != 1 || yscale != 1) {
+		vec3 scale = {xscale, yscale, 1};
+		scaleMatrix(push.model, scale);
+	}
 	push.colourMod[0] = gRenderer->colourBlend[0];
 	push.colourMod[1] = gRenderer->colourBlend[1];
 	push.colourMod[2] = gRenderer->colourBlend[2];

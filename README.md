@@ -83,3 +83,4 @@ TODO
 
  + 3D shaders and wireframe rendering
  + Compute particles
+ + Write a quick-start guide for basic render explanation stuff like the change-able state, how rotation/drawing works/etc...
