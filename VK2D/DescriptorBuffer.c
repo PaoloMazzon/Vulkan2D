@@ -8,6 +8,7 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Initializers.h"
 #include "VK2D/PhysicalDevice.h"
+#include "VK2D/Opaque.h"
 
 static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
 	// Potentially increase the size of the buffer list

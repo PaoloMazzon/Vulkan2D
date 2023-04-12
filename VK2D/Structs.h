@@ -9,89 +9,11 @@
 extern "C" {
 #endif
 
-/// \brief Abstraction to make managing pointers easier for VK2DRenderer
-typedef struct VK2DRenderer *VK2DRenderer;
+// For opaque pointer types
+#define VK2D_OPAQUE_POINTER(type) typedef struct type *type;
 
-/// \brief Abstraction to make managing pointers easier for VK2DImage
-typedef struct VK2DImage *VK2DImage;
-
-/// \brief Abstraction to make managing pointers easier for VK2DLogicalDevice
-typedef struct VK2DLogicalDevice *VK2DLogicalDevice;
-
-/// \brief Abstraction to make managing pointers easier for VK2DPhysicalDevice
-typedef struct VK2DPhysicalDevice *VK2DPhysicalDevice;
-
-/// \brief Abstraction to make managing pointers easier for VK2DBuffer
-typedef struct VK2DBuffer *VK2DBuffer;
-
-/// \brief Abstraction to make managing pointers easier for VK2DPipeline
-typedef struct VK2DPipeline *VK2DPipeline;
-
-/// \brief Abstraction to make managing pointers easier for VK2DTexture
-typedef struct VK2DTexture *VK2DTexture;
-
-/// \brief Abstraction to make managing pointers easier for VK2DDescCon
-typedef struct VK2DDescCon *VK2DDescCon;
-
-/// \brief Abstraction to make managing pointers easier for VK2DPolygon
-typedef struct VK2DPolygon *VK2DPolygon;
-
-/// \brief Abstraction to make managing pointers easier for VK2DShader
-typedef struct VK2DShader *VK2DShader;
-
-/// \brief Abstraction to make managing pointers easier for VK2DCamera
-typedef struct VK2DCamera VK2DCamera;
-
-/// \brief Abstraction to make managing pointers easier for VK2DModel
-typedef struct VK2DModel *VK2DModel;
-
-/// \brief Abstraction to make managing pointers easier for VK2DDescriptorBuffer
-typedef struct VK2DDescriptorBuffer *VK2DDescriptorBuffer;
-
-/// \brief 2D vector of floats
-typedef float vec2[2];
-
-/// \brief 3D vector of floats
-typedef float vec3[3];
-
-/// \brief 4D vector of floats
-typedef float vec4[4];
-
-/// \brief 4x4 matrix of floats
-typedef float mat4[16];
-
-/// \brief Type used for referencing cameras
-typedef int32_t VK2DCameraIndex;
-
-/// \brief Vertex data for rendering shapes
-typedef struct {
-	vec3 pos;    ///< Position of this vertex
-	vec4 colour; ///< Colour of this vertex
-} VK2DVertexColour;
-
-/// \brief Vertex data for 3D models
-typedef struct {
-	vec3 pos; ///< Position of the vertex
-	vec2 uv;  ///< UV coordinates for this vertex
-} VK2DVertex3D;
-
-/// \brief The VP buffer
-typedef struct {
-	mat4 viewproj; ///< View and projection matrix multiplied together
-} VK2DUniformBufferObject;
-
-/// \brief Buffer passed per-model via push constants
-typedef struct {
-	mat4 model;     ///< Model matrix
-	vec4 colourMod; ///< Current colour modifier
-	vec4 texCoords; ///< Where in the texture to draw from and to (x, y, w, h)
-} VK2DPushBuffer;
-
-/// \brief Push buffer used for 3D models
-typedef struct {
-	mat4 model;     ///< Model matrix
-	vec4 colourMod; ///< Color modifier
-} VK2D3DPushBuffer;
+// For user-modifiable and user-visible structures
+#define VK2D_USER_STRUCT(type) typedef struct type type;
 
 /// \brief Describes what kind of vertices are in use
 typedef enum {
@@ -173,34 +95,93 @@ typedef enum {
 	ct_Perspective = 2,  ///< Perspective camera for 3D rendering
 } VK2DCameraType;
 
+// VK2D pointers
+VK2D_OPAQUE_POINTER(VK2DRenderer)
+VK2D_OPAQUE_POINTER(VK2DImage)
+VK2D_OPAQUE_POINTER(VK2DLogicalDevice)
+VK2D_OPAQUE_POINTER(VK2DPhysicalDevice)
+VK2D_OPAQUE_POINTER(VK2DBuffer)
+VK2D_OPAQUE_POINTER(VK2DPipeline)
+VK2D_OPAQUE_POINTER(VK2DTexture)
+VK2D_OPAQUE_POINTER(VK2DDescCon)
+VK2D_OPAQUE_POINTER(VK2DPolygon)
+VK2D_OPAQUE_POINTER(VK2DShader)
+VK2D_OPAQUE_POINTER(VK2DModel)
+VK2D_OPAQUE_POINTER(VK2DDescriptorBuffer)
+
+/// \brief 2D vector of floats
+typedef float vec2[2];
+
+/// \brief 3D vector of floats
+typedef float vec3[3];
+
+/// \brief 4D vector of floats
+typedef float vec4[4];
+
+/// \brief 4x4 matrix of floats
+typedef float mat4[16];
+
+/// \brief Type used for referencing cameras
+typedef int32_t VK2DCameraIndex;
+
+/// \brief Vertex data for rendering shapes
+struct VK2DVertexColour {
+	vec3 pos;    ///< Position of this vertex
+	vec4 colour; ///< Colour of this vertex
+};
+
+/// \brief Vertex data for 3D models
+struct VK2DVertex3D {
+	vec3 pos; ///< Position of the vertex
+	vec2 uv;  ///< UV coordinates for this vertex
+};
+
+/// \brief The VP buffer
+struct VK2DUniformBufferObject {
+	mat4 viewproj; ///< View and projection matrix multiplied together
+} ;
+
+/// \brief Buffer passed per-model via push constants
+struct VK2DPushBuffer {
+	mat4 model;     ///< Model matrix
+	vec4 colourMod; ///< Current colour modifier
+	vec4 texCoords; ///< Where in the texture to draw from and to (x, y, w, h)
+};
+
+/// \brief Push buffer used for 3D models
+struct VK2D3DPushBuffer {
+	mat4 model;     ///< Model matrix
+	vec4 colourMod; ///< Color modifier
+};
+
 /// \brief User configurable settings
-typedef struct VK2DConfiguration {
+struct VK2DConfiguration {
 	const char *applicationName; ///< Name of this program
 	const char *engineName;      ///< Name of this engine
 	uint32_t applicationVersion; ///< Version of the program
 	uint32_t engineVersion;      ///< Version of this engine
 	uint32_t apiVersion;         ///< Version of vulkan
-} VK2DConfiguration;
+};
 
 /// \brief Startup options that dictate some basic VK2D stuff
-typedef struct VK2DStartupOptions {
+struct VK2DStartupOptions {
 	bool enableDebug;       ///< Enables Vulkan compatibility layers
 	bool stdoutLogging;     ///< Print VK2D information to stdout
 	bool quitOnError;       ///< Crash the program when an error occurs
 	const char *errorFile;  ///< The file to output errors to, or NULL to disable file output
 	bool loadCustomShaders; ///< Whether or not to load shaders from a file instead of the built-in ones
-} VK2DStartupOptions;
+};
 
 /// \brief User configurable settings
 /// \warning Currently filterMode cannot be changed after the renderer is created but this is likely going to be fixed later
-typedef struct VK2DRendererConfig {
+struct VK2DRendererConfig {
 	VK2DMSAA msaa;             ///< Current MSAA
 	VK2DScreenMode screenMode; ///< Current screen mode
 	VK2DFilterType filterMode; ///< How to filter textures -- Not change-able after renderer creation
-} VK2DRendererConfig;
+};
 
 /// \brief Camera information
-typedef struct VK2DCameraSpec {
+struct VK2DCameraSpec {
 	VK2DCameraType  type; ///< What type of camera this is
 	float x;              ///< X position of the camera (top left coordinates) (only used in default camera type)
 	float y;              ///< Y position of the camera (top left coordinates) (only used in default camera type)
@@ -220,7 +201,7 @@ typedef struct VK2DCameraSpec {
 		vec3 up;     ///< Which direction is up for the 3D camera
 		float fov;   ///< Field of view of the camera
 	} Perspective;
-} VK2DCameraSpec;
+};
 
 /// \brief Renderer limitations for the host
 ///
@@ -230,13 +211,24 @@ typedef struct VK2DCameraSpec {
 /// about any of the host limits, but they are available to the user in case of
 /// something like an options screen where you would only want to show the user
 /// the available MSAA modes, for example.
-typedef struct {
+struct VK2DRendererLimits {
 	VK2DMSAA maxMSAA;             ///< Maximum MSAA the host supports (may be msaa_1x)
 	bool supportsTripleBuffering; ///< Whether or not the host supports triple buffering
 	bool supportsImmediate;       ///< Whether or not the host supports immediate mode
 	bool supportsWireframe;       ///< Whether or not the host supports wireframe rendering
 	float maxLineWidth;           ///< Maximum line width supported on the platform (may be 1, VK2D will automatically clamp line width values above this limit)
-} VK2DRendererLimits;
+};
+
+VK2D_USER_STRUCT(VK2DVertexColour)
+VK2D_USER_STRUCT(VK2DVertex3D)
+VK2D_USER_STRUCT(VK2DUniformBufferObject)
+VK2D_USER_STRUCT(VK2DPushBuffer)
+VK2D_USER_STRUCT(VK2D3DPushBuffer)
+VK2D_USER_STRUCT(VK2DConfiguration)
+VK2D_USER_STRUCT(VK2DStartupOptions)
+VK2D_USER_STRUCT(VK2DRendererConfig)
+VK2D_USER_STRUCT(VK2DCameraSpec)
+VK2D_USER_STRUCT(VK2DRendererLimits)
 
 #ifdef __cplusplus
 }

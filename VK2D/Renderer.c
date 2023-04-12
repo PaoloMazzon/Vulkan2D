@@ -16,6 +16,7 @@
 #include "VK2D/Model.h"
 #include "VK2D/DescriptorBuffer.h"
 #include "VK2D/DescriptorControl.h"
+#include "VK2D/Opaque.h"
 
 /******************************* Forward declarations *******************************/
 

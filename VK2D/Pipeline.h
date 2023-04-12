@@ -8,17 +8,6 @@
 extern "C" {
 #endif
 
-/// \brief A handy abstraction that groups up pipeline state and makes multiple shaders easier
-struct VK2DPipeline {
-	VK2DLogicalDevice dev;      ///< Device this pipeline belongs to
-	VkRenderPass renderPass;    ///< Render pass this pipeline uses
-	VkPipelineLayout layout;    ///< Internal pipeline layout
-	VkRect2D rect;              ///< For setting up command buffers
-	VkClearValue clearValue[2]; ///< Clear values for the two attachments: colour and depth
-	VkPipeline pipes[bm_Max];   ///< Internal pipelines if `VK2D_GENERATE_BLEND_MODES` is enabled
-
-};
-
 /// \brief Creates a graphics pipeline
 /// \param dev Device to create the pipeline with
 /// \param renderPass Render pass that will be used with the pipeline

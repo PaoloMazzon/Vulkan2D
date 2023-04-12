@@ -8,6 +8,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/DescriptorControl.h"
 #include "VK2D/Util.h"
+#include "VK2D/Opaque.h"
 #include <malloc.h>
 
 void _vk2dRendererAddShader(VK2DShader shader);

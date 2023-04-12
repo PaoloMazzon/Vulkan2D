@@ -4,6 +4,7 @@
 #include "VK2D/Initializers.h"
 #include "VK2D/Validation.h"
 #include "VK2D/Constants.h"
+#include "VK2D/Opaque.h"
 #include <stdio.h>
 #include <malloc.h>
 

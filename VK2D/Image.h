@@ -11,17 +11,6 @@
 extern "C" {
 #endif
 
-/// \brief Simple wrapper that groups image things together
-struct VK2DImage {
-	VkImage img;           ///< Internal image
-	VkImageView view;      ///< Image view bound to the image
-	VmaAllocation mem;     ///< Memory the image is stored on
-	VK2DLogicalDevice dev; ///< Device this image belongs to
-	uint32_t width;        ///< Width in pixels of the image
-	uint32_t height;       ///< Height in pixels of the image
-	VkDescriptorSet set;   ///< Descriptor set for this image
-};
-
 /// \brief Creates a Vulkan image (Users want VK2DTexture, not VK2DImage, they are different)
 /// \param dev Device to create the image with
 /// \param width Width of the image in pixels

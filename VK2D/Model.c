@@ -7,6 +7,7 @@
 #include "VK2D/Buffer.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/Validation.h"
+#include "VK2D/Opaque.h"
 #include "VK2D/Util.h"
 
 // Needed to use buffers for tinyobjloader

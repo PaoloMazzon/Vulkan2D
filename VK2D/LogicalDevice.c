@@ -4,6 +4,7 @@
 #include "VK2D/Initializers.h"
 #include "VK2D/Validation.h"
 #include "VK2D/PhysicalDevice.h"
+#include "VK2D/Opaque.h"
 #include <malloc.h>
 
 VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug, VK2DRendererLimits *limits) {

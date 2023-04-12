@@ -7,6 +7,7 @@
 #include "VK2D/BlendModes.h"
 #include <malloc.h>
 #include "VK2D/Renderer.h"
+#include "VK2D/Opaque.h"
 
 VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayouts, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa, bool for3D) {
 	VK2DPipeline pipe = malloc(sizeof(struct VK2DPipeline));

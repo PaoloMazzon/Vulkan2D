@@ -10,6 +10,7 @@
 #include "VK2D/Buffer.h"
 #include "VK2D/DescriptorControl.h"
 #include "VK2D/stb_image.h"
+#include "VK2D/Opaque.h"
 #include <malloc.h>
 
 static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer) {

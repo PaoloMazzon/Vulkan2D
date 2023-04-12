@@ -22,6 +22,7 @@
 #include "VK2D/Util.h"
 #include "VK2D/Model.h"
 #include "VK2D/DescriptorBuffer.h"
+#include "VK2D/Opaque.h"
 
 // For debugging
 PFN_vkCreateDebugReportCallbackEXT fvkCreateDebugReportCallbackEXT;

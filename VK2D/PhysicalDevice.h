@@ -9,18 +9,6 @@
 extern "C" {
 #endif
 
-/// \brief Groups up a couple things related to VkPhysicalDevice
-struct VK2DPhysicalDevice {
-	VkPhysicalDevice dev; ///< Internal vulkan pointer
-	struct {
-		uint32_t graphicsFamily; ///< Queue family for graphics pipeline
-		uint32_t computeFamily;  ///< Queue family for compute pipeline
-	} QueueFamily;               ///< Nicely groups up queue families
-	VkPhysicalDeviceMemoryProperties mem; ///< Memory properties of this device
-	VkPhysicalDeviceFeatures feats;       ///< Features of this device
-	VkPhysicalDeviceProperties props;     ///< Device properties
-};
-
 /// \brief Finds and returns a physical device or NULL
 /// \param instance Vulkan instance
 /// \param preferredDevice Either a preferred physical device index selected with vk2dPhysicalDeviceGetList or VK2D_DEVICE_BEST_FIT

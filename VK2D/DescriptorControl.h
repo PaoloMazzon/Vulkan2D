@@ -8,20 +8,6 @@
 extern "C" {
 #endif
 
-/// \brief Abstraction for descriptor pools and sets so you can dynamically use them
-struct VK2DDescCon {
-	VkDescriptorPool *pools;      ///< List of pools
-	VkDescriptorSetLayout layout; ///< Layout for these sets
-	uint32_t buffer;              ///< Whether or not pools support uniform buffers
-	uint32_t sampler;             ///< Whether or not pools support texture samplers
-	VK2DLogicalDevice dev;        ///< Device pools are created with
-
-	// pools will always have poolListSize elements, but only elements up to poolsInUse will be
-	// valid pools (in an effort to avoid constantly reallocating memory)
-	uint32_t poolsInUse;   ///< Number of actively in use pools in pools
-	uint32_t poolListSize; ///< Total length of pools array
-};
-
 /// \brief Creates an empty descriptor controller
 /// \param layout Descriptor set layout to use
 /// \param buffer Location of the buffer or VK2D_NO_LOCATION if unused (binding)

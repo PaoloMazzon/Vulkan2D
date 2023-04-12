@@ -9,33 +9,6 @@ extern "C" {
 
 #include "VK2D/Structs.h"
 
-/// \brief To make descriptor buffers simpler internally
-typedef struct _VK2DDescriptorBufferInternal {
-	VK2DBuffer deviceBuffer; ///< Device-local (on vram) buffer that the shaders will access
-	VK2DBuffer stageBuffer;  ///< Host-local (on ram) buffer that data will be copied into
-	void *hostData;          ///< For when stageBuffer is mapped
-	VkDeviceSize size;       ///< Amount of data currently in this buffer
-} _VK2DDescriptorBufferInternal;
-
-/// \brief Automates memory management for uniform buffers and the lot
-///
-/// The intended usage is as follows:
-///
-///  1. Create the descriptor buffer
-///  2. Call vk2dDescriptorBufferBeginFrame before beginning to draw
-///  3.
-///  4. Call vk2dDescriptorBufferEndFrame before submitting the queue
-///
-/// It will put a event barrier into the startframe command buffer where drawing happens,
-/// and then it will put a memory copy into the second command buffer at the end of the
-/// frame so Vulkan copies the buffer to device memory all at once instead of tiny increments.
-struct VK2DDescriptorBuffer {
-	_VK2DDescriptorBufferInternal *buffers; ///< List of internal buffers so that we can allocate more on the fly
-	int bufferCount;          ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
-	int bufferListSize;       ///< Actual number of elements in the buffer lists
-	VK2DLogicalDevice dev;    ///< Device this lives on
-};
-
 /// \brief Creates an empty descriptor buffer of default size
 /// \return Returns a new descriptor buffer or NULL if it fails
 VK2DDescriptorBuffer vk2dDescriptorBufferCreate();

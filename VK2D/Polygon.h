@@ -8,13 +8,6 @@
 extern "C" {
 #endif
 
-/// \brief Makes shapes easier to deal with
-struct VK2DPolygon {
-	VK2DBuffer vertices;  ///< Internal memory for the vertices
-	VK2DVertexType type;  ///< What kind of vertices this stores
-	uint32_t vertexCount; ///< Number of vertices
-};
-
 /// \brief Creates a polygon for the shapes pipeline (should be triangulated)
 /// \param vertexData Vertex data of the polygon (must be triangulated)
 /// \param vertexCount Number of vertices

@@ -9,17 +9,6 @@ extern "C" {
 
 #include "VK2D/Structs.h"
 
-/// \brief A 3D model
-struct VK2DModel {
-	VK2DBuffer vertices;       ///< Internal memory for the vertices & indices
-	VkDeviceSize indexOffset;  ///< Offset of the indices in the buffer
-	VkDeviceSize vertexOffset; ///< Offset of the vertices in the buffer
-	VK2DVertexType type;       ///< What kind of vertices this stores
-	uint32_t vertexCount;      ///< Number of vertices
-	uint32_t indexCount;       ///< Number of indices
-	VK2DTexture tex;           ///< Texture for this model
-};
-
 /// \brief Creates a model from a set of vertices
 /// \param vertices List of VK2DVertex3D vertices the model will use
 /// \param vertexCount Number of vertices in the list

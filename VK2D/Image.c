@@ -5,6 +5,7 @@
 #include "VK2D/PhysicalDevice.h"
 #include "VK2D/Validation.h"
 #include "VK2D/Initializers.h"
+#include "VK2D/Opaque.h"
 #include "VK2D/Buffer.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "VK2D/stb_image.h"

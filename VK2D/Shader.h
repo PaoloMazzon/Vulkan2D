@@ -9,28 +9,6 @@
 extern "C" {
 #endif
 
-/// \brief Wrapper for data needed to manage a shader
-///
-/// There are some limitations of shaders and some things to be aware of. For one, you
-/// can only have one uniform buffer that is sent to both shaders. Also, for each shader,
-/// the renderer must go through and increment the current uniform buffer every frame to
-/// make sure you don't modify one that is currently in an executing command buffer.
-///
-/// And most importantly, these shaders are all treated as texture shaders, which is to
-/// say they will all receive the same data that the tex.vert and tex.frag shaders would
-/// (push constants, vertex attributes, and uniforms) in addition to a user-defined uniform
-/// buffer if one is specified.
-struct VK2DShader {
-	uint8_t *spvVert;        ///< Vertex shader in SPIR-V
-	uint32_t spvVertSize;    ///< Size of the vertex shader (in bytes)
-	uint8_t *spvFrag;        ///< Fragment shader in SPIR-V
-	uint32_t spvFragSize;    ///< Size of the fragment shader (in bytes)
-	VK2DPipeline pipe;       ///< Pipeline associated with this shader
-	uint32_t uniformSize;    ///< Uniform buffer size in bytes
-	VK2DLogicalDevice dev;   ///< Device this belongs to
-	VK2DDescCon descCons[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor sets for the uniform buffers
-};
-
 /// \brief Creates a shader you can use to render textures
 /// \param vertexShader File containing the compiled SPIR-V vertex shader
 /// \param fragmentShader File containing the compiled SPIR-V fragment shader

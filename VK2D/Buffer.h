@@ -10,14 +10,6 @@
 extern "C" {
 #endif
 
-/// \brief Makes managing buffers in Vulkan simpler
-struct VK2DBuffer {
-	VkBuffer buf;          ///< Internal Vulkan buffer
-	VmaAllocation mem;    ///< Memory for the buffer
-	VK2DLogicalDevice dev; ///< Device the buffer belongs to
-	VkDeviceSize size;     ///< Size of this buffer in bytes
-};
-
 /// \brief Creates a new buffer with memory and all that ready
 /// \param dev Device to get the memory from (will use graphics indices)
 /// \param size Size in bytes of the new buffer

@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include "VK2D/Renderer.h"
+#include "VK2D/Opaque.h"
 
 uint32_t _reVulkanBufferFindMemoryType(VkPhysicalDeviceMemoryProperties *memProps, uint32_t memoryFilter, VkMemoryPropertyFlags requirements) {
 	uint32_t i;

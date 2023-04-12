@@ -5,6 +5,7 @@
 #include "VK2D/Buffer.h"
 #include "VK2D/Validation.h"
 #include "VK2D/DescriptorControl.h"
+#include "VK2D/Opaque.h"
 
 void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera);
 void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera);

@@ -9,21 +9,6 @@
 extern "C" {
 #endif
 
-/// \brief Takes the headache out of Vulkan textures
-///
-/// Only textures created with vk2dTextureCreate may be rendered to. Should you try to
-/// set the render target to a texture not created with vk2dTextureCreate, you can expect
-/// a segfault.
-struct VK2DTexture {
-	VK2DImage img;          ///< Internal image
-	VK2DImage depthBuffer;  ///< For 3D rendering when its a target
-	VK2DImage sampledImg;   ///< Image for MSAA
-	VkFramebuffer fbo;      ///< Framebuffer of this texture so it can be drawn to
-	VK2DBuffer ubo;         ///< UBO that will be used when drawing to this texture
-	VkDescriptorSet uboSet; ///< Set for the UBO
-	bool imgHandled;        ///< Whether or not to free the image with the texture (if it was loaded with vk2dTextureLoad)
-};
-
 /// \brief Creates a texture from an image
 /// \param image Image to use
 /// \return Returns a new texture or NULL if it failed

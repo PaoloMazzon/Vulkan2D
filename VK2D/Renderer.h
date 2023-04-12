@@ -3,127 +3,11 @@
 /// \brief The main renderer that handles all rendering
 #pragma once
 #include "VK2D/Structs.h"
-#include "Constants.h"
-#include "VK2D/Camera.h"
-#include <vulkan/vulkan.h>
 #include <SDL2/SDL.h>
-#include <VulkanMemoryAllocator/src/VmaUsage.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/// \brief Core rendering data, don't modify values unless you know what you're doing
-struct VK2DRenderer {
-	// Devices/core functionality (these have short names because they're constantly referenced)
-	VK2DPhysicalDevice pd;       ///< Physical device (gpu)
-	VK2DLogicalDevice ld;        ///< Logical device
-	VkInstance vk;               ///< Core vulkan instance
-	VkDebugReportCallbackEXT dr; ///< Debug information
-	VmaAllocator vma;
-
-	// User-end things
-	VK2DRendererConfig config;            ///< User config
-	VK2DRendererConfig newConfig;         ///< In the event that its updated, we only swap out when we're ready to reset the swapchain
-	bool resetSwapchain;                  ///< If true, the swapchain (effectively the whole thing) will reset on the next rendered frame
-	VK2DImage msaaImage;                  ///< In case MSAA is enabled
-	vec4 colourBlend;                     ///< Used to modify colours (and transparency) of anything drawn. Passed via push constants.
-	VkSampler textureSampler;             ///< Needed for textures
-	VkSampler modelSampler;               ///< Same as textureSampler but for 3D (normalized coordinates)
-	VkViewport viewport;                  ///< Viewport to draw with
-	bool enableTextureCameraUBO;          ///< If true, when drawing to a texture the UBO for the internal camera is used instead of the texture's UBO
-	VK2DBlendMode blendMode;              ///< Current blend mode to draw with
-	VK2DCameraSpec defaultCameraSpec;     ///< Default camera spec (spec for camera 0)
-	VK2DCamera cameras[VK2D_MAX_CAMERAS]; ///< All cameras to be drawn to
-	VK2DCameraIndex cameraLocked;         ///< If true, only the default camera will be drawn to
-	VK2DStartupOptions options;           ///< Root options for the renderer
-	VK2DRendererLimits limits;            ///< For user safety
-
-	// KHR Surface
-	SDL_Window *window;                           ///< Window this renderer belongs to
-	VkSurfaceKHR surface;                         ///< Window surface
-	VkSurfaceCapabilitiesKHR surfaceCapabilities; ///< Capabilities of the surface
-	VkPresentModeKHR *presentModes;               ///< All available present modes
-	uint32_t presentModeCount;                    ///< Number of present modes
-	VkSurfaceFormatKHR surfaceFormat;             ///< Window surface format
-	uint32_t surfaceWidth;                        ///< Width of the surface
-	uint32_t surfaceHeight;                       ///< Height of the surface
-
-	// Swapchain
-	VkSwapchainKHR swapchain;              ///< Swapchain (manages images and presenting to screen)
-	VkImage *swapchainImages;              ///< Images of the swapchain
-	VkImageView *swapchainImageViews;      ///< Image views for the swapchain images
-	uint32_t swapchainImageCount;          ///< Number of images in the swapchain
-	VkRenderPass renderPass;               ///< The render pass
-	VkRenderPass midFrameSwapRenderPass;   ///< Render pass for mid-frame switching back to the swapchain as a target
-	VkRenderPass externalTargetRenderPass; ///< Render pass for rendering to textures
-	VkFramebuffer *framebuffers;           ///< Framebuffers for the swapchain images
-	VK2DImage depthBuffer;                 ///< Depth buffer for 3D rendering
-	VkFormat depthBufferFormat;            ///< Depth buffer format
-	bool procedStartFrame;                 ///< End frame things are only done if this is true and start frame things are only done if this is false
-
-	// Pipelines
-	VK2DPipeline texPipe;       ///< Pipeline for rendering textures
-	VK2DPipeline modelPipe;     ///< Pipeline for 3D models
-	VK2DPipeline wireframePipe; ///< Pipeline for 3D wireframes
-	VK2DPipeline primFillPipe;  ///< Pipeline for rendering filled shapes
-	VK2DPipeline primLinePipe;  ///< Pipeline for rendering shape outlines
-	uint32_t shaderListSize;    ///< Size of the list of customShaders
-	VK2DShader *customShaders;  ///< Custom shaders the user creates
-
-	// Uniform things
-	VkDescriptorSetLayout dslSampler;        ///< Descriptor set layout for texture samplers
-	VkDescriptorSetLayout dslBufferVP;       ///< Descriptor set layout for the view-projection buffer
-	VkDescriptorSetLayout dslBufferUser;     ///< Descriptor set layout for user data buffers (custom shaders uniforms)
-	VkDescriptorSetLayout dslTexture;        ///< Descriptor set layout for the textures
-	VK2DDescCon descConSamplers;             ///< Descriptor controller for samplers
-	VK2DDescCon descConVP;                   ///< Descriptor controller for view projection buffers
-	VK2DDescCon descConUser;                 ///< Descriptor controller for user buffers
-	VkDescriptorPool samplerPool;            ///< Sampler pool for 1 sampler
-	VkDescriptorSet samplerSet;              ///< Sampler for all textures
-	VkDescriptorSet modelSamplerSet;         ///< Sampler for all 3D models
-	VK2DDescriptorBuffer *descriptorBuffers; ///< Descriptor buffer, one per swapchain image
-
-	// Frame synchronization
-	uint32_t currentFrame;                 ///< Current frame being looped through
-	uint32_t scImageIndex;                 ///< Swapchain image index to be rendered to this frame
-	VkSemaphore *imageAvailableSemaphores; ///< Semaphores to signal when the image is ready
-	VkSemaphore *renderFinishedSemaphores; ///< Semaphores to signal when rendering is done
-	VkFence *inFlightFences;               ///< Fences for each frame
-	VkFence *imagesInFlight;               ///< Individual images in flight
-	VkCommandBuffer *commandBuffer;        ///< Command buffers, recreated each frame
-	VkCommandBuffer *dbCommandBuffer;      ///< Command buffers for descriptor buffers
-
-	// Render targeting info
-	uint32_t targetSubPass;          ///< Current sub pass being rendered to
-	VkRenderPass targetRenderPass;   ///< Current render pass being rendered to
-	VkFramebuffer targetFrameBuffer; ///< Current framebuffer being rendered to
-	VkImage targetImage;             ///< Current image being rendered to
-	VkDescriptorSet targetUBOSet;    ///< UBO being used for rendering
-	VK2DTexture target;              ///< Just for simplicity sake
-	VK2DTexture *targets;            ///< List of all currently loaded textures targets (in case the MSAA is changed and the sample image needs to be reloaded)
-	uint32_t targetListSize;         ///< Amount of elements in the list (only non-null elements count)
-
-	// Optimization tools - if the renderer knows the proper set/pipeline/vbo is already bound it doesn't need to rebind it
-	uint64_t prevSetHash; ///< Currently bound descriptor set
-	VkBuffer prevVBO;     ///< Currently bound vertex buffer
-	VkPipeline prevPipe;  ///< Currently bound pipeline
-
-	// Makes drawing things simpler
-	VK2DPolygon unitSquare;        ///< Used to draw rectangles
-	VK2DPolygon unitSquareOutline; ///< Used to draw rectangle outlines
-	VK2DPolygon unitCircle;        ///< Used to draw circles
-	VK2DPolygon unitCircleOutline; ///< Used to draw circle outlines
-	VK2DPolygon unitLine;          ///< Used to draw lines
-	VK2DBuffer unitUBO;            ///< Used to draw to the whole screen
-	VkDescriptorSet unitUBOSet;    ///< Descriptor Set for the unit ubo
-
-	// Debugging tools
-	double previousTime;     ///< Time that the current frame started
-	double amountOfFrames;   ///< Number of frames needed to calculate frameTimeAverage
-	double accumulatedTime;  ///< Total time of frames for average in ms
-	double frameTimeAverage; ///< Average amount of time frames are taking over a second (in ms)
-};
 
 /// \brief Initializes VK2D's renderer
 /// \param window An SDL window created with the flag SDL_WINDOW_VULKAN
@@ -404,13 +288,13 @@ void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float
 #define vk2dDrawLine(x1, y1, x2, y2) vk2dRendererDrawLine(x1, y1, x2, y2)
 
 /// \brief Draws a texture with a shader (floats)
-#define vk2dDrawShader(shader, data, texture, x, y) vk2dRendererDrawShader(shader, data, texture, x, y, 1, 1, 0, 0, 0, 0, 0, texture->img->width, texture->img->height)
+#define vk2dDrawShader(shader, data, texture, x, y) vk2dRendererDrawShader(shader, data, texture, x, y, 1, 1, 0, 0, 0, 0, 0, vk2dTextureWidth(texture), vk2dTextureHeight(texture))
 
 /// \brief Draws a texture (x and y should be floats)
-#define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0, 0, 0, texture->img->width, texture->img->height)
+#define vk2dDrawTexture(texture, x, y) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0, 0, 0, vk2dTextureWidth(texture), vk2dTextureHeight(texture))
 
 /// \brief Draws a texture in detail (floats)
-#define vk2dDrawTextureExt(texture, x, y, xscale, yscale, rot, originX, originY) vk2dRendererDrawTexture(texture, x, y, xscale, yscale, rot, originX, originY, 0, 0, texture->img->width, texture->img->height)
+#define vk2dDrawTextureExt(texture, x, y, xscale, yscale, rot, originX, originY) vk2dRendererDrawTexture(texture, x, y, xscale, yscale, rot, originX, originY, 0, 0, vk2dTextureWidth(texture), vk2dTextureHeight(texture))
 
 /// \brief Draws a part of a texture (x, y, xpos, ypos, w, h should be floats)
 #define vk2dDrawTexturePart(texture, x, y, xPos, yPos, w, h) vk2dRendererDrawTexture(texture, x, y, 1, 1, 0, 0, 0, xPos, yPos, w, h)

@@ -8,17 +8,6 @@
 extern "C" {
 #endif
 
-/// \brief An internal representation of a camera (the user deals with VK2DCameraIndex, the renderer uses this struct)
-///
-/// Due to a camera's nature of being closely tied to the renderer, the renderer
-/// will automatically update the relevant parts of a camera whenever needed.
-struct VK2DCamera {
-	VK2DCameraSpec spec;           ///< Info on how to create the UBO and scissor/viewport
-	VK2DUniformBufferObject *ubos; ///< UBO data for each frame
-	VkDescriptorSet *uboSets;      ///< List of UBO sets, 1 per swapchain image
-	VK2DCameraState state;         ///< State of this camera
-};
-
 /// \brief Creates a new camera and returns the index, or returns VK2D_INVALID_CAMERA if no more cameras can be created
 /// \param spec Initial state for the camera
 /// \return Either a new camera index or VK2D_INVALID_CAMERA if the camera limit has been reached

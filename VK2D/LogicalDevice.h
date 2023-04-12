@@ -10,14 +10,6 @@
 extern "C" {
 #endif
 
-/// \brief Logical device that is essentially a wrapper of VkDevice
-struct VK2DLogicalDevice {
-	VkDevice dev;          ///< Logical device
-	VkQueue queue;         ///< Queue for command buffers
-	VK2DPhysicalDevice pd; ///< Physical device this came from
-	VkCommandPool pool;    ///< Command pools to cycle through
-};
-
 /// \brief Creates a logical device for rendering
 /// \param dev Physical device to create this from
 /// \param enableAllFeatures If enabled, all features of the physical device will be enabled, otherwise just the features the renderer requires

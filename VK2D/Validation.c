@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include <assert.h>
 #include "VK2D/Renderer.h"
+#include "VK2D/Opaque.h"
 
 bool _vk2dErrorRaise(VkResult result, const char* function, int line, const char* varname) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
