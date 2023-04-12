@@ -713,7 +713,23 @@ void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xsc
 			sets[1] = gRenderer->modelSamplerSet;
 			sets[2] = model->tex->img->set;
 			_vk2dRendererDraw3D(sets, 3, model, gRenderer->modelPipe, x, y, z, xscale, yscale, zscale, rot, axis, originX,
-								originY, originZ);
+								originY, originZ, 1);
+		} else {
+			vk2dLogMessage("Model does not exist");
+		}
+	} else {
+		vk2dLogMessage("Renderer is not initialized");
+	}
+}
+
+void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, float lineWidth) {
+	if (gRenderer != NULL) {
+		if (model != NULL) {
+			VkDescriptorSet sets[3];
+			sets[1] = gRenderer->modelSamplerSet;
+			sets[2] = model->tex->img->set;
+			_vk2dRendererDraw3D(sets, 3, model, gRenderer->wireframePipe, x, y, z, xscale, yscale, zscale, rot, axis, originX,
+								originY, originZ, lineWidth);
 		} else {
 			vk2dLogMessage("Model does not exist");
 		}

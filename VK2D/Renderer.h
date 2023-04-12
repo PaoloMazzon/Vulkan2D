@@ -63,12 +63,13 @@ struct VK2DRenderer {
 	bool procedStartFrame;                 ///< End frame things are only done if this is true and start frame things are only done if this is false
 
 	// Pipelines
-	VK2DPipeline texPipe;      ///< Pipeline for rendering textures
-	VK2DPipeline modelPipe;    ///< Pipeline for 3D models
-	VK2DPipeline primFillPipe; ///< Pipeline for rendering filled shapes
-	VK2DPipeline primLinePipe; ///< Pipeline for rendering shape outlines
-	uint32_t shaderListSize;   ///< Size of the list of customShaders
-	VK2DShader *customShaders; ///< Custom shaders the user creates
+	VK2DPipeline texPipe;       ///< Pipeline for rendering textures
+	VK2DPipeline modelPipe;     ///< Pipeline for 3D models
+	VK2DPipeline wireframePipe; ///< Pipeline for 3D wireframes
+	VK2DPipeline primFillPipe;  ///< Pipeline for rendering filled shapes
+	VK2DPipeline primLinePipe;  ///< Pipeline for rendering shape outlines
+	uint32_t shaderListSize;    ///< Size of the list of customShaders
+	VK2DShader *customShaders;  ///< Custom shaders the user creates
 
 	// Uniform things
 	VkDescriptorSetLayout dslSampler;        ///< Descriptor set layout for texture samplers
@@ -366,6 +367,25 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 /// a depth buffer by default.
 void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ);
 
+/// \brief Renders a 3D model as a wireframe
+/// \param model Model to render
+/// \param x x position to draw at
+/// \param y y position to draw at
+/// \param z z position to draw at
+/// \param xscale Scale that will be applied to the x-plane of the model
+/// \param yscale Scale that will be applied to the y-plane of the model
+/// \param zscale Scale that will be applied to the z-plane of the model
+/// \param rot Rotation of the model
+/// \param zrot Z axis to rotate on
+/// \param originX x origin to rotate around
+/// \param originY y origin to rotate around
+/// \param originZ z origin to rotate around
+/// \param lineWidth Width of the "wires"
+/// \warning This function will only render to 3D-enabled cameras (which you must set up yourself) and if there are
+/// none available this function will simply do nothing.
+/// \warning The wireframe may not look as you expect because models are triangulated
+void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, float lineWidth);
+
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)
@@ -406,3 +426,9 @@ void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xsc
 
 /// \brief Draws a model with some extra parts (all floats)
 #define vk2dDrawModelExt(model, x, y, z, xscale, yscale, zscale) vk2dRendererDrawModel(model, x, y, z, xscale, yscale, zscale, 0, 1, 0, 0, 0)
+
+/// \brief Draws a wireframe (all floats)
+#define vk2dDrawWireframe(model, x, y, z) vk2dRendererDrawWireframe(model, x, y, z, 1, 1, 1, 0, 1, 0, 0, 0, 1)
+
+/// \brief Draws a wireframe with some extra parts (all floats)
+#define vk2dDrawWireframeExt(model, x, y, z, xscale, yscale, zscale, lineWidth) vk2dRendererDrawModel(model, x, y, z, xscale, yscale, zscale, 0, 1, 0, 0, 0, lineWidth)
