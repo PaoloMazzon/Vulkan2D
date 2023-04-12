@@ -1,7 +1,7 @@
 /// \file Model.c
 /// \author Paolo Mazzon
 #define TINYOBJ_LOADER_C_IMPLEMENTATION
-#include <tinyobjloader-c/tinyobj_loader_c.h>
+#include "VK2D/tinyobj_loader_c.h"
 
 #include "VK2D/Model.h"
 #include "VK2D/Buffer.h"
