@@ -294,7 +294,7 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 				if (gRenderer->cameras[i].state == cs_Normal) {
 					_vk2dCameraUpdateUBO(&gRenderer->cameras[i].ubos[gRenderer->scImageIndex],
 										 &gRenderer->cameras[i].spec);
-					_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex, i);
+					_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex, gRenderer->currentFrame, i);
 				}
 			}
 

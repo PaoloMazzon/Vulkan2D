@@ -98,8 +98,6 @@ int main(int argc, const char *argv[]) {
 
 		// End the frame
 		vk2dRendererEndFrame();
-
-
 	}
 
 	// vk2dRendererWait must be called before freeing things

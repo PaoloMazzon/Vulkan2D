@@ -61,7 +61,7 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	for (int i = 0; i < db->bufferCount; i++) {
 		db->buffers[i].size = 0;
-		vmaMapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem, &db->buffers[i].hostData);
+		vk2dErrorCheck(vmaMapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem, &db->buffers[i].hostData));
 	}
 
 	vkCmdPipelineBarrier(

@@ -23,7 +23,7 @@ void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout ne
 void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera);
 
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
-void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera);
+void _vk2dRendererFlushUBOBuffer(uint32_t frame, uint32_t descriptorFrame, int camera);
 
 // Grabs a preferred present mode if available returning FIFO if its unavailable
 VkPresentModeKHR _vk2dRendererGetPresentMode(VkPresentModeKHR mode);

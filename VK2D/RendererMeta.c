@@ -228,11 +228,11 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 }
 
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
-void _vk2dRendererFlushUBOBuffer(uint32_t frame, int camera) {
+void _vk2dRendererFlushUBOBuffer(uint32_t frame, uint32_t descriptorFrame, int camera) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VkBuffer buffer;
 	VkDeviceSize offset;
-	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[frame], &gRenderer->cameras[camera].ubos[frame], sizeof(VK2DUniformBufferObject), &buffer, &offset);
+	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[descriptorFrame], &gRenderer->cameras[camera].ubos[frame], sizeof(VK2DUniformBufferObject), &buffer, &offset);
 	VkDescriptorBufferInfo bufferInfo = {buffer, offset, sizeof(VK2DUniformBufferObject)};
 	VkWriteDescriptorSet write = {};
 	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -429,6 +429,7 @@ void _vk2dRendererCreateDescriptorBuffers() {
 	for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
 		gRenderer->descriptorBuffers[i] = vk2dDescriptorBufferCreate();
 	}
+	vk2dLogMessage("Descriptor buffers created...");
 }
 
 void _vk2dRendererDestroyDescriptorBuffers() {
