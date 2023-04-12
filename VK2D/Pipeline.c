@@ -79,7 +79,7 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 			pipelineDepthStencilStateCreateInfo.depthWriteEnable = VK_TRUE;
 		}
 
-		for (i = 0; i < bm_Max; i++) {
+		for (i = 0; i < VK2D_BLEND_MODE_MAX; i++) {
 			VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo = vk2dInitPipelineColorBlendStateCreateInfo(&VK2D_BLEND_MODES[i], 1);
 			VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo = vk2dInitGraphicsPipelineCreateInfo(
 					shaderStageCreateInfo,
@@ -112,7 +112,7 @@ void vk2dPipelineFree(VK2DPipeline pipe) {
 	if (pipe != NULL) {
 		vkDestroyPipelineLayout(pipe->dev->dev, pipe->layout, VK_NULL_HANDLE);
 		uint32_t i;
-		for (i = 0; i < bm_Max; i++)
+		for (i = 0; i < VK2D_BLEND_MODE_MAX; i++)
 			vkDestroyPipeline(pipe->dev->dev, pipe->pipes[i], VK_NULL_HANDLE);
 		free(pipe);
 	}

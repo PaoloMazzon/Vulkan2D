@@ -89,7 +89,7 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 
 	// For the UBO
 	VK2DCameraSpec cam = {
-			ct_Default,
+			VK2D_CAMERA_TYPE_DEFAULT,
 			0,
 			0,
 			w,

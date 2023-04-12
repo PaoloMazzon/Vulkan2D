@@ -28,7 +28,7 @@ int main(int argc, const char *argv[]) {
 		return -1;
 
 	// Initialize vk2d
-	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Nearest};
+	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.1, 0.2, 0.0, 1.0};
 	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
 	if (vk2dRendererInit(window, config, &options) < 0)
@@ -45,13 +45,13 @@ int main(int argc, const char *argv[]) {
 	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw((void*)SAMPLE_TRIANGLE, VERTICES);
 
 	// Create cameras
-	VK2DCameraSpec cameraSpec = {ct_Default, 0, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 1, 0, 0, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
+	VK2DCameraSpec cameraSpec = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 1, 0, 0, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 	VK2DCameraIndex topLeft = vk2dCameraCreate(cameraSpec);
-	VK2DCameraSpec cameraSpec2 = {ct_Default, 100, 50, WINDOW_WIDTH / 3, WINDOW_HEIGHT / 3, 1, 0, WINDOW_WIDTH / 2, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
+	VK2DCameraSpec cameraSpec2 = {VK2D_CAMERA_TYPE_DEFAULT, 100, 50, WINDOW_WIDTH / 3, WINDOW_HEIGHT / 3, 1, 0, WINDOW_WIDTH / 2, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 	VK2DCameraIndex topRight = vk2dCameraCreate(cameraSpec2);
-	VK2DCameraSpec cameraSpec3 = {ct_Default, 50, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 1, VK2D_PI * 0.1, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
+	VK2DCameraSpec cameraSpec3 = {VK2D_CAMERA_TYPE_DEFAULT, 50, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 1, VK2D_PI * 0.1, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 	VK2DCameraIndex bottomRight = vk2dCameraCreate(cameraSpec3);
-	VK2DCameraSpec cameraSpec4 = {ct_Default, 0, 100, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0, 0, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
+	VK2DCameraSpec cameraSpec4 = {VK2D_CAMERA_TYPE_DEFAULT, 0, 100, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0, 0, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
 	VK2DCameraIndex bottomLeft = vk2dCameraCreate(cameraSpec4);
 
 	// Controls
@@ -96,10 +96,10 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererStartFrame(clear);
 
 		// We disable the default camera first since we don't want to draw to that (its used for ui here)
-		vk2dCameraSetState(VK2D_DEFAULT_CAMERA, cs_Disabled);
+		vk2dCameraSetState(VK2D_DEFAULT_CAMERA, VK2D_CAMERA_STATE_DISABLED);
 		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dDrawTextureExt(texCaveguy, 100 + (sin(time * 2) * 100), 100, 10, 10, time, 8, 8);
-		vk2dCameraSetState(VK2D_DEFAULT_CAMERA, cs_Normal);
+		vk2dCameraSetState(VK2D_DEFAULT_CAMERA, VK2D_CAMERA_STATE_NORMAL);
 
 		// Draw an outline around the 4 cameras
 		vk2dRendererLockCameras(VK2D_DEFAULT_CAMERA);

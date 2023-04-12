@@ -21,10 +21,10 @@ given camera. `vk2dCameraUpdate` may be called at any time but the camera matrix
 is called and any calls to update a camera's spec after that will not be applied until the next frame starts. You may
 also use `vk2dCameraSetState` to update a camera's state to one of the following:
 
- + `cs_Normal` Camera is drawn to as you would expect
- + `cs_Disabled` Camera still exists, but it will not be drawn to
- + `cs_Deleted` Camera will be deleted and the corresponding `VK2DCameraIndex` is now invalid
- + `cs_Reset` For internal use only, do not use
+ + `VK2D_CAMERA_STATE_NORMAL` Camera is drawn to as you would expect
+ + `VK2D_CAMERA_STATE_DISABLED` Camera still exists, but it will not be drawn to
+ + `VK2D_CAMERA_STATE_DELETED` Camera will be deleted and the corresponding `VK2DCameraIndex` is now invalid
+ + `VK2D_CAMERA_STATE_RESET` For internal use only, do not use
  
 Unlike updating a camera's spec, updating the state is applied immediately and you can enable/disable cameras mid frame
 all you like - but locking cameras may be what you want.

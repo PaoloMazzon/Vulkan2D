@@ -292,7 +292,7 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 
 			// Flush the current ubo into its buffer for the frame
 			for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-				if (gRenderer->cameras[i].state == cs_Normal) {
+				if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL) {
 					_vk2dCameraUpdateUBO(&gRenderer->cameras[i].ubos[gRenderer->scImageIndex],
 										 &gRenderer->cameras[i].spec);
 					_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex, gRenderer->currentFrame, i);
@@ -505,7 +505,7 @@ VK2DBlendMode vk2dRendererGetBlendMode() {
 		return gRenderer->blendMode;
 	else
 		vk2dLogMessage("Renderer is not initialized");
-	return bm_None;
+	return VK2D_BLEND_MODE_NONE;
 }
 
 void vk2dRendererSetCamera(VK2DCameraSpec camera) {
@@ -578,7 +578,7 @@ void vk2dRendererEmpty() {
 		// Set the render mode to be blend mode none, and the colour to be a flat 0
 		const vec4 clearColour = {0, 0, 0, 0};
 		vk2dRendererSetColourMod(clearColour);
-		vk2dRendererSetBlendMode(bm_None);
+		vk2dRendererSetBlendMode(VK2D_BLEND_MODE_NONE);
 		vk2dRendererClear();
 
 		vk2dRendererSetColourMod(c);

@@ -16,7 +16,7 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec) {
 
 		// Find a spot for a new camera
 		for (int i = 0; i < VK2D_MAX_CAMERAS && position == VK2D_INVALID_CAMERA; i++)
-			if (gRenderer->cameras[i].state == cs_Deleted)
+			if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_DELETED)
 				position = i;
 
 		// Create the new camera
@@ -24,7 +24,7 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec) {
 			// Setup pointer and basic info
 			VK2DCamera *cam = &gRenderer->cameras[position];
 			vk2dCameraUpdate(position, spec);
-			cam->state = cs_Normal;
+			cam->state = VK2D_CAMERA_STATE_NORMAL;
 
 			// Create the lists first
 			cam->ubos = calloc(1, sizeof(VK2DUniformBufferObject) * gRenderer->swapchainImageCount);
@@ -74,8 +74,8 @@ void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer != NULL) {
 		// Free internal resources
-		if ((state == cs_Deleted || state == cs_Reset) &&
-			(gRenderer->cameras[index].state == cs_Disabled || gRenderer->cameras[index].state == cs_Normal)) {
+		if ((state == VK2D_CAMERA_STATE_DELETED || state == VK2D_CAMERA_STATE_RESET) &&
+			(gRenderer->cameras[index].state == VK2D_CAMERA_STATE_DISABLED || gRenderer->cameras[index].state == VK2D_CAMERA_STATE_NORMAL)) {
 			free(gRenderer->cameras[index].ubos);
 			free(gRenderer->cameras[index].uboSets);
 		}

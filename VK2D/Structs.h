@@ -17,10 +17,11 @@ extern "C" {
 
 /// \brief Describes what kind of vertices are in use
 typedef enum {
-	vt_Texture = 0, ///< Vertex meant for the texture pipeline
-	vt_Shape = 1,   ///< Vertex meant for the shapes pipelines
-	vt_Model = 2,   ///< Vertex meant for models
-	vt_Other = 3,   ///< Unspecified vertex type
+	VK2D_VERTEX_TYPE_TEXTURE = 0, ///< Vertex meant for the texture pipeline
+	VK2D_VERTEX_TYPE_SHAPE = 1,   ///< Vertex meant for the shapes pipelines
+	VK2D_VERTEX_TYPE_MODEL = 2,   ///< Vertex meant for models
+	VK2D_VERTEX_TYPE_OTHER = 3,   ///< Unspecified vertex type
+	VK2D_VERTEX_TYPE_MAX = 4      ///< Maximum number of vertex types
 } VK2DVertexType;
 
 /// \brief Blend modes that can be used to render if VK2D_GENERATE_BLEND_MODES is enabled
@@ -32,11 +33,11 @@ typedef enum {
 /// + Add the new blend mode to the `VK2D_BLEND_MODES` array in BlendModes.h
 /// + Make sure the indices in the array match the enumerator
 typedef enum {
-	bm_Blend = 0,    ///< Default blend mode, good for almost everything
-	bm_None = 1,     ///< No blending, new colour is law
-	bm_Add = 2,      ///< Additive blending
-	bm_Subtract = 3, ///< Subtraction blending, new colour is subtracted from current colour
-	bm_Max = 4       ///< Total number of blend modes (used for looping)
+	VK2D_BLEND_MODE_BLEND = 0,    ///< Default blend mode, good for almost everything
+	VK2D_BLEND_MODE_NONE = 1,     ///< No blending, new colour is law
+	VK2D_BLEND_MODE_ADD = 2,      ///< Additive blending
+	VK2D_BLEND_MODE_SUBTRACT = 3, ///< Subtraction blending, new colour is subtracted from current colour
+	VK2D_BLEND_MODE_MAX = 4       ///< Total number of blend modes (used for looping)
 } VK2DBlendMode;
 
 /// \brief Multisampling detail
@@ -47,12 +48,12 @@ typedef enum {
 /// performance. Should you request an msaa larger than the device
 /// supports the maximum supported msaa is used.
 typedef enum {
-	msaa_1x = VK_SAMPLE_COUNT_1_BIT,   ///< 1 sample per pixel
-	msaa_2x = VK_SAMPLE_COUNT_2_BIT,   ///< 2 samples per pixel
-	msaa_4x = VK_SAMPLE_COUNT_4_BIT,   ///< 4 samples per pixel
-	msaa_8x = VK_SAMPLE_COUNT_8_BIT,   ///< 8 samples per pixel
-	msaa_16x = VK_SAMPLE_COUNT_16_BIT, ///< 16 samples per pixel
-	msaa_32x = VK_SAMPLE_COUNT_32_BIT, ///< 32 samples per pixel
+	VK2D_MSAA_1X = VK_SAMPLE_COUNT_1_BIT,   ///< 1 sample per pixel
+	VK2D_MSAA_2X = VK_SAMPLE_COUNT_2_BIT,   ///< 2 samples per pixel
+	VK2D_MSAA_4X = VK_SAMPLE_COUNT_4_BIT,   ///< 4 samples per pixel
+	VK2D_MSAA_8X = VK_SAMPLE_COUNT_8_BIT,   ///< 8 samples per pixel
+	VK2D_MSAA_16X = VK_SAMPLE_COUNT_16_BIT, ///< 16 samples per pixel
+	VK2D_MSAA_32X = VK_SAMPLE_COUNT_32_BIT, ///< 32 samples per pixel
 } VK2DMSAA;
 
 /// \brief How to present images
@@ -63,36 +64,38 @@ typedef enum {
 /// database agrees with that so VK2D assumes VSync is always supported. Should
 /// you request a mode that is not available, the option will default to sm_Vsync.
 typedef enum {
-	sm_Immediate = VK_PRESENT_MODE_IMMEDIATE_KHR, ///< Quickest mode, just plop to screen but may have screen tearing
-	sm_VSync = VK_PRESENT_MODE_FIFO_KHR,          ///< Slower but prevents screen tearing
-	sm_TripleBuffer = VK_PRESENT_MODE_MAILBOX_KHR ///< Optimal for gaming but a bit slower than immediate (machines may not support this)
+	VK2D_SCREEN_MODE_IMMEDIATE = VK_PRESENT_MODE_IMMEDIATE_KHR,  ///< Quickest mode, just plop to screen but may have screen tearing
+	VK2D_SCREEN_MODE_VSYNC = VK_PRESENT_MODE_FIFO_KHR,           ///< Slower but prevents screen tearing
+	VK2D_SCREEN_MODE_TRIPLE_BUFFER = VK_PRESENT_MODE_MAILBOX_KHR ///< Optimal for gaming but a bit slower than immediate (machines may not support this)
 } VK2DScreenMode;
 
 /// \brief Specifies how textures will be filtered at higher and lower resolutions
 typedef enum {
-	ft_Linear = VK_FILTER_LINEAR,  ///< Linear interpolation, good for most things
-	ft_Nearest = VK_FILTER_NEAREST ///< Nearest neighbor filter, good for pixel art
+	VK2D_FILTER_TYPE_LINEAR = VK_FILTER_LINEAR,  ///< Linear interpolation, good for most things
+	VK2D_FILTER_TYPE_NEAREST = VK_FILTER_NEAREST ///< Nearest neighbor filter, good for pixel art
 } VK2DFilterType;
 
 /// \brief A bitwise-able enum representing different shader stages
 typedef enum {
-	ss_Fragment = VK_SHADER_STAGE_FRAGMENT_BIT, ///< Fragment (pixel) shader
-	ss_Vertex = VK_SHADER_STAGE_VERTEX_BIT      ///< Vertex shader
+	VK2D_SHADER_STAGE_FRAGMENT = VK_SHADER_STAGE_FRAGMENT_BIT, ///< Fragment (pixel) shader
+	VK2D_SHADER_STAGE_VERTEX = VK_SHADER_STAGE_VERTEX_BIT      ///< Vertex shader
 } VK2DShaderStage;
 
 /// \brief The state a camera is in
 typedef enum {
-	cs_Normal = 0,   ///< Camera is being rendered/updated as normal
-	cs_Disabled = 1, ///< Camera is not being rendered or updated
-	cs_Deleted = 2,  ///< Camera is "deleted" and all data is invalid
-	cs_Reset = 3,    ///< Camera is being reset by the renderer
+	VK2D_CAMERA_STATE_NORMAL = 0,   ///< Camera is being rendered/updated as normal
+	VK2D_CAMERA_STATE_DISABLED = 1, ///< Camera is not being rendered or updated
+	VK2D_CAMERA_STATE_DELETED = 2,  ///< Camera is "deleted" and all data is invalid
+	VK2D_CAMERA_STATE_RESET = 3,    ///< Camera is being reset by the renderer
+	VK2D_CAMERA_STATE_MAX = 4       ///< Total number of camera states
 } VK2DCameraState;
 
 /// \brief Type of camera
 typedef enum {
-	ct_Default = 0,      ///< Default camera used for 2D games in VK2D
-	ct_Orthographic = 1, ///< Orthographic camera for 3D rendering
-	ct_Perspective = 2,  ///< Perspective camera for 3D rendering
+	VK2D_CAMERA_TYPE_DEFAULT = 0,      ///< Default camera used for 2D games in VK2D
+	VK2D_CAMERA_TYPE_ORTHOGRAPHIC = 1, ///< Orthographic camera for 3D rendering
+	VK2D_CAMERA_TYPE_PERSPECTIVE = 2,  ///< Perspective camera for 3D rendering
+	VK2D_CAMERA_TYPE_MAX = 3           ///< Maximum number of camera types
 } VK2DCameraType;
 
 // VK2D pointers

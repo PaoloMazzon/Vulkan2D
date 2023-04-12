@@ -23,7 +23,7 @@ VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size,
 
 VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DVertexColour *vertexData, uint32_t vertexCount) {
 	VK2DLogicalDevice dev = vk2dRendererGetDevice();
-	VK2DPolygon poly = _vk2dPolygonCreate(dev, vertexData, sizeof(VK2DVertexColour) * vertexCount, vt_Shape);
+	VK2DPolygon poly = _vk2dPolygonCreate(dev, vertexData, sizeof(VK2DVertexColour) * vertexCount, VK2D_VERTEX_TYPE_SHAPE);
 	if (poly != NULL)
 		poly->vertexCount = vertexCount;
 	return poly;

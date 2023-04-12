@@ -22,7 +22,7 @@ int main(int argc, const char *argv[]) {
 		return -1;
 
 	// Initialize vk2d
-	VK2DRendererConfig config = {msaa_32x, sm_TripleBuffer, ft_Nearest};
+	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
 	int32_t error = vk2dRendererInit(window, config, &options);
@@ -30,20 +30,20 @@ int main(int argc, const char *argv[]) {
 	if (error < 0)
 		return -1;
 
-	VK2DCameraSpec defcam = {ct_Default, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0};
+	VK2DCameraSpec defcam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0};
 	vk2dRendererSetCamera(defcam);
 
 	// Load Some test assets
 	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw((void *) SAMPLE_TRIANGLE, VERTICES);
 	VK2DTexture testTexture = vk2dTextureLoad("assets/caveguy.png");
 	VK2DTexture testSurface = vk2dTextureCreate(100, 100);
-	VK2DCameraSpec cam = {ct_Default, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
+	VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
 	VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
 	debugInit(window);
 	bool drawnToTestSurface = false;
 
 	// Setup 3D camera and models
-	VK2DCameraSpec cam3D = {ct_Perspective, 0, 0, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, 0, 0, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+	VK2DCameraSpec cam3D = {VK2D_CAMERA_TYPE_PERSPECTIVE, 0, 0, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, 0, 0, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
 	cam3D.Perspective.eyes[0] = 2;
 	cam3D.Perspective.eyes[1] = 2;
 	cam3D.Perspective.eyes[2] = 2;
@@ -116,13 +116,13 @@ int main(int argc, const char *argv[]) {
 		// MSAA controls
 		if (keyboard[SDL_SCANCODE_8] || keyboard[SDL_SCANCODE_4] || keyboard[SDL_SCANCODE_2] || keyboard[SDL_SCANCODE_1]) {
 			if (keyboard[SDL_SCANCODE_8])
-				config.msaa = msaa_8x;
+				config.msaa = VK2D_MSAA_8X;
 			if (keyboard[SDL_SCANCODE_4])
-				config.msaa = msaa_4x;
+				config.msaa = VK2D_MSAA_4X;
 			if (keyboard[SDL_SCANCODE_2])
-				config.msaa = msaa_2x;
+				config.msaa = VK2D_MSAA_2X;
 			if (keyboard[SDL_SCANCODE_1])
-				config.msaa = msaa_1x;
+				config.msaa = VK2D_MSAA_1X;
 			vk2dRendererSetConfig(config);
 		}
 

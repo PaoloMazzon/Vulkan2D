@@ -155,8 +155,8 @@ yourself.
 To actually draw the 3D models, you need a 3D camera. Cameras in general were described above but some specifics for 3D
 will be discussed here
 
- + 3D cameras must have the type `ct_Perspective` or `ct_Orthogonal` for VK2D to actually render 3D models to them
- + Cameras with the type `ct_Default` will simply not have 3D models drawn to them even if you call `vk2dRendererDrawModel`
+ + 3D cameras must have the type `VK2D_CAMERA_TYPE_PERSPECTIVE` or `ct_Orthogonal` for VK2D to actually render 3D models to them
+ + Cameras with the type `VK2D_CAMERA_TYPE_DEFAULT` will simply not have 3D models drawn to them even if you call `vk2dRendererDrawModel`
  with the renderer locked to such cameras
  + The camera spec parameters `x`, `y`, `w`, `h`, `zoom`, and `rot` are ignored for 3D cameras in favour of the parameters
  in `VK2DCameraSpec.Perspective.*`

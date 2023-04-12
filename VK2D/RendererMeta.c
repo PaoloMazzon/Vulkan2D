@@ -195,7 +195,7 @@ void _vk2dPrintMatrix(FILE* out, mat4 m, const char* prefix);
 void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 
-	if (camera->type == ct_Default) {
+	if (camera->type == VK2D_CAMERA_TYPE_DEFAULT) {
 		// Assemble view
 		mat4 view = {};
 		vec3 eyes = {camera->x + (camera->w * 0.5), camera->y + (camera->h * 0.5), -2};
@@ -217,7 +217,7 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 
 		// Projection
 		mat4 proj = {};
-		if (camera->type == ct_Orthographic)
+		if (camera->type == VK2D_CAMERA_TYPE_ORTHOGRAPHIC)
 			orthographicMatrix(proj, camera->h / camera->zoom, camera->w / camera->h, 0.1, 10);
 		else
 			perspectiveMatrix(proj, camera->Perspective.fov, camera->w /camera->h, 0.1, 10);
@@ -334,7 +334,7 @@ void _vk2dRendererCreateSwapchain() {
 			gRenderer->surfaceHeight,
 			(VkPresentModeKHR)gRenderer->config.screenMode,
 			VK_NULL_HANDLE,
-			gRenderer->surfaceCapabilities.minImageCount + (gRenderer->config.screenMode == sm_TripleBuffer ? 1 : 0)
+			gRenderer->surfaceCapabilities.minImageCount + (gRenderer->config.screenMode == VK2D_SCREEN_MODE_TRIPLE_BUFFER ? 1 : 0)
 	);
 	VkBool32 supported;
 	vkGetPhysicalDeviceSurfaceSupportKHR(gRenderer->pd->dev, gRenderer->pd->QueueFamily.graphicsFamily, gRenderer->surface, &supported);
@@ -400,7 +400,7 @@ void _vk2dRendererDestroyDepthBuffer() {
 
 void _vk2dRendererCreateColourResources() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	if (gRenderer->config.msaa != msaa_1x) {
+	if (gRenderer->config.msaa != VK2D_MSAA_1X) {
 		gRenderer->msaaImage = vk2dImageCreate(
 				gRenderer->ld,
 				gRenderer->surfaceWidth,
@@ -823,7 +823,7 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (newCamera) { // If the renderer has not yet been initialized
 		VK2DCameraSpec cam = {
-				ct_Default,
+				VK2D_CAMERA_TYPE_DEFAULT,
 				0,
 				0,
 				gRenderer->surfaceWidth,
@@ -838,13 +838,13 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 
 		// Set all cameras to deleted and create the default one
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++)
-			gRenderer->cameras[i].state = cs_Deleted;
+			gRenderer->cameras[i].state = VK2D_CAMERA_STATE_DELETED;
 		vk2dCameraCreate(cam);
 	} else {
 		// Recreate camera buffers with new screen
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-			if (gRenderer->cameras[i].state == cs_Reset) {
-				gRenderer->cameras[i].state = cs_Deleted;
+			if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_RESET) {
+				gRenderer->cameras[i].state = VK2D_CAMERA_STATE_DELETED;
 				vk2dCameraCreate(gRenderer->cameras[i].spec);
 			}
 		}
@@ -857,7 +857,7 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.h = gRenderer->surfaceHeight;
 
 	VK2DCameraSpec unitCam = {
-			ct_Default,
+			VK2D_CAMERA_TYPE_DEFAULT,
 			0,
 			0,
 			1,
@@ -876,8 +876,8 @@ void _vk2dRendererDestroyUniformBuffers() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 	for (i = 0; i < VK2D_MAX_CAMERAS; i++)
-		if (vk2dCameraGetState(i) == cs_Normal || vk2dCameraGetState(i) == cs_Disabled)
-			vk2dCameraSetState(i, cs_Reset);
+		if (vk2dCameraGetState(i) == VK2D_CAMERA_STATE_NORMAL || vk2dCameraGetState(i) == VK2D_CAMERA_STATE_DISABLED)
+			vk2dCameraSetState(i, VK2D_CAMERA_STATE_RESET);
 	vk2dBufferFree(gRenderer->unitUBO);
 }
 
@@ -962,7 +962,7 @@ void _vk2dRendererCreateSampler() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 
 	// 2D sampler
-	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode == ft_Linear, gRenderer->config.filterMode == ft_Linear ? gRenderer->config.msaa : 1, 1);
+	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode == VK2D_FILTER_TYPE_LINEAR, gRenderer->config.filterMode == VK2D_FILTER_TYPE_LINEAR ? gRenderer->config.msaa : 1, 1);
 	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler));
 	VkDescriptorImageInfo imageInfo = {}; // TODO: fix the bass-ackwards sampler/tex descriptor sets
 	imageInfo.sampler = gRenderer->textureSampler;
@@ -1291,7 +1291,7 @@ void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel mod
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// Only render to 3D cameras
 	for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-		if (gRenderer->cameras[i].state == cs_Normal && gRenderer->cameras[i].spec.type != ct_Default && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+		if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type != VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
 			sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
 			_vk2dRendererDrawRaw3D(sets, setCount, model, pipe, x, y, z, xscale, yscale, zscale, rot, axis, originX, originY, originZ, i, lineWidth);
 		}
@@ -1307,7 +1307,7 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
 	} else {
 		// Only render to 2D cameras
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-			if (gRenderer->cameras[i].state == cs_Normal && gRenderer->cameras[i].spec.type == ct_Default && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+			if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
 				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
 				_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
 			}

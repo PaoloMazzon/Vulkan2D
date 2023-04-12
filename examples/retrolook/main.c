@@ -30,7 +30,7 @@ int main(int argc, const char *argv[]) {
 		return -1;
 
 	// Initialize vk2d
-	VK2DRendererConfig config = {msaa_1x, sm_TripleBuffer, ft_Nearest};
+	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.1, 0.0, 0.2, 1.0};
 	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
 	if (vk2dRendererInit(window, config, &options) < 0)
@@ -49,7 +49,7 @@ int main(int argc, const char *argv[]) {
 	VK2DModel modCaveguy = vk2dModelLoad("assets/caveguydie.obj", texCaveguy);
 
 	// Create cameras
-	VK2DCameraSpec camera3D = {ct_Perspective, 0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT, 1, 0, 0, 0, LOGICAL_WIDTH, LOGICAL_WIDTH};
+	VK2DCameraSpec camera3D = {VK2D_CAMERA_TYPE_PERSPECTIVE, 0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT, 1, 0, 0, 0, LOGICAL_WIDTH, LOGICAL_WIDTH};
 	camera3D.Perspective.eyes[0] = -4;
 	camera3D.Perspective.up[1] = 1;
 	camera3D.Perspective.fov = VK2D_PI * 0.2;

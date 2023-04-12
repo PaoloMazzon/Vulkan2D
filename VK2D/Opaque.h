@@ -100,7 +100,7 @@ struct VK2DPipeline {
 	VkPipelineLayout layout;    ///< Internal pipeline layout
 	VkRect2D rect;              ///< For setting up command buffers
 	VkClearValue clearValue[2]; ///< Clear values for the two attachments: colour and depth
-	VkPipeline pipes[bm_Max];   ///< Internal pipelines if `VK2D_GENERATE_BLEND_MODES` is enabled
+	VkPipeline pipes[VK2D_BLEND_MODE_MAX];   ///< Internal pipelines if `VK2D_GENERATE_BLEND_MODES` is enabled
 };
 
 /// \brief Makes shapes easier to deal with

@@ -29,7 +29,7 @@ VK2DModel vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, co
 		model->vertices = buf;
 		model->tex = tex;
 		model->vertexCount = vertexCount;
-		model->type = vt_Model;
+		model->type = VK2D_VERTEX_TYPE_MODEL;
 		model->vertexOffset = 0;
 		model->indexOffset = sizeof(VK2DVertex3D) * vertexCount;
 		model->indexCount = indexCount;
