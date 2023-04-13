@@ -50,7 +50,8 @@ of brevity, error checking is removed from the following example
    	SDL_Event e;
    	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
     vk2dRendererInit(window, config, NULL);
-    vec4 clearColour = {0.0, 0.0, 0.0, 1.0}; // Black
+    vec4 clearColour;
+    vk2dColourHex(clearColour, "#59d9d7");
     bool stopRunning = false;
     
     // Load your resources

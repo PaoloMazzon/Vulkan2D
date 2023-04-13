@@ -29,7 +29,8 @@ int main(int argc, const char *argv[]) {
 
 	// Initialize vk2d
 	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
-	vec4 clear = {0.1, 0.2, 0.0, 1.0};
+	vec4 clear;
+	vk2dColourHex(clear, "#59d964");
 	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
 	if (vk2dRendererInit(window, config, &options) < 0)
 		return -1;

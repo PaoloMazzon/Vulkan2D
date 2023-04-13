@@ -738,3 +738,55 @@ void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float
 		vk2dLogMessage("Renderer is not initialized");
 	}
 }
+
+static inline float _getHexValue(char c) {
+	switch (c) {
+		case '1': return 1;
+		case '2': return 2;
+		case '3': return 3;
+		case '4': return 4;
+		case '5': return 5;
+		case '6': return 6;
+		case '7': return 7;
+		case '8': return 8;
+		case '9': return 9;
+		case 'A': return 10;
+		case 'B': return 11;
+		case 'C': return 12;
+		case 'D': return 13;
+		case 'E': return 14;
+		case 'F': return 15;
+		case 'a': return 10;
+		case 'b': return 11;
+		case 'c': return 12;
+		case 'd': return 13;
+		case 'e': return 14;
+		case 'f': return 15;
+		default: return 0;
+	}
+}
+
+void vk2dColourHex(vec4 dst, const char *hex) {
+	if (strlen(hex) == 7 && hex[0] == '#') {
+		dst[0] = ((_getHexValue(hex[1]) * 16) + _getHexValue(hex[2])) / 255;
+		dst[1] = ((_getHexValue(hex[3]) * 16) + _getHexValue(hex[4])) / 255;
+		dst[2] = ((_getHexValue(hex[5]) * 16) + _getHexValue(hex[6])) / 255;
+		dst[3] = 1;
+	} else {
+		dst[0] = dst[1] = dst[2] = dst[3] = 0;
+	}
+}
+
+void vk2dColourInt(vec4 dst, uint32_t colour) {
+	dst[0] = (float)((colour>>24) & 0xFF) / 255.0f;
+	dst[1] = (float)((colour>>16) & 0xFF) / 255.0f;
+	dst[2] = (float)((colour>>8) & 0xFF) / 255.0f;
+	dst[3] = (float)((colour) & 0xFF) / 255.0f;
+}
+
+void vk2dColourRGBA(vec4 dst, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+	dst[0] = (float)r / 255.0f;
+	dst[1] = (float)g / 255.0f;
+	dst[2] = (float)b / 255.0f;
+	dst[3] = (float)a / 255.0f;
+}

@@ -270,6 +270,24 @@ void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xsc
 /// \warning The wireframe may not look as you expect because models are triangulated
 void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, float lineWidth);
 
+/// \brief Converts a Hex colour into a vec4 normalized colour
+/// \param dst Destination vec4 to place the colour into
+/// \param hex Hex colour as a string, alpha is assumed to be 100%
+void vk2dColourHex(vec4 dst, const char *hex);
+
+/// \brief Converts a Int colour into a vec4 normalized colour
+/// \param dst Destination vec4 to place the colour into
+/// \param colour Int encoded as RGBA, one byte each
+void vk2dColourInt(vec4 dst, uint32_t colour);
+
+/// \brief Converts a RGBA colour into a vec4 normalized colour
+/// \param dst Destination vec4 to place the colour into
+/// \param r Red component, from 0-255
+/// \param g Green component, from 0-255
+/// \param b Blue component, from 0-255
+/// \param a Alpha component, from 0-255
+void vk2dColourRGBA(vec4 dst, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)
