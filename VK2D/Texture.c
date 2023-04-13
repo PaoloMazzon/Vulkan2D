@@ -153,6 +153,10 @@ bool vk2dTextureIsTarget(VK2DTexture tex) {
 	return tex->fbo != VK_NULL_HANDLE;
 }
 
+VK2DImage vk2dTextureGetImage(VK2DTexture tex) {
+	return tex->img;
+}
+
 void vk2dTextureFree(VK2DTexture tex) {
 	if (tex != NULL) {
 		if (tex->fbo != VK_NULL_HANDLE) {

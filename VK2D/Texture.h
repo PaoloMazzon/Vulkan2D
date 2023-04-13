@@ -45,9 +45,14 @@ float vk2dTextureWidth(VK2DTexture tex);
 float vk2dTextureHeight(VK2DTexture tex);
 
 /// \brief Checks if a texture was created as a target or not
-/// \param Texture to check
+/// \param tex Texture to check
 /// \return Returns true if its a valid target, false otherwise
 bool vk2dTextureIsTarget(VK2DTexture tex);
+
+/// \brief Returns a texture's internal image
+/// \param tex Texture to check
+/// \return Returns the texture's image
+VK2DImage vk2dTextureGetImage(VK2DTexture tex);
 
 /// \brief Frees a texture from memory
 /// \param tex Texture to free
