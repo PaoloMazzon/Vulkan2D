@@ -220,6 +220,18 @@ struct VK2DRendererLimits {
 	bool supportsImmediate;       ///< Whether or not the host supports immediate mode
 	bool supportsWireframe;       ///< Whether or not the host supports wireframe rendering
 	float maxLineWidth;           ///< Maximum line width supported on the platform (may be 1, VK2D will automatically clamp line width values above this limit)
+	uint32_t maxInstancedDraws;   ///< Maximum amount of instances you may draw at once
+};
+
+/// \brief Represents the data you need for each element in an instanced draw
+struct VK2DDrawInstance {
+	float x;      ///< X position in the game world of this draw
+	float y;      ///< Y position in the game world of this draw
+	float xInTex; ///< X position in the specified texture to draw from
+	float yInTex; ///< Y position in the specified texture to draw from
+	float wInTex; ///< Width in the specified texture of the draw
+	float hInTex; ///< Height in the specified texture of the draw
+	vec4 colour;  ///< Colour mod of this draw
 };
 
 VK2D_USER_STRUCT(VK2DVertexColour)
@@ -232,6 +244,7 @@ VK2D_USER_STRUCT(VK2DStartupOptions)
 VK2D_USER_STRUCT(VK2DRendererConfig)
 VK2D_USER_STRUCT(VK2DCameraSpec)
 VK2D_USER_STRUCT(VK2DRendererLimits)
+VK2D_USER_STRUCT(VK2DDrawInstance)
 
 #ifdef __cplusplus
 }

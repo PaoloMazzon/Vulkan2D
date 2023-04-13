@@ -200,6 +200,18 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2);
 /// \param texHeight Height of the texture to draw
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight);
 
+/// \brief Draws a texture many number of times using instanced data
+/// \param tex Texture to draw
+/// \param instances Array of `VK2DDrawInstance`s that will be used as what would be parameters to vk2dRendererDrawTexture
+/// \param count Number of elements in the instances array
+/// \warning `count` must be less than or equal to the `maxInstancedDraws` field of VK2DRendererLimits (typically a very large number)
+///
+/// This function is intended to be used to draw a large amount of a single texture at once with
+/// less overhead than there would be by calling vk2dRendererDrawTexture `count` number of times.
+/// You may not specify scale or rotation value for various reasons, this is mostly an option for
+/// something like font rendering or drawing large amounts of the same sprite-sheet.
+void vk2dRendererDrawInstanced(VK2DTexture tex, VK2DDrawInstance *instances, uint32_t count);
+
 /// \brief Renders a texture
 /// \param shader Shader to draw with
 /// \param data Uniform buffer data the shader expects; should be the size specified when the shader was created or NULL if a size of 0 was given
