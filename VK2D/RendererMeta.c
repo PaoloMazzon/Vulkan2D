@@ -592,6 +592,14 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 	VkDescriptorSetLayoutCreateInfo userDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingUser, userLayoutCount);
 	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &userDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferUser));
 
+	// For instancing
+	const uint32_t instanceLayoutCount = 1;
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingInstance[userLayoutCount];
+	descriptorSetLayoutBindingInstance[0] = vk2dInitDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
+	descriptorSetLayoutBindingInstance[0].descriptorCount = VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE / sizeof(VK2DDrawInstance);
+	VkDescriptorSetLayoutCreateInfo instanceDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingInstance, instanceLayoutCount);
+	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &instanceDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferInstanced));
+
 	// For sampled textures
 	const uint32_t texLayoutCount = 1;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingTex[texLayoutCount];
@@ -608,6 +616,7 @@ void _vk2dRendererDestroyDescriptorSetLayout() {
 	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferVP, VK_NULL_HANDLE);
 	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferUser, VK_NULL_HANDLE);
 	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslTexture, VK_NULL_HANDLE);
+	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferInstanced, VK_NULL_HANDLE);
 }
 
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
@@ -891,6 +900,7 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2);
 		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION);
 		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION);
+		gRenderer->descConInstanced = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferInstanced, 3, VK2D_NO_LOCATION);
 
 		// And the one sampler set
 		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 1};
@@ -911,6 +921,7 @@ void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 		vk2dDescConFree(gRenderer->descConSamplers);
 		vk2dDescConFree(gRenderer->descConVP);
 		vk2dDescConFree(gRenderer->descConUser);
+		vk2dDescConFree(gRenderer->descConInstanced);
 		vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->samplerPool, VK_NULL_HANDLE);
 	}
 }

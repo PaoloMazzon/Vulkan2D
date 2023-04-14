@@ -224,21 +224,24 @@ struct VK2DRenderer {
 	VK2DPipeline wireframePipe; ///< Pipeline for 3D wireframes
 	VK2DPipeline primFillPipe;  ///< Pipeline for rendering filled shapes
 	VK2DPipeline primLinePipe;  ///< Pipeline for rendering shape outlines
+	VK2DPipeline instancedPipe; ///< Pipeline for instancing textures
 	uint32_t shaderListSize;    ///< Size of the list of customShaders
 	VK2DShader *customShaders;  ///< Custom shaders the user creates
 
 	// Uniform things
-	VkDescriptorSetLayout dslSampler;        ///< Descriptor set layout for texture samplers
-	VkDescriptorSetLayout dslBufferVP;       ///< Descriptor set layout for the view-projection buffer
-	VkDescriptorSetLayout dslBufferUser;     ///< Descriptor set layout for user data buffers (custom shaders uniforms)
-	VkDescriptorSetLayout dslTexture;        ///< Descriptor set layout for the textures
-	VK2DDescCon descConSamplers;             ///< Descriptor controller for samplers
-	VK2DDescCon descConVP;                   ///< Descriptor controller for view projection buffers
-	VK2DDescCon descConUser;                 ///< Descriptor controller for user buffers
-	VkDescriptorPool samplerPool;            ///< Sampler pool for 1 sampler
-	VkDescriptorSet samplerSet;              ///< Sampler for all textures
-	VkDescriptorSet modelSamplerSet;         ///< Sampler for all 3D models
-	VK2DDescriptorBuffer *descriptorBuffers; ///< Descriptor buffer, one per swapchain image
+	VkDescriptorSetLayout dslSampler;         ///< Descriptor set layout for texture samplers
+	VkDescriptorSetLayout dslBufferVP;        ///< Descriptor set layout for the view-projection buffer
+	VkDescriptorSetLayout dslBufferUser;      ///< Descriptor set layout for user data buffers (custom shaders uniforms)
+	VkDescriptorSetLayout dslBufferInstanced; ///< Descriptor set layout for instancing
+	VkDescriptorSetLayout dslTexture;         ///< Descriptor set layout for the textures
+	VK2DDescCon descConSamplers;              ///< Descriptor controller for samplers
+	VK2DDescCon descConVP;                    ///< Descriptor controller for view projection buffers
+	VK2DDescCon descConUser;                  ///< Descriptor controller for user buffers
+	VK2DDescCon descConInstanced;             ///< Descriptor controller for instancing
+	VkDescriptorPool samplerPool;             ///< Sampler pool for 1 sampler
+	VkDescriptorSet samplerSet;               ///< Sampler for all textures
+	VkDescriptorSet modelSamplerSet;          ///< Sampler for all 3D models
+	VK2DDescriptorBuffer *descriptorBuffers;  ///< Descriptor buffer, one per swapchain image
 
 	// Frame synchronization
 	uint32_t currentFrame;                 ///< Current frame being looped through

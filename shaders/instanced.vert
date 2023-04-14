@@ -1,15 +1,17 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_EXT_nonuniform_qualifier : enable
 
 layout(set = 0, binding = 0) uniform UniformBufferObject {
     mat4 viewproj;
 } ubo;
 
-layout(set = 3, binding = 3) uniform DrawInstance {
+layout(set = 3, binding = 3, scalar) uniform DrawInstance {
     vec2 pos;
     vec4 uv;
     vec4 colour;
-} DrawInstance[];
+} drawInstance[];
 
 layout(push_constant) uniform PushBuffer {
     mat4 model;
@@ -18,6 +20,7 @@ layout(push_constant) uniform PushBuffer {
 } pushBuffer;
 
 layout(location = 1) out vec2 fragTexCoord;
+layout(location = 2) out vec4 fragColour;
 
 vec2 vertices[] = {
     vec2(0.0f, 0.0f),
@@ -43,9 +46,10 @@ out gl_PerVertex {
 
 void main() {
     vec2 newPos;
-    newPos.x = vertices[gl_VertexIndex].x * pushBuffer.textureCoords.z;
-    newPos.y = vertices[gl_VertexIndex].y * pushBuffer.textureCoords.w;
-    gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos, 1.0, 1.0);
-    fragTexCoord.x = pushBuffer.textureCoords.x + (texCoords[gl_VertexIndex].x * pushBuffer.textureCoords.z);
-    fragTexCoord.y = pushBuffer.textureCoords.y + (texCoords[gl_VertexIndex].y * pushBuffer.textureCoords.w);
+    newPos.x = vertices[gl_VertexIndex].x * drawInstance[gl_InstanceIndex].uv.z;
+    newPos.y = vertices[gl_VertexIndex].y * drawInstance[gl_InstanceIndex].uv.w;
+    gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos + drawInstance[gl_InstanceIndex].pos, 1.0, 1.0);
+    fragTexCoord.x = drawInstance[gl_InstanceIndex].uv.x + (texCoords[gl_VertexIndex].x * drawInstance[gl_InstanceIndex].uv.z);
+    fragTexCoord.y = drawInstance[gl_InstanceIndex].uv.y + (texCoords[gl_VertexIndex].y * drawInstance[gl_InstanceIndex].uv.w);
+    fragColour = drawInstance[gl_InstanceIndex].colour;
 }
