@@ -33,6 +33,11 @@ static void _vk2dDescConAppendList(VK2DDescCon descCon) {
 		sizes[i].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 		i++;
 	}
+	if (descCon->storageBuffer != VK2D_NO_LOCATION) {
+		sizes[i].descriptorCount = VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION;
+		sizes[i].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		i++;
+	}
 	VkDescriptorPoolCreateInfo createInfo = vk2dInitDescriptorPoolCreateInfo(sizes, i, VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION);
 	vk2dErrorCheck(vkCreateDescriptorPool(descCon->dev->dev, &createInfo, VK_NULL_HANDLE, &descCon->pools[descCon->poolsInUse]));
 	descCon->poolsInUse++;
@@ -62,12 +67,13 @@ VkDescriptorSet _vk2dDescConGetAvailableSet(VK2DDescCon descCon) {
 	return set;
 }
 
-VK2DDescCon vk2dDescConCreate(VK2DLogicalDevice dev, VkDescriptorSetLayout layout, uint32_t buffer, uint32_t sampler) {
+VK2DDescCon vk2dDescConCreate(VK2DLogicalDevice dev, VkDescriptorSetLayout layout, uint32_t buffer, uint32_t sampler, uint32_t storageBuffer) {
 	VK2DDescCon out = calloc(1, sizeof(struct VK2DDescCon));
 
 	if (vk2dPointerCheck(out)) {
 		out->layout = layout;
 		out->buffer = buffer;
+		out->storageBuffer = storageBuffer;
 		out->sampler = sampler;
 		out->dev = dev;
 		out->pools = NULL;

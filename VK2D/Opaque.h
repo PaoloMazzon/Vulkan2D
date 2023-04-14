@@ -85,6 +85,7 @@ struct VK2DDescCon {
 	VkDescriptorSetLayout layout; ///< Layout for these sets
 	uint32_t buffer;              ///< Whether or not pools support uniform buffers
 	uint32_t sampler;             ///< Whether or not pools support texture samplers
+	uint32_t storageBuffer;       ///< Whether or not pools support storage buffers
 	VK2DLogicalDevice dev;        ///< Device pools are created with
 
 	// pools will always have poolListSize elements, but only elements up to poolsInUse will be

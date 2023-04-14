@@ -594,8 +594,8 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 
 	// For instancing
 	const uint32_t instanceLayoutCount = 1;
-	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingInstance[userLayoutCount];
-	descriptorSetLayoutBindingInstance[0] = vk2dInitDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingInstance[instanceLayoutCount];
+	descriptorSetLayoutBindingInstance[0] = vk2dInitDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
 	descriptorSetLayoutBindingInstance[0].descriptorCount = VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE / sizeof(VK2DDrawInstance);
 	VkDescriptorSetLayoutCreateInfo instanceDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingInstance, instanceLayoutCount);
 	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &instanceDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferInstanced));
@@ -648,6 +648,12 @@ void _vk2dRendererCreatePipelines() {
 	uint32_t shaderModelFragSize = sizeof(VK2DFragModel);
 	bool CustomModelFragShader = false;
 	unsigned char *shaderModelFrag = (void*)VK2DFragModel;
+	uint32_t shaderInstancedVertSize = sizeof(VK2DVertInstanced);
+	bool CustomInstancedVertShader = false;
+	unsigned char *shaderInstancedVert = (void*)VK2DVertInstanced;
+	uint32_t shaderInstancedFragSize = sizeof(VK2DFragInstanced);
+	bool CustomInstancedFragShader = false;
+	unsigned char *shaderInstancedFrag = (void*)VK2DFragInstanced;
 
 	// Potentially load some different ones
 	if (gRenderer->options.loadCustomShaders) {
@@ -675,10 +681,18 @@ void _vk2dRendererCreatePipelines() {
 			CustomModelFragShader = true;
 			shaderModelFrag = _vk2dLoadFile("shaders/modelfrag.spv", &shaderModelFragSize);
 		}
+		if (_vk2dFileExists("shaders/instancedvert.spv")) {
+			CustomInstancedVertShader = true;
+			shaderInstancedVert = _vk2dLoadFile("shaders/instancedvert.spv", &shaderInstancedVertSize);
+		}
+		if (_vk2dFileExists("shaders/instancedfrag.spv")) {
+			CustomInstancedFragShader = true;
+			shaderInstancedFrag = _vk2dLoadFile("shaders/instancedfrag.spv", &shaderInstancedFragSize);
+		}
 	}
 
 	// Texture pipeline
-	VkDescriptorSetLayout layout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTexture};
+	VkDescriptorSetLayout layout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTexture, gRenderer->dslBufferInstanced};
 	gRenderer->texPipe = vk2dPipelineCreate(
 			gRenderer->ld,
 			gRenderer->renderPass,
@@ -758,6 +772,21 @@ void _vk2dRendererCreatePipelines() {
 			false,
 			gRenderer->config.msaa,
 			true);
+	gRenderer->instancedPipe = vk2dPipelineCreate(
+			gRenderer->ld,
+			gRenderer->renderPass,
+			gRenderer->surfaceWidth,
+			gRenderer->surfaceHeight,
+			shaderInstancedVert,
+			shaderInstancedVertSize,
+			shaderInstancedFrag,
+			shaderInstancedFragSize,
+			layout,
+			4,
+			&textureVertexInfo,
+			true,
+			gRenderer->config.msaa,
+			false);
 
 	// Shader pipelines
 	for (i = 0; i < gRenderer->shaderListSize; i++) {
@@ -791,6 +820,7 @@ void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
 	vk2dPipelineFree(gRenderer->texPipe);
 	vk2dPipelineFree(gRenderer->modelPipe);
 	vk2dPipelineFree(gRenderer->wireframePipe);
+	vk2dPipelineFree(gRenderer->instancedPipe);
 
 	if (!preserveCustomPipes)
 		free(gRenderer->customShaders);
@@ -897,10 +927,10 @@ void _vk2dRendererDestroyUniformBuffers() {
 void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (!preserveDescCons) {
-		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2);
-		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION);
-		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION);
-		gRenderer->descConInstanced = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferInstanced, 3, VK2D_NO_LOCATION);
+		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2, VK2D_NO_LOCATION);
+		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
+		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
+		gRenderer->descConInstanced = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferInstanced, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 3);
 
 		// And the one sampler set
 		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 1};

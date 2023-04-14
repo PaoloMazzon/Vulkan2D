@@ -13,7 +13,7 @@ extern "C" {
 /// \param buffer Location of the buffer or VK2D_NO_LOCATION if unused (binding)
 /// \param sampler Location of the sampler or VK2D_NO_LOCATION if unused (binding)
 /// \return New descriptor controller or NULL if it failed
-VK2DDescCon vk2dDescConCreate(VK2DLogicalDevice dev, VkDescriptorSetLayout layout, uint32_t buffer, uint32_t sampler);
+VK2DDescCon vk2dDescConCreate(VK2DLogicalDevice dev, VkDescriptorSetLayout layout, uint32_t buffer, uint32_t sampler, uint32_t storageBuffer);
 
 /// \brief Frees a descriptor controller from memory
 /// \param descCon Descriptor controller to free

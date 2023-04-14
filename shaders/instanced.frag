@@ -6,12 +6,6 @@
 layout(set = 1, binding = 1) uniform sampler texSampler;
 layout(set = 2, binding = 2) uniform texture2D tex;
 
-layout(set = 3, binding = 3, scalar) uniform DrawInstance {
-    vec2 pos;
-    vec4 uv;
-    vec4 colour;
-} drawInstance[];
-
 layout(push_constant) uniform PushBuffer {
     mat4 model;
     vec4 colourMod;

@@ -68,7 +68,7 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
 
 			if (uniformBufferSize != 0) {
 				for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
-					out->descCons[i] = vk2dDescConCreate(dev, renderer->dslBufferUser, 3, VK2D_NO_LOCATION);
+					out->descCons[i] = vk2dDescConCreate(dev, renderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
 				}
 			}
 
@@ -108,7 +108,7 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 
 			if (uniformBufferSize != 0) {
 				for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
-					out->descCons[i] = vk2dDescConCreate(dev, renderer->dslBufferUser, 3, VK2D_NO_LOCATION);
+					out->descCons[i] = vk2dDescConCreate(dev, renderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
 				}
 			}
 

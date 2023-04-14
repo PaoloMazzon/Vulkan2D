@@ -7,11 +7,15 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
     mat4 viewproj;
 } ubo;
 
-layout(set = 3, binding = 3, scalar) uniform DrawInstance {
+struct SingleDraw {
     vec2 pos;
     vec4 uv;
     vec4 colour;
-} drawInstance[];
+};
+
+layout(set = 3, binding = 3, scalar) readonly buffer DrawInstance {
+    SingleDraw draws[];
+} drawInstance;
 
 layout(push_constant) uniform PushBuffer {
     mat4 model;
@@ -46,10 +50,10 @@ out gl_PerVertex {
 
 void main() {
     vec2 newPos;
-    newPos.x = vertices[gl_VertexIndex].x * drawInstance[gl_InstanceIndex].uv.z;
-    newPos.y = vertices[gl_VertexIndex].y * drawInstance[gl_InstanceIndex].uv.w;
-    gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos + drawInstance[gl_InstanceIndex].pos, 1.0, 1.0);
-    fragTexCoord.x = drawInstance[gl_InstanceIndex].uv.x + (texCoords[gl_VertexIndex].x * drawInstance[gl_InstanceIndex].uv.z);
-    fragTexCoord.y = drawInstance[gl_InstanceIndex].uv.y + (texCoords[gl_VertexIndex].y * drawInstance[gl_InstanceIndex].uv.w);
-    fragColour = drawInstance[gl_InstanceIndex].colour;
+    newPos.x = vertices[gl_VertexIndex].x * drawInstance.draws[gl_InstanceIndex].uv.z;
+    newPos.y = vertices[gl_VertexIndex].y * drawInstance.draws[gl_InstanceIndex].uv.w;
+    gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos + drawInstance.draws[gl_InstanceIndex].pos, 1.0, 1.0);
+    fragTexCoord.x = drawInstance.draws[gl_InstanceIndex].uv.x + (texCoords[gl_VertexIndex].x * drawInstance.draws[gl_InstanceIndex].uv.z);
+    fragTexCoord.y = drawInstance.draws[gl_InstanceIndex].uv.y + (texCoords[gl_VertexIndex].y * drawInstance.draws[gl_InstanceIndex].uv.w);
+    fragColour = drawInstance.draws[gl_InstanceIndex].colour;
 }
