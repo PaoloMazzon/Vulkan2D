@@ -12,9 +12,17 @@ const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 
 static inline float random(float min, float max) {
-	const int resolution = 5000;
+	const int resolution = 1000;
 	float n = (float)(rand() % resolution);
 	return min + ((max - min) * (n / (float)resolution));
+}
+
+static inline float clamp(float val, float min, float max) {
+	if (val > max)
+		return max;
+	if (val < min)
+		return min;
+	return val;
 }
 
 int main(int argc, const char *argv[]) {
@@ -30,7 +38,7 @@ int main(int argc, const char *argv[]) {
 	// Initialize vk2d
 	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.1, 0.0, 0.2, 1.0};
-	VK2DStartupOptions options = {false, true, true, "vk2derror.txt", false};
+	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
 	if (vk2dRendererInit(window, config, &options) < 0)
 		return -1;
 
@@ -87,6 +95,13 @@ int main(int argc, const char *argv[]) {
 		cameraSpec.hOnScreen = h;
 		cameraSpec.h = (h / w) * (float)WINDOW_WIDTH;
 		vk2dCameraUpdate(cameraIndex, cameraSpec);
+
+		// Move the caveguys around
+		const float moveSpeed = 1;
+		for (int i = 0; i < instanceCount; i++) {
+			instances[i].pos[0] = clamp(instances[i].pos[0] + random(-moveSpeed, moveSpeed), 0, WINDOW_WIDTH);
+			instances[i].pos[1] = clamp(instances[i].pos[1] + random(-moveSpeed, moveSpeed), 0, WINDOW_HEIGHT);
+		}
 
 		// All rendering must happen after this
 		vk2dRendererStartFrame(VK2D_BLACK);
