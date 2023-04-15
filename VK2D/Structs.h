@@ -225,9 +225,10 @@ struct VK2DRendererLimits {
 
 /// \brief Represents the data you need for each element in an instanced draw
 struct VK2DDrawInstance {
-	vec2 pos;        ///< X/Y in game world for this instance
 	vec4 texturePos; ///< x in tex, y in tex, w in tex, and h in tex
 	vec4 colour;     ///< Colour mod of this draw
+	vec2 pos;        ///< X/Y in game world for this instance
+	vec2 buffer;     ///< For alignment purposes
 };
 
 VK2D_USER_STRUCT(VK2DVertexColour)

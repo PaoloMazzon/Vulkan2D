@@ -8,12 +8,12 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 } ubo;
 
 struct SingleDraw {
-    vec2 pos;
     vec4 uv;
     vec4 colour;
+    vec4 pos;
 };
 
-layout(set = 3, binding = 3, scalar) readonly buffer DrawInstance {
+layout(std140, set = 3, binding = 3) readonly buffer DrawInstance {
     SingleDraw draws[];
 } drawInstance;
 
@@ -52,7 +52,7 @@ void main() {
     vec2 newPos;
     newPos.x = vertices[gl_VertexIndex].x * drawInstance.draws[gl_InstanceIndex].uv.z;
     newPos.y = vertices[gl_VertexIndex].y * drawInstance.draws[gl_InstanceIndex].uv.w;
-    gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos + drawInstance.draws[gl_InstanceIndex].pos, 1.0, 1.0);
+    gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos + drawInstance.draws[gl_InstanceIndex].pos.xy, 1.0, 1.0);
     fragTexCoord.x = drawInstance.draws[gl_InstanceIndex].uv.x + (texCoords[gl_VertexIndex].x * drawInstance.draws[gl_InstanceIndex].uv.z);
     fragTexCoord.y = drawInstance.draws[gl_InstanceIndex].uv.y + (texCoords[gl_VertexIndex].y * drawInstance.draws[gl_InstanceIndex].uv.w);
     fragColour = drawInstance.draws[gl_InstanceIndex].colour;

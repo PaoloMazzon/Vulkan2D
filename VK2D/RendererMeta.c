@@ -1251,6 +1251,53 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 		vkCmdDraw(buf, 6, 1, 0, 0);
 }
 
+void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count, VK2DCameraIndex cam) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
+
+	// Push constants
+	VK2DPushBuffer push = {};
+	identityMatrix(push.model);
+
+	// We don't do any binding saving for instanced drawing
+	_vk2dRendererResetBoundPointers();
+	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(gRenderer->instancedPipe, gRenderer->blendMode));
+	vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->instancedPipe->layout, 0, setCount, sets, 0, VK_NULL_HANDLE);
+
+	// Dynamic state that can't be optimized further and the draw call
+	cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
+	VkRect2D scissor;
+	VkViewport viewport;
+	if (gRenderer->target == NULL) {
+		viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
+		viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
+		viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
+		viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+		scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
+		scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
+		scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
+		scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
+	} else {
+		viewport.x = 0;
+		viewport.y = 0;
+		viewport.width = gRenderer->target->img->width;
+		viewport.height = gRenderer->target->img->height;
+		viewport.minDepth = 0;
+		viewport.maxDepth = 1;
+		scissor.extent.width = gRenderer->target->img->width;
+		scissor.extent.height = gRenderer->target->img->height;
+		scissor.offset.x = 0;
+		scissor.offset.y = 0;
+	}
+	vkCmdSetViewport(buf, 0, 1, &viewport);
+	vkCmdSetScissor(buf, 0, 1, &scissor);
+	vkCmdSetLineWidth(buf, 1);
+	vkCmdPushConstants(buf, gRenderer->instancedPipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
+	vkCmdDraw(buf, 6, count, 0, 0);
+}
+
 // Same as above but for 3D rendering
 void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, VK2DCameraIndex cam, float lineWidth) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
@@ -1355,6 +1402,22 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
 			if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
 				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
 				_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
+			}
+		}
+	}
+}
+
+void _vk2dRendererDrawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
+		sets[0] = gRenderer->targetUBOSet;
+		_vk2dRendererDrawRawInstanced(sets, setCount, instances, count, VK2D_INVALID_CAMERA);
+	} else {
+		// Only render to 2D cameras
+		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+			if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+				_vk2dRendererDrawRawInstanced(sets, setCount, instances, count, i);
 			}
 		}
 	}
