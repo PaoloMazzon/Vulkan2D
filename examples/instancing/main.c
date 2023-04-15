@@ -58,7 +58,7 @@ int main(int argc, const char *argv[]) {
 	// Make a crazy number of instances
 	VK2DRendererLimits limits = vk2dRendererGetLimits();
 	const int instanceCount = limits.maxInstancedDraws / 4;
-	printf("Caveguys: %i\n", limits.maxInstancedDraws);
+	printf("Caveguys: %i\n", instanceCount);
 	fflush(stdout);
 	VK2DDrawInstance *instances = malloc(sizeof(VK2DDrawInstance) * instanceCount);
 	for (int i = 0; i < instanceCount; i++) {

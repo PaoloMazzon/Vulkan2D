@@ -51,7 +51,8 @@ static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
 		true,
 		true,
 		"vk2derror.txt",
-		false
+		false,
+		256 * 1000
 };
 
 /******************************* User-visible functions *******************************/
@@ -68,6 +69,8 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		userOptions = DEFAULT_STARTUP_OPTIONS;
 	} else {
 		userOptions = *options;
+		if (userOptions.vramPageSize == 0)
+			userOptions.vramPageSize = 256 * 1000;
 	}
 
 	// Print all available layers
@@ -130,6 +133,9 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		gRenderer->config = config;
 		gRenderer->config.msaa = gRenderer->limits.maxMSAA >= config.msaa ? config.msaa : gRenderer->limits.maxMSAA;
 		gRenderer->newConfig = gRenderer->config;
+
+		// Calculate the limit for shader uniform buffers
+		gRenderer->limits.maxShaderBufferSize = gRenderer->pd->props.limits.maxUniformBufferRange < userOptions.vramPageSize ? gRenderer->pd->props.limits.maxUniformBufferRange : userOptions.vramPageSize;
 
 		// Create the VMA
 		VmaAllocatorCreateInfo allocatorCreateInfo = {};
@@ -680,6 +686,8 @@ void vk2dRendererDrawInstanced(VK2DTexture tex, VK2DDrawInstance *instances, uin
 		VkDescriptorSet sets[3];
 		sets[1] = gRenderer->samplerSet;
 		sets[2] = tex->img->set;
+		if (count > gRenderer->limits.maxInstancedDraws)
+			count = gRenderer->limits.maxInstancedDraws;
 		_vk2dRendererDrawInstanced(sets, 3, instances, count);
 	} else {
 		vk2dLogMessage("Renderer is not initialized");

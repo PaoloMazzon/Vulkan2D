@@ -204,7 +204,7 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 /// \param tex Texture to draw
 /// \param instances Array of `VK2DDrawInstance`s that will be used as what would be parameters to vk2dRendererDrawTexture
 /// \param count Number of elements in the instances array
-/// \warning `count` must be less than or equal to the `maxInstancedDraws` field of VK2DRendererLimits (typically a very large number)
+/// \warning If `count` is greater than the `maxInstancedDraws` field of vk2dRendererGetLimits, `count` will instead be taken as `maxInstancedDraws`
 ///
 /// This function is intended to be used to draw a large amount of a single texture at once with
 /// less overhead than there would be by calling vk2dRendererDrawTexture `count` number of times.

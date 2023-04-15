@@ -45,8 +45,12 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
 }
 
 VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (uniformBufferSize % 4 != 0) {
 		vk2dLogMessage("Uniform buffer size for shader is invalid, must be multiple of 4");
+		return NULL;
+	} else if (uniformBufferSize > gRenderer->limits.maxShaderBufferSize) {
+		vk2dLogMessage("Uniform buffer of size %i is greater than the maximum allowed uniform buffer size of %i from vk2dRendererGetLimits", uniformBufferSize, gRenderer->limits.maxShaderBufferSize);
 		return NULL;
 	}
 
@@ -85,8 +89,12 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
 }
 
 VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (uniformBufferSize % 4 != 0) {
 		vk2dLogMessage("Uniform buffer size for shader \"%s\"/\"%s\" is invalid, must be multiple of 4", vertexShader, fragmentShader);
+		return NULL;
+	} else if (uniformBufferSize > gRenderer->limits.maxShaderBufferSize) {
+		vk2dLogMessage("Uniform buffer of size %i is greater than the maximum allowed uniform buffer size of %i from vk2dRendererGetLimits", uniformBufferSize, gRenderer->limits.maxShaderBufferSize);
 		return NULL;
 	}
 

@@ -432,7 +432,7 @@ void _vk2dRendererCreateDescriptorBuffers() {
 	}
 
 	// Calculate max instances
-	gRenderer->limits.maxInstancedDraws = VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE / sizeof(VK2DDrawInstance);
+	gRenderer->limits.maxInstancedDraws = gRenderer->options.vramPageSize / sizeof(VK2DDrawInstance);
 	gRenderer->limits.maxInstancedDraws--;
 
 	vk2dLogMessage("Descriptor buffers created...");

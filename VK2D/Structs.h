@@ -173,6 +173,12 @@ struct VK2DStartupOptions {
 	bool quitOnError;       ///< Crash the program when an error occurs
 	const char *errorFile;  ///< The file to output errors to, or NULL to disable file output
 	bool loadCustomShaders; ///< Whether or not to load shaders from a file instead of the built-in ones
+
+	/// Determines the size of a video-memory page in bytes. This can cap the max uniform
+	/// buffer size for shaders and does cap the maximum amount of instances you
+	/// may draw in one call. By default this is ~250kb and you may leave it as 0
+	/// to default it to that value.
+	uint64_t vramPageSize;
 };
 
 /// \brief User configurable settings
@@ -208,19 +214,16 @@ struct VK2DCameraSpec {
 
 /// \brief Renderer limitations for the host
 ///
-/// Even though the host may not support something you request of the renderer
-/// (for example, if you request triple buffering but the host doesn't support
-/// it), VK2D will simply use the next best option. You don't "need" to worry
-/// about any of the host limits, but they are available to the user in case of
-/// something like an options screen where you would only want to show the user
-/// the available MSAA modes, for example.
+/// Each field specifies the renderer's behaviour in the event you attempt to
+/// do something the host machine is not capable of.
 struct VK2DRendererLimits {
-	VK2DMSAA maxMSAA;             ///< Maximum MSAA the host supports (may be msaa_1x)
-	bool supportsTripleBuffering; ///< Whether or not the host supports triple buffering
-	bool supportsImmediate;       ///< Whether or not the host supports immediate mode
-	bool supportsWireframe;       ///< Whether or not the host supports wireframe rendering
-	float maxLineWidth;           ///< Maximum line width supported on the platform (may be 1, VK2D will automatically clamp line width values above this limit)
-	uint32_t maxInstancedDraws;   ///< Maximum amount of instances you may draw at once
+	VK2DMSAA maxMSAA;             ///< Maximum MSAA the host supports, if you request an msaa higher than this value, this value will be used instead
+	bool supportsTripleBuffering; ///< Whether or not the host supports triple buffering, if you request triple buffering and this is false, vsync will be used instead
+	bool supportsImmediate;       ///< Whether or not the host supports immediate mode, if you request immediate mode and this is false, vsync will be used instead
+	bool supportsWireframe;       ///< Doesn't really mean anything :skull:
+	float maxLineWidth;           ///< Maximum line width supported on the platform, if you specify a line width greater than this value, your requested line width will be clamped to this number
+	uint64_t maxInstancedDraws;   ///< Maximum amount of instances you may draw at once, if you request to draw more instances than this it will simply be capped to this number
+	uint64_t maxShaderBufferSize; ///< Maximum size of a shader's uniform buffer in bytes, if you attempt to create a shader with a uniform buffer size greater than this value NULL will be returned
 };
 
 /// \brief Represents the data you need for each element in an instanced draw

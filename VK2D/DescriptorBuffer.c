@@ -11,6 +11,7 @@
 #include "VK2D/Opaque.h"
 
 static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// Potentially increase the size of the buffer list
 	if (db->bufferCount == db->bufferListSize) {
 		db->buffers = realloc(db->buffers, sizeof(_VK2DDescriptorBufferInternal) * (db->bufferListSize + VK2D_DEFAULT_ARRAY_EXTENSION));
@@ -26,12 +27,12 @@ static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDesc
 	buffer->size = 0;
 	buffer->stageBuffer = vk2dBufferCreate(
 			db->dev,
-			VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE,
+			gRenderer->options.vramPageSize,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	buffer->deviceBuffer = vk2dBufferCreate(
 			db->dev,
-			VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE,
+			gRenderer->options.vramPageSize,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -39,7 +40,6 @@ static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDesc
 }
 
 VK2DDescriptorBuffer vk2dDescriptorBufferCreate() {
-	// TODO: Create the buffer memory, call _vk2dDescriptorBufferAppendBuffer on it, then create the event
 	VK2DDescriptorBuffer db = calloc(1, sizeof(struct VK2DDescriptorBuffer));
 	vk2dPointerCheck(db);
 	db->dev = vk2dRendererGetDevice();
@@ -81,11 +81,11 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
 
 void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *offset) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	if (size < VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE) {
+	if (size < gRenderer->options.vramPageSize) {
 		// Find a buffer with enough space
 		_VK2DDescriptorBufferInternal *spot = NULL;
 		for (int i = 0; i < db->bufferCount && spot == NULL; i++) {
-			if (size <= VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE - db->buffers[i].size) {
+			if (size <= gRenderer->options.vramPageSize - db->buffers[i].size) {
 				spot = &db->buffers[i];
 			}
 		}
@@ -119,7 +119,7 @@ void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyB
 		vmaUnmapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem);
 		if (db->buffers[i].size > 0) {
 			VkBufferCopy bufferCopy = {};
-			bufferCopy.size = (db->buffers[i].size < VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE) ? db->buffers[i].size : VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE;
+			bufferCopy.size = (db->buffers[i].size < gRenderer->options.vramPageSize) ? db->buffers[i].size : gRenderer->options.vramPageSize;
 			vkCmdCopyBuffer(copyBuffer, db->buffers[i].stageBuffer->buf, db->buffers[i].deviceBuffer->buf, 1, &bufferCopy);
 		}
 	}
