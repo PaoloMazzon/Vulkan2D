@@ -30,7 +30,7 @@ int main(int argc, const char *argv[]) {
 	// Initialize vk2d
 	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.1, 0.0, 0.2, 1.0};
-	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
+	VK2DStartupOptions options = {false, true, true, "vk2derror.txt", false};
 	if (vk2dRendererInit(window, config, &options) < 0)
 		return -1;
 
@@ -50,6 +50,8 @@ int main(int argc, const char *argv[]) {
 	// Make a crazy number of instances
 	VK2DRendererLimits limits = vk2dRendererGetLimits();
 	const int instanceCount = limits.maxInstancedDraws / 4;
+	printf("Caveguys: %i\n", limits.maxInstancedDraws);
+	fflush(stdout);
 	VK2DDrawInstance *instances = malloc(sizeof(VK2DDrawInstance) * instanceCount);
 	for (int i = 0; i < instanceCount; i++) {
 		instances[i].pos[0] = random(0, WINDOW_WIDTH);

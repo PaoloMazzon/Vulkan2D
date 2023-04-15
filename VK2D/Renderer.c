@@ -303,7 +303,6 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			for (int i = 0; i < gRenderer->shaderListSize; i++)
 				if (gRenderer->customShaders[i] != NULL)
 					vk2dDescConReset(gRenderer->customShaders[i]->descCons[gRenderer->scImageIndex]);
-			vk2dDescConReset(gRenderer->descConInstanced);
 
 			// Setup render pass
 			VkRect2D rect = {};
@@ -678,25 +677,10 @@ void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, floa
 
 void vk2dRendererDrawInstanced(VK2DTexture tex, VK2DDrawInstance *instances, uint32_t count) {
 	if (gRenderer != NULL) {
-		VkDescriptorSet sets[4];
+		VkDescriptorSet sets[3];
 		sets[1] = gRenderer->samplerSet;
 		sets[2] = tex->img->set;
-
-		// Create the last descriptor set
-		sets[3] = vk2dDescConGetSet(gRenderer->descConInstanced);
-		VkBuffer buffer;
-		VkDeviceSize offset;
-		vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], instances, count * sizeof(VK2DDrawInstance), &buffer, &offset);
-		VkDescriptorBufferInfo bufferInfo = {buffer, offset, sizeof(VK2DDrawInstance) * count};
-		VkWriteDescriptorSet write = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
-		write.pBufferInfo = &bufferInfo;
-		write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-		write.dstBinding = 3;
-		write.dstSet = sets[3];
-		write.descriptorCount = 1;
-		vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
-
-		_vk2dRendererDrawInstanced(sets, 4, instances, count);
+		_vk2dRendererDrawInstanced(sets, 3, instances, count);
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}

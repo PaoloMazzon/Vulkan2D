@@ -32,7 +32,7 @@ static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDesc
 	buffer->deviceBuffer = vk2dBufferCreate(
 			db->dev,
 			VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE,
-			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	return buffer;
@@ -85,7 +85,7 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
 		// Find a buffer with enough space
 		_VK2DDescriptorBufferInternal *spot = NULL;
 		for (int i = 0; i < db->bufferCount && spot == NULL; i++) {
-			if (size < VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE - db->buffers[i].size) {
+			if (size <= VK2D_DESCRIPTOR_BUFFER_INTERNAL_SIZE - db->buffers[i].size) {
 				spot = &db->buffers[i];
 			}
 		}
