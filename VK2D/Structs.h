@@ -98,6 +98,14 @@ typedef enum {
 	VK2D_CAMERA_TYPE_MAX = 3           ///< Maximum number of camera types
 } VK2DCameraType;
 
+/// \brief Types of graphics pipelines
+typedef enum {
+	VK2D_PIPELINE_TYPE_DEFAULT = 0,    ///< Default 2D pipelines
+	VK2D_PIPELINE_TYPE_3D = 1,         ///< 3D pipelines
+	VK2D_PIPELINE_TYPE_INSTANCING = 2, ///< Pipelines for instancing
+	VK2D_PIPELINE_TYPE_MAX = 3,        ///< Max number of pipeline types
+} VK2DPipelineType;
+
 // VK2D pointers
 VK2D_OPAQUE_POINTER(VK2DRenderer)
 VK2D_OPAQUE_POINTER(VK2DImage)
@@ -231,6 +239,7 @@ struct VK2DDrawInstance {
 	vec4 texturePos; ///< x in tex, y in tex, w in tex, and h in tex
 	vec4 colour;     ///< Colour mod of this draw
 	vec2 pos;        ///< X/Y in game world for this instance
+	mat4 model;      ///< Model for this instance, generally shouldn't contain translations
 };
 
 VK2D_USER_STRUCT(VK2DVertexColour)

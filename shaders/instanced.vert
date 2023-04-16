@@ -10,12 +10,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 layout(location = 0) in vec4 instanceTexturePos;
 layout(location = 1) in vec4 instanceColour;
 layout(location = 2) in vec2 instancePos;
-
-layout(push_constant) uniform PushBuffer {
-    mat4 model;
-    vec4 colourMod;
-    vec4 textureCoords;
-} pushBuffer;
+layout(location = 3) in mat4 instanceModel;
 
 layout(location = 1) out vec2 fragTexCoord;
 layout(location = 2) out vec4 fragColour;
@@ -46,7 +41,7 @@ void main() {
     vec2 newPos;
     newPos.x = vertices[gl_VertexIndex].x * instanceTexturePos.z;
     newPos.y = vertices[gl_VertexIndex].y * instanceTexturePos.w;
-    gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos + instancePos.xy, 1.0, 1.0);
+    gl_Position = ubo.viewproj * instanceModel * vec4(newPos + instancePos, 1.0, 1.0);
     fragTexCoord.x = instanceTexturePos.x + (texCoords[gl_VertexIndex].x * instanceTexturePos.z);
     fragTexCoord.y = instanceTexturePos.y + (texCoords[gl_VertexIndex].y * instanceTexturePos.w);
     fragColour = instanceColour;

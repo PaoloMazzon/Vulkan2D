@@ -208,8 +208,9 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 ///
 /// This function is intended to be used to draw a large amount of a single texture at once with
 /// less overhead than there would be by calling vk2dRendererDrawTexture `count` number of times.
-/// You may not specify scale or rotation value for various reasons, this is mostly an option for
-/// something like font rendering or drawing large amounts of the same sprite-sheet.
+/// Use the `VK2DInstance*` function to control things like rotation/scaling but rotation and
+/// scaling are more computationally expensive so its best to avoid it when possible especially
+/// when processing thousands of instances.
 void vk2dRendererDrawInstanced(VK2DTexture tex, VK2DDrawInstance *instances, uint32_t count);
 
 /// \brief Renders a texture
@@ -299,6 +300,44 @@ void vk2dColourInt(vec4 dst, uint32_t colour);
 /// \param b Blue component, from 0-255
 /// \param a Alpha component, from 0-255
 void vk2dColourRGBA(vec4 dst, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+
+/// \brief Sets up an instance's data in full - this is quite heavy and only intended for initialization
+/// \param instance Pointer to the instance data to set up
+/// \param x X position of this instance
+/// \param y Y position of this instance
+/// \param xScale X scale of the instance
+/// \param yScale Y scale of the instance
+/// \param rot Rotation of the instance
+/// \param xOrigin X origin of the instance
+/// \param yOrigin Y origin of the instance
+/// \param xInTex X position in the texture to begin rendering from for this instance
+/// \param yInTex Y position in the texture to begin rendering from for this instance
+/// \param wInTex Width of the texture to draw for this instance
+/// \param hInTex Height of the texture to draw for this instance
+/// \param colour Colour mod for this instance
+void vk2dInstanceSet(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour);
+
+/// \brief Sets up an instance's data without the computationally expensive pieces
+/// \param instance Pointer to the instance data to set up
+/// \param x X position of this instance
+/// \param y Y position of this instance
+/// \param xInTex X position in the texture to begin rendering from for this instance
+/// \param yInTex Y position in the texture to begin rendering from for this instance
+/// \param wInTex Width of the texture to draw for this instance
+/// \param hInTex Height of the texture to draw for this instance
+/// \param colour Colour mod for this instance
+void vk2dInstanceSetFast(VK2DDrawInstance *instance, float x, float y, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour);
+
+/// \brief Updates an instance's positional data
+/// \param instance Pointer to the instance data to set up
+/// \param x X position of this instance
+/// \param y Y position of this instance
+/// \param xScale X scale of the instance
+/// \param yScale Y scale of the instance
+/// \param rot Rotation of the instance
+/// \param xOrigin X origin of the instance
+/// \param yOrigin Y origin of the instance
+void vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin);
 
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 

@@ -9,7 +9,7 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Opaque.h"
 
-VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayouts, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa, bool for3D) {
+VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayouts, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa, VK2DPipelineType type) {
 	VK2DPipeline pipe = malloc(sizeof(struct VK2DPipeline));
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
@@ -67,12 +67,16 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		VkPushConstantRange range = {};
 		range.size = sizeof(VK2DPushBuffer);
 		range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
-		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 1, &range);
+		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
+		if (type != VK2D_PIPELINE_TYPE_INSTANCING)
+			pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 1, &range);
+		else
+			pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 0, VK_NULL_HANDLE);
 		vkCreatePipelineLayout(dev->dev, &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &pipe->layout);
 		VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo = vk2dInitPipelineInputAssemblyStateCreateInfo(fill);
 
 		// 3D settings
-		if (for3D) {
+		if (type == VK2D_PIPELINE_TYPE_3D) {
 			pipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 			pipelineDepthStencilStateCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
 			pipelineDepthStencilStateCreateInfo.depthTestEnable = VK_TRUE;

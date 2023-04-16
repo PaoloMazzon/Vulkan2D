@@ -38,7 +38,8 @@ int main(int argc, const char *argv[]) {
 	// Initialize vk2d
 	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.1, 0.0, 0.2, 1.0};
-	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
+	int pageSizeInMegabytes = 4; // This controls the number of instances in the demo
+	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false, 1024 * 1024 * pageSizeInMegabytes};
 	if (vk2dRendererInit(window, config, &options) < 0)
 		return -1;
 
@@ -57,21 +58,31 @@ int main(int argc, const char *argv[]) {
 
 	// Make a crazy number of instances
 	VK2DRendererLimits limits = vk2dRendererGetLimits();
-	const int instanceCount = limits.maxInstancedDraws / 4;
+	const int instanceCount = limits.maxInstancedDraws / 2;
 	printf("Caveguys: %i\n", instanceCount);
 	fflush(stdout);
 	VK2DDrawInstance *instances = malloc(sizeof(VK2DDrawInstance) * instanceCount);
 	for (int i = 0; i < instanceCount; i++) {
-		instances[i].pos[0] = random(0, WINDOW_WIDTH);
-		instances[i].pos[1] = random(0, WINDOW_HEIGHT);
-		instances[i].colour[0] = random(0.1, 1);
-		instances[i].colour[1] = random(0.1, 1);
-		instances[i].colour[2] = random(0.1, 1);
-		instances[i].colour[3] = 1;
-		instances[i].texturePos[0] = 0;
-		instances[i].texturePos[1] = 0;
-		instances[i].texturePos[2] = 16;
-		instances[i].texturePos[3] = 16;
+		vec4 c;
+		float scale = random(0.5, 2);
+		c[0] = random(0.1, 1);
+		c[1] = random(0.1, 1);
+		c[2] = random(0.1, 1);
+		c[3] = 1;
+		vk2dInstanceSet(
+				&instances[i],
+				random(0, WINDOW_WIDTH),
+				random(0, WINDOW_HEIGHT),
+				scale,
+				scale,
+				random(0, VK2D_PI * 2),
+				8,
+				8,
+				0,
+				0,
+				16,
+				16,
+				c);
 	}
 
 	while (!quit) {
@@ -96,15 +107,15 @@ int main(int argc, const char *argv[]) {
 		cameraSpec.h = (h / w) * (float)WINDOW_WIDTH;
 		vk2dCameraUpdate(cameraIndex, cameraSpec);
 
+		// All rendering must happen after this
+		vk2dRendererStartFrame(VK2D_BLACK);
+
 		// Move the caveguys around
 		const float moveSpeed = 1;
 		for (int i = 0; i < instanceCount; i++) {
 			instances[i].pos[0] = clamp(instances[i].pos[0] + random(-moveSpeed, moveSpeed), 0, WINDOW_WIDTH);
 			instances[i].pos[1] = clamp(instances[i].pos[1] + random(-moveSpeed, moveSpeed), 0, WINDOW_HEIGHT);
 		}
-
-		// All rendering must happen after this
-		vk2dRendererStartFrame(VK2D_BLACK);
 
 		// Draw game
 		vk2dRendererLockCameras(cameraIndex);

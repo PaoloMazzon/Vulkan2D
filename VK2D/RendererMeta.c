@@ -1246,10 +1246,6 @@ void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
-	// Push constants
-	VK2DPushBuffer push = {};
-	identityMatrix(push.model);
-
 	// We don't do any binding saving for instanced drawing
 	_vk2dRendererResetBoundPointers();
 	vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(gRenderer->instancedPipe, gRenderer->blendMode));
@@ -1291,7 +1287,6 @@ void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2
 	vkCmdSetViewport(buf, 0, 1, &viewport);
 	vkCmdSetScissor(buf, 0, 1, &scissor);
 	vkCmdSetLineWidth(buf, 1);
-	vkCmdPushConstants(buf, gRenderer->instancedPipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
 	vkCmdDraw(buf, 6, count, 0, 0);
 }
 
@@ -1417,5 +1412,78 @@ void _vk2dRendererDrawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDr
 				_vk2dRendererDrawRawInstanced(sets, setCount, instances, count, i);
 			}
 		}
+	}
+}
+
+void vk2dInstanceSet(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour) {
+	memset(instance->model, 0, sizeof(mat4));
+	identityMatrix(instance->model);
+	if (rot != 0) {
+		xOrigin *= -xScale;
+		xOrigin *= yScale;
+		instance->pos[0] = 0;
+		instance->pos[1] = 0;
+		vec3 axis = {0, 0, 1};
+		vec3 origin = {-xOrigin + x, yOrigin + y, 0};
+		vec3 originTranslation = {xOrigin, -yOrigin, 0};
+		translateMatrix(instance->model, origin);
+		rotateMatrix(instance->model, axis, rot);
+		translateMatrix(instance->model, originTranslation);
+	} else {
+		instance->pos[0] = x;
+		instance->pos[1] = y;
+	}
+	// Only scale matrix if specified for optimization purposes
+	if (xScale != 1 || yScale != 1) {
+		vec3 scale = {xScale, yScale, 1};
+		scaleMatrix(instance->model, scale);
+	}
+	instance->texturePos[0] = xInTex;
+	instance->texturePos[1] = yInTex;
+	instance->texturePos[2] = wInTex;
+	instance->texturePos[3] = hInTex;
+	instance->colour[0] = colour[0];
+	instance->colour[1] = colour[1];
+	instance->colour[2] = colour[2];
+	instance->colour[3] = colour[3];
+}
+
+void vk2dInstanceSetFast(VK2DDrawInstance *instance, float x, float y, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour) {
+	memset(instance->model, 0, sizeof(mat4));
+	identityMatrix(instance->model);
+	instance->pos[0] = x;
+	instance->pos[1] = y;
+	instance->texturePos[0] = xInTex;
+	instance->texturePos[1] = yInTex;
+	instance->texturePos[2] = wInTex;
+	instance->texturePos[3] = hInTex;
+	instance->colour[0] = colour[0];
+	instance->colour[1] = colour[1];
+	instance->colour[2] = colour[2];
+	instance->colour[3] = colour[3];
+}
+
+void vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin) {
+	memset(instance->model, 0, sizeof(mat4));
+	identityMatrix(instance->model);
+	if (rot != 0) {
+		xOrigin *= -xScale;
+		xOrigin *= yScale;
+		instance->pos[0] = 0;
+		instance->pos[1] = 0;
+		vec3 axis = {0, 0, 1};
+		vec3 origin = {-xOrigin + x, yOrigin + y, 0};
+		vec3 originTranslation = {xOrigin, -yOrigin, 0};
+		translateMatrix(instance->model, origin);
+		rotateMatrix(instance->model, axis, rot);
+		translateMatrix(instance->model, originTranslation);
+	} else {
+		instance->pos[0] = x;
+		instance->pos[1] = y;
+	}
+	// Only scale matrix if specified for optimization purposes
+	if (xScale != 1 || yScale != 1) {
+		vec3 scale = {xScale, yScale, 1};
+		scaleMatrix(instance->model, scale);
 	}
 }

@@ -6,12 +6,6 @@
 layout(set = 1, binding = 1) uniform sampler texSampler;
 layout(set = 2, binding = 2) uniform texture2D tex;
 
-layout(push_constant) uniform PushBuffer {
-    mat4 model;
-    vec4 colourMod;
-    vec4 textureCoords;
-} pushBuffer;
-
 layout(location = 1) in vec2 fragTexCoord;
 layout(location = 2) in vec4 fragColour;
 
