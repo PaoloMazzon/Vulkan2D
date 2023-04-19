@@ -198,7 +198,8 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2);
 /// \param yInTex Y position in the texture to start drawing from
 /// \param texWidth Width of the texture to draw
 /// \param texHeight Height of the texture to draw
-void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight);
+void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX,
+							 float originY, float xInTex, float yInTex, float texWidth, float texHeight);
 
 /// \brief Draws a texture many number of times using instanced data
 /// \param tex Texture to draw
@@ -228,7 +229,10 @@ void vk2dRendererDrawInstanced(VK2DTexture tex, VK2DDrawInstance *instances, uin
 /// \param yInTex Y position in the texture to start drawing from
 /// \param texWidth Width of the texture to draw
 /// \param texHeight Height of the texture to draw
-void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight);
+void
+vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, float x, float y, float xscale, float yscale,
+					   float rot, float originX, float originY, float xInTex, float yInTex, float texWidth,
+					   float texHeight);
 
 /// \brief Renders a polygon
 /// \param polygon Polygon to draw
@@ -241,7 +245,9 @@ void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, floa
 /// \param rot Rotation to draw the polygon (VK2D only uses radians)
 /// \param originX X origin for rotation (in pixels)
 /// \param originY Y origin for rotation (in pixels)
-void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY);
+void
+vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale,
+						float rot, float originX, float originY);
 
 /// \brief Renders a 3D model
 /// \param model Model to render
@@ -262,7 +268,9 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 /// VK2D is not optimized for 3D rendering and this is more of a fun option you can use to add cool
 /// effects to your 2D games; the save points in Castlevania SoTN are a good example. VK2D provides
 /// a depth buffer by default.
-void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ);
+void
+vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot,
+					  vec3 axis, float originX, float originY, float originZ);
 
 /// \brief Renders a 3D model as a wireframe
 /// \param model Model to render
@@ -281,7 +289,8 @@ void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xsc
 /// \warning This function will only render to 3D-enabled cameras (which you must set up yourself) and if there are
 /// none available this function will simply do nothing.
 /// \warning The wireframe may not look as you expect because models are triangulated
-void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, float lineWidth);
+void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale,
+							   float rot, vec3 axis, float originX, float originY, float originZ, float lineWidth);
 
 /// \brief Converts a Hex colour into a vec4 normalized colour
 /// \param dst Destination vec4 to place the colour into
@@ -315,7 +324,8 @@ void vk2dColourRGBA(vec4 dst, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 /// \param wInTex Width of the texture to draw for this instance
 /// \param hInTex Height of the texture to draw for this instance
 /// \param colour Colour mod for this instance
-void vk2dInstanceSet(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour);
+void vk2dInstanceSet(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin,
+					 float yOrigin, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour);
 
 /// \brief Sets up an instance's data without the computationally expensive pieces
 /// \param instance Pointer to the instance data to set up
@@ -326,7 +336,8 @@ void vk2dInstanceSet(VK2DDrawInstance *instance, float x, float y, float xScale,
 /// \param wInTex Width of the texture to draw for this instance
 /// \param hInTex Height of the texture to draw for this instance
 /// \param colour Colour mod for this instance
-void vk2dInstanceSetFast(VK2DDrawInstance *instance, float x, float y, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour);
+void vk2dInstanceSetFast(VK2DDrawInstance *instance, float x, float y, float xInTex, float yInTex, float wInTex,
+						 float hInTex, vec4 colour);
 
 /// \brief Updates an instance's positional data
 /// \param instance Pointer to the instance data to set up
@@ -337,7 +348,9 @@ void vk2dInstanceSetFast(VK2DDrawInstance *instance, float x, float y, float xIn
 /// \param rot Rotation of the instance
 /// \param xOrigin X origin of the instance
 /// \param yOrigin Y origin of the instance
-void vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin);
+void
+vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin,
+				   float yOrigin);
 
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
@@ -385,3 +398,7 @@ void vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xSca
 
 /// \brief Draws a wireframe with some extra parts (all floats)
 #define vk2dDrawWireframeExt(model, x, y, z, xscale, yscale, zscale, lineWidth) vk2dRendererDrawModel(model, x, y, z, xscale, yscale, zscale, 0, 1, 0, 0, 0, lineWidth)
+
+#ifdef __cplusplus
+}
+#endif
