@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 // For opaque pointer types
-#define VK2D_OPAQUE_POINTER(type) typedef struct type *type;
+#define VK2D_OPAQUE_POINTER(type) typedef struct type##_t *type;
 
 // For user-modifiable and user-visible structures
 #define VK2D_USER_STRUCT(type) typedef struct type type;

@@ -8,12 +8,12 @@
 #include <malloc.h>
 
 VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug, VK2DRendererLimits *limits) {
-	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice));
+	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice_t));
 	uint32_t queueFamily = graphicsDevice == true ? dev->QueueFamily.graphicsFamily : dev->QueueFamily.computeFamily;
 
 	if (vk2dPointerCheck(ldev)) {
 		// Assemble the required features
-		VkPhysicalDeviceFeatures feats = {};
+		VkPhysicalDeviceFeatures feats = {0};
 		if (enableAllFeatures) {
 			feats = dev->feats;
 		} else {

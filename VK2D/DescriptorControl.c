@@ -68,7 +68,7 @@ VkDescriptorSet _vk2dDescConGetAvailableSet(VK2DDescCon descCon) {
 }
 
 VK2DDescCon vk2dDescConCreate(VK2DLogicalDevice dev, VkDescriptorSetLayout layout, uint32_t buffer, uint32_t sampler, uint32_t storageBuffer) {
-	VK2DDescCon out = calloc(1, sizeof(struct VK2DDescCon));
+	VK2DDescCon out = calloc(1, sizeof(struct VK2DDescCon_t));
 
 	if (vk2dPointerCheck(out)) {
 		out->layout = layout;
@@ -97,7 +97,7 @@ void vk2dDescConFree(VK2DDescCon descCon) {
 
 VkDescriptorSet vk2dDescConGetBufferSet(VK2DDescCon descCon, VK2DBuffer buffer) {
 	VkDescriptorSet set = _vk2dDescConGetAvailableSet(descCon);
-	VkDescriptorBufferInfo bufferInfo = {};
+	VkDescriptorBufferInfo bufferInfo = {0};
 	bufferInfo.buffer = buffer->buf;
 	bufferInfo.offset = 0;
 	bufferInfo.range = buffer->size;
@@ -113,7 +113,7 @@ VkDescriptorSet vk2dDescConGetSet(VK2DDescCon descCon) {
 
 VkDescriptorSet vk2dDescConGetSamplerSet(VK2DDescCon descCon, VK2DTexture tex) {
 	VkDescriptorSet set = _vk2dDescConGetAvailableSet(descCon);
-	VkDescriptorImageInfo imageInfo = {};
+	VkDescriptorImageInfo imageInfo = {0};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	imageInfo.imageView = tex->img->view;
 	VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
@@ -125,12 +125,12 @@ VkDescriptorSet vk2dDescConGetSamplerSet(VK2DDescCon descCon, VK2DTexture tex) {
 VkDescriptorSet vk2dDescConGetSamplerBufferSet(VK2DDescCon descCon, VK2DTexture tex, VK2DBuffer buffer) {
 	VkDescriptorSet set = _vk2dDescConGetAvailableSet(descCon);
 	VkWriteDescriptorSet write[2];
-	VkDescriptorImageInfo imageInfo = {};
+	VkDescriptorImageInfo imageInfo = {0};
 	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	imageInfo.imageView = tex->img->view;
 	write[1] = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, descCon->sampler, set,
 											  VK_NULL_HANDLE, 1, &imageInfo);
-	VkDescriptorBufferInfo bufferInfo = {};
+	VkDescriptorBufferInfo bufferInfo = {0};
 	bufferInfo.buffer = buffer->buf;
 	bufferInfo.offset = 0;
 	bufferInfo.range = buffer->size;

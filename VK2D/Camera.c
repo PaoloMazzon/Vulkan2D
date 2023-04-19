@@ -68,6 +68,8 @@ VK2DCameraSpec vk2dCameraGetSpec(VK2DCameraIndex index) {
 		return gRenderer->cameras[index].spec;
 	else
 		vk2dLogMessage("Renderer is not initialized");
+	VK2DCameraSpec s = {0};
+	return s;
 }
 
 void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state) {
@@ -91,4 +93,5 @@ VK2DCameraState vk2dCameraGetState(VK2DCameraIndex index) {
 		return gRenderer->cameras[index].state;
 	else
 		vk2dLogMessage("Renderer is not initialized");
+	return VK2D_CAMERA_STATE_MAX;
 }

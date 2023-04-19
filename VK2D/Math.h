@@ -117,7 +117,7 @@ void scaleMatrix(float m[], float v[])
 		0.0f, v[1], 0.0f, 0.0f,
 		0.0f, 0.0f, v[2], 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
-	}, t[16] = {};
+	}, t[16] = {0};
 
 	multiplyMatrix(k, m, t);
 	memcpy(m, t, sizeof(t));
@@ -137,7 +137,7 @@ void translateMatrix(float m[], float v[])
 		0.0f, 1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 1.0f, 0.0f,
 		v[0], v[1], v[2], 1.0f
-	}, t[16] = {};
+	}, t[16] = {0};
 
  	multiplyMatrix(k, m, t);
 	memcpy(m, t, sizeof(t));
@@ -159,14 +159,14 @@ void rotate(float f[], float w[], float r, int m)
 
 	if(!m)
 	{
-		float t[4] = {};
+		float t[4] = {0};
 		multiplyVector(k, f, t);
 		memcpy(f, t, sizeof(t));
 	}
 
 	else
 	{
-		float t[16] = {};
+		float t[16] = {0};
 		multiplyMatrix(k, f, t);
 		memcpy(f, t, sizeof(t));
 	}

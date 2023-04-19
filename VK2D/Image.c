@@ -29,7 +29,7 @@ Uint32 amask = 0xff000000;
 static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
 	VkCommandBuffer commandBuffer = vk2dLogicalDeviceGetSingleUseBuffer(dev);
 
-	VkBufferImageCopy region = {};
+	VkBufferImageCopy region = {0};
 	region.bufferOffset = 0;
 	region.bufferRowLength = 0;
 	region.bufferImageHeight = 0;
@@ -60,7 +60,7 @@ void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkIma
 	VkPipelineStageFlags sourceStage = 0;
 	VkPipelineStageFlags destinationStage = 0;
 
-	VkImageMemoryBarrier barrier = {};
+	VkImageMemoryBarrier barrier = {0};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	barrier.oldLayout = oldLayout;
 	barrier.newLayout = newLayout;
@@ -119,7 +119,7 @@ void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkIma
 VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height, VkFormat format, VkImageAspectFlags aspectMask, VkImageUsageFlags usage, VkSampleCountFlagBits samples) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 
-	VK2DImage out = malloc(sizeof(struct VK2DImage));
+	VK2DImage out = malloc(sizeof(struct VK2DImage_t));
 
 	if (vk2dPointerCheck(out)) {
 		out->dev = dev;
@@ -127,7 +127,7 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 		out->height = height;
 		out->set = VK_NULL_HANDLE;
 		VkImageCreateInfo imageCreateInfo = vk2dInitImageCreateInfo(width, height, format, usage, 1, samples);
-		VmaAllocationCreateInfo allocationCreateInfo = {};
+		VmaAllocationCreateInfo allocationCreateInfo = {0};
 		allocationCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 		vk2dErrorCheck(vmaCreateImage(gRenderer->vma, &imageCreateInfo, &allocationCreateInfo, &out->img, &out->mem, VK_NULL_HANDLE));
 

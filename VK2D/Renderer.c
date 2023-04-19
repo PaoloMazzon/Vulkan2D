@@ -37,12 +37,8 @@ static const char* DEBUG_LAYERS[] = {
 static const int DEBUG_LAYER_COUNT = 1;
 static const int DEBUG_EXTENSION_COUNT = 1;
 
-static const char* BASE_EXTENSIONS[] = {
-
-};
-static const char* BASE_LAYERS[] = {
-
-};
+static const char* BASE_EXTENSIONS[] = {0};
+static const char* BASE_LAYERS[] = {0};
 static const int BASE_LAYER_COUNT = 0;
 static const int BASE_EXTENSION_COUNT = 0;
 
@@ -58,7 +54,7 @@ static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
 /******************************* User-visible functions *******************************/
 
 int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options) {
-	gRenderer = calloc(1, sizeof(struct VK2DRenderer));
+	gRenderer = calloc(1, sizeof(struct VK2DRenderer_t));
 	int32_t errorCode = 0;
 	uint32_t totalExtensionCount, i, sdlExtensions;
 	const char** totalExtensions;
@@ -138,7 +134,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		gRenderer->limits.maxShaderBufferSize = gRenderer->pd->props.limits.maxUniformBufferRange < userOptions.vramPageSize ? gRenderer->pd->props.limits.maxUniformBufferRange : userOptions.vramPageSize;
 
 		// Create the VMA
-		VmaAllocatorCreateInfo allocatorCreateInfo = {};
+		VmaAllocatorCreateInfo allocatorCreateInfo = {0};
 		allocatorCreateInfo.device = gRenderer->ld->dev;
 		allocatorCreateInfo.physicalDevice = gRenderer->pd->dev;
 		allocatorCreateInfo.instance = gRenderer->vk;
@@ -233,7 +229,7 @@ VK2DRendererConfig vk2dRendererGetConfig() {
 		return gRenderer->config;
 	else
 		vk2dLogMessage("Renderer is not initialized");
-	VK2DRendererConfig c = {};
+	VK2DRendererConfig c = {0};
 	return c;
 }
 
@@ -311,11 +307,11 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 					vk2dDescConReset(gRenderer->customShaders[i]->descCons[gRenderer->scImageIndex]);
 
 			// Setup render pass
-			VkRect2D rect = {};
+			VkRect2D rect = {0};
 			rect.extent.width = gRenderer->surfaceWidth;
 			rect.extent.height = gRenderer->surfaceHeight;
 			const uint32_t clearCount = 2;
-			VkClearValue clearValues[2] = {};
+			VkClearValue clearValues[2] = {0};
 			clearValues[0].color.float32[0] = clearColour[0];
 			clearValues[0].color.float32[1] = clearColour[1];
 			clearValues[0].color.float32[2] = clearColour[2];
@@ -454,10 +450,10 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 			gRenderer->targetUBOSet = buffer;
 
 			// Setup new render pass
-			VkRect2D rect = {};
+			VkRect2D rect = {0};
 			rect.extent.width = target == VK2D_TARGET_SCREEN ? gRenderer->surfaceWidth : target->img->width;
 			rect.extent.height = target == VK2D_TARGET_SCREEN ? gRenderer->surfaceHeight : target->img->height;
-			VkClearValue clear[2] = {};
+			VkClearValue clear[2] = {0};
 			clear[1].depthStencil.depth = 1;
 			VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
 					pass,
@@ -530,7 +526,7 @@ VK2DCameraSpec vk2dRendererGetCamera() {
 		return gRenderer->defaultCameraSpec;
 	else
 		vk2dLogMessage("Renderer is not initialized");
-	VK2DCameraSpec c = {};
+	VK2DCameraSpec c = {0};
 	return c;
 }
 
@@ -599,7 +595,7 @@ VK2DRendererLimits vk2dRendererGetLimits() {
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
-	VK2DRendererLimits l = {};
+	VK2DRendererLimits l = {0};
 	return l;
 }
 

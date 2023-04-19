@@ -40,7 +40,7 @@ static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDesc
 }
 
 VK2DDescriptorBuffer vk2dDescriptorBufferCreate() {
-	VK2DDescriptorBuffer db = calloc(1, sizeof(struct VK2DDescriptorBuffer));
+	VK2DDescriptorBuffer db = calloc(1, sizeof(struct VK2DDescriptorBuffer_t));
 	vk2dPointerCheck(db);
 	db->dev = vk2dRendererGetDevice();
 	_vk2dDescriptorBufferAppendBuffer(db);
@@ -98,7 +98,8 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
 		}
 
 		// Copy data over
-		memcpy(spot->hostData + spot->size, data, size);
+		uint8_t *np = spot->hostData;
+		memcpy(np + spot->size, data, size);
 		*outBuffer = spot->deviceBuffer->buf;
 		*offset = spot->size;
 
@@ -118,7 +119,7 @@ void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyB
 	for (int i = 0; i < db->bufferCount; i++) {
 		vmaUnmapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem);
 		if (db->buffers[i].size > 0) {
-			VkBufferCopy bufferCopy = {};
+			VkBufferCopy bufferCopy = {0};
 			bufferCopy.size = (db->buffers[i].size < gRenderer->options.vramPageSize) ? db->buffers[i].size : gRenderer->options.vramPageSize;
 			vkCmdCopyBuffer(copyBuffer, db->buffers[i].stageBuffer->buf, db->buffers[i].deviceBuffer->buf, 1, &bufferCopy);
 		}

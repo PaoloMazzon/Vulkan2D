@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 /// \brief Groups up a couple things related to VkPhysicalDevice
-struct VK2DPhysicalDevice {
+struct VK2DPhysicalDevice_t {
 	VkPhysicalDevice dev; ///< Internal vulkan pointer
 	struct {
 		uint32_t graphicsFamily; ///< Queue family for graphics pipeline
@@ -26,7 +26,7 @@ struct VK2DPhysicalDevice {
 };
 
 /// \brief Logical device that is essentially a wrapper of VkDevice
-struct VK2DLogicalDevice {
+struct VK2DLogicalDevice_t {
 	VkDevice dev;          ///< Logical device
 	VkQueue queue;         ///< Queue for command buffers
 	VK2DPhysicalDevice pd; ///< Physical device this came from
@@ -45,7 +45,7 @@ typedef struct VK2DCamera {
 } VK2DCamera;
 
 /// \brief Makes managing buffers in Vulkan simpler
-struct VK2DBuffer {
+struct VK2DBuffer_t {
 	VkBuffer buf;          ///< Internal Vulkan buffer
 	VmaAllocation mem;    ///< Memory for the buffer
 	VK2DLogicalDevice dev; ///< Device the buffer belongs to
@@ -72,7 +72,7 @@ typedef struct _VK2DDescriptorBufferInternal {
 /// It will put a event barrier into the startframe command buffer where drawing happens,
 /// and then it will put a memory copy into the second command buffer at the end of the
 /// frame so Vulkan copies the buffer to device memory all at once instead of tiny increments.
-struct VK2DDescriptorBuffer {
+struct VK2DDescriptorBuffer_t {
 	_VK2DDescriptorBufferInternal *buffers; ///< List of internal buffers so that we can allocate more on the fly
 	int bufferCount;          ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
 	int bufferListSize;       ///< Actual number of elements in the buffer lists
@@ -80,7 +80,7 @@ struct VK2DDescriptorBuffer {
 };
 
 /// \brief Abstraction for descriptor pools and sets so you can dynamically use them
-struct VK2DDescCon {
+struct VK2DDescCon_t {
 	VkDescriptorPool *pools;      ///< List of pools
 	VkDescriptorSetLayout layout; ///< Layout for these sets
 	uint32_t buffer;              ///< Whether or not pools support uniform buffers
@@ -95,7 +95,7 @@ struct VK2DDescCon {
 };
 
 /// \brief A handy abstraction that groups up pipeline state and makes multiple shaders easier
-struct VK2DPipeline {
+struct VK2DPipeline_t {
 	VK2DLogicalDevice dev;      ///< Device this pipeline belongs to
 	VkRenderPass renderPass;    ///< Render pass this pipeline uses
 	VkPipelineLayout layout;    ///< Internal pipeline layout
@@ -105,7 +105,7 @@ struct VK2DPipeline {
 };
 
 /// \brief Makes shapes easier to deal with
-struct VK2DPolygon {
+struct VK2DPolygon_t {
 	VK2DBuffer vertices;  ///< Internal memory for the vertices
 	VK2DVertexType type;  ///< What kind of vertices this stores
 	uint32_t vertexCount; ///< Number of vertices
@@ -122,7 +122,7 @@ struct VK2DPolygon {
 /// say they will all receive the same data that the tex.vert and tex.frag shaders would
 /// (push constants, vertex attributes, and uniforms) in addition to a user-defined uniform
 /// buffer if one is specified.
-struct VK2DShader {
+struct VK2DShader_t {
 	uint8_t *spvVert;        ///< Vertex shader in SPIR-V
 	uint32_t spvVertSize;    ///< Size of the vertex shader (in bytes)
 	uint8_t *spvFrag;        ///< Fragment shader in SPIR-V
@@ -134,7 +134,7 @@ struct VK2DShader {
 };
 
 /// \brief Simple wrapper that groups image things together
-struct VK2DImage {
+struct VK2DImage_t {
 	VkImage img;           ///< Internal image
 	VkImageView view;      ///< Image view bound to the image
 	VmaAllocation mem;     ///< Memory the image is stored on
@@ -149,7 +149,7 @@ struct VK2DImage {
 /// Only textures created with vk2dTextureCreate may be rendered to. Should you try to
 /// set the render target to a texture not created with vk2dTextureCreate, you can expect
 /// a segfault.
-struct VK2DTexture {
+struct VK2DTexture_t {
 	VK2DImage img;          ///< Internal image
 	VK2DImage depthBuffer;  ///< For 3D rendering when its a target
 	VK2DImage sampledImg;   ///< Image for MSAA
@@ -160,7 +160,7 @@ struct VK2DTexture {
 };
 
 /// \brief A 3D model
-struct VK2DModel {
+struct VK2DModel_t {
 	VK2DBuffer vertices;       ///< Internal memory for the vertices & indices
 	VkDeviceSize indexOffset;  ///< Offset of the indices in the buffer
 	VkDeviceSize vertexOffset; ///< Offset of the vertices in the buffer
@@ -171,7 +171,7 @@ struct VK2DModel {
 };
 
 /// \brief Core rendering data, don't modify values unless you know what you're doing
-struct VK2DRenderer {
+struct VK2DRenderer_t {
 	// Devices/core functionality (these have short names because they're constantly referenced)
 	VK2DPhysicalDevice pd;       ///< Physical device (gpu)
 	VK2DLogicalDevice ld;        ///< Logical device

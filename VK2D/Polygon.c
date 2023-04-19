@@ -8,7 +8,7 @@
 #include <malloc.h>
 
 VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size, VK2DVertexType type) {
-	VK2DPolygon poly = malloc(sizeof(struct VK2DPolygon));
+	VK2DPolygon poly = malloc(sizeof(struct VK2DPolygon_t));
 	VK2DBuffer buf = vk2dBufferLoad(dev, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, data);
 	if (vk2dPointerCheck(buf) && vk2dPointerCheck(poly)) {
 		poly->vertices = buf;
@@ -45,7 +45,6 @@ VK2DPolygon vk2dPolygonCreate(vec2 *vertices, uint32_t vertexCount) {
 	uint32_t v = 0; // Current element in final vertex list
 	VK2DVertexColour defVert = {{0, 0, 0}, {1, 1, 1, 1}};
 	VK2DPolygon out = NULL;
-	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
 	if (vk2dPointerCheck(colourVertices)) {
 		for (i = 2; i < vertexCount; i++) {
@@ -72,7 +71,6 @@ VK2DPolygon vk2dPolygonCreateOutline(vec2 *vertices, uint32_t vertexCount) {
 	VK2DVertexColour defVert = {{0, 0, 0}, {1, 1, 1, 1}};
 	VK2DPolygon out = NULL;
 	VK2DVertexColour *colourVertices = malloc(sizeof(VK2DVertexColour) * (vertexCount + 1));
-	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
 	if (vk2dPointerCheck(colourVertices)) {
 		for (i = 0; i < vertexCount; i++) {

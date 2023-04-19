@@ -54,7 +54,7 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
 		return NULL;
 	}
 
-	VK2DShader out = malloc(sizeof(struct VK2DShader));
+	VK2DShader out = malloc(sizeof(struct VK2DShader_t));
 	int i;
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 	uint8_t *vertFile = _vk2dCopyBuffer(vertexShaderBuffer, vertexShaderBufferSize);
@@ -98,7 +98,7 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 		return NULL;
 	}
 
-	VK2DShader out = malloc(sizeof(struct VK2DShader));
+	VK2DShader out = malloc(sizeof(struct VK2DShader_t));
 	uint32_t vertFileSize, fragFileSize, i;
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 	uint8_t *vertFile = _vk2dLoadFile(vertexShader, &vertFileSize);

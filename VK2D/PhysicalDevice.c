@@ -110,7 +110,7 @@ static VkPhysicalDevice _vk2dPhysicalDeviceGetBestDevice(VkInstance instance, VK
 }
 
 VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferredDevice) {
-	VK2DPhysicalDevice out = malloc(sizeof(struct VK2DPhysicalDevice));
+	VK2DPhysicalDevice out = malloc(sizeof(struct VK2DPhysicalDevice_t));
 	VkPhysicalDevice choice = VK_NULL_HANDLE;
 	VkPhysicalDeviceProperties choiceProps;
 	bool foundPrimary;

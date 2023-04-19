@@ -202,7 +202,7 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 
 /// \brief Draws a texture many number of times using instanced data
 /// \param tex Texture to draw
-/// \param instances Array of `VK2DDrawInstance`s that will be used as what would be parameters to vk2dRendererDrawTexture
+/// \param instances Array of `VK2DDrawInstance`s that will be used as what would be parameters to vk2dRendererDrawTexture (the data is copied)
 /// \param count Number of elements in the instances array
 /// \warning If `count` is greater than the `maxInstancedDraws` field of vk2dRendererGetLimits, `count` will instead be taken as `maxInstancedDraws`
 ///

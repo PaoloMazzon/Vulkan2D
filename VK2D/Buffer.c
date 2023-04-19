@@ -21,13 +21,13 @@ uint32_t _reVulkanBufferFindMemoryType(VkPhysicalDeviceMemoryProperties *memProp
 
 VK2DBuffer vk2dBufferCreate(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags mem) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	VK2DBuffer buf = malloc(sizeof(struct VK2DBuffer));
+	VK2DBuffer buf = malloc(sizeof(struct VK2DBuffer_t));
 
 	if (vk2dPointerCheck(buf)) {
 		buf->dev = dev;
 		buf->size = size;
 		VkBufferCreateInfo bufferCreateInfo = vk2dInitBufferCreateInfo(size, usage, &dev->pd->QueueFamily.graphicsFamily, 1);
-		VmaAllocationCreateInfo allocationCreateInfo = {};
+		VmaAllocationCreateInfo allocationCreateInfo = {0};
 		allocationCreateInfo.requiredFlags = mem;
 		vk2dErrorCheck(vmaCreateBuffer(gRenderer->vma, &bufferCreateInfo, &allocationCreateInfo, &buf->buf, &buf->mem, VK_NULL_HANDLE));
 	}
@@ -73,7 +73,8 @@ VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsa
 	void *location;
 	vk2dErrorCheck(vmaMapMemory(gRenderer->vma, stageBuffer->mem, &location));
 	memcpy(location, data, size);
-	memcpy(location + size, data2, size2);
+	uint8_t *ll = location;
+	memcpy(ll + size, data2, size2);
 	vmaUnmapMemory(gRenderer->vma, stageBuffer->mem);
 
 	// Create the buffer
@@ -90,7 +91,7 @@ VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsa
 
 void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst) {
 	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev);
-	VkBufferCopy copyRegion = {};
+	VkBufferCopy copyRegion = {0};
 	copyRegion.size = src->size;
 	copyRegion.dstOffset = 0;
 	copyRegion.srcOffset = 0;

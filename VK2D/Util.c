@@ -116,7 +116,7 @@ unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size) {
 }
 
 unsigned char *_vk2dCopyBuffer(void *buffer, int size) {
-	char *new = NULL;
+	unsigned char *new = NULL;
 	if (buffer != NULL && size != 0) {
 		new = malloc(size);
 		if (new != NULL) {

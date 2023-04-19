@@ -30,16 +30,13 @@ int main(int argc, const char *argv[]) {
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 	SDL_Event e;
 	bool quit = false;
-	int keyboardSize;
-	const uint8_t *keyboard = SDL_GetKeyboardState(&keyboardSize);
 	if (window == NULL)
 		return -1;
 
 	// Initialize vk2d
 	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
-	vec4 clear = {0.1, 0.0, 0.2, 1.0};
 	int pageSizeInMegabytes = 4; // This controls the number of instances in the demo
-	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false, 1024 * 1024 * pageSizeInMegabytes};
+	VK2DStartupOptions options = {false, true, true, "vk2derror.txt", false, 1024 * 1024 * pageSizeInMegabytes};
 	if (vk2dRendererInit(window, config, &options) < 0)
 		return -1;
 
@@ -58,7 +55,12 @@ int main(int argc, const char *argv[]) {
 
 	// Make a crazy number of instances
 	VK2DRendererLimits limits = vk2dRendererGetLimits();
-	const int instanceCount = limits.maxInstancedDraws / 2;
+	// if we make it the limit it will take a whole other page to store all the
+	// instance data because the two cameras already consume some of the vram
+	// pages so we subtract a few instances. This doesn't really matter when we
+	// only lose out on 12ish megabytes of vram/ram but if we want millions of
+	// instances we can start losing out on gigabytes.
+	const int instanceCount = limits.maxInstancedDraws - 100;
 	printf("Caveguys: %i\n", instanceCount);
 	fflush(stdout);
 	VK2DDrawInstance *instances = malloc(sizeof(VK2DDrawInstance) * instanceCount);

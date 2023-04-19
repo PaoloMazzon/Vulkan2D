@@ -89,7 +89,6 @@ void _vk2dRendererRemoveShader(VK2DShader shader) {
 }
 
 uint64_t _vk2dHashSets(VkDescriptorSet *sets, uint32_t setCount) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint64_t hash = 0;
 	for (uint32_t i = 0; i < setCount; i++) {
 		uint64_t *pointer = (void*)&sets[i];
@@ -150,7 +149,7 @@ void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout ne
 	VkPipelineStageFlags sourceStage = 0;
 	VkPipelineStageFlags destinationStage = 0;
 
-	VkImageMemoryBarrier barrier = {};
+	VkImageMemoryBarrier barrier = {0};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	barrier.oldLayout = old;
 	barrier.newLayout = new;
@@ -193,18 +192,17 @@ void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout ne
 // Rebuilds the matrices for a given buffer and camera
 void _vk2dPrintMatrix(FILE* out, mat4 m, const char* prefix);
 void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 
 	if (camera->type == VK2D_CAMERA_TYPE_DEFAULT) {
 		// Assemble view
-		mat4 view = {};
+		mat4 view = {0};
 		vec3 eyes = {camera->x + (camera->w * 0.5), camera->y + (camera->h * 0.5), -2};
 		vec3 center = {eyes[0], eyes[1], 0};
 		vec3 up = {sin(-camera->rot), -cos(-camera->rot), 0};
 		cameraMatrix(view, eyes, center, up);
 
 		// Projection
-		mat4 proj = {};
+		mat4 proj = {0};
 		orthographicMatrix(proj, camera->h / camera->zoom, camera->w / camera->h, 0.1, 10);
 
 		// Multiply together
@@ -212,11 +210,11 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 		multiplyMatrix(view, proj, ubo->viewproj);
 	} else {
 		// Assemble view
-		mat4 view = {};
+		mat4 view = {0};
 		cameraMatrix(view, camera->Perspective.eyes, camera->Perspective.centre, camera->Perspective.up);
 
 		// Projection
-		mat4 proj = {};
+		mat4 proj = {0};
 		if (camera->type == VK2D_CAMERA_TYPE_ORTHOGRAPHIC)
 			orthographicMatrix(proj, camera->h / camera->zoom, camera->w / camera->h, 0.1, 10);
 		else
@@ -235,7 +233,7 @@ void _vk2dRendererFlushUBOBuffer(uint32_t frame, uint32_t descriptorFrame, int c
 	VkDeviceSize offset;
 	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[descriptorFrame], &gRenderer->cameras[camera].ubos[frame], sizeof(VK2DUniformBufferObject), &buffer, &offset);
 	VkDescriptorBufferInfo bufferInfo = {buffer, offset, sizeof(VK2DUniformBufferObject)};
-	VkWriteDescriptorSet write = {};
+	VkWriteDescriptorSet write = {0};
 	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	write.descriptorCount = 1;
 	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -252,10 +250,12 @@ void _vk2dRendererCreateDebug() {
 		fvkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(gRenderer->vk,
 																									   "vkDestroyDebugReportCallbackEXT");
 
-		if (vk2dPointerCheck(fvkCreateDebugReportCallbackEXT) && vk2dPointerCheck(fvkDestroyDebugReportCallbackEXT)) {
+		if (fvkCreateDebugReportCallbackEXT != NULL && fvkDestroyDebugReportCallbackEXT != NULL) {
 			VkDebugReportCallbackCreateInfoEXT callbackCreateInfoEXT = vk2dInitDebugReportCallbackCreateInfoEXT(
 					_vk2dDebugCallback);
 			fvkCreateDebugReportCallbackEXT(gRenderer->vk, &callbackCreateInfoEXT, VK_NULL_HANDLE, &gRenderer->dr);
+		} else {
+			vk2dErrorCheck(-1)
 		}
 	}
 }
@@ -494,13 +494,13 @@ void _vk2dRendererCreateRenderPass() {
 	}
 
 	// Subpass depth attachment
-	VkAttachmentReference subpassDepthAttachmentReference = {};
+	VkAttachmentReference subpassDepthAttachmentReference = {0};
 	subpassDepthAttachmentReference.attachment = 1;
 	subpassDepthAttachmentReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
 	// Set up subpass
 	const uint32_t subpassCount = 1;
-	VkSubpassDescription subpasses[1] = {};
+	VkSubpassDescription subpasses[1] = {0};
 	subpasses[0].pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpasses[0].colorAttachmentCount = colourAttachCount;
 	subpasses[0].pColorAttachments = subpassColourAttachments0;
@@ -508,7 +508,7 @@ void _vk2dRendererCreateRenderPass() {
 	subpasses[0].pResolveAttachments = gRenderer->config.msaa > 1 ? &resolveAttachment : VK_NULL_HANDLE;
 
 	// Subpass dependency
-	VkSubpassDependency subpassDependency = {};
+	VkSubpassDependency subpassDependency = {0};
 	subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 	subpassDependency.dstSubpass = 0;
 	subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
@@ -802,6 +802,10 @@ void _vk2dRendererCreatePipelines() {
 		free(shaderModelVert);
 	if (CustomModelFragShader)
 		free(shaderModelFrag);
+	if (CustomInstancedVertShader)
+		free(shaderInstancedVert);
+	if (CustomInstancedFragShader)
+		free(shaderInstancedFrag);
 
 	vk2dLogMessage("Pipelines initialized...");
 }
@@ -900,7 +904,7 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 			1,
 			1,
 	};
-	VK2DUniformBufferObject unitUBO = {};
+	VK2DUniformBufferObject unitUBO = {0};
 	_vk2dCameraUpdateUBO(&unitUBO, &unitCam);
 	gRenderer->unitUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &unitUBO);
 	gRenderer->unitUBOSet = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->unitUBO);
@@ -1000,7 +1004,7 @@ void _vk2dRendererCreateSampler() {
 	// 2D sampler
 	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode == VK2D_FILTER_TYPE_LINEAR, gRenderer->config.filterMode == VK2D_FILTER_TYPE_LINEAR ? gRenderer->config.msaa : 1, 1);
 	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler));
-	VkDescriptorImageInfo imageInfo = {}; // TODO: fix the bass-ackwards sampler/tex descriptor sets
+	VkDescriptorImageInfo imageInfo = {0};
 	imageInfo.sampler = gRenderer->textureSampler;
 	VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLER, 1, gRenderer->samplerSet, VK_NULL_HANDLE, 1, &imageInfo);
 	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
@@ -1158,7 +1162,7 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 	//originY -= yInTex;
 
 	// Push constants
-	VK2DPushBuffer push = {};
+	VK2DPushBuffer push = {0};
 	identityMatrix(push.model);
 	// Only do rotation matrices if a rotation is specified for optimization purposes
 	if (rot != 0) {
@@ -1304,7 +1308,7 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 	rot *= -1;
 
 	// Push constants
-	VK2D3DPushBuffer push = {};
+	VK2D3DPushBuffer push = {0};
 	identityMatrix(push.model);
 	vec3 originTranslation = {-originX, -originY, -originZ};
 	vec3 origin2 = {originX + x, originY + y, originZ + z};

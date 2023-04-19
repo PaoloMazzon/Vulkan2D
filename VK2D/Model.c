@@ -22,8 +22,8 @@ static void _getFileData(void* ctx, const char* filename, const int is_mtl,
 }
 
 VK2DModel vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, const uint16_t *indices, uint32_t indexCount, VK2DTexture tex) {
-	VK2DModel model = malloc(sizeof(struct VK2DModel));
-	VK2DBuffer buf = vk2dBufferLoad2(vk2dRendererGetDevice(), sizeof(VK2DVertex3D) * vertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, vertices, sizeof(uint16_t) * indexCount, indices);
+	VK2DModel model = malloc(sizeof(struct VK2DModel_t));
+	VK2DBuffer buf = vk2dBufferLoad2(vk2dRendererGetDevice(), sizeof(VK2DVertex3D) * vertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, (void*)vertices, sizeof(uint16_t) * indexCount, (void*)indices);
 
 	if (vk2dPointerCheck(buf) && vk2dPointerCheck(model)) {
 		model->vertices = buf;
@@ -67,7 +67,7 @@ VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture t
 
 		if (vk2dPointerCheck(vertices) && vk2dPointerCheck(indices)) {
 			for (int faceIndex = 0; faceIndex < attrib.num_faces; faceIndex++) {
-				VK2DVertex3D vertex = {};
+				VK2DVertex3D vertex = {0};
 
 				// Build the vertex
 				int vertexIndex = attrib.faces[faceIndex].v_idx;
