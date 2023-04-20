@@ -13,7 +13,7 @@ extern "C" {
 /// \param window An SDL window created with the flag SDL_WINDOW_VULKAN
 /// \param config Initial renderer configuration settings
 /// \param options Renderer options, or just NULL for defaults
-/// \return Returns weather or not the function was successful, less than zero is an error
+/// \return Returns a VK2DResult enum
 ///
 /// GPUs are not guaranteed to support certain screen modes and msaa levels (integrated
 /// gpus often don't support triple buffering, 32x msaa is not terribly common), so if
@@ -22,7 +22,7 @@ extern "C" {
 /// VK2DStartupOptions lets you control how some meta things in the renderer, such as
 /// whether or not to enable stdout logging or enable the Vulkan validation layers. Leave this
 /// null for options that would generally be fine for most things.
-int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options);
+VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options);
 
 /// \brief Waits until current GPU tasks are done before moving on
 ///
@@ -65,7 +65,8 @@ void vk2dRendererResetSwapchain();
 void vk2dRendererStartFrame(const vec4 clearColour);
 
 /// \brief Completes the end-of-frame drawing tasks
-void vk2dRendererEndFrame();
+/// \return Generally returns VK2D_SUCCESS, will return VK2D_RESET_SWAPCHAIN when the swapchain is reset
+VK2DResult vk2dRendererEndFrame();
 
 /// \brief Returns the logical device being used by the renderer
 /// \return Returns the current logical device

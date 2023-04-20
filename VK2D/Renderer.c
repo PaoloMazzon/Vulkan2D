@@ -53,9 +53,9 @@ static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
 
 /******************************* User-visible functions *******************************/
 
-int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options) {
+VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options) {
 	gRenderer = calloc(1, sizeof(struct VK2DRenderer_t));
-	int32_t errorCode = 0;
+	VK2DResult errorCode = VK2D_SUCCESS;
 	uint32_t totalExtensionCount, i, sdlExtensions;
 	const char** totalExtensions;
 
@@ -166,7 +166,7 @@ int32_t vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStar
 		gRenderer->viewport.minDepth = 0;
 		gRenderer->viewport.maxDepth = 1;
 	} else {
-		errorCode = -1;
+		errorCode = VK2D_ERROR;
 	}
 
 	return errorCode;
@@ -332,7 +332,8 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 	}
 }
 
-void vk2dRendererEndFrame() {
+VK2DResult vk2dRendererEndFrame() {
+	VK2DResult res = VK2D_SUCCESS;
 	if (gRenderer != NULL) {
 		if (gRenderer->procedStartFrame) {
 			gRenderer->procedStartFrame = false;
@@ -376,6 +377,7 @@ void vk2dRendererEndFrame() {
 				queueRes == VK_ERROR_OUT_OF_DATE_KHR) {
 				_vk2dRendererResetSwapchain();
 				gRenderer->resetSwapchain = false;
+				res = VK2D_RESET_SWAPCHAIN;
 			} else {
 				vk2dErrorCheck(result);
 				vk2dErrorCheck(queueRes);
@@ -396,6 +398,8 @@ void vk2dRendererEndFrame() {
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
+
+	return res;
 }
 
 VK2DLogicalDevice vk2dRendererGetDevice() {

@@ -21,7 +21,7 @@ Features
  + Fast, built with Vulkan 1.2 and doesn't require any device features (but it can make use of some)
  + Simple and fully-featured cameras, allowing for multiple concurrent cameras
  + Powerful and very simple shader interface
- + Instanced rendering support
+ + Simple access to the Vulkan implementation through `VK2D/VulkanInterface.h`
 
 Documentation
 =============

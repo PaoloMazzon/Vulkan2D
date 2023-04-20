@@ -106,6 +106,13 @@ typedef enum {
 	VK2D_PIPELINE_TYPE_MAX = 3,        ///< Max number of pipeline types
 } VK2DPipelineType;
 
+/// \brief Return codes through the renderer
+typedef enum {
+	VK2D_SUCCESS = 0,         ///< Everything worked
+	VK2D_RESET_SWAPCHAIN = 1, ///< The swapchain (renderer) was just reset (likely due to window resize or something similar)
+	VK2D_ERROR = -1           ///< Error occurred
+} VK2DResult;
+
 // VK2D pointers
 VK2D_OPAQUE_POINTER(VK2DRenderer)
 VK2D_OPAQUE_POINTER(VK2DImage)
