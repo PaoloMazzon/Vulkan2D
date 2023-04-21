@@ -5,6 +5,7 @@
 #include "VK2D/Validation.h"
 #include <stdio.h>
 #include <pthread.h>
+#include <time.h>
 #include "../debug.c"
 
 #define WAIT_ZERO(x) while (x != 0) {volatile int y = 0;}
@@ -77,8 +78,8 @@ void initializeEntity(Entity *e) {
 
 // Processes an entity, only touches the entity's data
 void processEntity(Entity *e) {
-	const float topSpeed = 0.1;
-	const float topRotSpeed = 0.1;
+	const float topSpeed = 1;
+	const float topRotSpeed = 0.3;
 	e->x += atomicRandom(-topSpeed, topSpeed);
 	e->y += atomicRandom(-topSpeed, topSpeed);
 	e->rot += atomicRandom(-topRotSpeed, topRotSpeed);
@@ -117,12 +118,13 @@ void *thread(void *data) {
 }
 
 int main(int argc, const char *argv[]) {
+
 	// Basic SDL setup
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 	SDL_Event e;
 	if (window == NULL)
 		return -1;
-	gRNG = SDL_GetPerformanceCounter();
+	gRNG = time(0);
 
 	// Initialize vk2d
 	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
@@ -221,16 +223,17 @@ int main(int argc, const char *argv[]) {
 
 		// Draw game
 		WAIT_ZERO(gThreadsProcessingThisFrame)
-		vk2dRendererLockCameras(cameraIndex);
-		vk2dRendererDrawInstanced(texCaveguy, gBuffers[gCurrentBuffer], instanceCount);
-		vk2dRendererUnlockCameras();
-
+		int buffer = gCurrentBuffer;
 		// Move onto next buffer
 		if (gCurrentBuffer == BUFFER_COUNT - 1) {
 			gCurrentBuffer = 0;
 		} else {
 			gCurrentBuffer += 1;
 		}
+
+		vk2dRendererLockCameras(cameraIndex);
+		vk2dRendererDrawInstanced(texCaveguy, gBuffers[buffer], instanceCount);
+		vk2dRendererUnlockCameras();
 
 		debugRenderOverlay();
 

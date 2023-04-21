@@ -83,5 +83,4 @@ for full examples you can compile.
 TODO
 ====
 
- + 3D shaders and wireframe rendering
- + Compute particles
+ + 3D shaders
