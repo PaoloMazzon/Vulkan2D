@@ -1472,7 +1472,7 @@ void vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xSca
 	identityMatrix(instance->model);
 	if (rot != 0) {
 		xOrigin *= -xScale;
-		xOrigin *= yScale;
+		yOrigin *= yScale;
 		instance->pos[0] = 0;
 		instance->pos[1] = 0;
 		vec3 axis = {0, 0, 1};
