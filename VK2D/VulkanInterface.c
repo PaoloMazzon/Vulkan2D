@@ -28,6 +28,16 @@ void vk2dVulkanCopyDataIntoBuffer(void *data, VkDeviceSize size, VkBuffer *outBu
 	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], data, size, outBuffer, bufferOffset);
 }
 
+int vk2dVulkanGetFrame() {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	return gRenderer->currentFrame;
+}
+
+int vk2dVulkanGetSwapchainImageIndex() {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	return gRenderer->scImageIndex;
+}
+
 VkDevice vk2dVulkanGetDevice() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	return gRenderer->ld->dev;

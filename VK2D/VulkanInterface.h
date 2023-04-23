@@ -5,6 +5,10 @@
 #include "VK2D/Structs.h"
 #include <VulkanMemoryAllocator/src/VmaUsage.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Returns a command buffer intended to be used once
 /// \return Returns a new command buffer in the recording state
 VkCommandBuffer vk2dVulkanGetSingleUseBuffer();
@@ -28,6 +32,14 @@ VkCommandBuffer vk2dVulkanGetDrawBuffer();
 /// \warning The buffer the data is copied into is only intended for uniform buffers and vertex buffers
 /// \warning Data copied into a buffer like this is only valid for a single frame; you must use this every frame
 void vk2dVulkanCopyDataIntoBuffer(void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *bufferOffset);
+
+/// \brief Returns the current frame being rendered
+/// \return Returns the current frame being rendered
+int vk2dVulkanGetFrame();
+
+/// \brief Returns the current swapchain image being used this frame
+/// \return Returns the current swapchain image being used this frame
+int vk2dVulkanGetSwapchainImageIndex();
 
 /// \brief Returns the logical device
 /// \return Returns the logical device
@@ -56,3 +68,7 @@ uint32_t vk2dVulkanGetMaxFramesInFlight();
 /// \brief Returns the VMA instance
 /// \return Returns the VMA instance
 VmaAllocator vk2dVulkanGetVMA();
+
+#ifdef __cplusplus
+}
+#endif
