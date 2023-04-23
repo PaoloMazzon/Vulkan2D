@@ -36,7 +36,6 @@ _Atomic int gThreadsProcessingThisFrame = 0;
 _Atomic int gCurrentBuffer = 0;
 Entity *gEntities; // Entities every frame is built from
 VK2DDrawInstance *gBuffers[] = {NULL, NULL};
-_Atomic int64_t gRNG = 0;
 
 static inline float random(float min, float max) {
 	const int resolution = 1000;
@@ -50,19 +49,6 @@ static inline float clamp(float val, float min, float max) {
 	if (val < min)
 		return min;
 	return val;
-}
-
-// This is basically not at all random its trash lmao
-static float atomicRandom(float min, float max) {
-	int64_t r = gRNG;
-	const int64_t a = 1103515245;
-	const int64_t c = 12345;
-	const int64_t m = 2147483648;
-	r = (a * r + c) % m;
-	gRNG = r;
-	const int64_t resolution = 1000;
-	float n = (float)(r % resolution);
-	return min + ((max - min) * (n / (float)resolution));
 }
 
 void initializeEntity(Entity *e) {
@@ -80,9 +66,9 @@ void initializeEntity(Entity *e) {
 void processEntity(Entity *e) {
 	const float topSpeed = 1;
 	const float topRotSpeed = 0.3;
-	e->x += atomicRandom(-topSpeed, topSpeed);
-	e->y += atomicRandom(-topSpeed, topSpeed);
-	e->rot += atomicRandom(-topRotSpeed, topRotSpeed);
+	e->x += vk2dRandom(-topSpeed, topSpeed);
+	e->y += vk2dRandom(-topSpeed, topSpeed);
+	e->rot += vk2dRandom(-topRotSpeed, topRotSpeed);
 }
 
 // Turns an entity's data into instance data
@@ -124,7 +110,6 @@ int main(int argc, const char *argv[]) {
 	SDL_Event e;
 	if (window == NULL)
 		return -1;
-	gRNG = time(0);
 
 	// Initialize vk2d
 	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};

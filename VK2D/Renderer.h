@@ -353,6 +353,16 @@ void
 vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin,
 				   float yOrigin);
 
+/// \brief Returns a random number between min and max, thread safe
+/// \param min Minimum value that can be returned
+/// \param max Maximum value that can be returns
+/// \return Returns a random number between min and max
+///
+/// This function is thread safe and decently random. It is however not
+/// secure and only intended for testing/games. The renderer automatically
+/// initializes the seed to system time.
+float vk2dRandom(float min, float max);
+
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)
