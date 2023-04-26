@@ -125,3 +125,10 @@ unsigned char *_vk2dCopyBuffer(void *buffer, int size) {
 	}
 	return new;
 }
+
+int _vk2dWorkerThread(void *data) {
+	// Data is the logical device
+	VK2DLogicalDevice dev = data;
+
+
+}

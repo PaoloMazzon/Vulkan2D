@@ -113,6 +113,17 @@ typedef enum {
 	VK2D_ERROR = -1           ///< Error occurred
 } VK2DResult;
 
+/// \brief Types of asset loads
+typedef enum {
+	VK2D_ASSET_TYPE_TEXTURE_FILE = 0,   ///< Load a texture from a filename
+	VK2D_ASSET_TYPE_TEXTURE_MEMORY = 1, ///< Load a texture from a binary blob
+	VK2D_ASSET_TYPE_MODEL_FILE = 2,     ///< Load a model from a filename
+	VK2D_ASSET_TYPE_MODEL_MEMORY = 3,   ///< Load a model from a binary blob
+	VK2D_ASSET_TYPE_SHADER_FILE = 4,    ///< Load a shader from a filename
+	VK2D_ASSET_TYPE_SHADER_MEMORY = 5,  ///< Load a shader from a binary blob
+	VK2D_ASSET_TYPE_MAX = 6,            ///< Max number of load types
+} VK2DAssetType;
+
 // VK2D pointers
 VK2D_OPAQUE_POINTER(VK2DRenderer)
 VK2D_OPAQUE_POINTER(VK2DImage)
@@ -249,6 +260,33 @@ struct VK2DDrawInstance {
 	mat4 model;      ///< Model for this instance, generally shouldn't contain translations
 };
 
+/// \brief Information needed to queue an asset loading off-thread
+struct VK2DAssetLoad {
+	VK2DAssetType type; ///< Type of asset this is
+	union {
+		const char *filename; ///< Filename to pull from
+		struct {
+			int size;   ///< Data size
+			void *data; ///< Data to pull from
+		};
+	} Load; ///< Information needed to create the asset
+
+	union {
+		struct {
+			int uniformBufferSize; ///< Uniform buffer size of this shader
+		} Shader; ///< Information needed if this is a texture
+		struct {
+			VK2DTexture tex; ///< Texture to use for this model
+		} Model; ///< Information needed if this is a model
+	} Data; ///< Asset-specific information
+
+	union {
+		VK2DShader *shader;   ///< Pointer to where the output object will be placed
+		VK2DModel *model;     ///< Pointer to where the output object will be placed
+		VK2DTexture *texture; ///< Pointer to where the output object will be placed
+	} Output; ///< How the user will receive the loaded asset
+};
+
 VK2D_USER_STRUCT(VK2DVertexColour)
 VK2D_USER_STRUCT(VK2DVertex3D)
 VK2D_USER_STRUCT(VK2DUniformBufferObject)
@@ -260,6 +298,7 @@ VK2D_USER_STRUCT(VK2DRendererConfig)
 VK2D_USER_STRUCT(VK2DCameraSpec)
 VK2D_USER_STRUCT(VK2DRendererLimits)
 VK2D_USER_STRUCT(VK2DDrawInstance)
+VK2D_USER_STRUCT(VK2DAssetLoad)
 
 #ifdef __cplusplus
 }

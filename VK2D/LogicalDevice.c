@@ -5,6 +5,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/PhysicalDevice.h"
 #include "VK2D/Opaque.h"
+#include "VK2D/Util.h"
 #include <malloc.h>
 
 VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug, VK2DRendererLimits *limits) {
@@ -46,6 +47,14 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		vkGetDeviceQueue(ldev->dev, queueFamily, 0, &ldev->queue);
 
 		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool));
+		ldev->loadList = NULL;
+		ldev->loadListMutex = SDL_CreateMutex();
+		ldev->loadListSize = 0;
+		ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", ldev);
+
+		if (ldev->loadListMutex == NULL || ldev->workerThread == NULL) {
+			vk2dLogMessage("Failed to initialize off-thread loading: %s", SDL_GetError());
+		}
 	}
 	
 	return ldev;

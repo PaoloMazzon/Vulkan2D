@@ -19,6 +19,7 @@ struct VK2DPhysicalDevice_t {
 	struct {
 		uint32_t graphicsFamily; ///< Queue family for graphics pipeline
 		uint32_t computeFamily;  ///< Queue family for compute pipeline
+		uint32_t transferFamily; ///< Queue family for transferring
 	} QueueFamily;               ///< Nicely groups up queue families
 	VkPhysicalDeviceMemoryProperties mem; ///< Memory properties of this device
 	VkPhysicalDeviceFeatures feats;       ///< Features of this device
@@ -27,10 +28,15 @@ struct VK2DPhysicalDevice_t {
 
 /// \brief Logical device that is essentially a wrapper of VkDevice
 struct VK2DLogicalDevice_t {
-	VkDevice dev;          ///< Logical device
-	VkQueue queue;         ///< Queue for command buffers
-	VK2DPhysicalDevice pd; ///< Physical device this came from
-	VkCommandPool pool;    ///< Command pools to cycle through
+	VkDevice dev;              ///< Logical device
+	VkQueue queue;             ///< Queue for command buffers
+	VkQueue loadQueue;         ///< Queue for off-thread loading
+	VK2DPhysicalDevice pd;     ///< Physical device this came from
+	VkCommandPool pool;        ///< Command pools to cycle through
+	_Atomic(int) loadListSize; ///< Size of the asset load list
+	VK2DAssetLoad *loadList;   ///< Assets that need to be loaded
+	SDL_mutex *loadListMutex;  ///< Mutex for asset load list synchronization
+	SDL_Thread *workerThread;  ///< Thread that loads assets
 };
 
 /// \brief An internal representation of a camera (the user deals with VK2DCameraIndex, the renderer uses this struct)
