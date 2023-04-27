@@ -364,9 +364,10 @@ vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xScale, f
 float vk2dRandom(float min, float max);
 
 /// \brief Loads a number of assets in a background thread
-/// \param assets Array of VK2DAssetLoad structs that specify each asset you wish to load
+/// \param assets Array of VK2DAssetLoad structs that specify each asset you wish to load. The list is copied internally, you don't need to keep this one around
 /// \param count Number of VK2DAssetLoad structs in the array
 /// \warning Pointers allocated this way are not guaranteed to be valid until after vk2dWaitAssets
+/// \warning You may not call this again until vk2dWaitAssets is called
 ///
 /// This function will load each asset in the assets list in another thread in the background
 /// so you may do other things to prepare your application. In essence its a non-blocking way

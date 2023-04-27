@@ -6,6 +6,7 @@
 #include <string.h>
 #include <math.h>
 #include "VK2D/Initializers.h"
+#include "VK2D/Validation.h"
 #include "VK2D/Structs.h"
 #include "VK2D/Opaque.h"
 #include "VK2D/Renderer.h"
@@ -148,7 +149,7 @@ int _vk2dWorkerThread(void *data) {
 			SDL_UnlockMutex(dev->loadListMutex);
 
 			// Now we load the asset based on its type
-			// TODO: This
+			// TODO: Modify asset loading functions to have a lower-level version
 			loaded++;
 		}
 
@@ -156,7 +157,16 @@ int _vk2dWorkerThread(void *data) {
 		// for every asset in the list in the pending state then trip the fence at
 		// the end of it
 		if (dev->loads == 0 && loaded > 0) {
-			// TODO: This
+			SDL_LockMutex(dev->loadListMutex);
+
+			// TODO: Loop through the asset list and add each one to a pipeline barrier at the end
+
+			// We now don't need the list anymore so we can delete it
+			free(dev->loadList);
+			dev->loadList = NULL;
+			dev->loads = 0;
+			dev->loadListSize = 0;
+			SDL_UnlockMutex(dev->loadListMutex);
 		}
 	}
 
@@ -164,8 +174,20 @@ int _vk2dWorkerThread(void *data) {
 }
 
 void vk2dQueueAssetLoad(VK2DAssetLoad *assets, uint32_t count) {
-	vkResetFences(vk2dRendererGetDevice()->dev, 1, &vk2dRendererGetDevice()->loadFence);
-	// TODO: This
+	VK2DLogicalDevice dev = vk2dRendererGetDevice();
+
+	// We only accept lists when the current one is done
+	if (dev->loadListSize > 0)
+		return;
+
+	vkResetFences(dev->dev, 1, &dev->loadFence);
+	SDL_LockMutex(dev->loadListMutex);
+	dev->loadListSize = count;
+	dev->loads = count;
+	dev->loadList = malloc(sizeof(VK2DAssetLoad) * count);
+	vk2dPointerCheck(dev->loadList);
+	memcpy(dev->loadList, assets, sizeof(VK2DAssetLoad) * count);
+	SDL_UnlockMutex(dev->loadListMutex);
 }
 
 void vk2dWaitAssets() {
