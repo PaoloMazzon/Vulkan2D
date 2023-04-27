@@ -363,6 +363,23 @@ vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xScale, f
 /// initializes the seed to system time.
 float vk2dRandom(float min, float max);
 
+/// \brief Loads a number of assets in a background thread
+/// \param assets Array of VK2DAssetLoad structs that specify each asset you wish to load
+/// \param count Number of VK2DAssetLoad structs in the array
+/// \warning Pointers allocated this way are not guaranteed to be valid until after vk2dWaitAssets
+///
+/// This function will load each asset in the assets list in another thread in the background
+/// so you may do other things to prepare your application. In essence its a non-blocking way
+/// to load your resources.
+void vk2dQueueAssetLoad(VK2DAssetLoad *assets, uint32_t count);
+
+/// \brief Waits until all of the assets provided to vk2dQueueAssetLoad have been loaded
+///
+/// Typically you would use vk2dQueueAssetLoad after you initialize VK2D, then do your other
+/// things to initialize your program, then call this once you need to start using your
+/// resources to make sure they're available in time.
+void vk2dWaitAssets();
+
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)

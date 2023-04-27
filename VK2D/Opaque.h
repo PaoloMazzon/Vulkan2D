@@ -40,6 +40,7 @@ struct VK2DLogicalDevice_t {
 	SDL_Thread *workerThread;  ///< Thread that loads assets
 	_Atomic(bool) quitThread;  ///< How to tell the thread to quit
 	_Atomic(int) loads;        ///< Number of loads waiting in the list
+	VkFence loadFence;         ///< To know when loading is complete
 };
 
 /// \brief An internal representation of a camera (the user deals with VK2DCameraIndex, the renderer uses this struct)

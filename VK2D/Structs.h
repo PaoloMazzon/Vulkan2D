@@ -113,17 +113,22 @@ typedef enum {
 	VK2D_ERROR = -1           ///< Error occurred
 } VK2DResult;
 
-/// \brief Types of asset loads
+/// \brief Types of assets
 typedef enum {
-	VK2D_ASSET_TYPE_NONE = 0,           ///< There is no asset to load here
 	VK2D_ASSET_TYPE_TEXTURE_FILE = 1,   ///< Load a texture from a filename
 	VK2D_ASSET_TYPE_TEXTURE_MEMORY = 2, ///< Load a texture from a binary blob
 	VK2D_ASSET_TYPE_MODEL_FILE = 3,     ///< Load a model from a filename
 	VK2D_ASSET_TYPE_MODEL_MEMORY = 4,   ///< Load a model from a binary blob
 	VK2D_ASSET_TYPE_SHADER_FILE = 5,    ///< Load a shader from a filename
 	VK2D_ASSET_TYPE_SHADER_MEMORY = 6,  ///< Load a shader from a binary blob
-	VK2D_ASSET_TYPE_MAX = 7,            ///< Max number of load types
 } VK2DAssetType;
+
+/// \brief State an asset may be in
+typedef enum {
+	VK2D_ASSET_TYPE_PENDING = -1, ///< Asset is pending a queue family transfer
+	VK2D_ASSET_TYPE_NONE = 0,     ///< This slot is empty
+	VK2D_ASSET_TYPE_ASSET = 1,    ///< Normal asset awaiting load
+} VK2DAssetState;
 
 // VK2D pointers
 VK2D_OPAQUE_POINTER(VK2DRenderer)
@@ -263,7 +268,8 @@ struct VK2DDrawInstance {
 
 /// \brief Information needed to queue an asset loading off-thread
 struct VK2DAssetLoad {
-	VK2DAssetType type; ///< Type of asset this is
+	VK2DAssetType type;   ///< Type of asset this is
+	VK2DAssetState state; ///< State this asset is in
 	union {
 		const char *filename; ///< Filename to pull from
 		struct {

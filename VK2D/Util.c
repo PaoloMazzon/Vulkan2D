@@ -8,6 +8,7 @@
 #include "VK2D/Initializers.h"
 #include "VK2D/Structs.h"
 #include "VK2D/Opaque.h"
+#include "VK2D/Renderer.h"
 
 // Gets the vertex input information for VK2DVertexTexture (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState() {
@@ -130,6 +131,7 @@ unsigned char *_vk2dCopyBuffer(void *buffer, int size) {
 int _vk2dWorkerThread(void *data) {
 	// Data is the logical device
 	VK2DLogicalDevice dev = data;
+	int loaded = 0;
 
 	while (!dev->quitThread) {
 		if (dev->loads > 0) {
@@ -137,9 +139,9 @@ int _vk2dWorkerThread(void *data) {
 			VK2DAssetLoad asset = {0};
 			SDL_LockMutex(dev->loadListMutex);
 			for (int i = 0; i < dev->loadListSize; i++) {
-				if (dev->loadList[i].type != VK2D_ASSET_TYPE_NONE) {
+				if (dev->loadList[i].type == VK2D_ASSET_TYPE_ASSET) {
 					asset = dev->loadList[i];
-					dev->loadList[i].type = VK2D_ASSET_TYPE_NONE;
+					dev->loadList[i].state = VK2D_ASSET_TYPE_PENDING;
 				}
 			}
 			dev->loads -= 1;
@@ -147,8 +149,25 @@ int _vk2dWorkerThread(void *data) {
 
 			// Now we load the asset based on its type
 			// TODO: This
+			loaded++;
+		}
+
+		// If we're done loading all the assets we need to setup a pipeline barrier
+		// for every asset in the list in the pending state then trip the fence at
+		// the end of it
+		if (dev->loads == 0 && loaded > 0) {
+			// TODO: This
 		}
 	}
 
 	return 0;
+}
+
+void vk2dQueueAssetLoad(VK2DAssetLoad *assets, uint32_t count) {
+	vkResetFences(vk2dRendererGetDevice()->dev, 1, &vk2dRendererGetDevice()->loadFence);
+	// TODO: This
+}
+
+void vk2dWaitAssets() {
+	vkWaitForFences(vk2dRendererGetDevice()->dev, 1, &vk2dRendererGetDevice()->loadFence, true, UINT64_MAX);
 }

@@ -57,6 +57,8 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		ldev->loadListSize = 0;
 		ldev->quitThread = false;
 		ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", ldev);
+		VkFenceCreateInfo fenceCreateInfo = vk2dInitFenceCreateInfo(0);
+		vkCreateFence(ldev->dev, &fenceCreateInfo, VK_NULL_HANDLE, &ldev->loadFence);
 
 		if (ldev->loadListMutex == NULL || ldev->workerThread == NULL) {
 			vk2dLogMessage("Failed to initialize off-thread loading: %s", SDL_GetError());
@@ -73,6 +75,7 @@ void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
 		SDL_WaitThread(dev->workerThread, &status);
 		vkDestroyCommandPool(dev->dev, dev->pool, VK_NULL_HANDLE);
 		vkDestroyCommandPool(dev->dev, dev->loadPool, VK_NULL_HANDLE);
+		vkDestroyFence(dev->dev, dev->loadFence, VK_NULL_HANDLE);
 		vkDestroyDevice(dev->dev, VK_NULL_HANDLE);
 		SDL_DestroyMutex(dev->loadListMutex);
 		free(dev);
