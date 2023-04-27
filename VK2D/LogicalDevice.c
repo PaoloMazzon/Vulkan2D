@@ -45,8 +45,13 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		vk2dErrorCheck(vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev));
 		ldev->pd = dev;
 		vkGetDeviceQueue(ldev->dev, queueFamily, 0, &ldev->queue);
+		queueCreateInfo = vk2dInitDeviceQueueCreateInfo(dev->QueueFamily.transferFamily, &priority);
+		vkGetDeviceQueue(ldev->dev, queueFamily, 0, &ldev->loadQueue);
 
 		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool));
+		commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(dev->QueueFamily.transferFamily, 0);
+		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->loadPool));
+
 		ldev->loadList = NULL;
 		ldev->loadListMutex = SDL_CreateMutex();
 		ldev->loadListSize = 0;
@@ -67,6 +72,7 @@ void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
 		int status;
 		SDL_WaitThread(dev->workerThread, &status);
 		vkDestroyCommandPool(dev->dev, dev->pool, VK_NULL_HANDLE);
+		vkDestroyCommandPool(dev->dev, dev->loadPool, VK_NULL_HANDLE);
 		vkDestroyDevice(dev->dev, VK_NULL_HANDLE);
 		SDL_DestroyMutex(dev->loadListMutex);
 		free(dev);

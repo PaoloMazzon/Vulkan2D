@@ -33,6 +33,7 @@ struct VK2DLogicalDevice_t {
 	VkQueue loadQueue;         ///< Queue for off-thread loading
 	VK2DPhysicalDevice pd;     ///< Physical device this came from
 	VkCommandPool pool;        ///< Command pools to cycle through
+	VkCommandPool loadPool;    ///< Command pool for off-thread loading
 	int loadListSize;          ///< Size of the asset load list
 	VK2DAssetLoad *loadList;   ///< Assets that need to be loaded
 	SDL_mutex *loadListMutex;  ///< Mutex for asset load list synchronization
