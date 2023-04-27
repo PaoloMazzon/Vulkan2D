@@ -115,13 +115,14 @@ typedef enum {
 
 /// \brief Types of asset loads
 typedef enum {
-	VK2D_ASSET_TYPE_TEXTURE_FILE = 0,   ///< Load a texture from a filename
-	VK2D_ASSET_TYPE_TEXTURE_MEMORY = 1, ///< Load a texture from a binary blob
-	VK2D_ASSET_TYPE_MODEL_FILE = 2,     ///< Load a model from a filename
-	VK2D_ASSET_TYPE_MODEL_MEMORY = 3,   ///< Load a model from a binary blob
-	VK2D_ASSET_TYPE_SHADER_FILE = 4,    ///< Load a shader from a filename
-	VK2D_ASSET_TYPE_SHADER_MEMORY = 5,  ///< Load a shader from a binary blob
-	VK2D_ASSET_TYPE_MAX = 6,            ///< Max number of load types
+	VK2D_ASSET_TYPE_NONE = 0,           ///< There is no asset to load here
+	VK2D_ASSET_TYPE_TEXTURE_FILE = 1,   ///< Load a texture from a filename
+	VK2D_ASSET_TYPE_TEXTURE_MEMORY = 2, ///< Load a texture from a binary blob
+	VK2D_ASSET_TYPE_MODEL_FILE = 3,     ///< Load a model from a filename
+	VK2D_ASSET_TYPE_MODEL_MEMORY = 4,   ///< Load a model from a binary blob
+	VK2D_ASSET_TYPE_SHADER_FILE = 5,    ///< Load a shader from a filename
+	VK2D_ASSET_TYPE_SHADER_MEMORY = 6,  ///< Load a shader from a binary blob
+	VK2D_ASSET_TYPE_MAX = 7,            ///< Max number of load types
 } VK2DAssetType;
 
 // VK2D pointers

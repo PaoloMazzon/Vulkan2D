@@ -7,6 +7,7 @@
 #include <math.h>
 #include "VK2D/Initializers.h"
 #include "VK2D/Structs.h"
+#include "VK2D/Opaque.h"
 
 // Gets the vertex input information for VK2DVertexTexture (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState() {
@@ -130,5 +131,24 @@ int _vk2dWorkerThread(void *data) {
 	// Data is the logical device
 	VK2DLogicalDevice dev = data;
 
+	while (!dev->quitThread) {
+		if (dev->loads > 0) {
+			// First we must find the asset to load
+			VK2DAssetLoad asset = {0};
+			SDL_LockMutex(dev->loadListMutex);
+			for (int i = 0; i < dev->loadListSize; i++) {
+				if (dev->loadList[i].type != VK2D_ASSET_TYPE_NONE) {
+					asset = dev->loadList[i];
+					dev->loadList[i].type = VK2D_ASSET_TYPE_NONE;
+				}
+			}
+			dev->loads -= 1;
+			SDL_UnlockMutex(dev->loadListMutex);
 
+			// Now we load the asset based on its type
+			// TODO: This
+		}
+	}
+
+	return 0;
 }

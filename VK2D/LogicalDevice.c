@@ -50,6 +50,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		ldev->loadList = NULL;
 		ldev->loadListMutex = SDL_CreateMutex();
 		ldev->loadListSize = 0;
+		ldev->quitThread = false;
 		ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", ldev);
 
 		if (ldev->loadListMutex == NULL || ldev->workerThread == NULL) {
@@ -62,8 +63,12 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 
 void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
 	if (dev != NULL) {
+		dev->quitThread = true;
+		int status;
+		SDL_WaitThread(dev->workerThread, &status);
 		vkDestroyCommandPool(dev->dev, dev->pool, VK_NULL_HANDLE);
 		vkDestroyDevice(dev->dev, VK_NULL_HANDLE);
+		SDL_DestroyMutex(dev->loadListMutex);
 		free(dev);
 	}
 }

@@ -33,10 +33,12 @@ struct VK2DLogicalDevice_t {
 	VkQueue loadQueue;         ///< Queue for off-thread loading
 	VK2DPhysicalDevice pd;     ///< Physical device this came from
 	VkCommandPool pool;        ///< Command pools to cycle through
-	_Atomic(int) loadListSize; ///< Size of the asset load list
+	int loadListSize;          ///< Size of the asset load list
 	VK2DAssetLoad *loadList;   ///< Assets that need to be loaded
 	SDL_mutex *loadListMutex;  ///< Mutex for asset load list synchronization
 	SDL_Thread *workerThread;  ///< Thread that loads assets
+	_Atomic(bool) quitThread;  ///< How to tell the thread to quit
+	_Atomic(int) loads;        ///< Number of loads waiting in the list
 };
 
 /// \brief An internal representation of a camera (the user deals with VK2DCameraIndex, the renderer uses this struct)
