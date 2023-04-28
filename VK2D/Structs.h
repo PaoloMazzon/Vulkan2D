@@ -271,10 +271,15 @@ struct VK2DAssetLoad {
 	VK2DAssetType type;   ///< Type of asset this is
 	VK2DAssetState state; ///< State this asset is in
 	union {
-		const char *filename; ///< Filename to pull from
 		struct {
-			int size;   ///< Data size
-			void *data; ///< Data to pull from
+			const char *filename;         ///< Filename to pull from or filename of the vertex shader
+			const char *fragmentFilename; ///< Fragment shader filename
+		};
+		struct {
+			int size;           ///< Data size or data size of the vertex shader
+			void *data;         ///< Data to pull from or data for the vertex shader
+			int fragmentSize;   ///< Fragment shader's size
+			void *fragmentData; ///< Fragment shader's data
 		};
 	} Load; ///< Information needed to create the asset
 
@@ -283,7 +288,7 @@ struct VK2DAssetLoad {
 			int uniformBufferSize; ///< Uniform buffer size of this shader
 		} Shader; ///< Information needed if this is a texture
 		struct {
-			VK2DTexture tex; ///< Texture to use for this model
+			VK2DTexture *tex; ///< Texture to use for this model (pointer so the model's texture may be in the same list)
 		} Model; ///< Information needed if this is a model
 	} Data; ///< Asset-specific information
 

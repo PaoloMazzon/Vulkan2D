@@ -139,17 +139,24 @@ int _vk2dWorkerThread(void *data) {
 
 	while (!dev->quitThread) {
 		if (dev->loads > 0) {
-			// First we must find the asset to load
+			// Find an asset to load
 			VK2DAssetLoad asset = {0};
+			int spot = -1;
 			bool found = false;
 			SDL_LockMutex(dev->loadListMutex);
 			for (int i = 0; i < dev->loadListSize && !found; i++) {
 				if (dev->loadList[i].state == VK2D_ASSET_TYPE_ASSET) {
-					memcpy(&asset, &dev->loadList[i], sizeof(VK2DAssetLoad));
-					dev->loadList[i].state = VK2D_ASSET_TYPE_PENDING;
-					found = true;
+					spot = i;
+					// This ensures that models will always be prioritized last
+					if (dev->loadList[i].type != VK2D_ASSET_TYPE_MODEL_FILE && dev->loadList[i].type != VK2D_ASSET_TYPE_MODEL_MEMORY)
+						found = true;
 				}
 			}
+
+			// Remove this asset from the list kinda
+			dev->loadList[spot].state = VK2D_ASSET_TYPE_PENDING;
+			memcpy(&asset, &dev->loadList[spot], sizeof(VK2DAssetLoad));
+
 			dev->loads -= 1;
 			SDL_UnlockMutex(dev->loadListMutex);
 

@@ -44,14 +44,25 @@ int main(int argc, const char *argv[]) {
 	// Queue off-thread loading
 	VK2DTexture texCaveGuy = NULL;
 	VK2DTexture texCaveGuyUV = NULL;
-	VK2DAssetLoad loads[2] = {0};
-	loads[0].type = VK2D_ASSET_TYPE_TEXTURE_FILE;
-	loads[0].Load.filename = "assets/caveguy.png";
-	loads[0].Output.texture = &texCaveGuy;
+	VK2DModel modelCaveGuy = NULL;
+	VK2DShader shaderShiny = NULL;
+	VK2DAssetLoad loads[4] = {0};
+	loads[0].type = VK2D_ASSET_TYPE_MODEL_FILE;
+	loads[0].Load.filename = "assets/caveguydie.obj";
+	loads[0].Data.Model.tex = &texCaveGuyUV;
+	loads[0].Output.model = &modelCaveGuy;
 	loads[1].type = VK2D_ASSET_TYPE_TEXTURE_FILE;
 	loads[1].Load.filename = "assets/caveguyuv.png";
 	loads[1].Output.texture = &texCaveGuyUV;
-	vk2dAssetsLoad(loads, 2);
+	loads[2].type = VK2D_ASSET_TYPE_TEXTURE_FILE;
+	loads[2].Load.filename = "assets/caveguy.png";
+	loads[2].Output.texture = &texCaveGuy;
+	loads[3].type = VK2D_ASSET_TYPE_SHADER_FILE;
+	loads[3].Load.filename = "assets/tex.vert.spv";
+	loads[3].Load.fragmentFilename = "assets/tex.frag.spv";
+	loads[3].Data.Shader.uniformBufferSize = 4;
+	loads[3].Output.shader = &shaderShiny;
+	vk2dAssetsLoad(loads, 4);
 
 	// Load loading screen
 	debugInit(window);
@@ -111,7 +122,7 @@ int main(int argc, const char *argv[]) {
 	vk2dRendererWait();
 	vk2dTextureFree(texTarget);
 	vk2dTextureFree(texLoading);
-	vk2dAssetsFree(loads, 2);
+	vk2dAssetsFree(loads, 4);
 	debugCleanup();
 	vk2dRendererQuit();
 	SDL_DestroyWindow(window);
