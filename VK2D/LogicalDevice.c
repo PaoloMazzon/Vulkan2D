@@ -40,17 +40,18 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 
 		float priority = 1;
 		VkDeviceQueueCreateInfo queueCreateInfo = vk2dInitDeviceQueueCreateInfo(queueFamily, &priority);
-		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(&queueCreateInfo, 1, &feats, debug);
-		VkCommandPoolCreateInfo commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+		VkDeviceQueueCreateInfo queueCreateInfo2 = vk2dInitDeviceQueueCreateInfo(dev->QueueFamily.transferFamily, &priority);
+		VkDeviceQueueCreateInfo queues[] = {queueCreateInfo, queueCreateInfo2};
+		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(queues, 2, &feats, debug);
 		vk2dErrorCheck(vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev));
 		ldev->pd = dev;
 		vkGetDeviceQueue(ldev->dev, queueFamily, 0, &ldev->queue);
-		queueCreateInfo = vk2dInitDeviceQueueCreateInfo(dev->QueueFamily.transferFamily, &priority);
-		vkGetDeviceQueue(ldev->dev, queueFamily, 0, &ldev->loadQueue);
+		vkGetDeviceQueue(ldev->dev, dev->QueueFamily.transferFamily, 0, &ldev->loadQueue);
 
+		VkCommandPoolCreateInfo commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool));
-		commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(dev->QueueFamily.transferFamily, 0);
-		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->loadPool));
+		VkCommandPoolCreateInfo commandPoolCreateInfo2 = vk2dInitCommandPoolCreateInfo(dev->QueueFamily.transferFamily, 0);
+		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo2, VK_NULL_HANDLE, &ldev->loadPool));
 
 		ldev->loadList = NULL;
 		ldev->loadListMutex = SDL_CreateMutex();
