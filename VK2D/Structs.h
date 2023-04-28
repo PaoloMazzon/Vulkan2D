@@ -125,9 +125,9 @@ typedef enum {
 
 /// \brief State an asset may be in
 typedef enum {
-	VK2D_ASSET_TYPE_PENDING = -1, ///< Asset is pending a queue family transfer
-	VK2D_ASSET_TYPE_NONE = 0,     ///< This slot is empty
-	VK2D_ASSET_TYPE_ASSET = 1,    ///< Normal asset awaiting load
+	VK2D_ASSET_TYPE_ASSET = 0,   ///< Normal asset awaiting load
+	VK2D_ASSET_TYPE_PENDING = 1, ///< Asset is pending a queue family transfer
+	VK2D_ASSET_TYPE_NONE = 2,    ///< This slot is empty
 } VK2DAssetState;
 
 // VK2D pointers

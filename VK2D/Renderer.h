@@ -366,20 +366,28 @@ float vk2dRandom(float min, float max);
 /// \brief Loads a number of assets in a background thread
 /// \param assets Array of VK2DAssetLoad structs that specify each asset you wish to load. The list is copied internally, you don't need to keep this one around
 /// \param count Number of VK2DAssetLoad structs in the array
-/// \warning Pointers allocated this way are not guaranteed to be valid until after vk2dWaitAssets
-/// \warning You may not call this again until vk2dWaitAssets is called
+/// \warning Pointers allocated this way are not guaranteed to be valid until after vk2dAssetsWait
+/// \warning You may not call this again until vk2dAssetsWait is called
 ///
 /// This function will load each asset in the assets list in another thread in the background
 /// so you may do other things to prepare your application. In essence its a non-blocking way
 /// to load your resources.
-void vk2dQueueAssetLoad(VK2DAssetLoad *assets, uint32_t count);
+void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count);
 
-/// \brief Waits until all of the assets provided to vk2dQueueAssetLoad have been loaded
+/// \brief Waits until all of the assets provided to vk2dAssetsLoad have been loaded
 ///
-/// Typically you would use vk2dQueueAssetLoad after you initialize VK2D, then do your other
+/// Typically you would use vk2dAssetsLoad after you initialize VK2D, then do your other
 /// things to initialize your program, then call this once you need to start using your
 /// resources to make sure they're available in time.
-void vk2dWaitAssets();
+void vk2dAssetsWait();
+
+/// \brief Returns true if the assets thread is done loading assets
+bool vk2dAssetsLoadComplete();
+
+/// \brief Uses the same asset list you passed to vk2dAssetsLoad to free all the assets in one call
+/// \param assets Assets to free
+/// \param count Number of assets in the array
+void vk2dAssetsFree(VK2DAssetLoad *assets, uint32_t count);
 
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 

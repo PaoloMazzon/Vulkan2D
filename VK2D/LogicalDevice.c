@@ -57,7 +57,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		ldev->loadListSize = 0;
 		ldev->quitThread = false;
 		ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", ldev);
-		VkFenceCreateInfo fenceCreateInfo = vk2dInitFenceCreateInfo(0);
+		VkFenceCreateInfo fenceCreateInfo = vk2dInitFenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
 		vkCreateFence(ldev->dev, &fenceCreateInfo, VK_NULL_HANDLE, &ldev->loadFence);
 
 		if (ldev->loadListMutex == NULL || ldev->workerThread == NULL) {

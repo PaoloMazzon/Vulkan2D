@@ -10,6 +10,9 @@
 #include "VK2D/Structs.h"
 #include "VK2D/Opaque.h"
 #include "VK2D/Renderer.h"
+#include "VK2D/Texture.h"
+#include "VK2D/Shader.h"
+#include "VK2D/Model.h"
 
 // Gets the vertex input information for VK2DVertexTexture (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState() {
@@ -173,7 +176,7 @@ int _vk2dWorkerThread(void *data) {
 	return 0;
 }
 
-void vk2dQueueAssetLoad(VK2DAssetLoad *assets, uint32_t count) {
+void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count) {
 	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
 	// We only accept lists when the current one is done
@@ -190,6 +193,22 @@ void vk2dQueueAssetLoad(VK2DAssetLoad *assets, uint32_t count) {
 	SDL_UnlockMutex(dev->loadListMutex);
 }
 
-void vk2dWaitAssets() {
+void vk2dAssetsWait() {
 	vkWaitForFences(vk2dRendererGetDevice()->dev, 1, &vk2dRendererGetDevice()->loadFence, true, UINT64_MAX);
+}
+
+bool vk2dAssetsLoadComplete() {
+	return vkGetFenceStatus(vk2dRendererGetDevice()->dev, vk2dRendererGetDevice()->loadFence) == VK_SUCCESS;
+}
+
+void vk2dAssetsFree(VK2DAssetLoad *assets, uint32_t count) {
+	vk2dRendererWait();
+	for (int i = 0; i < count; i++) {
+		if (assets[i].type == VK2D_ASSET_TYPE_TEXTURE_FILE || assets[i].type == VK2D_ASSET_TYPE_TEXTURE_MEMORY)
+			vk2dTextureFree(*assets[i].Output.texture);
+		else if (assets[i].type == VK2D_ASSET_TYPE_SHADER_FILE || assets[i].type == VK2D_ASSET_TYPE_SHADER_MEMORY)
+			vk2dShaderFree(*assets[i].Output.shader);
+		else if (assets[i].type == VK2D_ASSET_TYPE_MODEL_FILE || assets[i].type == VK2D_ASSET_TYPE_MODEL_MEMORY)
+			vk2dModelFree(*assets[i].Output.model);
+	}
 }
