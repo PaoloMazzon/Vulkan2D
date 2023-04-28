@@ -141,11 +141,13 @@ int _vk2dWorkerThread(void *data) {
 		if (dev->loads > 0) {
 			// First we must find the asset to load
 			VK2DAssetLoad asset = {0};
+			bool found = false;
 			SDL_LockMutex(dev->loadListMutex);
-			for (int i = 0; i < dev->loadListSize; i++) {
-				if (dev->loadList[i].type == VK2D_ASSET_TYPE_ASSET) {
-					asset = dev->loadList[i];
+			for (int i = 0; i < dev->loadListSize && !found; i++) {
+				if (dev->loadList[i].state == VK2D_ASSET_TYPE_ASSET) {
+					memcpy(&asset, &dev->loadList[i], sizeof(VK2DAssetLoad));
 					dev->loadList[i].state = VK2D_ASSET_TYPE_PENDING;
+					found = true;
 				}
 			}
 			dev->loads -= 1;
