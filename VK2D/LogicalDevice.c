@@ -50,7 +50,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 
 		VkCommandPoolCreateInfo commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool));
-		VkCommandPoolCreateInfo commandPoolCreateInfo2 = vk2dInitCommandPoolCreateInfo(dev->QueueFamily.transferFamily, 0);
+		VkCommandPoolCreateInfo commandPoolCreateInfo2 = vk2dInitCommandPoolCreateInfo(dev->QueueFamily.transferFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo2, VK_NULL_HANDLE, &ldev->loadPool));
 
 		ldev->loadList = NULL;
@@ -105,8 +105,10 @@ void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer b
 	vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
 }
 
-VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev) {
+VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev, bool mainThread) {
 	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool, 1);
+	if (!mainThread)
+		allocInfo.commandPool = dev->loadPool;
 	VkCommandBuffer buffer;
 	vk2dErrorCheck(vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer));
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE);
@@ -114,12 +116,15 @@ VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev) {
 	return buffer;
 }
 
-void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer) {
+void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer, bool mainThread) {
 	VkSubmitInfo submitInfo = vk2dInitSubmitInfo(&buffer, 1, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE);
 	vkEndCommandBuffer(buffer);
 	vkQueueSubmit(dev->queue, 1, &submitInfo, VK_NULL_HANDLE);
 	vkQueueWaitIdle(dev->queue);
-	vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
+	if (mainThread)
+		vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
+	else
+		vkFreeCommandBuffers(dev->dev, dev->loadPool, 1, &buffer);
 }
 
 VkFence vk2dLogicalDeviceGetFence(VK2DLogicalDevice dev, VkFenceCreateFlagBits flags) {

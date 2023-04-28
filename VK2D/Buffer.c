@@ -90,13 +90,13 @@ VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsa
 }
 
 void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst) {
-	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev);
+	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev, true);
 	VkBufferCopy copyRegion = {0};
 	copyRegion.size = src->size;
 	copyRegion.dstOffset = 0;
 	copyRegion.srcOffset = 0;
 	vkCmdCopyBuffer(buffer, src->buf, dst->buf, 1, &copyRegion);
-	vk2dLogicalDeviceSubmitSingleBuffer(src->dev, buffer);
+	vk2dLogicalDeviceSubmitSingleBuffer(src->dev, buffer, true);
 }
 
 void vk2dBufferFree(VK2DBuffer buf) {

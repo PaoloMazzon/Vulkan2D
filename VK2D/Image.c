@@ -26,8 +26,8 @@ Uint32 amask = 0xff000000;
 
 // Internal functions
 
-static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
-	VkCommandBuffer commandBuffer = vk2dLogicalDeviceGetSingleUseBuffer(dev);
+static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, bool mainThread) {
+	VkCommandBuffer commandBuffer = vk2dLogicalDeviceGetSingleUseBuffer(dev, mainThread);
 
 	VkBufferImageCopy region = {0};
 	region.bufferOffset = 0;
@@ -52,11 +52,11 @@ static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, 
 			&region
 	);
 
-	vk2dLogicalDeviceSubmitSingleBuffer(dev, commandBuffer);
+	vk2dLogicalDeviceSubmitSingleBuffer(dev, commandBuffer, mainThread);
 }
 
-void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout) {
-	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(dev);
+void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, bool mainThread) {
+	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(dev, mainThread);
 	VkPipelineStageFlags sourceStage = 0;
 	VkPipelineStageFlags destinationStage = 0;
 
@@ -111,7 +111,7 @@ void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkIma
 			1, &barrier
 	);
 
-	vk2dLogicalDeviceSubmitSingleBuffer(dev, buffer);
+	vk2dLogicalDeviceSubmitSingleBuffer(dev, buffer, mainThread);
 }
 
 // End of internal functions
@@ -171,10 +171,10 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 
 		if (vk2dPointerCheck(out)) {
 			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
-											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, texWidth, texHeight);
+											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
+			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, texWidth, texHeight, true);
 			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, true);
 		}
 
 		vk2dBufferFree(stage);
@@ -203,10 +203,10 @@ VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, void *pixels, int w, int h)
 
 		if (vk2dPointerCheck(out)) {
 			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
-											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, w, h);
+											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
+			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, w, h, true);
 			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, true);
 		}
 
 		vk2dBufferFree(stage);
