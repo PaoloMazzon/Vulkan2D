@@ -61,6 +61,9 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 	uint32_t totalExtensionCount, i, sdlExtensions;
 	const char** totalExtensions;
 
+	// Validation initialization needs to happen right away
+	vk2dValidationBegin();
+
 	// Find the startup options
 	VK2DStartupOptions userOptions;
 	if (options == NULL) {
@@ -206,6 +209,7 @@ void vk2dRendererQuit() {
 		vk2dPhysicalDeviceFree(gRenderer->pd);
 
 		vk2dLogMessage("VK2D has been uninitialized.");
+		vk2dValidationEnd();
 		free(gRenderer);
 		gRenderer = NULL;
 	}

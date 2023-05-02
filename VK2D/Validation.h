@@ -18,6 +18,12 @@ bool _vk2dPointerCheck(void* ptr, const char* function, int line, const char* va
 /// \brief Prints a log message if VKRE_VERBOSE_STDOUT is enabled
 void vk2dLogMessage(const char* fmt, ...);
 
+/// \brief Creates validation synchronization primitives
+void vk2dValidationBegin();
+
+/// \brief Cleans up validation synchronization primitives
+void vk2dValidationEnd();
+
 /// \brief Checks if a pointer exists and returns true if it does
 #define vk2dPointerCheck(ptr) ((ptr) == NULL ? _vk2dPointerCheck(ptr, __func__, __LINE__, #ptr) : 1)
 

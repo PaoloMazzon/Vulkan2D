@@ -14,6 +14,8 @@
 #include "VK2D/Shader.h"
 #include "VK2D/Model.h"
 
+static float gLoadStatus = 0;
+
 // Gets the vertex input information for VK2DVertexTexture (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState() {
 	return vk2dInitPipelineVertexInputStateCreateInfo(VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 0);;
@@ -163,6 +165,7 @@ int _vk2dWorkerThread(void *data) {
 			// Now we load the asset based on its type
 			// TODO: Modify asset loading functions to have a lower-level version
 			loaded++;
+			gLoadStatus = (float)loaded / (float)dev->loadListSize;
 		}
 
 		// If we're done loading all the assets we need to setup a pipeline barrier
@@ -208,6 +211,10 @@ void vk2dAssetsWait() {
 
 bool vk2dAssetsLoadComplete() {
 	return vkGetFenceStatus(vk2dRendererGetDevice()->dev, vk2dRendererGetDevice()->loadFence) == VK_SUCCESS;
+}
+
+float vk2dAssetsLoadStatus() {
+	return gLoadStatus;
 }
 
 void vk2dAssetsFree(VK2DAssetLoad *assets, uint32_t count) {

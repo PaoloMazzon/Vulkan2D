@@ -381,6 +381,10 @@ void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count);
 /// resources to make sure they're available in time.
 void vk2dAssetsWait();
 
+/// \brief Returns the loading status as a percentage from 0-1
+/// \return Returns a status where 0 is nothing is loaded and 1 is everything is loaded
+float vk2dAssetsLoadStatus();
+
 /// \brief Returns true if the assets thread is done loading assets
 bool vk2dAssetsLoadComplete();
 

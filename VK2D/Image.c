@@ -183,7 +183,7 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 	return out;
 }
 
-VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, void *pixels, int w, int h) {
+VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, void *pixels, int w, int h, bool mainThread) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VK2DImage out = NULL;
 	VK2DBuffer stage;
@@ -203,10 +203,10 @@ VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, void *pixels, int w, int h)
 
 		if (vk2dPointerCheck(out)) {
 			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
-											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
-			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, w, h, true);
+											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mainThread);
+			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, w, h, mainThread);
 			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, true);
+											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mainThread);
 		}
 
 		vk2dBufferFree(stage);

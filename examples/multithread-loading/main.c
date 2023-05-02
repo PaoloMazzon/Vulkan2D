@@ -97,6 +97,10 @@ int main(int argc, const char *argv[]) {
 		} else {
 			// Loading is not complete
 			vk2dDrawTexture(texLoading, (LOGICAL_WIDTH / 2) - (vk2dTextureWidth(texLoading) / 2), (LOGICAL_HEIGHT / 2) - (vk2dTextureHeight(texLoading) / 2));
+			vk2dRendererSetColourMod(VK2D_BLACK);
+			vk2dDrawRectangleOutline((LOGICAL_WIDTH / 2) - 30, (LOGICAL_HEIGHT / 2) + 10, 60, 8, 1);
+			vk2dDrawRectangle((LOGICAL_WIDTH / 2) - 29, (LOGICAL_HEIGHT / 2) + 11, 57 * vk2dAssetsLoadStatus(), 5);
+			vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
 		}
 
 		vk2dRendererSetTarget(VK2D_TARGET_SCREEN);

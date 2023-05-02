@@ -8,6 +8,16 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Opaque.h"
 
+static SDL_mutex *gLogMutex = NULL;
+
+void vk2dValidationBegin() {
+	gLogMutex = SDL_CreateMutex();
+}
+
+void vk2dValidationEnd() {
+	SDL_DestroyMutex(gLogMutex);
+}
+
 bool _vk2dErrorRaise(VkResult result, const char* function, int line, const char* varname) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	fprintf(stderr, "[VK2D]: Error %i occurred in function \"%s\" line %i: %s\n", result, function, line, varname);
@@ -44,9 +54,11 @@ void vk2dLogMessage(const char* fmt, ...) {
 	if (gRenderer->options.stdoutLogging) {
 		va_list list;
 		va_start(list, fmt);
+		SDL_LockMutex(gLogMutex);
 		vprintf(fmt, list);
 		printf("\n");
 		fflush(stdout);
+		SDL_UnlockMutex(gLogMutex);
 		va_end(list);
 	} else {
 		va_list list;

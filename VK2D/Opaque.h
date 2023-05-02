@@ -245,6 +245,7 @@ struct VK2DRenderer_t {
 	VkDescriptorSetLayout dslBufferUser;      ///< Descriptor set layout for user data buffers (custom shaders uniforms)
 	VkDescriptorSetLayout dslTexture;         ///< Descriptor set layout for the textures
 	VK2DDescCon descConSamplers;              ///< Descriptor controller for samplers
+	VK2DDescCon descConSamplersOff;           ///< Descriptor controller for samplers off thread
 	VK2DDescCon descConVP;                    ///< Descriptor controller for view projection buffers
 	VK2DDescCon descConUser;                  ///< Descriptor controller for user buffers
 	VkDescriptorPool samplerPool;             ///< Sampler pool for 1 sampler

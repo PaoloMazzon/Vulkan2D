@@ -925,6 +925,7 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (!preserveDescCons) {
 		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2, VK2D_NO_LOCATION);
+		gRenderer->descConSamplersOff = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2, VK2D_NO_LOCATION);
 		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
 		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
 
@@ -945,6 +946,7 @@ void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (!preserveDescCons) {
 		vk2dDescConFree(gRenderer->descConSamplers);
+		vk2dDescConFree(gRenderer->descConSamplersOff);
 		vk2dDescConFree(gRenderer->descConVP);
 		vk2dDescConFree(gRenderer->descConUser);
 		vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->samplerPool, VK_NULL_HANDLE);

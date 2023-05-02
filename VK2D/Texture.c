@@ -11,21 +11,25 @@
 #include "VK2D/DescriptorControl.h"
 #include "VK2D/stb_image.h"
 #include "VK2D/Opaque.h"
+#include "VK2D/Util.h"
 #include <malloc.h>
 
-static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer) {
+static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer, bool mainThread) {
 	if (tex->img->set == NULL) {
-		tex->img->set = vk2dDescConGetSamplerSet(renderer->descConSamplers, tex);
+		if (mainThread)
+			tex->img->set = vk2dDescConGetSamplerSet(renderer->descConSamplers, tex);
+		else
+			tex->img->set = vk2dDescConGetSamplerSet(renderer->descConSamplersOff, tex);
 	}
 }
 
-VK2DTexture vk2dTextureLoadFromImage(VK2DImage image) {
+VK2DTexture _vk2dTextureLoadFromImageInternal(VK2DImage image, bool mainThread) {
 	VK2DTexture out = calloc(1, sizeof(struct VK2DTexture_t));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 
 	if (vk2dPointerCheck(out)) {
 		out->img = image;
-		_vk2dTextureCreateDescriptor(out, renderer);
+		_vk2dTextureCreateDescriptor(out, renderer, mainThread);
 	} else {
 		free(out);
 		out = NULL;
@@ -34,22 +38,24 @@ VK2DTexture vk2dTextureLoadFromImage(VK2DImage image) {
 	return out;
 }
 
-VK2DTexture vk2dTextureFrom(void *data, int size) {
+VK2DTexture vk2dTextureLoadFromImage(VK2DImage image) {
+	return _vk2dTextureLoadFromImageInternal(image, true);
+}
+
+VK2DTexture _vk2dTextureFromInternal(void *data, int size, bool mainThread) {
 	VK2DImage image;
 	VK2DTexture out = NULL;
 
 	int x, y, channels;
 	void *pixels = stbi_load_from_memory(data, size, &x, &y, &channels, 4);
 	if (pixels != NULL) {
-		image = vk2dImageFromPixels(vk2dRendererGetDevice(), pixels, x, y);
-		if (vk2dPointerCheck(image)) {
-			out = vk2dTextureLoadFromImage(image);
-			if (vk2dPointerCheck(out)) {
-				_vk2dTextureCreateDescriptor(out, vk2dRendererGetPointer());
+		image = vk2dImageFromPixels(vk2dRendererGetDevice(), pixels, x, y, mainThread);
+		if (image != NULL) {
+			out = _vk2dTextureLoadFromImageInternal(image, mainThread);
+			if (out != NULL)
 				out->imgHandled = true;
-			} else {
+			else
 				vk2dImageFree(image);
-			}
 		}
 	}
 
@@ -60,22 +66,21 @@ VK2DTexture vk2dTextureFrom(void *data, int size) {
 	return out;
 }
 
+VK2DTexture vk2dTextureFrom(void *data, int size) {
+	VK2DTexture tex = _vk2dTextureFromInternal(data, size, true);
+	if (tex == NULL)
+		vk2dLogMessage("Failed to load texture from data of size %i.", size);
+	return tex;
+}
+
 VK2DTexture vk2dTextureLoad(const char *filename) {
-	VK2DImage image;
-	VK2DTexture out = NULL;
-	image = vk2dImageLoad(vk2dRendererGetDevice(), filename);
-
-	if (vk2dPointerCheck(image)) {
-		out = vk2dTextureLoadFromImage(image);
-		if (vk2dPointerCheck(out)) {
-			_vk2dTextureCreateDescriptor(out, vk2dRendererGetPointer());
-			out->imgHandled = true;
-		} else {
-			vk2dImageFree(image);
-		}
-	}
-
-	return out;
+	uint32_t size;
+	void *data = _vk2dLoadFile(filename, &size);
+	VK2DTexture tex = _vk2dTextureFromInternal(data, size, true);
+	if (tex == NULL)
+		vk2dLogMessage("Failed to load texture from file \"%s\".", filename);
+	free(data);
+	return tex;
 }
 
 void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera);
@@ -132,7 +137,7 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 		out->uboSet = vk2dDescConGetBufferSet(renderer->descConVP, out->ubo);
 
 		_vk2dRendererAddTarget(out);
-		_vk2dTextureCreateDescriptor(out, renderer);
+		_vk2dTextureCreateDescriptor(out, renderer, true);
 	} else {
 		free(out);
 		out = NULL;
