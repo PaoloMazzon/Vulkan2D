@@ -182,10 +182,14 @@ int _vk2dWorkerThread(void *data) {
 			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_FILE) {
 				uint32_t size;
 				uint8_t *fileData = _vk2dLoadFile(asset.Load.filename, &size);
+				*asset.Output.model = _vk2dModelFromInternal(fileData, size, *asset.Data.Model.tex, false);
+				if (*asset.Output.model == NULL)
+					vk2dLogMessage("Failed to load model \"%s\".", asset.Load.filename);
 				free(data);
-				// TODO: This
 			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_MEMORY) {
-				// TODO: This
+				*asset.Output.model = _vk2dModelFromInternal(asset.Load.data, asset.Load.size, *asset.Data.Model.tex, false);
+				if (*asset.Output.model == NULL)
+					vk2dLogMessage("Failed to load model from buffer.");
 			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_FILE) {
 				// TODO: This
 			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_MEMORY) {

@@ -21,11 +21,11 @@ static void _getFileData(void* ctx, const char* filename, const int is_mtl,
 	*len = gTinyObjBufferSize;
 }
 
-VK2DModel vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, const uint16_t *indices, uint32_t indexCount, VK2DTexture tex) {
+VK2DModel _vk2dModelCreateInternal(const VK2DVertex3D *vertices, uint32_t vertexCount, const uint16_t *indices, uint32_t indexCount, VK2DTexture tex, bool mainThread) {
 	VK2DModel model = malloc(sizeof(struct VK2DModel_t));
-	VK2DBuffer buf = vk2dBufferLoad2(vk2dRendererGetDevice(), sizeof(VK2DVertex3D) * vertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, (void*)vertices, sizeof(uint16_t) * indexCount, (void*)indices);
+	VK2DBuffer buf = vk2dBufferLoad2(vk2dRendererGetDevice(), sizeof(VK2DVertex3D) * vertexCount, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, (void*)vertices, sizeof(uint16_t) * indexCount, (void*)indices, mainThread);
 
-	if (vk2dPointerCheck(buf) && vk2dPointerCheck(model)) {
+	if (buf != NULL && model != NULL) {
 		model->vertices = buf;
 		model->tex = tex;
 		model->vertexCount = vertexCount;
@@ -38,6 +38,13 @@ VK2DModel vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, co
 	return model;
 }
 
+VK2DModel vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, const uint16_t *indices, uint32_t indexCount, VK2DTexture tex) {
+	VK2DModel model = _vk2dModelCreateInternal(vertices, vertexCount, indices, indexCount, tex, true);
+	if (model == NULL)
+		vk2dLogMessage("Failed to create model.");
+	return model;
+}
+
 static inline bool verticesAreEqual(VK2DVertex3D *v1, VK2DVertex3D *v2) {
 	if (v1->uv[0] == v2->uv[0] && v1->uv[1] == v2->uv[1] && v1->pos[0] == v2->pos[0] &&
 			v1->pos[1] == v2->pos[1] && v1->pos[2] == v2->pos[2])
@@ -45,7 +52,7 @@ static inline bool verticesAreEqual(VK2DVertex3D *v1, VK2DVertex3D *v2) {
 	return false;
 }
 
-VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture texture) {
+VK2DModel _vk2dModelFromInternal(const void *objFile, uint32_t objFileSize, VK2DTexture texture, bool mainThread) {
 	gTinyObjBuffer = objFile;
 	gTinyObjBufferSize = objFileSize;
 	VK2DModel m = NULL;
@@ -94,9 +101,10 @@ VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture t
 				}
 			}
 
-			m = vk2dModelCreate(vertices, vertexCount, indices, indexCount, texture);
+			m = _vk2dModelCreateInternal(vertices, vertexCount, indices, indexCount, texture, mainThread);
 		} else {
 			error = true;
+			m = NULL;
 		}
 		free(vertices);
 		free(indices);
@@ -105,20 +113,27 @@ VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture t
 		tinyobj_materials_free(materials, num_materials);
 	} else {
 		error = true;
+		m = NULL;
 	}
 
-	if (error)
-		vk2dLogMessage("Failed to load model.");
-
 	return m;
+}
+
+VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture texture) {
+	VK2DModel model = _vk2dModelFromInternal(objFile, objFileSize, texture, true);
+	if (model == NULL)
+		vk2dLogMessage("Failed to create model from buffer.");
+	return model;
 }
 
 VK2DModel vk2dModelLoad(const char *objFile, VK2DTexture texture) {
 	VK2DModel m = NULL;
 	uint32_t size;
 	const void *data = _vk2dLoadFile(objFile, &size);
-	m = vk2dModelFrom(data, size, texture);
+	m = _vk2dModelFromInternal(data, size, texture, true);
 	free((void*)data);
+	if (m == NULL)
+		vk2dLogMessage("Failed to create model from \"%s\".", objFile);
 	return m;
 }
 

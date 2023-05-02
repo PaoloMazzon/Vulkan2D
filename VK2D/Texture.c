@@ -133,7 +133,7 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 		vk2dErrorCheck(vkCreateFramebuffer(dev->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &out->fbo));
 
 		// And the UBO
-		out->ubo = vk2dBufferLoad(dev, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo);
+		out->ubo = vk2dBufferLoad(dev, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo, true);
 		out->uboSet = vk2dDescConGetBufferSet(renderer->descConVP, out->ubo);
 
 		_vk2dRendererAddTarget(out);

@@ -906,7 +906,7 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	};
 	VK2DUniformBufferObject unitUBO = {0};
 	_vk2dCameraUpdateUBO(&unitUBO, &unitCam);
-	gRenderer->unitUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &unitUBO);
+	gRenderer->unitUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &unitUBO, true);
 	gRenderer->unitUBOSet = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->unitUBO);
 
 	vk2dLogMessage("UBO initialized...");

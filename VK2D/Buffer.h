@@ -24,7 +24,7 @@ VK2DBuffer vk2dBufferCreate(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUs
 /// \param usage Usage of the buffer
 /// \param data Data to put into high performance memory
 /// \return Returns a new buffer with the data loaded or NULL if it failed
-VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data);
+VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data, bool mainThread);
 
 /// \brief Creates a buffer and loads 2 pieces of data into the same high-performance buffer
 /// \param dev Device to get the memory from
@@ -34,13 +34,13 @@ VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsag
 /// \param size2 Size of the 2nd piece of data that will be put into the same buffer
 /// \param data2 Actual data2
 /// \return Returns a new buffer with the data loaded or NULL if it failed
-VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data, VkDeviceSize size2, void *data2);
+VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data, VkDeviceSize size2, void *data2, bool mainThread);
 
 /// \brief Copies the entire contents of src into dst
 /// \param src Buffer to copy from
 /// \param dst Buffer to copy to
 /// \warning Both buffers must originate from the same device
-void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst);
+void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst, bool mainThread);
 
 /// \brief Frees a buffer from memory
 /// \param buf Buffer to free

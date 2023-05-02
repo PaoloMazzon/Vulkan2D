@@ -35,7 +35,7 @@ VK2DBuffer vk2dBufferCreate(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUs
 	return buf;
 }
 
-VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data) {
+VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data, bool mainThread) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// Create staging buffer
 	VK2DBuffer stageBuffer = vk2dBufferCreate(dev,
@@ -54,14 +54,14 @@ VK2DBuffer vk2dBufferLoad(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsag
 			size,
 			usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-	vk2dBufferCopy(stageBuffer, ret);
+	vk2dBufferCopy(stageBuffer, ret, mainThread);
 
 	vk2dBufferFree(stageBuffer);
 
 	return ret;
 }
 
-VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data, VkDeviceSize size2, void *data2) {
+VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsageFlags usage, void *data, VkDeviceSize size2, void *data2, bool mainThread) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	// Create staging buffer
 	VK2DBuffer stageBuffer = vk2dBufferCreate(dev,
@@ -82,21 +82,21 @@ VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsa
 									  size + size2,
 									  usage | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 									  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-	vk2dBufferCopy(stageBuffer, ret);
+	vk2dBufferCopy(stageBuffer, ret, mainThread);
 
 	vk2dBufferFree(stageBuffer);
 
 	return ret;
 }
 
-void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst) {
-	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev, true);
+void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst, bool mainThread) {
+	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev, mainThread);
 	VkBufferCopy copyRegion = {0};
 	copyRegion.size = src->size;
 	copyRegion.dstOffset = 0;
 	copyRegion.srcOffset = 0;
 	vkCmdCopyBuffer(buffer, src->buf, dst->buf, 1, &copyRegion);
-	vk2dLogicalDeviceSubmitSingleBuffer(src->dev, buffer, true);
+	vk2dLogicalDeviceSubmitSingleBuffer(src->dev, buffer, mainThread);
 }
 
 void vk2dBufferFree(VK2DBuffer buf) {

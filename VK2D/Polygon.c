@@ -9,7 +9,7 @@
 
 VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size, VK2DVertexType type) {
 	VK2DPolygon poly = malloc(sizeof(struct VK2DPolygon_t));
-	VK2DBuffer buf = vk2dBufferLoad(dev, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, data);
+	VK2DBuffer buf = vk2dBufferLoad(dev, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, data, true);
 	if (vk2dPointerCheck(buf) && vk2dPointerCheck(poly)) {
 		poly->vertices = buf;
 		poly->type = type;
