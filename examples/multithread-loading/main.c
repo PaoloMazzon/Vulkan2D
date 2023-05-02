@@ -46,6 +46,7 @@ int main(int argc, const char *argv[]) {
 	VK2DTexture texCaveGuyUV = NULL;
 	VK2DModel modelCaveGuy = NULL;
 	VK2DShader shaderShiny = NULL;
+	const int ASSET_COUNT = 4;
 	VK2DAssetLoad loads[4] = {0};
 	loads[0].type = VK2D_ASSET_TYPE_MODEL_FILE;
 	loads[0].Load.filename = "assets/caveguydie.obj";
@@ -62,12 +63,24 @@ int main(int argc, const char *argv[]) {
 	loads[3].Load.fragmentFilename = "assets/tex.frag.spv";
 	loads[3].Data.Shader.uniformBufferSize = 4;
 	loads[3].Output.shader = &shaderShiny;
-	vk2dAssetsLoad(loads, 4);
+	for (int i = 4; i < ASSET_COUNT; i++) {
+		loads[i].type = VK2D_ASSET_TYPE_TEXTURE_FILE;
+		loads[i].Load.filename = "assets/caveguyuv.png";
+		loads[i].Output.texture = &texCaveGuyUV;
+	}
+	vk2dAssetsLoad(loads, ASSET_COUNT);
 
 	// Load loading screen
 	debugInit(window);
 	VK2DTexture texTarget = vk2dTextureCreate(LOGICAL_WIDTH, LOGICAL_HEIGHT);
 	VK2DTexture texLoading = vk2dTextureLoad("assets/loading.png");
+
+	// Moving caveguy
+	float x = LOGICAL_WIDTH / 2;
+	float y = LOGICAL_HEIGHT / 2;
+	float dir = VK2D_PI / 4;
+	const float speed = 70;
+	const float scale = 3;
 
 	while (!quit) {
 		delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
@@ -93,8 +106,13 @@ int main(int argc, const char *argv[]) {
 		// Either draw loading screen or the demo
 		if (vk2dAssetsLoadComplete()) {
 			// Loading is complete
-			// TODO: This
-			vk2dDrawTexture(texCaveGuyUV, 0, 0);
+
+			// Move the caveguy
+			x += cos(dir) * speed * delta;
+			y += sin(dir) * speed * delta;
+			if (x + (8 * scale) > LOGICAL_WIDTH || y + (8 * scale) > LOGICAL_HEIGHT || x - (8 * scale) < 0 || y - (8 * scale) < 0)
+				dir -= (VK2D_PI / 4);
+			vk2dDrawTextureExt(texCaveGuy, x - (8 * scale), y - (8 * scale), scale, scale, -time, 8, 8);
 		} else {
 			// Loading is not complete
 			vk2dDrawTexture(texLoading, (LOGICAL_WIDTH / 2) - (vk2dTextureWidth(texLoading) / 2), (LOGICAL_HEIGHT / 2) - (vk2dTextureHeight(texLoading) / 2));
@@ -127,7 +145,7 @@ int main(int argc, const char *argv[]) {
 	vk2dRendererWait();
 	vk2dTextureFree(texTarget);
 	vk2dTextureFree(texLoading);
-	vk2dAssetsFree(loads, 4);
+	vk2dAssetsFree(loads, ASSET_COUNT);
 	debugCleanup();
 	vk2dRendererQuit();
 	SDL_DestroyWindow(window);

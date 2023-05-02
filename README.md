@@ -22,6 +22,7 @@ Features
  + Simple and fully-featured cameras, allowing for multiple concurrent cameras
  + Powerful and very simple shader interface
  + Simple access to the Vulkan implementation through `VK2D/VulkanInterface.h`
+ + Easily load multiple resources in the background while your application gets prepared
 
 Documentation
 =============
