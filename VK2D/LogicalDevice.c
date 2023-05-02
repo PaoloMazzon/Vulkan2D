@@ -55,6 +55,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 
 		ldev->loadList = NULL;
 		ldev->loadListMutex = SDL_CreateMutex();
+		ldev->shaderMutex = SDL_CreateMutex();
 		ldev->loadListSize = 0;
 		ldev->quitThread = false;
 		ldev->loads = 0;
@@ -78,6 +79,7 @@ void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
 		vkDestroyCommandPool(dev->dev, dev->loadPool, VK_NULL_HANDLE);
 		vkDestroyDevice(dev->dev, VK_NULL_HANDLE);
 		SDL_DestroyMutex(dev->loadListMutex);
+		SDL_DestroyMutex(dev->shaderMutex);
 		free(dev);
 	}
 }

@@ -76,8 +76,10 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
 				}
 			}
 
+			SDL_LockMutex(dev->shaderMutex);
 			_vk2dRendererAddShader(out);
 			_vk2dShaderBuildPipe(out);
+			SDL_UnlockMutex(dev->shaderMutex);
 		}
 	} else {
 		free(out);
@@ -120,8 +122,10 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 				}
 			}
 
+			SDL_LockMutex(dev->shaderMutex);
 			_vk2dRendererAddShader(out);
 			_vk2dShaderBuildPipe(out);
+			SDL_UnlockMutex(dev->shaderMutex);
 		}
 	} else {
 		free(out);

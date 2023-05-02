@@ -191,9 +191,11 @@ int _vk2dWorkerThread(void *data) {
 				if (*asset.Output.model == NULL)
 					vk2dLogMessage("Failed to load model from buffer.");
 			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_FILE) {
-				// TODO: This
+				// Shaders are internally synchronized
+				*asset.Output.shader = vk2dShaderLoad(asset.Load.filename, asset.Load.fragmentFilename, asset.Data.Shader.uniformBufferSize);
 			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_MEMORY) {
-				// TODO: This
+				// Shaders are internally synchronized
+				*asset.Output.shader = vk2dShaderFrom(asset.Load.data, asset.Load.size, asset.Load.fragmentData, asset.Load.fragmentSize, asset.Data.Shader.uniformBufferSize);
 			}
 
 			loaded++;

@@ -40,6 +40,7 @@ struct VK2DLogicalDevice_t {
 	_Atomic(bool) quitThread;  ///< How to tell the thread to quit
 	_Atomic(int) loads;        ///< Number of loads waiting in the list
 	_Atomic(bool) doneLoading; ///< To know when loading is complete
+	SDL_mutex *shaderMutex;    ///< Mutex for creating shaders
 };
 
 /// \brief An internal representation of a camera (the user deals with VK2DCameraIndex, the renderer uses this struct)
