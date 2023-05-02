@@ -29,7 +29,7 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 
 	bool cpu = false;
 	bool gfx = false;
-	bool transfer = false;
+	bool transfer = true;
 	for (i = 0; i < queueFamilyCount; i++) {
 		if (queueList[i].queueCount > 0) {
 			if (queueList[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
@@ -39,17 +39,6 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 			if (queueList[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 				out->QueueFamily.graphicsFamily = i;
 				gfx = true;
-			}
-		}
-	}
-
-	// Find a separate transfer queue
-	for (i = 0; i < queueFamilyCount; i++) {
-		if (queueList[i].queueCount > 0) {
-			if (queueList[i].queueFlags & VK_QUEUE_TRANSFER_BIT && i != out->QueueFamily.graphicsFamily
-			&& i != out->QueueFamily.computeFamily) {
-				out->QueueFamily.transferFamily = i;
-				transfer = true;
 			}
 		}
 	}

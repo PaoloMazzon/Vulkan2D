@@ -94,6 +94,7 @@ int main(int argc, const char *argv[]) {
 		if (vk2dAssetsLoadComplete()) {
 			// Loading is complete
 			// TODO: This
+			vk2dDrawTexture(texCaveGuyUV, 0, 0);
 		} else {
 			// Loading is not complete
 			vk2dDrawTexture(texLoading, (LOGICAL_WIDTH / 2) - (vk2dTextureWidth(texLoading) / 2), (LOGICAL_HEIGHT / 2) - (vk2dTextureHeight(texLoading) / 2));

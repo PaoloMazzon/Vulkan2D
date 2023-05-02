@@ -134,10 +134,15 @@ unsigned char *_vk2dCopyBuffer(void *buffer, int size) {
 	return new;
 }
 
+extern VK2DLogicalDevice gDeviceFromMainThread;
 int _vk2dWorkerThread(void *data) {
 	// Data is the logical device
-	VK2DLogicalDevice dev = data;
+	VK2DLogicalDevice dev = gDeviceFromMainThread;
 	int loaded = 0;
+
+	// Setup the command pool
+	VkCommandPoolCreateInfo commandPoolCreateInfo2 = vk2dInitCommandPoolCreateInfo(dev->pd->QueueFamily.graphicsFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+	vk2dErrorCheck(vkCreateCommandPool(dev->dev, &commandPoolCreateInfo2, VK_NULL_HANDLE, &dev->loadPool));
 
 	while (!dev->quitThread) {
 		if (dev->loads > 0) {
@@ -163,18 +168,39 @@ int _vk2dWorkerThread(void *data) {
 			SDL_UnlockMutex(dev->loadListMutex);
 
 			// Now we load the asset based on its type
-			// TODO: Modify asset loading functions to have a lower-level version
+			if (asset.type == VK2D_ASSET_TYPE_TEXTURE_FILE) {
+				uint32_t size;
+				uint8_t *fileData = _vk2dLoadFile(asset.Load.filename, &size);
+				*asset.Output.texture = _vk2dTextureFromInternal(fileData, size, false);
+				if (*asset.Output.texture == NULL)
+					vk2dLogMessage("Failed to load texture \"%s\".", asset.Load.filename);
+				free(data);
+			} else if (asset.type == VK2D_ASSET_TYPE_TEXTURE_MEMORY) {
+				*asset.Output.texture = _vk2dTextureFromInternal(asset.Load.data, asset.Load.size, false);
+				if (*asset.Output.texture == NULL)
+					vk2dLogMessage("Failed to load texture from buffer.");
+			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_FILE) {
+				uint32_t size;
+				uint8_t *fileData = _vk2dLoadFile(asset.Load.filename, &size);
+				free(data);
+				// TODO: This
+			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_MEMORY) {
+				// TODO: This
+			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_FILE) {
+				// TODO: This
+			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_MEMORY) {
+				// TODO: This
+			}
+
 			loaded++;
 			gLoadStatus = (float)loaded / (float)dev->loadListSize;
 		}
 
-		// If we're done loading all the assets we need to setup a pipeline barrier
-		// for every asset in the list in the pending state then trip the fence at
-		// the end of it
+		// Signify the end of loading
 		if (dev->loads == 0 && loaded > 0) {
 			SDL_LockMutex(dev->loadListMutex);
 
-			// TODO: Loop through the asset list and add each one to a pipeline barrier at the end
+			dev->doneLoading = true;
 
 			// We now don't need the list anymore so we can delete it
 			free(dev->loadList);
@@ -195,7 +221,7 @@ void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count) {
 	if (dev->loadListSize > 0)
 		return;
 
-	vkResetFences(dev->dev, 1, &dev->loadFence);
+	dev->doneLoading = false;
 	SDL_LockMutex(dev->loadListMutex);
 	dev->loadListSize = count;
 	dev->loads = count;
@@ -206,11 +232,14 @@ void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count) {
 }
 
 void vk2dAssetsWait() {
-	vkWaitForFences(vk2dRendererGetDevice()->dev, 1, &vk2dRendererGetDevice()->loadFence, true, UINT64_MAX);
+	VK2DLogicalDevice dev = vk2dRendererGetDevice();
+	while (!dev->doneLoading) {
+		volatile int i = 0;
+	}
 }
 
 bool vk2dAssetsLoadComplete() {
-	return vkGetFenceStatus(vk2dRendererGetDevice()->dev, vk2dRendererGetDevice()->loadFence) == VK_SUCCESS;
+	return vk2dRendererGetDevice()->doneLoading;
 }
 
 float vk2dAssetsLoadStatus() {

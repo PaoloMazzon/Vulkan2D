@@ -8,6 +8,8 @@
 #include "VK2D/Util.h"
 #include <malloc.h>
 
+VK2DLogicalDevice gDeviceFromMainThread;
+
 VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug, VK2DRendererLimits *limits) {
 	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice_t));
 	uint32_t queueFamily = graphicsDevice == true ? dev->QueueFamily.graphicsFamily : dev->QueueFamily.computeFamily;
@@ -38,28 +40,26 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 			}
 		}
 
-		float priority = 1;
-		VkDeviceQueueCreateInfo queueCreateInfo = vk2dInitDeviceQueueCreateInfo(queueFamily, &priority);
-		VkDeviceQueueCreateInfo queueCreateInfo2 = vk2dInitDeviceQueueCreateInfo(dev->QueueFamily.transferFamily, &priority);
-		VkDeviceQueueCreateInfo queues[] = {queueCreateInfo, queueCreateInfo2};
-		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(queues, 2, &feats, debug);
+		float priority[] = {1, 1};
+		VkDeviceQueueCreateInfo queueCreateInfo = vk2dInitDeviceQueueCreateInfo(queueFamily, priority);
+		queueCreateInfo.queueCount = 2;
+		VkDeviceQueueCreateInfo queues[] = {queueCreateInfo};
+		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(queues, 1, &feats, debug);
 		vk2dErrorCheck(vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev));
 		ldev->pd = dev;
 		vkGetDeviceQueue(ldev->dev, queueFamily, 0, &ldev->queue);
-		vkGetDeviceQueue(ldev->dev, dev->QueueFamily.transferFamily, 0, &ldev->loadQueue);
+		vkGetDeviceQueue(ldev->dev, queueFamily, 1, &ldev->loadQueue);
 
 		VkCommandPoolCreateInfo commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool));
-		VkCommandPoolCreateInfo commandPoolCreateInfo2 = vk2dInitCommandPoolCreateInfo(dev->QueueFamily.transferFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo2, VK_NULL_HANDLE, &ldev->loadPool));
 
 		ldev->loadList = NULL;
 		ldev->loadListMutex = SDL_CreateMutex();
 		ldev->loadListSize = 0;
 		ldev->quitThread = false;
-		ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", ldev);
-		VkFenceCreateInfo fenceCreateInfo = vk2dInitFenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
-		vkCreateFence(ldev->dev, &fenceCreateInfo, VK_NULL_HANDLE, &ldev->loadFence);
+		ldev->loads = 0;
+		gDeviceFromMainThread = ldev;
+		ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", NULL);
 
 		if (ldev->loadListMutex == NULL || ldev->workerThread == NULL) {
 			vk2dLogMessage("Failed to initialize off-thread loading: %s", SDL_GetError());
@@ -76,7 +76,6 @@ void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
 		SDL_WaitThread(dev->workerThread, &status);
 		vkDestroyCommandPool(dev->dev, dev->pool, VK_NULL_HANDLE);
 		vkDestroyCommandPool(dev->dev, dev->loadPool, VK_NULL_HANDLE);
-		vkDestroyFence(dev->dev, dev->loadFence, VK_NULL_HANDLE);
 		vkDestroyDevice(dev->dev, VK_NULL_HANDLE);
 		SDL_DestroyMutex(dev->loadListMutex);
 		free(dev);
@@ -119,12 +118,15 @@ VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev, bool 
 void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer, bool mainThread) {
 	VkSubmitInfo submitInfo = vk2dInitSubmitInfo(&buffer, 1, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE);
 	vkEndCommandBuffer(buffer);
-	vkQueueSubmit(dev->queue, 1, &submitInfo, VK_NULL_HANDLE);
-	vkQueueWaitIdle(dev->queue);
-	if (mainThread)
+	if (mainThread) {
+		vkQueueSubmit(dev->queue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(dev->queue);
 		vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
-	else
+	} else {
+		vkQueueSubmit(dev->loadQueue, 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(dev->loadQueue);
 		vkFreeCommandBuffers(dev->dev, dev->loadPool, 1, &buffer);
+	}
 }
 
 VkFence vk2dLogicalDeviceGetFence(VK2DLogicalDevice dev, VkFenceCreateFlagBits flags) {

@@ -19,7 +19,6 @@ struct VK2DPhysicalDevice_t {
 	struct {
 		uint32_t graphicsFamily; ///< Queue family for graphics pipeline
 		uint32_t computeFamily;  ///< Queue family for compute pipeline
-		uint32_t transferFamily; ///< Queue family for transferring
 	} QueueFamily;               ///< Nicely groups up queue families
 	VkPhysicalDeviceMemoryProperties mem; ///< Memory properties of this device
 	VkPhysicalDeviceFeatures feats;       ///< Features of this device
@@ -40,7 +39,7 @@ struct VK2DLogicalDevice_t {
 	SDL_Thread *workerThread;  ///< Thread that loads assets
 	_Atomic(bool) quitThread;  ///< How to tell the thread to quit
 	_Atomic(int) loads;        ///< Number of loads waiting in the list
-	VkFence loadFence;         ///< To know when loading is complete
+	_Atomic(bool) doneLoading; ///< To know when loading is complete
 };
 
 /// \brief An internal representation of a camera (the user deals with VK2DCameraIndex, the renderer uses this struct)
