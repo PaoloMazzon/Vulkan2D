@@ -334,7 +334,7 @@ void _vk2dRendererCreateSwapchain() {
 			gRenderer->surfaceHeight,
 			(VkPresentModeKHR)gRenderer->config.screenMode,
 			VK_NULL_HANDLE,
-			gRenderer->surfaceCapabilities.minImageCount + (gRenderer->config.screenMode == VK2D_SCREEN_MODE_TRIPLE_BUFFER ? 1 : 0)
+			gRenderer->surfaceCapabilities.maxImageCount >= 3 ? 3 : gRenderer->surfaceCapabilities.maxImageCount
 	);
 	VkBool32 supported;
 	vkGetPhysicalDeviceSurfaceSupportKHR(gRenderer->pd->dev, gRenderer->pd->QueueFamily.graphicsFamily, gRenderer->surface, &supported);
@@ -931,7 +931,7 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 
 		// And the one sampler set
 		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 1};
-		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = vk2dInitDescriptorPoolCreateInfo(&sizes, 1, 4);
+		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = vk2dInitDescriptorPoolCreateInfo(&sizes, 1, 20);
 		vk2dErrorCheck(vkCreateDescriptorPool(gRenderer->ld->dev, &descriptorPoolCreateInfo, VK_NULL_HANDLE, &gRenderer->samplerPool));
 		VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = vk2dInitDescriptorSetAllocateInfo(gRenderer->samplerPool, 1, &gRenderer->dslSampler);
 		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->samplerSet));
