@@ -5,6 +5,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/Constants.h"
 #include "VK2D/Opaque.h"
+#include "VK2D/Renderer.h"
 #include <stdio.h>
 #include <malloc.h>
 
@@ -23,6 +24,7 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 	uint32_t queueFamilyCount = 0;
 	uint32_t i;
 	VkQueueFamilyProperties* queueList;
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueFamilyCount, NULL);
 	queueList = malloc(sizeof(VkQueueFamilyProperties) * queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueFamilyCount, queueList);
@@ -30,7 +32,7 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 	bool cpu = false;
 	bool gfx = false;
 	bool transfer = true;
-	for (i = 0; i < queueFamilyCount; i++) {
+	for (i = 0; i < queueFamilyCount && !gfx; i++) {
 		if (queueList[i].queueCount > 0) {
 			if (queueList[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
 				out->QueueFamily.computeFamily = i;
@@ -38,15 +40,14 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 			}
 			if (queueList[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 				out->QueueFamily.graphicsFamily = i;
+				gRenderer->limits.supportsMultiThreadLoading = queueList[i].queueCount >= 2;
 				gfx = true;
 			}
 		}
 	}
 
 	free(queueList);
-	if (gfx && cpu && transfer)
-		return true;
-	return false;
+	return gfx;
 }
 
 // Checks if a device is supported, loading all the queue families if so
@@ -120,8 +121,8 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 
 		// Check if we found one and print if it was discrete (dedicated) or otherwise
 		if (choice != VK_NULL_HANDLE) {
-			vk2dLogMessage(foundPrimary ? "Found discrete device %s" : "Found integrated device %s.",
-						   choiceProps.deviceName);
+			vk2dLogMessage(foundPrimary ? "Found discrete device %s [Vulkan %i.%i.%i]" : "Found integrated device %s [Vulkan %i.%i.%i]",
+						   choiceProps.deviceName, VK_VERSION_MAJOR(choiceProps.apiVersion), VK_VERSION_MINOR(choiceProps.apiVersion), VK_VERSION_PATCH(choiceProps.apiVersion));
 			out->props = choiceProps;
 			out->dev = choice;
 			vkGetPhysicalDeviceFeatures(choice, &out->feats);

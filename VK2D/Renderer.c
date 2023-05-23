@@ -128,7 +128,6 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		gRenderer->pd = vk2dPhysicalDeviceFind(gRenderer->vk, VK2D_DEVICE_BEST_FIT);
 		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true, userOptions.enableDebug, &gRenderer->limits);
 		gRenderer->window = window;
-		vk2dLogMessage("Vulkan Version: %i.%i.%i", VK_VERSION_MAJOR(gRenderer->pd->props.apiVersion), VK_VERSION_MINOR(gRenderer->pd->props.apiVersion), VK_VERSION_PATCH(gRenderer->pd->props.apiVersion));
 
 		// Assign user settings, except for screen mode which will be handled later
 		gRenderer->config = config;

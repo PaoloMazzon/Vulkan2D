@@ -174,7 +174,7 @@ int _vk2dWorkerThread(void *data) {
 				*asset.Output.texture = _vk2dTextureFromInternal(fileData, size, false);
 				if (*asset.Output.texture == NULL)
 					vk2dLogMessage("Failed to load texture \"%s\".", asset.Load.filename);
-				free(data);
+				free(fileData);
 			} else if (asset.type == VK2D_ASSET_TYPE_TEXTURE_MEMORY) {
 				*asset.Output.texture = _vk2dTextureFromInternal(asset.Load.data, asset.Load.size, false);
 				if (*asset.Output.texture == NULL)
@@ -185,7 +185,7 @@ int _vk2dWorkerThread(void *data) {
 				*asset.Output.model = _vk2dModelFromInternal(fileData, size, *asset.Data.Model.tex, false);
 				if (*asset.Output.model == NULL)
 					vk2dLogMessage("Failed to load model \"%s\".", asset.Load.filename);
-				free(data);
+				free(fileData);
 			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_MEMORY) {
 				*asset.Output.model = _vk2dModelFromInternal(asset.Load.data, asset.Load.size, *asset.Data.Model.tex, false);
 				if (*asset.Output.model == NULL)
@@ -222,34 +222,82 @@ int _vk2dWorkerThread(void *data) {
 
 void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count) {
 	VK2DLogicalDevice dev = vk2dRendererGetDevice();
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 
-	// We only accept lists when the current one is done
-	if (dev->loadListSize > 0)
-		return;
+	if (gRenderer->limits.supportsMultiThreadLoading) {
+		// We only accept lists when the current one is done
+		if (dev->loadListSize > 0)
+			return;
 
-	dev->doneLoading = false;
-	SDL_LockMutex(dev->loadListMutex);
-	dev->loadListSize = count;
-	dev->loads = count;
-	dev->loadList = malloc(sizeof(VK2DAssetLoad) * count);
-	vk2dPointerCheck(dev->loadList);
-	memcpy(dev->loadList, assets, sizeof(VK2DAssetLoad) * count);
-	SDL_UnlockMutex(dev->loadListMutex);
+		dev->doneLoading = false;
+		SDL_LockMutex(dev->loadListMutex);
+		dev->loadListSize = count;
+		dev->loads = count;
+		dev->loadList = malloc(sizeof(VK2DAssetLoad) * count);
+		vk2dPointerCheck(dev->loadList);
+		memcpy(dev->loadList, assets, sizeof(VK2DAssetLoad) * count);
+		SDL_UnlockMutex(dev->loadListMutex);
+	} else {
+		for (int i = 0; i < count; i++) {
+			VK2DAssetLoad asset;
+			memcpy(&asset, &assets[i], sizeof(struct VK2DAssetLoad));
+			if (asset.type == VK2D_ASSET_TYPE_TEXTURE_FILE) {
+				uint32_t size;
+				uint8_t *fileData = _vk2dLoadFile(asset.Load.filename, &size);
+				*asset.Output.texture = _vk2dTextureFromInternal(fileData, size, true);
+				if (*asset.Output.texture == NULL)
+					vk2dLogMessage("Failed to load texture \"%s\".", asset.Load.filename);
+				free(fileData);
+			} else if (asset.type == VK2D_ASSET_TYPE_TEXTURE_MEMORY) {
+				*asset.Output.texture = _vk2dTextureFromInternal(asset.Load.data, asset.Load.size, true);
+				if (*asset.Output.texture == NULL)
+					vk2dLogMessage("Failed to load texture from buffer.");
+			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_FILE) {
+				uint32_t size;
+				uint8_t *fileData = _vk2dLoadFile(asset.Load.filename, &size);
+				*asset.Output.model = _vk2dModelFromInternal(fileData, size, *asset.Data.Model.tex, true);
+				if (*asset.Output.model == NULL)
+					vk2dLogMessage("Failed to load model \"%s\".", asset.Load.filename);
+				free(fileData);
+			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_MEMORY) {
+				*asset.Output.model = _vk2dModelFromInternal(asset.Load.data, asset.Load.size, *asset.Data.Model.tex, true);
+				if (*asset.Output.model == NULL)
+					vk2dLogMessage("Failed to load model from buffer.");
+			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_FILE) {
+				// Shaders are internally synchronized
+				*asset.Output.shader = vk2dShaderLoad(asset.Load.filename, asset.Load.fragmentFilename, asset.Data.Shader.uniformBufferSize);
+			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_MEMORY) {
+				// Shaders are internally synchronized
+				*asset.Output.shader = vk2dShaderFrom(asset.Load.data, asset.Load.size, asset.Load.fragmentData, asset.Load.fragmentSize, asset.Data.Shader.uniformBufferSize);
+			}
+		}
+	}
 }
 
 void vk2dAssetsWait() {
-	VK2DLogicalDevice dev = vk2dRendererGetDevice();
-	while (!dev->doneLoading) {
-		volatile int i = 0;
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (gRenderer->limits.supportsMultiThreadLoading) {
+		VK2DLogicalDevice dev = vk2dRendererGetDevice();
+		while (!dev->doneLoading) {
+			volatile int i = 0;
+		}
 	}
 }
 
 bool vk2dAssetsLoadComplete() {
-	return vk2dRendererGetDevice()->doneLoading;
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (gRenderer->limits.supportsMultiThreadLoading) {
+		return vk2dRendererGetDevice()->doneLoading;
+	}
+	return true;
 }
 
 float vk2dAssetsLoadStatus() {
-	return gLoadStatus;
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (gRenderer->limits.supportsMultiThreadLoading) {
+		return gLoadStatus;
+	}
+	return 1;
 }
 
 void vk2dAssetsFree(VK2DAssetLoad *assets, uint32_t count) {

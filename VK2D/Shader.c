@@ -122,10 +122,12 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 				}
 			}
 
-			SDL_LockMutex(dev->shaderMutex);
+			if (gRenderer->limits.supportsMultiThreadLoading)
+				SDL_LockMutex(dev->shaderMutex);
 			_vk2dRendererAddShader(out);
 			_vk2dShaderBuildPipe(out);
-			SDL_UnlockMutex(dev->shaderMutex);
+			if (gRenderer->limits.supportsMultiThreadLoading)
+				SDL_UnlockMutex(dev->shaderMutex);
 		}
 	} else {
 		free(out);

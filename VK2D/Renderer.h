@@ -368,13 +368,17 @@ float vk2dRandom(float min, float max);
 /// \param count Number of VK2DAssetLoad structs in the array
 /// \warning Pointers allocated this way are not guaranteed to be valid until after vk2dAssetsWait
 /// \warning You may not call this again until vk2dAssetsWait is called
+/// \warning If vk2dRendererGetLimits().supportsMultiThreadLoading is false this will perform the asset load on the main thread (and be blocking)
 ///
 /// This function will load each asset in the assets list in another thread in the background
 /// so you may do other things to prepare your application. In essence its a non-blocking way
-/// to load your resources.
+/// to load your resources. If `vk2dRendererGetLimits().supportsMultiThreadLoading` is false
+/// this function will still load all of the specified assets, but it will be done on the main
+/// thread instead which will be blocking.
 void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count);
 
 /// \brief Waits until all of the assets provided to vk2dAssetsLoad have been loaded
+/// \warning If vk2dRendererGetLimits().supportsMultiThreadLoading is false this does nothing
 ///
 /// Typically you would use vk2dAssetsLoad after you initialize VK2D, then do your other
 /// things to initialize your program, then call this once you need to start using your
@@ -383,9 +387,11 @@ void vk2dAssetsWait();
 
 /// \brief Returns the loading status as a percentage from 0-1
 /// \return Returns a status where 0 is nothing is loaded and 1 is everything is loaded
+/// \warning If vk2dRendererGetLimits().supportsMultiThreadLoading is false this will return 1
 float vk2dAssetsLoadStatus();
 
 /// \brief Returns true if the assets thread is done loading assets
+/// \warning If vk2dRendererGetLimits().supportsMultiThreadLoading is false this returns true
 bool vk2dAssetsLoadComplete();
 
 /// \brief Uses the same asset list you passed to vk2dAssetsLoad to free all the assets in one call

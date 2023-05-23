@@ -63,11 +63,6 @@ int main(int argc, const char *argv[]) {
 	loads[3].Load.fragmentFilename = "assets/tex.frag.spv";
 	loads[3].Data.Shader.uniformBufferSize = 4;
 	loads[3].Output.shader = &shaderShiny;
-	for (int i = 4; i < ASSET_COUNT; i++) {
-		loads[i].type = VK2D_ASSET_TYPE_TEXTURE_FILE;
-		loads[i].Load.filename = "assets/caveguyuv.png";
-		loads[i].Output.texture = &texCaveGuyUV;
-	}
 	vk2dAssetsLoad(loads, ASSET_COUNT);
 
 	// Load loading screen
