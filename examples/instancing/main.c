@@ -37,12 +37,6 @@ _Atomic int gCurrentBuffer = 0;
 Entity *gEntities; // Entities every frame is built from
 VK2DDrawInstance *gBuffers[] = {NULL, NULL};
 
-static inline float random(float min, float max) {
-	const int resolution = 1000;
-	float n = (float)(rand() % resolution);
-	return min + ((max - min) * (n / (float)resolution));
-}
-
 static inline float clamp(float val, float min, float max) {
 	if (val > max)
 		return max;
@@ -52,14 +46,14 @@ static inline float clamp(float val, float min, float max) {
 }
 
 void initializeEntity(Entity *e) {
-	e->scale = random(0.5, 2);
-	e->colour[0] = random(0.1, 1);
-	e->colour[1] = random(0.1, 1);
-	e->colour[2] = random(0.1, 1);
+	e->scale = vk2dRandom(0.5, 2);
+	e->colour[0] = vk2dRandom(0.1, 1);
+	e->colour[1] = vk2dRandom(0.1, 1);
+	e->colour[2] = vk2dRandom(0.1, 1);
 	e->colour[3] = 1;
-	e->x = random(0, WINDOW_WIDTH);
-	e->y = random(0, WINDOW_HEIGHT);
-	e->rot = random(0, VK2D_PI * 2);
+	e->x = vk2dRandom(0, WINDOW_WIDTH);
+	e->y = vk2dRandom(0, WINDOW_HEIGHT);
+	e->rot = vk2dRandom(0, VK2D_PI * 2);
 }
 
 // Processes an entity, only touches the entity's data
