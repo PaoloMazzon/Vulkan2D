@@ -95,6 +95,7 @@ void *thread(void *data) {
 
 
 	gThreadsActive -= 1;
+	return NULL;
 }
 
 int main(int argc, const char *argv[]) {
