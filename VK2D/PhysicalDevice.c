@@ -75,7 +75,7 @@ VkPhysicalDeviceProperties *vk2dPhysicalDeviceGetList(VkInstance instance, uint3
 
 static VkPhysicalDevice _vk2dPhysicalDeviceGetBestDevice(VkInstance instance, VK2DPhysicalDevice out, int32_t preferredDevice, bool *foundPrimary) {
 	uint32_t devCount;
-	VkPhysicalDevice choice;
+	VkPhysicalDevice choice = VK_NULL_HANDLE;
 	VkPhysicalDeviceProperties choiceProps;
 	*foundPrimary = false;
 	VkPhysicalDevice *devs = _vk2dPhysicalDeviceGetPhysicalDevices(instance, &devCount);
