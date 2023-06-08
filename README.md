@@ -35,14 +35,14 @@ There are two parts to building it with your project: you must build VK2D and al
 VK2D needs VMA to function. You'll likely need to do something like this in CMake:
 
 ```cmake
-    set(VMA_FILES VK2D/VulkanMemoryAllocator/src/vk_mem_alloc.h VK2D/VulkanMemoryAllocator/src/VmaUsage.cpp)
-    file(GLOB VK2D_FILES VK2D/VK2D/*.c)
-    ...
-    include_directories(... Vulkan2D/ tinyobjloader-c VulkanMemoryAllocator/src/)
-    add_executable(... ${VK2D_FILES} ${VMA_FILES})
+set(VMA_FILES VK2D/VulkanMemoryAllocator/src/vk_mem_alloc.h VK2D/VulkanMemoryAllocator/src/VmaUsage.cpp)
+file(GLOB VK2D_FILES VK2D/VK2D/*.c)
+...
+include_directories(... Vulkan2D/ tinyobjloader-c VulkanMemoryAllocator/src/)
+add_executable(... ${VK2D_FILES} ${VMA_FILES})
 ```
 
-You also need to link/include SDL2 and Vulkan but that will not be covered here as there are 
+You also need to link/include SDL2 and Vulkan but that will not be covered here as there are
 great guides elsewhere. Feel free to use the included CMakeLists.txt as a starting point.
 
 Example
@@ -51,34 +51,36 @@ Using the renderer is quite simple, but there are some things to be aware of. Fo
 of brevity, error checking is removed from the following example
 
 ```c
-    SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
-   	SDL_Event e;
-   	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
-    vk2dRendererInit(window, config, NULL);
-    vec4 clearColour;
-    vk2dColourHex(clearColour, "#59d9d7");
-    bool stopRunning = false;
-    
-    // Load your resources
-    
-   	while (!stopRunning) {
-   		while (SDL_PollEvent(&e))
-   			if (e.type == SDL_QUIT)
-   				stopRunning = true;
-    
-   		vk2dRendererStartFrame(clearColour);
-   		
-   		// Draw your things
-   		
-   		vk2dRendererEndFrame();
-   	}
-    
-   	vk2dRendererWait();
-   	
-   	// Free your resources
-   	
-   	vk2dRendererQuit();
-   	SDL_DestroyWindow(window);
+SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
+SDL_Event e;
+VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
+vk2dRendererInit(window, config, NULL);
+vec4 clearColour;
+vk2dColourHex(clearColour, "#59d9d7");
+bool stopRunning = false;
+
+// Load your resources
+
+while (!stopRunning) {
+    while (SDL_PollEvent(&e)) {
+        if (e.type == SDL_QUIT) {
+            stopRunning = true;
+        }
+    }
+
+    vk2dRendererStartFrame(clearColour);
+
+    // Draw your things
+
+    vk2dRendererEndFrame();
+}
+
+vk2dRendererWait();
+
+// Free your resources
+
+vk2dRendererQuit();
+SDL_DestroyWindow(window);
 ```
 
 And that's about all you need. You can freely manipulate the window, if Vulkan2D detects
