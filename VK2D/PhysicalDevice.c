@@ -31,7 +31,6 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 
 	bool cpu = false;
 	bool gfx = false;
-	bool transfer = true;
 	for (i = 0; i < queueFamilyCount && !gfx; i++) {
 		if (queueList[i].queueCount > 0) {
 			if (queueList[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
