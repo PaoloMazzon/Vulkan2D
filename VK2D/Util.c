@@ -143,15 +143,14 @@ int _vk2dWorkerThread(void *data) {
 	// Setup the command pool
 	VkCommandPoolCreateInfo commandPoolCreateInfo2 = vk2dInitCommandPoolCreateInfo(dev->pd->QueueFamily.graphicsFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
 	vk2dErrorCheck(vkCreateCommandPool(dev->dev, &commandPoolCreateInfo2, VK_NULL_HANDLE, &dev->loadPool));
-
-	while (!dev->quitThread) {
-		if (dev->loads > 0) {
+	while (SDL_AtomicGet(&dev->quitThread) == 0) {
+		if (SDL_AtomicGet(&dev->loads) > 0) {
 			// Find an asset to load
 			VK2DAssetLoad asset = {0};
 			int spot = -1;
 			bool found = false;
 			SDL_LockMutex(dev->loadListMutex);
-			for (int i = 0; i < dev->loadListSize && !found; i++) {
+			for (int i = 0; i < SDL_AtomicGet(&dev->loadListSize) && !found; i++) {
 				if (dev->loadList[i].state == VK2D_ASSET_TYPE_ASSET) {
 					spot = i;
 					// This ensures that models will always be prioritized last
@@ -164,7 +163,7 @@ int _vk2dWorkerThread(void *data) {
 			dev->loadList[spot].state = VK2D_ASSET_TYPE_PENDING;
 			memcpy(&asset, &dev->loadList[spot], sizeof(VK2DAssetLoad));
 
-			dev->loads -= 1;
+			SDL_AtomicAdd(&dev->loads, -1);
 			SDL_UnlockMutex(dev->loadListMutex);
 
 			// Now we load the asset based on its type
@@ -199,20 +198,20 @@ int _vk2dWorkerThread(void *data) {
 			}
 
 			loaded++;
-			gLoadStatus = (float)loaded / (float)dev->loadListSize;
+			gLoadStatus = (float)loaded / (float)SDL_AtomicGet(&dev->loadListSize);
 		}
 
 		// Signify the end of loading
-		if (dev->loads == 0 && loaded > 0) {
+		if (SDL_AtomicGet(&dev->loads) == 0 && loaded > 0) {
 			SDL_LockMutex(dev->loadListMutex);
 
-			dev->doneLoading = true;
+			SDL_AtomicSet(&dev->doneLoading, 1);
 
 			// We now don't need the list anymore so we can delete it
 			free(dev->loadList);
 			dev->loadList = NULL;
-			dev->loads = 0;
-			dev->loadListSize = 0;
+			SDL_AtomicSet(&dev->loads, 0);
+			SDL_AtomicSet(&dev->loadListSize, 0);
 			SDL_UnlockMutex(dev->loadListMutex);
 		}
 	}
@@ -226,13 +225,13 @@ void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count) {
 
 	if (gRenderer->limits.supportsMultiThreadLoading) {
 		// We only accept lists when the current one is done
-		if (dev->loadListSize > 0)
+		if (SDL_AtomicGet(&dev->loadListSize) > 0)
 			return;
 
-		dev->doneLoading = false;
+		SDL_AtomicSet(&dev->doneLoading, 0);
 		SDL_LockMutex(dev->loadListMutex);
-		dev->loadListSize = count;
-		dev->loads = count;
+		SDL_AtomicSet(&dev->loadListSize, count);
+		SDL_AtomicSet(&dev->loads, count);
 		dev->loadList = malloc(sizeof(VK2DAssetLoad) * count);
 		vk2dPointerCheck(dev->loadList);
 		memcpy(dev->loadList, assets, sizeof(VK2DAssetLoad) * count);
@@ -278,7 +277,7 @@ void vk2dAssetsWait() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer->limits.supportsMultiThreadLoading) {
 		VK2DLogicalDevice dev = vk2dRendererGetDevice();
-		while (!dev->doneLoading) {
+		while (SDL_AtomicGet(&dev->doneLoading) == 0) {
 			volatile int i = 0;
 		}
 	}
@@ -287,7 +286,7 @@ void vk2dAssetsWait() {
 bool vk2dAssetsLoadComplete() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer->limits.supportsMultiThreadLoading) {
-		return vk2dRendererGetDevice()->doneLoading;
+		return SDL_AtomicGet(&vk2dRendererGetDevice()->doneLoading) != 0;
 	}
 	return true;
 }

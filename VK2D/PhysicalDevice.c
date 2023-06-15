@@ -29,13 +29,11 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 	queueList = malloc(sizeof(VkQueueFamilyProperties) * queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueFamilyCount, queueList);
 
-	bool cpu = false;
 	bool gfx = false;
 	for (i = 0; i < queueFamilyCount && !gfx; i++) {
 		if (queueList[i].queueCount > 0) {
 			if (queueList[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
 				out->QueueFamily.computeFamily = i;
-				cpu = true;
 			}
 			if (queueList[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 				out->QueueFamily.graphicsFamily = i;

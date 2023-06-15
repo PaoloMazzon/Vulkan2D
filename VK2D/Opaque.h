@@ -33,13 +33,13 @@ struct VK2DLogicalDevice_t {
 	VK2DPhysicalDevice pd;     ///< Physical device this came from
 	VkCommandPool pool;        ///< Command pools to cycle through
 	VkCommandPool loadPool;    ///< Command pool for off-thread loading
-	_Atomic(int) loadListSize; ///< Size of the asset load list
+	SDL_atomic_t loadListSize; ///< Size of the asset load list
 	VK2DAssetLoad *loadList;   ///< Assets that need to be loaded
 	SDL_mutex *loadListMutex;  ///< Mutex for asset load list synchronization
 	SDL_Thread *workerThread;  ///< Thread that loads assets
-	_Atomic(bool) quitThread;  ///< How to tell the thread to quit
-	_Atomic(int) loads;        ///< Number of loads waiting in the list
-	_Atomic(bool) doneLoading; ///< To know when loading is complete
+	SDL_atomic_t quitThread;   ///< How to tell the thread to quit
+	SDL_atomic_t loads;        ///< Number of loads waiting in the list
+	SDL_atomic_t doneLoading;  ///< To know when loading is complete
 	SDL_mutex *shaderMutex;    ///< Mutex for creating shaders
 };
 

@@ -24,8 +24,6 @@ int main(int argc, const char *argv[]) {
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 	SDL_Event e;
 	bool quit = false;
-	int keyboardSize;
-	const uint8_t *keyboard = SDL_GetKeyboardState(&keyboardSize);
 	if (window == NULL)
 		return -1;
 

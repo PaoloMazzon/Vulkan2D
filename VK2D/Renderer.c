@@ -28,7 +28,7 @@ unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
 
 // For everything
 VK2DRenderer gRenderer = NULL;
-_Atomic(int64_t) gRNG;
+SDL_atomic_t gRNG;
 
 static const char* DEBUG_EXTENSIONS[] = {
 		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
@@ -171,7 +171,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		gRenderer->viewport.maxDepth = 1;
 
 		// Initialize the random seed
-		gRNG = time(0);
+		SDL_AtomicSet(&gRNG, time(0));
 	} else {
 		errorCode = VK2D_ERROR;
 	}
@@ -818,12 +818,12 @@ void vk2dColourRGBA(vec4 dst, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 }
 
 float vk2dRandom(float min, float max) {
-	int64_t r = gRNG;
+	uint32_t r = SDL_AtomicGet(&gRNG);
 	const int64_t a = 1103515245;
 	const int64_t c = 12345;
 	const int64_t m = 2147483648;
 	r = (a * r + c) % m;
-	gRNG = r;
+	SDL_AtomicSet(&gRNG, r);
 	const int64_t resolution = 5000;
 	float n = (float)(r % (resolution + 1));
 	return min + ((max - min) * (n / (float)resolution));

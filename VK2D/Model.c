@@ -56,7 +56,6 @@ VK2DModel _vk2dModelFromInternal(const void *objFile, uint32_t objFileSize, VK2D
 	gTinyObjBuffer = objFile;
 	gTinyObjBufferSize = objFileSize;
 	VK2DModel m = NULL;
-	bool error = false;
 
 	tinyobj_attrib_t attrib;
 	tinyobj_shape_t* shapes = NULL;
@@ -103,7 +102,6 @@ VK2DModel _vk2dModelFromInternal(const void *objFile, uint32_t objFileSize, VK2D
 
 			m = _vk2dModelCreateInternal(vertices, vertexCount, indices, indexCount, texture, mainThread);
 		} else {
-			error = true;
 			m = NULL;
 		}
 		free(vertices);
@@ -112,7 +110,6 @@ VK2DModel _vk2dModelFromInternal(const void *objFile, uint32_t objFileSize, VK2D
 		tinyobj_shapes_free(shapes, num_shapes);
 		tinyobj_materials_free(materials, num_materials);
 	} else {
-		error = true;
 		m = NULL;
 	}
 
