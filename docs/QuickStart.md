@@ -175,8 +175,8 @@ must provide `vk2dRendererDrawShader` with a data buffer of at least that size. 
  + Shader buffer size must be a multiple of 4
  + To specify a uniform buffer, you must specify the size when you create the shader and use
 
-
-    layout(set = 3, binding = 3) uniform UserData {
-        // your data here
-    } userData;
-
+```glsl
+layout(set = 3, binding = 3) uniform UserData {
+    // your data here
+} userData;
+```
