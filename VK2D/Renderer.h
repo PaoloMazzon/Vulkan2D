@@ -399,6 +399,58 @@ bool vk2dAssetsLoadComplete();
 /// \param count Number of assets in the array
 void vk2dAssetsFree(VK2DAssetLoad *assets, uint32_t count);
 
+/// \brief Sets up a VK2DAssetLoad array entry for a TextureFile entry
+/// \param array VK2DAssetLoad array that will be written to
+/// \param index Index in the array to write to
+/// \param filename Texture's filename
+/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
+void vk2dAssetsSetTextureFile(VK2DAssetLoad *array, int index, const char *filename, VK2DTexture *outVar);
+
+/// \brief Sets up a VK2DAssetLoad array entry for a TextureMemory entry
+/// \param array VK2DAssetLoad array that will be written to
+/// \param index Index in the array to write to
+/// \param buffer Texture's file buffer
+/// \param size Size of the file buffer in bytes
+/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
+void vk2dAssetsSetTextureMemory(VK2DAssetLoad *array, int index, void *buffer, int size, VK2DTexture *outVar);
+
+/// \brief Sets up a VK2DAssetLoad array entry for a ModelFile entry
+/// \param array VK2DAssetLoad array that will be written to
+/// \param index Index in the array to write to
+/// \param filename Model's filename
+/// \param texture Texture to bind to the model
+/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
+void vk2dAssetsSetModelFile(VK2DAssetLoad *array, int index, const char *filename, VK2DTexture *texture, VK2DModel *outVar);
+
+/// \brief Sets up a VK2DAssetLoad array entry for a ModelMemory entry
+/// \param array VK2DAssetLoad array that will be written to
+/// \param index Index in the array to write to
+/// \param buffer Model's file buffer
+/// \param size Size of the file buffer in bytes
+/// \param texture Texture to bind to the model
+/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
+void vk2dAssetsSetModelMemory(VK2DAssetLoad *array, int index, void *buffer, int size, VK2DTexture *texture, VK2DModel *outVar);
+
+/// \brief Sets up a VK2DAssetLoad array entry for a ShaderFile entry
+/// \param array VK2DAssetLoad array that will be written to
+/// \param index Index in the array to write to
+/// \param vertexFilename Filename of the vertex shader
+/// \param fragmentFilename Filename of the fragment shader
+/// \param uniformBufferSize Uniform buffer size
+/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
+void vk2dAssetsSetShaderFile(VK2DAssetLoad *array, int index, const char *vertexFilename, const char *fragmentFilename, uint32_t uniformBufferSize, VK2DShader *outVar);
+
+/// \brief Sets up a VK2DAssetLoad array entry for a ShaderMemory entry
+/// \param array VK2DAssetLoad array that will be written to
+/// \param index Index in the array to write to
+/// \param vertexBuffer File buffer for the vertex shader
+/// \param vertexBufferSize Size of the vertex buffer in bytes
+/// \param fragmentBuffer File buffer for the fragment shader
+/// \param fragmentBufferSize Size of the fragment buffer in bytes
+/// \param uniformBufferSize Uniform buffer size
+/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
+void vk2dAssetsSetShaderMemory(VK2DAssetLoad *array, int index, void *vertexBuffer, int vertexBufferSize, void *fragmentBuffer, int fragmentBufferSize, uint32_t uniformBufferSize, VK2DShader *outVar);
+
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)

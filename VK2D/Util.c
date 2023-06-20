@@ -310,3 +310,55 @@ void vk2dAssetsFree(VK2DAssetLoad *assets, uint32_t count) {
 			vk2dModelFree(*assets[i].Output.model);
 	}
 }
+
+void vk2dAssetsSetTextureFile(VK2DAssetLoad *array, int index, const char *filename, VK2DTexture *outVar) {
+	array[index].type = VK2D_ASSET_TYPE_TEXTURE_FILE;
+	array[index].Load.filename = filename;
+	array[index].Output.texture = outVar;
+	array[index].state = VK2D_ASSET_TYPE_ASSET;
+}
+
+void vk2dAssetsSetTextureMemory(VK2DAssetLoad *array, int index, void *buffer, int size, VK2DTexture *outVar) {
+	array[index].type = VK2D_ASSET_TYPE_TEXTURE_MEMORY;
+	array[index].Load.data = buffer;
+	array[index].Load.size = size;
+	array[index].Output.texture = outVar;
+	array[index].state = VK2D_ASSET_TYPE_ASSET;
+}
+
+void vk2dAssetsSetModelFile(VK2DAssetLoad *array, int index, const char *filename, VK2DTexture *texture, VK2DModel *outVar) {
+	array[index].type = VK2D_ASSET_TYPE_MODEL_FILE;
+	array[index].Load.filename = filename;
+	array[index].Data.Model.tex = texture;
+	array[index].Output.model = outVar;
+	array[index].state = VK2D_ASSET_TYPE_ASSET;
+}
+
+void vk2dAssetsSetModelMemory(VK2DAssetLoad *array, int index, void *buffer, int size, VK2DTexture *texture, VK2DModel *outVar) {
+	array[index].type = VK2D_ASSET_TYPE_MODEL_MEMORY;
+	array[index].Load.data = buffer;
+	array[index].Load.size = size;
+	array[index].Data.Model.tex = texture;
+	array[index].Output.model = outVar;
+	array[index].state = VK2D_ASSET_TYPE_ASSET;
+}
+
+void vk2dAssetsSetShaderFile(VK2DAssetLoad *array, int index, const char *vertexFilename, const char *fragmentFilename, uint32_t uniformBufferSize, VK2DShader *outVar) {
+	array[index].type = VK2D_ASSET_TYPE_SHADER_FILE;
+	array[index].Load.filename = vertexFilename;
+	array[index].Load.fragmentFilename = fragmentFilename;
+	array[index].Data.Shader.uniformBufferSize = uniformBufferSize;
+	array[index].Output.shader = outVar;
+	array[index].state = VK2D_ASSET_TYPE_ASSET;
+}
+
+void vk2dAssetsSetShaderMemory(VK2DAssetLoad *array, int index, void *vertexBuffer, int vertexBufferSize, void *fragmentBuffer, int fragmentBufferSize, uint32_t uniformBufferSize, VK2DShader *outVar) {
+	array[index].type = VK2D_ASSET_TYPE_SHADER_MEMORY;
+	array[index].Load.data = vertexBuffer;
+	array[index].Load.size = vertexBufferSize;
+	array[index].Load.fragmentData = fragmentBuffer;
+	array[index].Load.fragmentSize = fragmentBufferSize;
+	array[index].Data.Shader.uniformBufferSize = uniformBufferSize;
+	array[index].Output.shader = outVar;
+	array[index].state = VK2D_ASSET_TYPE_ASSET;
+}

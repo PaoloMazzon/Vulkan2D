@@ -46,21 +46,10 @@ int main(int argc, const char *argv[]) {
 	VK2DShader shaderShiny = NULL;
 	const int ASSET_COUNT = 4;
 	VK2DAssetLoad loads[4] = {0};
-	loads[0].type = VK2D_ASSET_TYPE_MODEL_FILE;
-	loads[0].Load.filename = "assets/caveguydie.obj";
-	loads[0].Data.Model.tex = &texCaveGuyUV;
-	loads[0].Output.model = &modelCaveGuy;
-	loads[1].type = VK2D_ASSET_TYPE_TEXTURE_FILE;
-	loads[1].Load.filename = "assets/caveguyuv.png";
-	loads[1].Output.texture = &texCaveGuyUV;
-	loads[2].type = VK2D_ASSET_TYPE_TEXTURE_FILE;
-	loads[2].Load.filename = "assets/caveguy.png";
-	loads[2].Output.texture = &texCaveGuy;
-	loads[3].type = VK2D_ASSET_TYPE_SHADER_FILE;
-	loads[3].Load.filename = "assets/tex.vert.spv";
-	loads[3].Load.fragmentFilename = "assets/tex.frag.spv";
-	loads[3].Data.Shader.uniformBufferSize = 4;
-	loads[3].Output.shader = &shaderShiny;
+	vk2dAssetsSetModelFile(loads, 0, "assets/caveguydie.obj", &texCaveGuyUV, &modelCaveGuy);
+	vk2dAssetsSetTextureFile(loads, 1, "assets/caveguyuv.png", &texCaveGuyUV);
+	vk2dAssetsSetTextureFile(loads, 2, "assets/caveguy.png", &texCaveGuy);
+	vk2dAssetsSetShaderFile(loads, 3, "assets/tex.vert.spv", "assets/tex.frag.spv", 4, &shaderShiny);
 	vk2dAssetsLoad(loads, ASSET_COUNT);
 
 	// Load loading screen
