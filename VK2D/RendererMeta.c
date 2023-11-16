@@ -325,6 +325,11 @@ void _vk2dRendererCreateSwapchain() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 
+	uint32_t imageCount = gRenderer->surfaceCapabilities.minImageCount + 1;
+	if (gRenderer->surfaceCapabilities.maxImageCount > 0 && imageCount > gRenderer->surfaceCapabilities.maxImageCount) {
+		imageCount = gRenderer->surfaceCapabilities.maxImageCount;
+	}
+
 	gRenderer->config.screenMode = (VK2DScreenMode)_vk2dRendererGetPresentMode((VkPresentModeKHR)gRenderer->config.screenMode);
 	VkSwapchainCreateInfoKHR  swapchainCreateInfoKHR = vk2dInitSwapchainCreateInfoKHR(
 			gRenderer->surface,
@@ -334,7 +339,7 @@ void _vk2dRendererCreateSwapchain() {
 			gRenderer->surfaceHeight,
 			(VkPresentModeKHR)gRenderer->config.screenMode,
 			VK_NULL_HANDLE,
-			gRenderer->surfaceCapabilities.maxImageCount >= 3 ? 3 : gRenderer->surfaceCapabilities.maxImageCount
+			imageCount
 	);
 	VkBool32 supported;
 	vkGetPhysicalDeviceSurfaceSupportKHR(gRenderer->pd->dev, gRenderer->pd->QueueFamily.graphicsFamily, gRenderer->surface, &supported);
