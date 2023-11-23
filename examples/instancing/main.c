@@ -98,8 +98,7 @@ void *thread(void *data) {
 	return NULL;
 }
 
-int main(int argc, const char *argv[]) {
-
+int main(int argc, const char **argv) {
 	// Basic SDL setup
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 	SDL_Event e;

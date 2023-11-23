@@ -325,7 +325,7 @@ void _vk2dRendererCreateSwapchain() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 
-	uint32_t imageCount = gRenderer->surfaceCapabilities.minImageCount + 1;
+	uint32_t imageCount = gRenderer->surfaceCapabilities.minImageCount > 3 ? gRenderer->surfaceCapabilities.minImageCount : 3;
 	if (gRenderer->surfaceCapabilities.maxImageCount > 0 && imageCount > gRenderer->surfaceCapabilities.maxImageCount) {
 		imageCount = gRenderer->surfaceCapabilities.maxImageCount;
 	}

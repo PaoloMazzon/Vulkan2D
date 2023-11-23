@@ -12,8 +12,8 @@ find_package(SDL2 REQUIRED)
 file(GLOB C_FILES ../../VK2D/*.c)
 file(GLOB H_FILES ../../VK2D/*.h)
 set(VMA_FILES ../../VulkanMemoryAllocator/src/VmaUsage.cpp)
-if(NOT DEFINED SDL2_LIBRARIES)
-	set(SDL2_LIBRARIES SDL2)
+if (${CMAKE_C_COMPILER_ID} STREQUAL "GNU" AND WIN32)
+	set(SDL2_LIBRARIES mingw32 SDL2main SDL2)
 endif()
 
 # We don't build a library because this engine is intended to have its source
@@ -21,4 +21,4 @@ endif()
 # is just for testing purposes.
 include_directories(../../ ${SDL2_INCLUDE_DIR} ${Vulkan_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} main.c ${VMA_FILES} ${C_FILES} ${H_FILES})
-target_link_libraries(${PROJECT_NAME} m ${SDL2_LIBRARIES} ${Vulkan_LIBRARIES} vulkan)
+target_link_libraries(${PROJECT_NAME} m ${SDL2_LIBRARIES} ${Vulkan_LIBRARIES})
