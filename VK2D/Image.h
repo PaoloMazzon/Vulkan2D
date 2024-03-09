@@ -5,6 +5,7 @@
 #include <vulkan/vulkan.h>
 #include "VK2D/Structs.h"
 #include <SDL2/SDL.h>
+#define VMA_VULKAN_VERSION 1002000
 #include <VulkanMemoryAllocator/src/VmaUsage.h>
 
 #ifdef __cplusplus
