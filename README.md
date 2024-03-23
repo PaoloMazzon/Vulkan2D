@@ -6,7 +6,7 @@
 
 Vulkan2D
 ========
-VK2D is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
+Vulkan2D is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
 simple API, requiring no Vulkan experience to use. [Astro](https://github.com/PaoloMazzon/Astro)
 and more recently [Bedlam](https://github.com/PaoloMazzon/Bedlam) internally use Vulkan2D for
 rendering. My other projects [Spacelink](https://github.com/PaoloMazzon/Spacelink) and
@@ -26,8 +26,9 @@ Features
 
 Documentation
 =============
-Every file in VK2D is properly documented for doxygen, run `doxygen` in `Vulkan2D/` and an html
-folder will be created containing the documentation.
+Every file in VK2D is properly documented for doxygen, run `doxygen` in `Vulkan2D/` or check
+the header files. Additionally, there is a few miscellaneous pieces of documentation,
+[quick-start](docs/QuickStart.md) and [cameras](docs/Cameras.md). As a general overview,
 
 Usage
 =====
@@ -38,12 +39,16 @@ VK2D needs VMA to function. You'll likely need to do something like this in CMak
 set(VMA_FILES VK2D/VulkanMemoryAllocator/src/vk_mem_alloc.h VK2D/VulkanMemoryAllocator/src/VmaUsage.cpp)
 file(GLOB VK2D_FILES VK2D/VK2D/*.c)
 ...
-include_directories(... Vulkan2D/ tinyobjloader-c VulkanMemoryAllocator/src/)
+include_directories(... Vulkan2D/ VulkanMemoryAllocator/src/)
 add_executable(... ${VK2D_FILES} ${VMA_FILES})
 ```
 
-You also need to link/include SDL2 and Vulkan but that will not be covered here as there are
-great guides elsewhere. Feel free to use the included CMakeLists.txt as a starting point.
+Vulkan2D also requires the following external dependencies:
+
+    SDL2, 2.0+
+    Vulkan 1.2+
+    C11 + C standard library
+    C++17 (VMA uses C++17)
 
 Example
 =======
@@ -83,10 +88,11 @@ vk2dRendererQuit();
 SDL_DestroyWindow(window);
 ```
 
-And that's about all you need. You can freely manipulate the window, if Vulkan2D detects
-a window change the renderer will automatically adjust. Check the examples in `examples/`
-for full examples you can compile. Be sure to compile the test shader before running the
-`examples/main/` example with:
+Running the Examples
+====================
+All examples are tested to work on Windows and Ubuntu. The `CMakeLists.txt` at the root
+directory will generate build systems for each example. Be sure to compile the test 
+shader before running the `examples/main/` example with:
 
     glslc assets/test.frag -o assets/tex.frag.spv
     glslc assets/test.vert -o assets/tex.vert.spv
