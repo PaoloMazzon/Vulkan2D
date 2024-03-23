@@ -49,6 +49,7 @@ Drawing in VK2D is done through the renderer, the draw functions at the time of 
  + `vk2dRendererDrawTexture` - Draws a texture
  + `vk2dRendererDrawShader` - Draws a texture using a user-provided shader
  + `vk2dRendererDrawPolygon` - Draws a polygon
+ + `vk2dRendererDrawGeometry` - Draws a list of vertices without the need for a `VK2DPolygon`
  + `vk2dRendererDrawModel` - Draws a 3D model
  + `vk2dRendererDrawInstanced` - Draws many textures at once with very little overhead but limited feature set
 
