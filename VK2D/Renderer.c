@@ -754,6 +754,7 @@ void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, fl
                 _vk2dRendererDraw(&set, 1, &poly, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y,
                                   xscale,
                                   yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+                _vk2dRendererResetBoundPointers();
             }
         } else {
             vk2dLogMessage("Vertices do not exist");

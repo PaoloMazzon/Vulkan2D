@@ -108,8 +108,8 @@ int main(int argc, const char *argv[]) {
 		float mx = mmx;
 		float my = mmy;
 		if (button & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-			xyrot -= (mx - prevMX) * delta;
-			zrot += (my - prevMY) * delta;
+			xyrot -= (mx - prevMX) * delta * 3;
+			zrot += (my - prevMY) * delta * 3;
 		}
 		prevMX = mx;
 		prevMY = my;
@@ -160,8 +160,7 @@ int main(int argc, const char *argv[]) {
 		// Draw 2D portions
 		vk2dRendererLockCameras(testCamera);
 		vk2dDrawTexture(testSurface, -100, -100);
-		//vk2dDrawPolygon(testPoly, 0, 0);
-        vk2dRendererDrawGeometry(SAMPLE_TRIANGLE, SAMPLE_TRIANGLE_VERTICES, 0, 0, true, 3, 1, 1, 0, 0, 0);
+		vk2dDrawPolygon(testPoly, 0, 0);
 		vk2dRendererDrawGeometry(SAMPLE_RECTANGLE, SAMPLE_RECTANGLE_VERTICES, 400, 400, false, 3, 1, 1, 0, 0, 0);
 		vk2dDrawTexture(testTexture, 0, 0);
 		shaderFloat += delta * 5;
@@ -193,8 +192,9 @@ int main(int argc, const char *argv[]) {
 	debugCleanup();
 	vk2dTextureFree(testSurface);
 	vk2dTextureFree(testTexture);
-	vk2dPolygonFree(testPoly);
-	vk2dRendererQuit();
+    vk2dPolygonFree(testPoly);
+    vk2dPolygonFree(testPoly2);
+    vk2dRendererQuit();
 	SDL_DestroyWindow(window);
 	return 0;
 }
