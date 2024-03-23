@@ -62,7 +62,7 @@ VK2DModel _vk2dModelFromInternal(const void *objFile, uint32_t objFileSize, VK2D
 	size_t num_shapes;
 	tinyobj_material_t* materials = NULL;
 	size_t num_materials;
-	int status = tinyobj_parse_obj(&attrib, &shapes, &num_shapes, &materials, &num_materials, "", _getFileData, NULL, TINYOBJ_FLAG_TRIANGULATE);
+	int status = tinyobj_parse_obj(&attrib, &shapes, &num_shapes, &materials, &num_materials, "abcdef", _getFileData, NULL, TINYOBJ_FLAG_TRIANGULATE);
 
 	if (status == TINYOBJ_SUCCESS) {
 		// Create lists for the worst case, actual parsed indices/vertices will likely we less

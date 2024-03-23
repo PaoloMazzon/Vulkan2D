@@ -85,7 +85,11 @@ SDL_DestroyWindow(window);
 
 And that's about all you need. You can freely manipulate the window, if Vulkan2D detects
 a window change the renderer will automatically adjust. Check the examples in `examples/`
-for full examples you can compile.
+for full examples you can compile. Be sure to compile the test shader before running the
+`examples/main/` example with:
+
+    glslc assets/test.frag -o assets/tex.frag.spv
+    glslc assets/test.vert -o assets/tex.vert.spv
 
 TODO
 ====
