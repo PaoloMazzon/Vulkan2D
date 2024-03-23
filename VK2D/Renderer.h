@@ -246,9 +246,23 @@ vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, float x, 
 /// \param rot Rotation to draw the polygon (VK2D only uses radians)
 /// \param originX X origin for rotation (in pixels)
 /// \param originY Y origin for rotation (in pixels)
-void
-vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale,
-						float rot, float originX, float originY);
+/// \warning If filled is true the polygon must be triangulated.
+void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY);
+
+/// \brief Draws arbitrary geometry without needing to pre-allocate a polygon
+/// \param vertices Vertices to draw
+/// \param count Number of vertices in the list
+/// \param x x position in pixels from the top left of the window to draw it from
+/// \param y y position in pixels from the top left of the window to draw it from
+/// \param filled Whether or not to draw the polygon filled
+/// \param lineWidth Width of the lines to draw if the polygon is not failed
+/// \param xscale Horizontal scale for drawing the polygon (negative for flipped)
+/// \param yscale Vertical scale for drawing the polygon (negative for flipped)
+/// \param rot Rotation to draw the polygon (VK2D only uses radians)
+/// \param originX X origin for rotation (in pixels)
+/// \param originY Y origin for rotation (in pixels)
+/// \warning If filled is true the polygon must be triangulated.
+void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY);
 
 /// \brief Renders a 3D model
 /// \param model Model to render

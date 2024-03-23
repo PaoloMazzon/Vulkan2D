@@ -207,9 +207,9 @@ struct VK2DStartupOptions {
 	bool loadCustomShaders; ///< Whether or not to load shaders from a file instead of the built-in ones
 
 	/// Determines the size of a video-memory page in bytes. This can cap the max uniform
-	/// buffer size for shaders and does cap the maximum amount of instances you
-	/// may draw in one call. By default this is ~250kb and you may leave it as 0
-	/// to default it to that value.
+	/// buffer size for shaders, max instances in one instanced call, and max vertices in
+	/// a single geometry render. You may leave this as 0, in which case the renderer will
+	/// make it 256kb.
 	uint64_t vramPageSize;
 
 };
@@ -257,6 +257,7 @@ struct VK2DRendererLimits {
 	float maxLineWidth;              ///< Maximum line width supported on the platform, if you specify a line width greater than this value, your requested line width will be clamped to this number
 	uint64_t maxInstancedDraws;      ///< Maximum amount of instances you may draw at once, if you request to draw more instances than this it will simply be capped to this number
 	uint64_t maxShaderBufferSize;    ///< Maximum size of a shader's uniform buffer in bytes, if you attempt to create a shader with a uniform buffer size greater than this value NULL will be returned
+	uint64_t maxGeometryVertices;    ///< Maximum vertices that can be used in one vk2dRendererDrawGeometryCall, if you use more vertices than this nothing will happen.
 	bool supportsMultiThreadLoading; ///< Whether or not the host supports loading assets in another thread, if attempt to load assets in another thread and this is false, assets will be loaded on the main thread instead
 };
 

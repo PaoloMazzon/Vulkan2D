@@ -43,7 +43,7 @@ int main(int argc, const char *argv[]) {
 	// Load assets
 	debugInit(window);
 	VK2DTexture texCaveguy = vk2dTextureLoad("assets/caveguy.png");
-	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw((void*)SAMPLE_TRIANGLE, VERTICES);
+	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw((void*)SAMPLE_TRIANGLE, SAMPLE_TRIANGLE_VERTICES);
 
 	// Create cameras
 	VK2DCameraSpec cameraSpec = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 1, 0, 0, 0, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};

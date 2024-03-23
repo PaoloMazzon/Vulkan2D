@@ -58,9 +58,10 @@ typedef struct VK2DCamera {
 /// \brief Makes managing buffers in Vulkan simpler
 struct VK2DBuffer_t {
 	VkBuffer buf;          ///< Internal Vulkan buffer
-	VmaAllocation mem;    ///< Memory for the buffer
+	VmaAllocation mem;     ///< Memory for the buffer
 	VK2DLogicalDevice dev; ///< Device the buffer belongs to
 	VkDeviceSize size;     ///< Size of this buffer in bytes
+	VkDeviceSize offset;   ///< Offset for this buffer in bytes
 };
 
 /// \brief To make descriptor buffers simpler internally

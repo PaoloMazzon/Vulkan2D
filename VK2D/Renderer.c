@@ -71,7 +71,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 	} else {
 		userOptions = *options;
 		if (userOptions.vramPageSize == 0)
-			userOptions.vramPageSize = 256 * 1000;
+			userOptions.vramPageSize = 256 * 1024;
 	}
 
 	// Print all available layers
@@ -136,6 +136,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 
 		// Calculate the limit for shader uniform buffers
 		gRenderer->limits.maxShaderBufferSize = gRenderer->pd->props.limits.maxUniformBufferRange < userOptions.vramPageSize ? gRenderer->pd->props.limits.maxUniformBufferRange : userOptions.vramPageSize;
+		gRenderer->limits.maxGeometryVertices = (userOptions.vramPageSize / sizeof(VK2DVertexColour)) - 1;
 
 		// Create the VMA
 		VmaAllocatorCreateInfo allocatorCreateInfo = {0};
@@ -731,6 +732,35 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 	} else {
 		vk2dLogMessage("Renderer is not initialized");
 	}
+}
+
+void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
+    if (gRenderer != NULL) {
+        if (vertices != NULL && count > 0) {
+            if (count <= gRenderer->limits.maxGeometryVertices) {
+                // Copy vertex data to the current descriptor buffer
+                VkBuffer buffer;
+                VkDeviceSize offset;
+                vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], vertices,
+                                             count * sizeof(VK2DVertexColour), &buffer, &offset);
+                struct VK2DBuffer_t buf;
+                buf.buf = buffer;
+                buf.offset = offset;
+                struct VK2DPolygon_t poly;
+                poly.vertexCount = count;
+                poly.vertices = &buf;
+                poly.type = VK2D_VERTEX_TYPE_SHAPE;
+                VkDescriptorSet set;
+                _vk2dRendererDraw(&set, 1, &poly, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y,
+                                  xscale,
+                                  yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
+            }
+        } else {
+            vk2dLogMessage("Vertices do not exist");
+        }
+    } else {
+        vk2dLogMessage("Renderer is not initialized");
+    }
 }
 
 void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ) {

@@ -1208,7 +1208,7 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 		gRenderer->prevSetHash = hash;
 	}
 	if (poly != NULL && gRenderer->prevVBO != poly->vertices->buf) {
-		VkDeviceSize offsets[] = {0};
+		VkDeviceSize offsets[] = {poly->vertices->offset};
 		vkCmdBindVertexBuffers(buf, 0, 1, &poly->vertices->buf, offsets);
 		gRenderer->prevVBO = poly->vertices->buf;
 	}

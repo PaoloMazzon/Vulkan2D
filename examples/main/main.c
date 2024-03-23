@@ -34,7 +34,8 @@ int main(int argc, const char *argv[]) {
 	vk2dRendererSetCamera(defcam);
 
 	// Load Some test assets
-	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw((void *) SAMPLE_TRIANGLE, VERTICES);
+	VK2DPolygon testPoly = vk2dPolygonShapeCreateRaw((void *) SAMPLE_TRIANGLE, SAMPLE_TRIANGLE_VERTICES);
+    VK2DPolygon testPoly2 = vk2dPolygonShapeCreateRaw((void *) SAMPLE_RECTANGLE, SAMPLE_RECTANGLE_VERTICES);
 	VK2DTexture testTexture = vk2dTextureLoad("assets/caveguy.png");
 	VK2DTexture testSurface = vk2dTextureCreate(100, 100);
 	VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
@@ -159,7 +160,9 @@ int main(int argc, const char *argv[]) {
 		// Draw 2D portions
 		vk2dRendererLockCameras(testCamera);
 		vk2dDrawTexture(testSurface, -100, -100);
-		vk2dDrawPolygon(testPoly, 0, 0);
+		//vk2dDrawPolygon(testPoly, 0, 0);
+        vk2dRendererDrawGeometry(SAMPLE_TRIANGLE, SAMPLE_TRIANGLE_VERTICES, 0, 0, true, 3, 1, 1, 0, 0, 0);
+		vk2dRendererDrawGeometry(SAMPLE_RECTANGLE, SAMPLE_RECTANGLE_VERTICES, 400, 400, false, 3, 1, 1, 0, 0, 0);
 		vk2dDrawTexture(testTexture, 0, 0);
 		shaderFloat += delta * 5;
 		vk2dRendererDrawShader(shader, &shaderFloat, testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);

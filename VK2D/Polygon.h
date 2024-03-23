@@ -13,7 +13,7 @@ extern "C" {
 /// \param vertexCount Number of vertices
 /// \return Returns a new polygon
 /// \warning This function is for creating fancier effects with the inner vertex data. Use vk2dPolygonCreate for creating simple shapes
-/// \warning Polygon must be triangulated, vk2dPolygonCreate automatically triangulates but this does not.
+/// \warning Polygon must be triangulated unless it will be drawn as an outline, vk2dPolygonCreate automatically triangulates but this does not.
 VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DVertexColour *vertexData, uint32_t vertexCount);
 
 /// \brief Creates a polygon with specified vertices for drawing (use vk2dRendererSetColourMod to change colours)

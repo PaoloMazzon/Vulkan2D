@@ -26,6 +26,7 @@ VK2DBuffer vk2dBufferCreate(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUs
 	if (vk2dPointerCheck(buf)) {
 		buf->dev = dev;
 		buf->size = size;
+		buf->offset = 0;
 		VkBufferCreateInfo bufferCreateInfo = vk2dInitBufferCreateInfo(size, usage, &dev->pd->QueueFamily.graphicsFamily, 1);
 		VmaAllocationCreateInfo allocationCreateInfo = {0};
 		allocationCreateInfo.requiredFlags = mem;
