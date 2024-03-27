@@ -465,6 +465,13 @@ void vk2dAssetsSetShaderFile(VK2DAssetLoad *array, int index, const char *vertex
 /// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
 void vk2dAssetsSetShaderMemory(VK2DAssetLoad *array, int index, void *vertexBuffer, int vertexBufferSize, void *fragmentBuffer, int fragmentBufferSize, uint32_t uniformBufferSize, VK2DShader *outVar);
 
+/// \brief Combines busy loops and SDL_Delay for a more accurate sleep function
+/// \param seconds Time in seconds to sleep - values equal or less than 0 do nothing
+///
+/// This is less accurate than a busy loop but usually good enough for most things,
+/// it also should be less taxing on the cpu.
+void vk2dSleep(double seconds);
+
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)

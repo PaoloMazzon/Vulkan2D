@@ -362,3 +362,14 @@ void vk2dAssetsSetShaderMemory(VK2DAssetLoad *array, int index, void *vertexBuff
 	array[index].Output.shader = outVar;
 	array[index].state = VK2D_ASSET_TYPE_ASSET;
 }
+
+void vk2dSleep(double seconds) {
+    if (seconds <= 0)
+        return;
+    double start = SDL_GetPerformanceCounter();
+    double milliseconds = floor(seconds * 1000);
+    SDL_Delay(milliseconds);
+    while (start / (double)SDL_GetPerformanceFrequency() < seconds) {
+        volatile int i;
+    }
+}
