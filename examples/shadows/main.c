@@ -51,7 +51,19 @@ const vec2 POLY_5[] = {
 };
 const int POLY_5_COUNT = sizeof(POLY_5) / sizeof(vec2);
 
-const int TOTAL_VERTEX_COUNT = POLY_1_COUNT + POLY_2_COUNT + POLY_3_COUNT + POLY_4_COUNT + POLY_5_COUNT;
+const vec2 ROOM[] = {
+        {0, 0},
+        {400, 0},
+        {400, 300},
+        {0, 300},
+};
+const int ROOM_COUNT = sizeof(ROOM) / sizeof(vec2);
+
+const int TOTAL_VERTEX_COUNT = ROOM_COUNT + POLY_1_COUNT + POLY_2_COUNT + POLY_3_COUNT + POLY_4_COUNT + POLY_5_COUNT + 4;
+
+const vec2 *POLY_LIST[] = {POLY_1, POLY_2, POLY_3, POLY_4, POLY_5, ROOM};
+const int POLY_COUNT_LIST[] = {POLY_1_COUNT, POLY_2_COUNT, POLY_3_COUNT, POLY_4_COUNT, POLY_5_COUNT, ROOM_COUNT};
+const int POLY_COUNT = 6;
 
 /************************ Constants ************************/
 const int WINDOW_WIDTH  = 800;
@@ -59,6 +71,7 @@ const int WINDOW_HEIGHT = 600;
 const double MAX_VELOCITY = 2;
 const double ACCELERATION = 0.2;
 const double FRICTION = 0.5;
+const double FAR_AWAY = 3000;
 
 typedef struct {
     double x;
@@ -142,27 +155,120 @@ bool getPointIntersection(Point2D *out, vec2 *poly, int count, Point2D player, P
     return started;
 }
 
-void addToShadowVertices(vec2 *poly, int count, Point2D player, Point2D mouse) {
-    for (int i = 0; i < count; i++) {
-        Point2D p, segmentStart, segmentEnd;
-        int startIndex = i == 0 ? count - 1 : i - 1;
-        segmentStart.x = poly[startIndex][0];
-        segmentStart.y = poly[startIndex][1];
-        segmentEnd.x = poly[i][0];
-        segmentEnd.y = poly[i][1];
+bool getClosestIntersection(Point2D *out, Point2D player, Point2D mouse) {
+    Point2D closest = {0};
+    bool started = false;
 
-        bool ray = rayIntersection(&p, player, mouse, segmentStart, segmentEnd);
-        if (ray) {
-            vk2dRendererSetColourMod(VK2D_RED);
-            vk2dDrawCircle(p.x, p.y, 2);
-            vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
+    for (int i = 0; i < POLY_COUNT; i++) {
+        Point2D p;
+        if (getPointIntersection(&p, POLY_LIST[i], POLY_COUNT_LIST[i], player, mouse)) {
+            if (!started || pointDistance(player, p) < pointDistance(player, closest)) {
+                started = true;
+                closest = p;
+            }
         }
     }
+
+    // Account for no point
+    if (!started) {
+        double m = atan2(mouse.y - player.y, mouse.x - player.x);
+        closest.x = player.x + (FAR_AWAY * cos(m));
+        closest.y = player.y + (FAR_AWAY * sin(m));
+    }
+
+    *out = closest;
+    return started;
+}
+
+void addVertex(VK2DVertexColour *vertices, int *index, Point2D p) {
+    vertices[*index].pos[0] = p.x;
+    vertices[(*index)++].pos[1] = p.y;
+}
+
+int addToShadowVertices(vec2 *allVertices, VK2DVertexColour *vertices, Point2D player) {
+    int vertexIndex = 0;
+    bool usePrev = false;
+    Point2D previous = {0};
+    for (int i = 0; i < TOTAL_VERTEX_COUNT; i++) {
+        double rads = atan2(allVertices[i][1] - player.y, allVertices[i][0] - player.x);
+        double radMove = 0.00001;
+        Point2D dest = {player.x + (10 * cos(rads)), player.y + (10 * sin(rads))};
+        Point2D destLeft = {player.x + (10 * cos(rads - radMove)), player.y + (10 * sin(rads - radMove))};
+        Point2D destRight = {player.x + (10 * cos(rads + radMove)), player.y + (10 * sin(rads + radMove))};
+        Point2D d, dl, dr;
+
+        getClosestIntersection(&d, player, dest);
+        getClosestIntersection(&dl, player, destLeft);
+        getClosestIntersection(&dr, player, destRight);
+
+        addVertex(vertices, &vertexIndex, player);
+        addVertex(vertices, &vertexIndex, previous);
+        addVertex(vertices, &vertexIndex, dl);
+        addVertex(vertices, &vertexIndex, player);
+        addVertex(vertices, &vertexIndex, player);
+        addVertex(vertices, &vertexIndex, dl);
+        addVertex(vertices, &vertexIndex, d);
+        addVertex(vertices, &vertexIndex, player);
+        addVertex(vertices, &vertexIndex, player);
+        addVertex(vertices, &vertexIndex, d);
+        addVertex(vertices, &vertexIndex, dr);
+        previous = dr;
+        usePrev = true;
+
+    }
+    return vertexIndex;
+}
+
+void swap(vec2 a, vec2 b) {
+    vec2 temp = {a[0], a[1]};
+    a[0] = b[0];
+    a[1] = b[1];
+    b[0] = temp[0];
+    b[1] = temp[1];
+}
+
+void swapf(double* a, double* b) {
+    double temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+void quickSort(vec2 arr[], double comp[], int low, int high) {
+    if (low < high) {
+        double pivot = comp[high];
+        int i = low - 1;
+
+        for (int j = low; j <= high - 1; j++) {
+            if (comp[j] < pivot) {
+                i++;
+                swap(arr[i], arr[j]);
+                swapf(&comp[i], &comp[j]);
+            }
+        }
+        swap(arr[i + 1], arr[high]);
+        swapf(&comp[i + 1], &comp[high]);
+        int pi = i + 1;
+
+        quickSort(arr, comp, low, pi - 1);
+        quickSort(arr, comp, pi + 1, high);
+    }
+}
+
+// Sorts all the vertices by their angle relative to pivot clockwise
+void buildVertexList(vec2 *vertices, int count, Point2D pivot) {
+    double *angles = malloc(count * sizeof(double));
+
+    // Find all angles and sort
+    for (int i = 0; i < count; i++)
+        angles[i] = atan2(vertices[i][1] - pivot.y, vertices[i][0] - pivot.x);
+    quickSort(vertices, angles, 0, count - 1);
+
+    free(angles);
 }
 
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
-	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
 	SDL_Event e;
 	bool quit = false;
 	int keyboardSize;
@@ -171,7 +277,7 @@ int main(int argc, const char *argv[]) {
 		return -1;
 
 	// Initialize vk2d
-	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
+	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
 	int32_t error = vk2dRendererInit(window, config, &options);
@@ -184,6 +290,7 @@ int main(int argc, const char *argv[]) {
 
 	// Load Some test assets
 	VK2DTexture playerTex = vk2dTextureLoad("assets/caveguy.png");
+	VK2DTexture shadowsTex = vk2dTextureCreate(400, 300);
 
 	VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
 	VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
@@ -193,8 +300,8 @@ int main(int argc, const char *argv[]) {
 	double lastTime = SDL_GetPerformanceCounter();
 
 	// Player
-	double playerX = 120;
-	double playerY = 120;
+	double playerX = 140;
+	double playerY = 140;
     double velocityX = 0;
     double velocityY = 0;
     double mouseX;
@@ -208,8 +315,42 @@ int main(int argc, const char *argv[]) {
     VK2DPolygon poly5 = vk2dPolygonCreate(POLY_5, POLY_5_COUNT);
 
     // Master vertex list
-    VK2DVertexColour *shadowVertices = calloc(1, sizeof(VK2DVertexColour) * TOTAL_VERTEX_COUNT * 10);
+    VK2DVertexColour *shadowVertices = calloc(1, sizeof(VK2DVertexColour) * 1024);
+    for (int i = 0; i < TOTAL_VERTEX_COUNT * 10; i++) {
+        shadowVertices[i].colour[0] = 1;
+        shadowVertices[i].colour[1] = 1;
+        shadowVertices[i].colour[2] = 1;
+        shadowVertices[i].colour[3] = 1;
+    }
     int shadowVertexCount = 0;
+
+    // Assemble array of all vertices
+    vec2 *allVertices = malloc(sizeof(vec2) * TOTAL_VERTEX_COUNT);
+    int v = 0;
+    for (int i = 0; i < ROOM_COUNT; i++) {
+        allVertices[v][0] = ROOM[i][0];
+        allVertices[v++][1] = ROOM[i][1];
+    }
+    for (int i = 0; i < POLY_1_COUNT; i++) {
+        allVertices[v][0] = POLY_1[i][0];
+        allVertices[v++][1] = POLY_1[i][1];
+    }
+    for (int i = 0; i < POLY_2_COUNT; i++) {
+        allVertices[v][0] = POLY_2[i][0];
+        allVertices[v++][1] = POLY_2[i][1];
+    }
+    for (int i = 0; i < POLY_3_COUNT; i++) {
+        allVertices[v][0] = POLY_3[i][0];
+        allVertices[v++][1] = POLY_3[i][1];
+    }
+    for (int i = 0; i < POLY_4_COUNT; i++) {
+        allVertices[v][0] = POLY_4[i][0];
+        allVertices[v++][1] = POLY_4[i][1];
+    }
+    for (int i = 0; i < POLY_5_COUNT; i++) {
+        allVertices[v][0] = POLY_5[i][0];
+        allVertices[v++][1] = POLY_5[i][1];
+    }
 
     while (!quit) {
 		while (SDL_PollEvent(&e)) {
@@ -258,30 +399,23 @@ int main(int argc, const char *argv[]) {
         vk2dDrawPolygon(poly4, 0, 0);
         vk2dDrawPolygon(poly5, 0, 0);
         vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
-        vk2dDrawTexture(playerTex, playerX, playerY);
+        vk2dDrawTexture(playerTex, playerX - (vk2dTextureWidth(playerTex) / 2), playerY - (vk2dTextureHeight(playerTex) / 2));
         vk2dDrawCircle(mouseX, mouseY, 2);
 
-        // Draw line intersection
+        // Draw shadows
         Point2D player = {playerX, playerY};
-        Point2D mouse = {mouseX, mouseY};
         shadowVertexCount = 0;
-        Point2D p;
-        if (getPointIntersection(&p, POLY_1, POLY_1_COUNT, player, mouse)) {
-            vk2dDrawCircle(p.x, p.y, 2);
-        }
-        if (getPointIntersection(&p, POLY_2, POLY_2_COUNT, player, mouse)) {
-            vk2dDrawCircle(p.x, p.y, 2);
-        }
-        if (getPointIntersection(&p, POLY_3, POLY_3_COUNT, player, mouse)) {
-            vk2dDrawCircle(p.x, p.y, 2);
-        }
-        if (getPointIntersection(&p, POLY_4, POLY_4_COUNT, player, mouse)) {
-            vk2dDrawCircle(p.x, p.y, 2);
-        }
-        if (getPointIntersection(&p, POLY_5, POLY_5_COUNT, player, mouse)) {
-            vk2dDrawCircle(p.x, p.y, 2);
-        }
-        //vk2dRendererDrawGeometry(shadowVertices, shadowVertexCount, 0, 0, true, 0, 1, 1, 0, 0, 0);
+        buildVertexList(allVertices, TOTAL_VERTEX_COUNT, player);
+        shadowVertexCount = addToShadowVertices(allVertices, shadowVertices, player);
+        /*vk2dRendererSetTarget(shadowsTex);
+        vk2dRendererSetColourMod(VK2D_BLACK);
+        vk2dRendererClear();
+        vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
+        vk2dRendererSetBlendMode(VK2D_BLEND_MODE_SUBTRACT);*/
+        vk2dRendererDrawGeometry(shadowVertices, shadowVertexCount, 0, 0, true, 1, 1, 1, 0, 0, 0);
+        /*vk2dRendererSetBlendMode(VK2D_BLEND_MODE_BLEND);
+        vk2dRendererSetTarget(VK2D_TARGET_SCREEN);*/
+        vk2dDrawTexture(shadowsTex, 0, 0);
 
 		debugRenderOverlay();
 
@@ -292,6 +426,7 @@ int main(int argc, const char *argv[]) {
 	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
 	debugCleanup();
+	vk2dTextureFree(shadowsTex);
 	vk2dTextureFree(playerTex);
 	free(shadowVertices);
     vk2dPolygonFree(poly1);
