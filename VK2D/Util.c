@@ -369,7 +369,7 @@ void vk2dSleep(double seconds) {
     double start = SDL_GetPerformanceCounter();
     double milliseconds = floor(seconds * 1000);
     SDL_Delay(milliseconds);
-    while (start / (double)SDL_GetPerformanceFrequency() < seconds) {
-        volatile int i;
+    while ((SDL_GetPerformanceCounter() - start) / (double)SDL_GetPerformanceFrequency() < seconds) {
+        volatile int i = 0;
     }
 }

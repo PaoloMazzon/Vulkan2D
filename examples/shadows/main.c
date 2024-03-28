@@ -188,6 +188,7 @@ void addVertex(VK2DVertexColour *vertices, int *index, Point2D p) {
 int addToShadowVertices(vec2 *allVertices, VK2DVertexColour *vertices, Point2D player) {
     int vertexIndex = 0;
     bool usePrev = false;
+    Point2D first = {0};
     Point2D previous = {0};
     for (int i = 0; i < TOTAL_VERTEX_COUNT; i++) {
         double rads = atan2(allVertices[i][1] - player.y, allVertices[i][0] - player.x);
@@ -201,17 +202,28 @@ int addToShadowVertices(vec2 *allVertices, VK2DVertexColour *vertices, Point2D p
         getClosestIntersection(&dl, player, destLeft);
         getClosestIntersection(&dr, player, destRight);
 
-        addVertex(vertices, &vertexIndex, player);
-        addVertex(vertices, &vertexIndex, previous);
-        addVertex(vertices, &vertexIndex, dl);
-        addVertex(vertices, &vertexIndex, player);
+        // Store for final point
+        if (i == 0)
+            first = dl;
+
+        if (usePrev) {
+            addVertex(vertices, &vertexIndex, player);
+            addVertex(vertices, &vertexIndex, previous);
+            addVertex(vertices, &vertexIndex, dl);
+        }
         addVertex(vertices, &vertexIndex, player);
         addVertex(vertices, &vertexIndex, dl);
         addVertex(vertices, &vertexIndex, d);
-        addVertex(vertices, &vertexIndex, player);
         addVertex(vertices, &vertexIndex, player);
         addVertex(vertices, &vertexIndex, d);
         addVertex(vertices, &vertexIndex, dr);
+
+        if (i == TOTAL_VERTEX_COUNT - 1) {
+            addVertex(vertices, &vertexIndex, player);
+            addVertex(vertices, &vertexIndex, dr);
+            addVertex(vertices, &vertexIndex, first);
+        }
+
         previous = dr;
         usePrev = true;
 
@@ -290,7 +302,9 @@ int main(int argc, const char *argv[]) {
 
 	// Load Some test assets
 	VK2DTexture playerTex = vk2dTextureLoad("assets/caveguy.png");
+    VK2DTexture lightOrbTex = vk2dTextureLoad("assets/light.png");
 	VK2DTexture shadowsTex = vk2dTextureCreate(400, 300);
+	VK2DTexture lightTex = vk2dTextureCreate(400, 300);
 
 	VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
 	VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
@@ -407,15 +421,26 @@ int main(int argc, const char *argv[]) {
         shadowVertexCount = 0;
         buildVertexList(allVertices, TOTAL_VERTEX_COUNT, player);
         shadowVertexCount = addToShadowVertices(allVertices, shadowVertices, player);
-        /*vk2dRendererSetTarget(shadowsTex);
+        vk2dRendererSetTarget(shadowsTex);
         vk2dRendererSetColourMod(VK2D_BLACK);
         vk2dRendererClear();
         vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
-        vk2dRendererSetBlendMode(VK2D_BLEND_MODE_SUBTRACT);*/
+        vk2dRendererSetBlendMode(VK2D_BLEND_MODE_SUBTRACT);
         vk2dRendererDrawGeometry(shadowVertices, shadowVertexCount, 0, 0, true, 1, 1, 1, 0, 0, 0);
-        /*vk2dRendererSetBlendMode(VK2D_BLEND_MODE_BLEND);
-        vk2dRendererSetTarget(VK2D_TARGET_SCREEN);*/
+        vk2dRendererSetBlendMode(VK2D_BLEND_MODE_BLEND);
+        vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
         vk2dDrawTexture(shadowsTex, 0, 0);
+
+        // Draw light radius around player
+        vk2dRendererSetTarget(lightTex);
+        vk2dRendererSetColourMod(VK2D_BLACK);
+        vk2dRendererClear();
+        vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
+        vk2dRendererSetBlendMode(VK2D_BLEND_MODE_SUBTRACT);
+        vk2dDrawTexture(lightOrbTex, playerX - (vk2dTextureWidth(lightOrbTex) / 2), playerY - (vk2dTextureHeight(lightOrbTex) / 2));
+        vk2dRendererSetBlendMode(VK2D_BLEND_MODE_BLEND);
+        vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
+        vk2dDrawTexture(lightTex, 0, 0);
 
 		debugRenderOverlay();
 
@@ -426,7 +451,9 @@ int main(int argc, const char *argv[]) {
 	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
 	debugCleanup();
-	vk2dTextureFree(shadowsTex);
+    vk2dTextureFree(shadowsTex);
+    vk2dTextureFree(lightOrbTex);
+    vk2dTextureFree(lightTex);
 	vk2dTextureFree(playerTex);
 	free(shadowVertices);
     vk2dPolygonFree(poly1);
