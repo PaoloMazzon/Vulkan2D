@@ -468,8 +468,10 @@ void vk2dAssetsSetShaderMemory(VK2DAssetLoad *array, int index, void *vertexBuff
 /// \brief Combines busy loops and SDL_Delay for a more accurate sleep function
 /// \param seconds Time in seconds to sleep - values equal or less than 0 do nothing
 ///
-/// This is less accurate than a busy loop but usually good enough for most things,
-/// it also should be less taxing on the cpu.
+/// In the worst case (the closer this is to a whole millisecond; i.e. 0.008005s will
+/// have a significantly higher error than 0.0085s), this can have upwards of 6% error.
+/// For games and most other use cases this more than accurate enough and less taxing
+/// on the CPU than a busy loop.
 void vk2dSleep(double seconds);
 
 /************************* Shorthand for simpler drawing at no performance cost *************************/

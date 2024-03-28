@@ -2,11 +2,7 @@
 #include <SDL2/SDL_vulkan.h>
 #include <stdbool.h>
 #include "VK2D/VK2D.h"
-#include "VK2D/Validation.h"
-#include <stdio.h>
-#include <time.h>
 #include "../debug.c"
-
 
 const vec2 POLY_1[] = {
         {13, 74},
@@ -329,8 +325,8 @@ int main(int argc, const char *argv[]) {
     VK2DPolygon poly5 = vk2dPolygonCreate(POLY_5, POLY_5_COUNT);
 
     // Master vertex list
-    VK2DVertexColour *shadowVertices = calloc(1, sizeof(VK2DVertexColour) * 1024);
-    for (int i = 0; i < TOTAL_VERTEX_COUNT * 10; i++) {
+    VK2DVertexColour *shadowVertices = calloc(1, sizeof(VK2DVertexColour) * 9 * TOTAL_VERTEX_COUNT);
+    for (int i = 0; i < TOTAL_VERTEX_COUNT * 9; i++) {
         shadowVertices[i].colour[0] = 1;
         shadowVertices[i].colour[1] = 1;
         shadowVertices[i].colour[2] = 1;
