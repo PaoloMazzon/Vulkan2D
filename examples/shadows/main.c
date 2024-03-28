@@ -4,6 +4,9 @@
 #include "VK2D/VK2D.h"
 #include "../debug.c"
 
+// Enable this for shadow effects similar to that of the game Teleglitch
+//#define MOVING_SHADOWS
+
 const vec2 POLY_1[] = {
         {13, 74},
         {99, 35},
@@ -181,6 +184,13 @@ void addVertex(VK2DVertexColour *vertices, int *index, Point2D p) {
     vertices[(*index)++].pos[1] = p.y;
 }
 
+void castOut(Point2D player, Point2D *p) {
+    double angle = atan2(player.y - p->y, player.x - p->x);
+    double dist = 15 / (3 + sqrt(pow(player.y - p->y, 2) + pow(player.x - p->x, 2)));
+    p->x -= cos(angle) * dist * 20;
+    p->y -= sin(angle) * dist * 20;
+}
+
 int addToShadowVertices(vec2 *allVertices, VK2DVertexColour *vertices, Point2D player) {
     int vertexIndex = 0;
     bool usePrev = false;
@@ -197,6 +207,12 @@ int addToShadowVertices(vec2 *allVertices, VK2DVertexColour *vertices, Point2D p
         getClosestIntersection(&d, player, dest);
         getClosestIntersection(&dl, player, destLeft);
         getClosestIntersection(&dr, player, destRight);
+
+#ifdef MOVING_SHADOWS
+        castOut(player, &d);
+        castOut(player, &dl);
+        castOut(player, &dr);
+#endif // MOVING_SHADOWS
 
         // Store for final point
         if (i == 0)
@@ -275,43 +291,43 @@ void buildVertexList(vec2 *vertices, int count, Point2D pivot) {
 }
 
 int main(int argc, const char *argv[]) {
-	// Basic SDL setup
-	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
-	SDL_Event e;
-	bool quit = false;
-	int keyboardSize;
-	const uint8_t *keyboard = SDL_GetKeyboardState(&keyboardSize);
-	if (window == NULL)
-		return -1;
+    // Basic SDL setup
+    SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
+    SDL_Event e;
+    bool quit = false;
+    int keyboardSize;
+    const uint8_t *keyboard = SDL_GetKeyboardState(&keyboardSize);
+    if (window == NULL)
+        return -1;
 
-	// Initialize vk2d
-	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
-	vec4 clear = {0.0, 0.5, 1.0, 1.0};
-	VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
-	int32_t error = vk2dRendererInit(window, config, &options);
+    // Initialize vk2d
+    VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
+    vec4 clear = {0.0, 0.5, 1.0, 1.0};
+    VK2DStartupOptions options = {true, true, true, "vk2derror.txt", false};
+    int32_t error = vk2dRendererInit(window, config, &options);
 
-	if (error < 0)
-		return -1;
+    if (error < 0)
+        return -1;
 
-	VK2DCameraSpec defcam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0};
-	vk2dRendererSetCamera(defcam);
+    VK2DCameraSpec defcam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0};
+    vk2dRendererSetCamera(defcam);
 
-	// Load Some test assets
-	VK2DTexture playerTex = vk2dTextureLoad("assets/caveguy.png");
+    // Load Some test assets
+    VK2DTexture playerTex = vk2dTextureLoad("assets/caveguy.png");
     VK2DTexture lightOrbTex = vk2dTextureLoad("assets/light.png");
-	VK2DTexture shadowsTex = vk2dTextureCreate(400, 300);
-	VK2DTexture lightTex = vk2dTextureCreate(400, 300);
+    VK2DTexture shadowsTex = vk2dTextureCreate(400, 300);
+    VK2DTexture lightTex = vk2dTextureCreate(400, 300);
 
-	VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
-	VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
-	debugInit(window);
+    VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
+    VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
+    debugInit(window);
 
-	// Framerate control
-	double lastTime = SDL_GetPerformanceCounter();
+    // Framerate control
+    double lastTime = SDL_GetPerformanceCounter();
 
-	// Player
-	double playerX = 140;
-	double playerY = 140;
+    // Player
+    double playerX = 140;
+    double playerY = 140;
     double velocityX = 0;
     double velocityY = 0;
     double mouseX;
@@ -363,21 +379,21 @@ int main(int argc, const char *argv[]) {
     }
 
     while (!quit) {
-		while (SDL_PollEvent(&e)) {
-			if (e.type == SDL_QUIT) {
-				quit = true;
-			}
-		}
-		SDL_PumpEvents();
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                quit = true;
+            }
+        }
+        SDL_PumpEvents();
 
         // Adjust for window size
-		int windowWidth, windowHeight;
-		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
-		cam.w = (float)windowWidth / 2;
-		cam.h = (float)windowHeight / 2;
-		vk2dCameraUpdate(testCamera, cam);
-		int mx, my;
-		SDL_GetMouseState(&mx, &my);
+        int windowWidth, windowHeight;
+        SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+        cam.w = (float)windowWidth / 2;
+        cam.h = (float)windowHeight / 2;
+        vk2dCameraUpdate(testCamera, cam);
+        int mx, my;
+        SDL_GetMouseState(&mx, &my);
         mouseX = (double)mx * 0.5;
         mouseY = (double)my * 0.5;
 
@@ -394,15 +410,16 @@ int main(int argc, const char *argv[]) {
         playerY = playerY > windowHeight * 0.5 ? -vk2dTextureHeight(playerTex) : (playerY < -vk2dTextureHeight(playerTex) ? windowHeight * 0.5 : playerY);
 
         // All rendering must happen after this
-		vk2dRendererStartFrame(clear);
+        vk2dRendererStartFrame(clear);
 
-		// Lock framerate to 60
-		vk2dSleep((((double)SDL_GetPerformanceFrequency() / 60) - ((double)SDL_GetPerformanceCounter() - lastTime)) / SDL_GetPerformanceFrequency());
+        // Lock framerate to 60
+        vk2dSleep((((double)SDL_GetPerformanceFrequency() / 60) - ((double)SDL_GetPerformanceCounter() - lastTime)) / SDL_GetPerformanceFrequency());
         lastTime = SDL_GetPerformanceCounter();
 
-		// Draw 2D portions
-		vk2dRendererLockCameras(testCamera);
-		vk2dRendererSetColourMod(VK2D_BLACK);
+        // Draw 2D portions
+        vk2dRendererLockCameras(testCamera);
+        vec4 grey = {0.3, 0.3, 0.3, 1};
+        vk2dRendererSetColourMod(grey);
         vk2dDrawPolygon(poly1, 0, 0);
         vk2dDrawPolygon(poly2, 0, 0);
         vk2dDrawPolygon(poly3, 0, 0);
@@ -438,26 +455,26 @@ int main(int argc, const char *argv[]) {
         vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
         vk2dDrawTexture(lightTex, 0, 0);
 
-		debugRenderOverlay();
+        debugRenderOverlay();
 
-		// End the frame
-		vk2dRendererEndFrame();
-	}
+        // End the frame
+        vk2dRendererEndFrame();
+    }
 
-	// vk2dRendererWait must be called before freeing things
-	vk2dRendererWait();
-	debugCleanup();
+    // vk2dRendererWait must be called before freeing things
+    vk2dRendererWait();
+    debugCleanup();
     vk2dTextureFree(shadowsTex);
     vk2dTextureFree(lightOrbTex);
     vk2dTextureFree(lightTex);
-	vk2dTextureFree(playerTex);
-	free(shadowVertices);
+    vk2dTextureFree(playerTex);
+    free(shadowVertices);
     vk2dPolygonFree(poly1);
     vk2dPolygonFree(poly2);
     vk2dPolygonFree(poly3);
     vk2dPolygonFree(poly4);
     vk2dPolygonFree(poly5);
     vk2dRendererQuit();
-	SDL_DestroyWindow(window);
-	return 0;
+    SDL_DestroyWindow(window);
+    return 0;
 }
