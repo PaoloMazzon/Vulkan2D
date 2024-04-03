@@ -99,6 +99,12 @@ shader before running the `examples/main/` example with:
     glslc assets/test.frag -o assets/tex.frag.spv
     glslc assets/test.vert -o assets/tex.vert.spv
 
+You may also compile the binary shader blobs with the long command
+
+    genblobs.py colour.vert colour.frag instanced.vert instanced.frag model.vert model.frag shadows.vert shadows.frag tex.vert tex.frag
+
+run from the `shaders/` folder (requires Python).
+
 TODO
 ====
 
