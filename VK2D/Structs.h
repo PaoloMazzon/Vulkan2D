@@ -103,7 +103,8 @@ typedef enum {
 	VK2D_PIPELINE_TYPE_DEFAULT = 0,    ///< Default 2D pipelines
 	VK2D_PIPELINE_TYPE_3D = 1,         ///< 3D pipelines
 	VK2D_PIPELINE_TYPE_INSTANCING = 2, ///< Pipelines for instancing
-	VK2D_PIPELINE_TYPE_MAX = 3,        ///< Max number of pipeline types
+	VK2D_PIPELINE_TYPE_SHADOWS = 3,    ///< Pipeline for shadows
+	VK2D_PIPELINE_TYPE_MAX = 4,        ///< Max number of pipeline types
 } VK2DPipelineType;
 
 /// \brief Return codes through the renderer
@@ -187,6 +188,11 @@ struct VK2DPushBuffer {
 struct VK2D3DPushBuffer {
 	mat4 model;     ///< Model matrix
 	vec4 colourMod; ///< Color modifier
+};
+
+/// \brief Push buffer used for hardware-accelerated shadows
+struct VK2DShadowsPushBuffer {
+    vec2 lightSource; ///< Light source position
 };
 
 /// \brief User configurable settings
@@ -307,6 +313,7 @@ VK2D_USER_STRUCT(VK2DVertex3D)
 VK2D_USER_STRUCT(VK2DUniformBufferObject)
 VK2D_USER_STRUCT(VK2DPushBuffer)
 VK2D_USER_STRUCT(VK2D3DPushBuffer)
+VK2D_USER_STRUCT(VK2DShadowsPushBuffer)
 VK2D_USER_STRUCT(VK2DConfiguration)
 VK2D_USER_STRUCT(VK2DStartupOptions)
 VK2D_USER_STRUCT(VK2DRendererConfig)

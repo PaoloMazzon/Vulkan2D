@@ -15,6 +15,9 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetModelVertexInputState();
 /// \brief Gets the vertex input information for the instancing pipeline
 VkPipelineVertexInputStateCreateInfo _vk2dGetInstanceVertexInputState();
 
+/// \brief Gets the vertex input information for the shadows pipeline
+VkPipelineVertexInputStateCreateInfo _vk2dGetShadowsVertexInputState();
+
 /// \brief Gets the vertex input information for VK2DVertexColour (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState();
 

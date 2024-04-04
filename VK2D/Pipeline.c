@@ -65,8 +65,14 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		};
 		VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo = vk2dInitPipelineDynamicStateCreateInfo(states, stateCount);
 		VkPushConstantRange range = {0};
-		range.size = sizeof(VK2DPushBuffer);
-		range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
+        if (type == VK2D_PIPELINE_TYPE_3D) {
+            range.size = sizeof(VK2D3DPushBuffer);
+        } else if (type == VK2D_PIPELINE_TYPE_DEFAULT) {
+            range.size = sizeof(VK2DPushBuffer);
+        } else if (type == VK2D_PIPELINE_TYPE_SHADOWS) {
+            range.size = sizeof(VK2DShadowsPushBuffer);
+        }
+        range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
 		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 		if (type != VK2D_PIPELINE_TYPE_INSTANCING)
 			pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 1, &range);
@@ -75,13 +81,15 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		vkCreatePipelineLayout(dev->dev, &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &pipe->layout);
 		VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo = vk2dInitPipelineInputAssemblyStateCreateInfo(fill);
 
-		// 3D settings
+		// 3D/shadow settings
 		if (type == VK2D_PIPELINE_TYPE_3D) {
 			pipelineRasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
 			pipelineDepthStencilStateCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
 			pipelineDepthStencilStateCreateInfo.depthTestEnable = VK_TRUE;
 			pipelineDepthStencilStateCreateInfo.depthWriteEnable = VK_TRUE;
-		}
+		} else if (type == VK2D_PIPELINE_TYPE_SHADOWS) {
+            pipelineInputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        }
 
 		for (i = 0; i < VK2D_BLEND_MODE_MAX; i++) {
 			VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo = vk2dInitPipelineColorBlendStateCreateInfo(&VK2D_BLEND_MODES[i], 1);

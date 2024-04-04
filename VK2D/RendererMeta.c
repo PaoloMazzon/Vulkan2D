@@ -626,6 +626,7 @@ void _vk2dRendererCreatePipelines() {
 	VkPipelineVertexInputStateCreateInfo colourVertexInfo = _vk2dGetColourVertexInputState();
 	VkPipelineVertexInputStateCreateInfo modelVertexInfo = _vk2dGetModelVertexInputState();
 	VkPipelineVertexInputStateCreateInfo instanceVertexInfo = _vk2dGetInstanceVertexInputState();
+    VkPipelineVertexInputStateCreateInfo shadowsVertexInfo = _vk2dGetShadowsVertexInputState();
 
 	// Default shader files
 	uint32_t shaderTexVertSize = sizeof(VK2DVertTex);
@@ -646,14 +647,20 @@ void _vk2dRendererCreatePipelines() {
 	uint32_t shaderModelFragSize = sizeof(VK2DFragModel);
 	bool CustomModelFragShader = false;
 	unsigned char *shaderModelFrag = (void*)VK2DFragModel;
-	uint32_t shaderInstancedVertSize = sizeof(VK2DVertInstanced);
-	bool CustomInstancedVertShader = false;
-	unsigned char *shaderInstancedVert = (void*)VK2DVertInstanced;
-	uint32_t shaderInstancedFragSize = sizeof(VK2DFragInstanced);
-	bool CustomInstancedFragShader = false;
-	unsigned char *shaderInstancedFrag = (void*)VK2DFragInstanced;
+    uint32_t shaderInstancedVertSize = sizeof(VK2DVertInstanced);
+    bool CustomInstancedVertShader = false;
+    unsigned char *shaderInstancedVert = (void*)VK2DVertInstanced;
+    uint32_t shaderInstancedFragSize = sizeof(VK2DFragInstanced);
+    bool CustomInstancedFragShader = false;
+    unsigned char *shaderInstancedFrag = (void*)VK2DFragInstanced;
+    uint32_t shaderShadowsVertSize = sizeof(VK2DVertShadows);
+    bool CustomShadowsVertShader = false;
+    unsigned char *shaderShadowsVert = (void*)VK2DVertShadows;
+    uint32_t shaderShadowsFragSize = sizeof(VK2DFragShadows);
+    bool CustomShadowsFragShader = false;
+    unsigned char *shaderShadowsFrag = (void*)VK2DFragShadows;
 
-	// Potentially load some different ones
+    // Potentially load some different ones
 	if (gRenderer->options.loadCustomShaders) {
 		if (_vk2dFileExists("shaders/texvert.spv")) {
 			CustomTexVertShader = true;
@@ -679,14 +686,22 @@ void _vk2dRendererCreatePipelines() {
 			CustomModelFragShader = true;
 			shaderModelFrag = _vk2dLoadFile("shaders/modelfrag.spv", &shaderModelFragSize);
 		}
-		if (_vk2dFileExists("shaders/instancedvert.spv")) {
-			CustomInstancedVertShader = true;
-			shaderInstancedVert = _vk2dLoadFile("shaders/instancedvert.spv", &shaderInstancedVertSize);
-		}
-		if (_vk2dFileExists("shaders/instancedfrag.spv")) {
-			CustomInstancedFragShader = true;
-			shaderInstancedFrag = _vk2dLoadFile("shaders/instancedfrag.spv", &shaderInstancedFragSize);
-		}
+        if (_vk2dFileExists("shaders/instancedvert.spv")) {
+            CustomInstancedVertShader = true;
+            shaderInstancedVert = _vk2dLoadFile("shaders/instancedvert.spv", &shaderInstancedVertSize);
+        }
+        if (_vk2dFileExists("shaders/instancedfrag.spv")) {
+            CustomInstancedFragShader = true;
+            shaderInstancedFrag = _vk2dLoadFile("shaders/instancedfrag.spv", &shaderInstancedFragSize);
+        }
+        if (_vk2dFileExists("shaders/shadowsvert.spv")) {
+            CustomShadowsVertShader = true;
+            shaderShadowsVert = _vk2dLoadFile("shaders/shadowsvert.spv", &shaderInstancedVertSize);
+        }
+        if (_vk2dFileExists("shaders/shadowsfrag.spv")) {
+            CustomShadowsFragShader = true;
+            shaderShadowsFrag = _vk2dLoadFile("shaders/shadowsfrag.spv", &shaderInstancedFragSize);
+        }
 	}
 
 	// Texture pipeline
@@ -705,7 +720,7 @@ void _vk2dRendererCreatePipelines() {
 			&textureVertexInfo,
 			true,
 			gRenderer->config.msaa,
-			false);
+            VK2D_PIPELINE_TYPE_DEFAULT);
 
 	// Polygon pipelines
 	gRenderer->primFillPipe = vk2dPipelineCreate(
@@ -722,7 +737,7 @@ void _vk2dRendererCreatePipelines() {
 			&colourVertexInfo,
 			true,
 			gRenderer->config.msaa,
-			false);
+            VK2D_PIPELINE_TYPE_DEFAULT);
 	gRenderer->primLinePipe = vk2dPipelineCreate(
 			gRenderer->ld,
 			gRenderer->renderPass,
@@ -737,7 +752,7 @@ void _vk2dRendererCreatePipelines() {
 			&colourVertexInfo,
 			false,
 			gRenderer->config.msaa,
-			false);
+            VK2D_PIPELINE_TYPE_DEFAULT);
 
 	// 3D pipelines
 	gRenderer->modelPipe = vk2dPipelineCreate(
@@ -754,7 +769,7 @@ void _vk2dRendererCreatePipelines() {
 			&modelVertexInfo,
 			true,
 			gRenderer->config.msaa,
-			true);
+            VK2D_PIPELINE_TYPE_3D);
 	gRenderer->wireframePipe = vk2dPipelineCreate(
 			gRenderer->ld,
 			gRenderer->renderPass,
@@ -769,7 +784,7 @@ void _vk2dRendererCreatePipelines() {
 			&modelVertexInfo,
 			false,
 			gRenderer->config.msaa,
-			true);
+            VK2D_PIPELINE_TYPE_3D);
 	gRenderer->instancedPipe = vk2dPipelineCreate(
 			gRenderer->ld,
 			gRenderer->renderPass,
@@ -784,7 +799,24 @@ void _vk2dRendererCreatePipelines() {
 			&instanceVertexInfo,
 			true,
 			gRenderer->config.msaa,
-			false);
+			VK2D_PIPELINE_TYPE_INSTANCING);
+
+	// Shadows pipeline
+    gRenderer->shadowsPipe = vk2dPipelineCreate(
+            gRenderer->ld,
+            gRenderer->renderPass,
+            gRenderer->surfaceWidth,
+            gRenderer->surfaceHeight,
+            shaderShadowsVert,
+            shaderShadowsVertSize,
+            shaderShadowsFrag,
+            shaderShadowsFragSize,
+            layout,
+            1,
+            &instanceVertexInfo,
+            true,
+            gRenderer->config.msaa,
+            VK2D_PIPELINE_TYPE_SHADOWS);
 
 	// Shader pipelines
 	for (i = 0; i < gRenderer->shaderListSize; i++) {
@@ -807,12 +839,16 @@ void _vk2dRendererCreatePipelines() {
 		free(shaderModelVert);
 	if (CustomModelFragShader)
 		free(shaderModelFrag);
-	if (CustomInstancedVertShader)
-		free(shaderInstancedVert);
-	if (CustomInstancedFragShader)
-		free(shaderInstancedFrag);
+    if (CustomInstancedVertShader)
+        free(shaderInstancedVert);
+    if (CustomInstancedFragShader)
+        free(shaderInstancedFrag);
+    if (CustomShadowsVertShader)
+        free(shaderShadowsVert);
+    if (CustomShadowsFragShader)
+        free(shaderShadowsFrag);
 
-	vk2dLogMessage("Pipelines initialized...");
+    vk2dLogMessage("Pipelines initialized...");
 }
 
 void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
@@ -822,9 +858,10 @@ void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
 	vk2dPipelineFree(gRenderer->texPipe);
 	vk2dPipelineFree(gRenderer->modelPipe);
 	vk2dPipelineFree(gRenderer->wireframePipe);
-	vk2dPipelineFree(gRenderer->instancedPipe);
+    vk2dPipelineFree(gRenderer->instancedPipe);
+    vk2dPipelineFree(gRenderer->shadowsPipe);
 
-	if (!preserveCustomPipes)
+    if (!preserveCustomPipes)
 		free(gRenderer->customShaders);
 }
 

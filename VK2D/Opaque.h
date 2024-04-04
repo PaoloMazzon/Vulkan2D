@@ -238,6 +238,7 @@ struct VK2DRenderer_t {
 	VK2DPipeline primFillPipe;  ///< Pipeline for rendering filled shapes
 	VK2DPipeline primLinePipe;  ///< Pipeline for rendering shape outlines
 	VK2DPipeline instancedPipe; ///< Pipeline for instancing textures
+	VK2DPipeline shadowsPipe;   ///< Pipeline for hardware-accelerated shadows
 	uint32_t shaderListSize;    ///< Size of the list of customShaders
 	VK2DShader *customShaders;  ///< Custom shaders the user creates
 

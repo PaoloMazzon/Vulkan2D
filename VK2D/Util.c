@@ -60,6 +60,22 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetInstanceVertexInputState() {
 	return pipelineVertexInputStateCreateInfo;
 }
 
+VkPipelineVertexInputStateCreateInfo _vk2dGetShadowsVertexInputState() {
+	static VkVertexInputBindingDescription vertexInputBindingDescription;
+	static VkVertexInputAttributeDescription vertexInputAttributeDescription[1];
+	static VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo;
+	static bool init = false;
+
+	if (!init) {
+		vertexInputBindingDescription = vk2dInitVertexInputBindingDescription(VK_VERTEX_INPUT_RATE_VERTEX, sizeof(vec3), 0);
+		vertexInputAttributeDescription[0] = vk2dInitVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, 0);
+		pipelineVertexInputStateCreateInfo = vk2dInitPipelineVertexInputStateCreateInfo(&vertexInputBindingDescription, 1, vertexInputAttributeDescription, 1);
+		init = true;
+	}
+
+	return pipelineVertexInputStateCreateInfo;
+}
+
 // Gets the vertex input information for VK2DVertexColour (Uses static variables to persist attached descriptions)
 VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState() {
 	static VkVertexInputBindingDescription vertexInputBindingDescription;

@@ -17,7 +17,7 @@ out gl_PerVertex {
 };
 
 void main() {
-    int mod = gl_VertexID % 6;
+    int mod = gl_VertexIndex % 6;
     if (mod == 1 || mod == 4 || mod == 3) {
         // One of the vertices that needs to be projected
         vec4 vertex = vec4(

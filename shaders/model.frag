@@ -11,7 +11,6 @@ layout(location = 0) out vec4 outColor;
 layout(push_constant) uniform PushBuffer {
     mat4 model;
     vec4 colourMod;
-    vec4 textureCoords;
 } pushBuffer;
 
 void main() {
