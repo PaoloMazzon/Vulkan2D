@@ -443,6 +443,15 @@ int main(int argc, const char *argv[]) {
         vk2dRendererSetBlendMode(VK2D_BLEND_MODE_BLEND);
         vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
         vk2dDrawTexture(shadowsTex, 0, 0);
+        vec3 vert[] = {
+                {100, 100, 0},
+                {200, 100, 0},
+                {100, 200, 0},
+                {100, 200, 0},
+                {200, 100, 0},
+                {200, 200, 0},
+        };
+        vk2dRendererDrawShadows(vert, 6);
 
         // Draw light radius around player
         vk2dRendererSetTarget(lightTex);

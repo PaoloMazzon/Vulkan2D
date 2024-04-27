@@ -1290,6 +1290,59 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 		vkCmdDraw(buf, 6, 1, 0, 0);
 }
 
+void _vk2dRendererDrawRawShadows(VkDescriptorSet set, const vec2 lightSource, VkBuffer buffer, VkDeviceSize offset, int count, VK2DCameraIndex cam) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
+    VK2DPipeline pipe = gRenderer->shadowsPipe;
+
+    // Push constants
+    VK2DShadowsPushBuffer push = {0};
+    push.lightSource[0] = lightSource[0];
+    push.lightSource[1] = lightSource[1];
+    // Check if we actually need to bind things
+    if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
+        vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(pipe, gRenderer->blendMode));
+        gRenderer->prevPipe = vk2dPipelineGetPipe(pipe, gRenderer->blendMode);
+    }
+    gRenderer->prevSetHash = 0;
+    VkDeviceSize offsets = offset;
+    vkCmdBindVertexBuffers(buf, 0, 1, &buffer, &offsets);
+    gRenderer->prevVBO = NULL;
+    vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->shadowsPipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
+
+    // Dynamic state that can't be optimized further and the draw call
+    cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
+    VkRect2D scissor;
+    VkViewport viewport;
+    if (gRenderer->target == NULL) {
+        viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
+        viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
+        viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
+        viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
+        viewport.minDepth = 0;
+        viewport.maxDepth = 1;
+        scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
+        scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
+        scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
+        scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
+    } else {
+        viewport.x = 0;
+        viewport.y = 0;
+        viewport.width = gRenderer->target->img->width;
+        viewport.height = gRenderer->target->img->height;
+        viewport.minDepth = 0;
+        viewport.maxDepth = 1;
+        scissor.extent.width = gRenderer->target->img->width;
+        scissor.extent.height = gRenderer->target->img->height;
+        scissor.offset.x = 0;
+        scissor.offset.y = 0;
+    }
+    vkCmdSetViewport(buf, 0, 1, &viewport);
+    vkCmdSetScissor(buf, 0, 1, &scissor);
+    vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DShadowsPushBuffer), &push);
+    vkCmdDraw(buf, count, 1, 0, 0);
+}
+
 void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count, VK2DCameraIndex cam) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
@@ -1432,19 +1485,37 @@ void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel mod
 
 // This is the upper level internal draw function that draws to each camera and not just with a scissor/viewport
 void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
-		sets[0] = gRenderer->targetUBOSet;
-		_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, VK2D_INVALID_CAMERA);
-	} else {
-		// Only render to 2D cameras
-		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-			if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
-				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-				_vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
-			}
-		}
-	}
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
+        sets[0] = gRenderer->targetUBOSet;
+        _vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, VK2D_INVALID_CAMERA);
+    } else {
+        // Only render to 2D cameras
+        for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+            if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+                sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+                _vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
+            }
+        }
+    }
+}
+
+// This is the upper level internal draw function for shadows that draws to each camera and not just with a scissor/viewport
+void _vk2dRendererDrawShadows(const vec2 lightSource, VkBuffer buffer, VkDeviceSize offset, int count) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    VkDescriptorSet set;
+    if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
+        set = gRenderer->targetUBOSet;
+        _vk2dRendererDrawRawShadows(set, lightSource, buffer, offset, count, VK2D_INVALID_CAMERA);
+    } else {
+        // Only render to 2D cameras
+        for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+            if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+                set = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+                _vk2dRendererDrawRawShadows(set, lightSource, buffer, offset, count, i);
+            }
+        }
+    }
 }
 
 void _vk2dRendererDrawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count) {

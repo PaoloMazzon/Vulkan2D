@@ -264,6 +264,10 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 /// \warning If filled is true the polygon must be triangulated.
 void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY);
 
+
+// TODO: ADD DOCS
+void vk2dRendererDrawShadows(vec3 *vertices, int count);
+
 /// \brief Renders a 3D model
 /// \param model Model to render
 /// \param x x position to draw at

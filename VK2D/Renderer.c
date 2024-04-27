@@ -764,6 +764,27 @@ void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, fl
     }
 }
 
+void vk2dRendererDrawShadows(vec3 *vertices, int count) {
+    if (gRenderer != NULL) {
+        if (vertices != NULL && count > 0) {
+            if (count <= gRenderer->limits.maxGeometryVertices) {
+                // Copy vertex data to the current descriptor buffer
+                VkBuffer buffer;
+                VkDeviceSize offset;
+                vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], vertices,
+                                             count * sizeof(vec3), &buffer, &offset);
+                vec2 lightSource = {0, 0};
+                _vk2dRendererDrawShadows(lightSource, buffer, offset, count);
+                _vk2dRendererResetBoundPointers();
+            }
+        } else {
+            vk2dLogMessage("Vertices do not exist");
+        }
+    } else {
+        vk2dLogMessage("Renderer is not initialized");
+    }
+}
+
 void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ) {
 	if (gRenderer != NULL) {
 		if (model != NULL) {
