@@ -764,7 +764,8 @@ void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, fl
     }
 }
 
-void vk2dRendererDrawShadows(vec3 *vertices, int count) {
+// TODO: Embed light sources into the renderer
+void vk2dRendererDrawShadows(vec3 *vertices, int count, vec2 lightSource) {
     if (gRenderer != NULL) {
         if (vertices != NULL && count > 0) {
             if (count <= gRenderer->limits.maxGeometryVertices) {
@@ -773,7 +774,6 @@ void vk2dRendererDrawShadows(vec3 *vertices, int count) {
                 VkDeviceSize offset;
                 vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], vertices,
                                              count * sizeof(vec3), &buffer, &offset);
-                vec2 lightSource = {0, 0};
                 _vk2dRendererDrawShadows(lightSource, buffer, offset, count);
                 _vk2dRendererResetBoundPointers();
             }

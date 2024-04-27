@@ -266,7 +266,7 @@ void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, fl
 
 
 // TODO: ADD DOCS
-void vk2dRendererDrawShadows(vec3 *vertices, int count);
+void vk2dRendererDrawShadows(vec3 *vertices, int count, vec2 lightSource);
 
 /// \brief Renders a 3D model
 /// \param model Model to render

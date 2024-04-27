@@ -813,7 +813,7 @@ void _vk2dRendererCreatePipelines() {
             shaderShadowsFragSize,
             layout,
             1,
-            &instanceVertexInfo,
+            &shadowsVertexInfo,
             true,
             gRenderer->config.msaa,
             VK2D_PIPELINE_TYPE_SHADOWS);

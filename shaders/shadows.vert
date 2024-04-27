@@ -21,8 +21,8 @@ void main() {
     if (mod == 1 || mod == 4 || mod == 3) {
         // One of the vertices that needs to be projected
         vec4 vertex = vec4(
-            inPosition.x - pushBuffer.lightSource.x,
-            inPosition.y - pushBuffer.lightSource.y,
+            (inPosition.x - pushBuffer.lightSource.x) * 1000,
+            (inPosition.y - pushBuffer.lightSource.y) * 1000,
             1.0,
             0.0
         );
