@@ -4,52 +4,6 @@
 #include "VK2D/VK2D.h"
 #include "../debug.c"
 
-// Enable this for shadow effects similar to that of the game Teleglitch
-//#define MOVING_SHADOWS
-
-const vec2 POLY_1[] = {
-        {13, 74},
-        {99, 35},
-        {152, 61},
-        {151, 108},
-        {74, 122},
-};
-const int POLY_1_COUNT = sizeof(POLY_1) / sizeof(vec2);
-
-const vec2 POLY_2[] = {
-        {216, 79},
-        {230, 45},
-        {331, 52},
-        {365, 127},
-        {363, 176},
-        {293, 133},
-};
-const int POLY_2_COUNT = sizeof(POLY_2) / sizeof(vec2);
-
-const vec2 POLY_3[] = {
-        {340, 228},
-        {361, 250},
-        {332, 248},
-};
-const int POLY_3_COUNT = sizeof(POLY_3) / sizeof(vec2);
-
-const vec2 POLY_4[] = {
-        {232, 178},
-        {285, 223},
-        {275, 275},
-        {140, 230},
-        {139, 226},
-};
-const int POLY_4_COUNT = sizeof(POLY_4) / sizeof(vec2);
-
-const vec2 POLY_5[] = {
-        {42, 165},
-        {88, 178},
-        {93, 220},
-        {22, 218},
-};
-const int POLY_5_COUNT = sizeof(POLY_5) / sizeof(vec2);
-
 /************************ Constants ************************/
 const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
@@ -98,11 +52,16 @@ int main(int argc, const char *argv[]) {
 
     // Load Some assets
     VK2DTexture playerTex = vk2dTextureLoad("assets/caveguy.png");
+    VK2DTexture lightOrbTex = vk2dTextureLoad("assets/light.png");
+    VK2DTexture shadowsTex = vk2dTextureCreate(400, 300);
     VK2DShadowEnvironment shadows = vk2DShadowEnvironmentCreate();
     vk2DShadowEnvironmentAddEdge(shadows, 200, 200, 200, 250);
     vk2DShadowEnvironmentAddEdge(shadows, 200, 200, 250, 200);
+    vk2DShadowEnvironmentAddEdge(shadows, 200, 250, 250, 250);
+    vk2DShadowEnvironmentAddEdge(shadows, 250, 200, 250, 250);
     vk2DShadowEnvironmentAddEdge(shadows, 100, 200, 100, 250);
     vk2DShadowEnvironmentAddEdge(shadows, 100, 200, 150, 250);
+    vk2DShadowEnvironmentAddEdge(shadows, 100, 250, 150, 250);
     vk2DShadowEnvironmentFlushVBO(shadows);
 
     VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
@@ -163,9 +122,21 @@ int main(int argc, const char *argv[]) {
         vk2dDrawTexture(playerTex, playerX - (vk2dTextureWidth(playerTex) / 2), playerY - (vk2dTextureHeight(playerTex) / 2));
         vk2dDrawCircle(mouseX, mouseY, 2);
 
+        // Shadows
         vec4 shadowColour = {0, 0, 0, 1};
         vec2 lightSource = {playerX, playerY};
         vk2dRendererDrawShadows(shadows, shadowColour, lightSource);
+
+        // Draw light orb on top of screen
+        vk2dRendererSetTarget(shadowsTex);
+        vk2dRendererSetColourMod(VK2D_BLACK);
+        vk2dRendererClear();
+        vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
+        vk2dRendererSetBlendMode(VK2D_BLEND_MODE_SUBTRACT);
+        vk2dDrawTexture(lightOrbTex, playerX - (vk2dTextureWidth(lightOrbTex) / 2), playerY - (vk2dTextureHeight(lightOrbTex) / 2));
+        vk2dRendererSetBlendMode(VK2D_BLEND_MODE_BLEND);
+        vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
+        vk2dDrawTexture(shadowsTex, 0, 0);
 
         debugRenderOverlay();
 
@@ -176,6 +147,8 @@ int main(int argc, const char *argv[]) {
     // vk2dRendererWait must be called before freeing things
     vk2dRendererWait();
     debugCleanup();
+    vk2dTextureFree(shadowsTex);
+    vk2dTextureFree(lightOrbTex);
     vk2DShadowEnvironmentFree(shadows);
     vk2dTextureFree(playerTex);
     vk2dRendererQuit();

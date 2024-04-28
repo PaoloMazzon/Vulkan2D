@@ -19,3 +19,5 @@ polygons. It does this in a few steps:
    the triangle list in `A` to remove the player's field of view from the black
  + Texture target `V` is also filled with black and has a small light texture subtracted
    from it and drawn on top of `U`
+   
+This is now deprecated because Vulkan2D now supports hardware-accelerated shadows.
