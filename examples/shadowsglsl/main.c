@@ -102,6 +102,7 @@ int main(int argc, const char *argv[]) {
     vk2DShadowEnvironmentAddEdge(shadows, 200, 200, 200, 250);
     vk2DShadowEnvironmentAddEdge(shadows, 200, 200, 250, 200);
     vk2DShadowEnvironmentAddEdge(shadows, 100, 200, 100, 250);
+    vk2DShadowEnvironmentAddEdge(shadows, 100, 200, 150, 250);
     vk2DShadowEnvironmentFlushVBO(shadows);
 
     VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};

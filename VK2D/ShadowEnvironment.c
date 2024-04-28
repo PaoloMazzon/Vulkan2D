@@ -50,11 +50,11 @@ void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float
     // Add the new 6 vertices for this edge
     if (!failedToExtendList) {
         vec3 vert[6] = {
+                {x2, y2, 0},
+                {x2, y2, 0}, // Projected - 1
                 {x1, y1, 0},
-                {x2, y1, 0}, // Projected - 1
-                {x1, y2, 0},
-                {x1, y2, 0}, // Projected - 3
-                {x2, y1, 0}, // Projected - 4
+                {x1, y1, 0}, // Projected - 3
+                {x1, y1, 0}, // Projected - 4
                 {x2, y2, 0},
         };
 

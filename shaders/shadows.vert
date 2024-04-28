@@ -19,7 +19,7 @@ out gl_PerVertex {
 
 void main() {
     int mod = gl_VertexIndex % 6;
-    if (mod == 1 || mod == 4 || mod == 3) {
+    if (mod == 1 || mod == 4 || mod == 5) {
         // One of the vertices that needs to be projected
         vec4 vertex = vec4(
             (inPosition.x - pushBuffer.lightSource.x) * 1000,
