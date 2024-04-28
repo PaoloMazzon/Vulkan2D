@@ -1299,6 +1299,10 @@ void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shad
     VK2DShadowsPushBuffer push = {0};
     push.lightSource[0] = lightSource[0];
     push.lightSource[1] = lightSource[1];
+    push.colour[0] = colour[0];
+    push.colour[1] = colour[1];
+    push.colour[2] = colour[2];
+    push.colour[3] = colour[3];
     // Check if we actually need to bind things
     if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
         vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(pipe, gRenderer->blendMode));

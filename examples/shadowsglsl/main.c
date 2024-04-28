@@ -96,8 +96,13 @@ int main(int argc, const char *argv[]) {
     VK2DCameraSpec defcam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0};
     vk2dRendererSetCamera(defcam);
 
-    // Load Some test assets
+    // Load Some assets
     VK2DTexture playerTex = vk2dTextureLoad("assets/caveguy.png");
+    VK2DShadowEnvironment shadows = vk2DShadowEnvironmentCreate();
+    vk2DShadowEnvironmentAddEdge(shadows, 200, 200, 200, 250);
+    vk2DShadowEnvironmentAddEdge(shadows, 200, 200, 250, 200);
+    vk2DShadowEnvironmentAddEdge(shadows, 100, 200, 100, 250);
+    vk2DShadowEnvironmentFlushVBO(shadows);
 
     VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
     VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
@@ -157,25 +162,9 @@ int main(int argc, const char *argv[]) {
         vk2dDrawTexture(playerTex, playerX - (vk2dTextureWidth(playerTex) / 2), playerY - (vk2dTextureHeight(playerTex) / 2));
         vk2dDrawCircle(mouseX, mouseY, 2);
 
-        // Draw shadows
-        /*vec3 vert[] = {
-                {200, 200, 0},
-                {250, 200, 0},
-                {200, 250, 0},
-                {200, 250, 0},
-                {250, 200, 0},
-                {250, 250, 0},
-        };*/
-        vec3 vert[] = {
-                {200, 200, 0},
-                {200, 200, 0}, // Projected - 1
-                {200, 250, 0},
-                {200, 250, 0}, // Projected - 3
-                {200, 200, 0}, // Projected - 4
-                {200, 250, 0},
-        };
+        vec4 shadowColour = {0, 0, 0, 1};
         vec2 lightSource = {playerX, playerY};
-        vk2dRendererDrawShadows(vert, 6, lightSource);
+        vk2dRendererDrawShadows(shadows, shadowColour, lightSource);
 
         debugRenderOverlay();
 
@@ -186,6 +175,7 @@ int main(int argc, const char *argv[]) {
     // vk2dRendererWait must be called before freeing things
     vk2dRendererWait();
     debugCleanup();
+    vk2DShadowEnvironmentFree(shadows);
     vk2dTextureFree(playerTex);
     vk2dRendererQuit();
     SDL_DestroyWindow(window);

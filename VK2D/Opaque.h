@@ -184,10 +184,9 @@ struct VK2DModel_t {
 
 /// \brief Information for hardware accelerated shadows
 struct VK2DShadowEnvironment_t {
-    vec4 colour;       ///< Colour of these shadows
     int vboVertexSize; ///< Number of vertices in the VBO
     VK2DBuffer vbo;    ///< Vertices corresponding to the shadows that will be cast
-    vec3 vertices;     ///< Raw vertices before they get shipped off to the gpu
+    vec3 *vertices;    ///< Raw vertices before they get shipped off to the gpu
     int verticesSize;  ///< Size of the vertex list in elements
     int verticesCount; ///< Number of vertices in the vertices list
 };

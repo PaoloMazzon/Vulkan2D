@@ -10,3 +10,4 @@
 #include "VK2D/Shader.h"
 #include "VK2D/Model.h"
 #include "VK2D/Camera.h"
+#include "VK2D/ShadowEnvironment.h"
