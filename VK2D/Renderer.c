@@ -764,21 +764,13 @@ void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, fl
     }
 }
 
-// TODO: Embed light sources into the renderer
-void vk2dRendererDrawShadows(vec3 *vertices, int count, vec2 lightSource) {
+void vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource) {
     if (gRenderer != NULL) {
-        if (vertices != NULL && count > 0) {
-            if (count <= gRenderer->limits.maxGeometryVertices) {
-                // Copy vertex data to the current descriptor buffer
-                VkBuffer buffer;
-                VkDeviceSize offset;
-                vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], vertices,
-                                             count * sizeof(vec3), &buffer, &offset);
-                _vk2dRendererDrawShadows(lightSource, buffer, offset, count);
-                _vk2dRendererResetBoundPointers();
-            }
+        if (shadowEnvironment != NULL && shadowEnvironment->vbo != NULL) {
+            _vk2dRendererDrawShadows(shadowEnvironment, colour, lightSource);
+            _vk2dRendererResetBoundPointers();
         } else {
-            vk2dLogMessage("Vertices do not exist");
+            vk2dLogMessage("Shadow environment not prepared");
         }
     } else {
         vk2dLogMessage("Renderer is not initialized");

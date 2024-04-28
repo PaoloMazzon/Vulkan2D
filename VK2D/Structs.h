@@ -144,6 +144,7 @@ VK2D_OPAQUE_POINTER(VK2DPolygon)
 VK2D_OPAQUE_POINTER(VK2DShader)
 VK2D_OPAQUE_POINTER(VK2DModel)
 VK2D_OPAQUE_POINTER(VK2DDescriptorBuffer)
+VK2D_OPAQUE_POINTER(VK2DShadowEnvironment)
 
 /// \brief 2D vector of floats
 typedef float vec2[2];
@@ -193,6 +194,8 @@ struct VK2D3DPushBuffer {
 /// \brief Push buffer used for hardware-accelerated shadows
 struct VK2DShadowsPushBuffer {
     vec2 lightSource; ///< Light source position
+    vec2 _alignment;  ///< Simply for memory alignment
+    vec4 colour;      ///< Colour of this shadow render
 };
 
 /// \brief User configurable settings

@@ -264,9 +264,11 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 /// \warning If filled is true the polygon must be triangulated.
 void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY);
 
-
-// TODO: ADD DOCS
-void vk2dRendererDrawShadows(vec3 *vertices, int count, vec2 lightSource);
+/// \brief Draws a shadow environment
+/// \param shadowEnvironment Shadows to draw
+/// \param colour Colour of the shadows
+/// \param lightSource Light source position
+void vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource);
 
 /// \brief Renders a 3D model
 /// \param model Model to render

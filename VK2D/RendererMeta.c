@@ -1290,7 +1290,7 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 		vkCmdDraw(buf, 6, 1, 0, 0);
 }
 
-void _vk2dRendererDrawRawShadows(VkDescriptorSet set, const vec2 lightSource, VkBuffer buffer, VkDeviceSize offset, int count, VK2DCameraIndex cam) {
+void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource, VK2DCameraIndex cam) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
     VK2DPipeline pipe = gRenderer->shadowsPipe;
@@ -1305,8 +1305,8 @@ void _vk2dRendererDrawRawShadows(VkDescriptorSet set, const vec2 lightSource, Vk
         gRenderer->prevPipe = vk2dPipelineGetPipe(pipe, gRenderer->blendMode);
     }
     gRenderer->prevSetHash = 0;
-    VkDeviceSize offsets = offset;
-    vkCmdBindVertexBuffers(buf, 0, 1, &buffer, &offsets);
+    VkDeviceSize offsets = shadowEnvironment->vbo->offset;
+    vkCmdBindVertexBuffers(buf, 0, 1, &shadowEnvironment->vbo->buf, &offsets);
     gRenderer->prevVBO = NULL;
     vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->shadowsPipe->layout, 0, 1, &set, 0, VK_NULL_HANDLE);
 
@@ -1340,7 +1340,7 @@ void _vk2dRendererDrawRawShadows(VkDescriptorSet set, const vec2 lightSource, Vk
     vkCmdSetViewport(buf, 0, 1, &viewport);
     vkCmdSetScissor(buf, 0, 1, &scissor);
     vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DShadowsPushBuffer), &push);
-    vkCmdDraw(buf, count, 1, 0, 0);
+    vkCmdDraw(buf, shadowEnvironment->vboVertexSize, 1, 0, 0);
 }
 
 void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count, VK2DCameraIndex cam) {
@@ -1501,18 +1501,18 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
 }
 
 // This is the upper level internal draw function for shadows that draws to each camera and not just with a scissor/viewport
-void _vk2dRendererDrawShadows(const vec2 lightSource, VkBuffer buffer, VkDeviceSize offset, int count) {
+void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     VkDescriptorSet set;
     if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
         set = gRenderer->targetUBOSet;
-        _vk2dRendererDrawRawShadows(set, lightSource, buffer, offset, count, VK2D_INVALID_CAMERA);
+        _vk2dRendererDrawRawShadows(set, shadowEnvironment, colour, lightSource, VK2D_INVALID_CAMERA);
     } else {
         // Only render to 2D cameras
         for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
             if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
                 set = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-                _vk2dRendererDrawRawShadows(set, lightSource, buffer, offset, count, i);
+                _vk2dRendererDrawRawShadows(set, shadowEnvironment, colour, lightSource, i);
             }
         }
     }

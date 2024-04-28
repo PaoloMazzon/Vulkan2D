@@ -7,10 +7,11 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 
 layout(push_constant) uniform PushBuffer {
     vec2 lightSource; // Where the light is
+    vec2 _alignment; // ignore
+    vec4 colour; // Colour of the shadows
 } pushBuffer;
 
 layout(location = 0) in vec3 inPosition;
-layout(location = 0) out vec4 fragColor; // not currently used
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -31,5 +32,4 @@ void main() {
         // Static vertices
         gl_Position = ubo.viewproj * vec4(inPosition, 1.0);
     }
-    fragColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
