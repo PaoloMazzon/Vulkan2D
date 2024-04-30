@@ -4,7 +4,7 @@
 
 ![another demo](examples/retrolook/example.gif)
 
-![another demo](examples/shadows/example.gif)
+![another demo](examples/shadowsglsl/example.gif)
 
 Vulkan2D
 ========
