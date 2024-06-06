@@ -184,11 +184,13 @@ struct VK2DModel_t {
 
 /// \brief Information for hardware accelerated shadows
 struct VK2DShadowEnvironment_t {
-    int vboVertexSize; ///< Number of vertices in the VBO
-    VK2DBuffer vbo;    ///< Vertices corresponding to the shadows that will be cast
-    vec3 *vertices;    ///< Raw vertices before they get shipped off to the gpu
-    int verticesSize;  ///< Size of the vertex list in elements
-    int verticesCount; ///< Number of vertices in the vertices list
+    int vboVertexSize;                 ///< Number of vertices in the VBO
+    VK2DBuffer vbo;                    ///< Vertices corresponding to the shadows that will be cast
+    vec3 *vertices;                    ///< Raw vertices before they get shipped off to the gpu
+    int objectCount;                   ///< Number of shadow objects (1 by default)
+    VK2DShadowObjectInfo *objectInfos; ///< Info for each shadow object
+    int verticesSize;                  ///< Size of the vertex list in elements
+    int verticesCount;                 ///< Number of vertices in the vertices list
 };
 
 /// \brief Core rendering data, don't modify values unless you know what you're doing

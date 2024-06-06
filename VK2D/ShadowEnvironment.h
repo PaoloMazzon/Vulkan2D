@@ -17,7 +17,29 @@ VK2DShadowEnvironment vk2DShadowEnvironmentCreate();
 /// \param shadowEnvironment Shadow environment to free
 void vk2DShadowEnvironmentFree(VK2DShadowEnvironment shadowEnvironment);
 
-/// \brief Adds an edge to a shadow environment, use this on wall edges
+/// \brief Adds a new object to a shadow environment
+/// \param shadowEnvironment Shadow environment
+/// \returns Shadow object index, or VK2D_INVALID_SHADOW_OBJECT if this fails
+VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvironment);
+
+/// \brief Translates a shadow object
+/// \param object Object to update
+/// \param x X position of the object
+/// \param y Y position of the object
+void vk2dShadowEnvironmentObjectTranslate(VK2DShadowObject object, float x, float y);
+
+/// \brief Updates a shadow object
+/// \param object Object to update
+/// \param x X position of the object
+/// \param y Y position of the object
+/// \param scaleX X scale of the object
+/// \param scaleY Y scale of the object
+/// \param rotation Rotation of the object
+/// \param originX X origin of the object
+/// \param originY Y origin of the object
+void vk2dShadowEnvironmentObjectUpdate(VK2DShadowObject object, float x, float y, float scaleX, float scaleY, float rotation, float originX, float originY);
+
+/// \brief Adds an edge to a shadow environment's current object, use this on wall edges
 /// \param shadowEnvironment Shadow environment to add to
 /// \param x1 X of the start of the edge
 /// \param y1 Y of the start of the edge
@@ -31,6 +53,7 @@ void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float
 
 /// \brief Removes all edges from the shadow environment's cache in case you want to change the edges
 /// \param shadowEnvironment Shadow environment to reset
+/// \warning This invalidates all objects previously got from vk2dShadowEnvironmentAddObject
 void vk2dShadowEnvironmentResetEdges(VK2DShadowEnvironment shadowEnvironment);
 
 /// \brief Flushes the edges present in the environment to a VBO that can be drawn to screen

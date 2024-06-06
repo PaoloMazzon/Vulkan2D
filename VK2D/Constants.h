@@ -59,6 +59,8 @@ extern VK2DCameraIndex VK2D_INVALID_CAMERA;
 /// The default camera created and updated by the renderer itself
 extern const VK2DCameraIndex VK2D_DEFAULT_CAMERA;
 
+extern VK2DShadowObject VK2D_INVALID_SHADOW_OBJECT;
+
 /************************ Colours ************************/
 /// The colour black
 extern const vec4 VK2D_BLACK;

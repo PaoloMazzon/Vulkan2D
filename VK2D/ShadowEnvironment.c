@@ -7,6 +7,9 @@
 #include "VK2D/Constants.h"
 #include "VK2D/Renderer.h"
 
+// From Math.h
+void identityMatrix(float m[]);
+
 VK2DShadowEnvironment vk2DShadowEnvironmentCreate() {
     VK2DShadowEnvironment se = malloc(sizeof(struct VK2DShadowEnvironment_t));
 
@@ -16,6 +19,19 @@ VK2DShadowEnvironment vk2DShadowEnvironmentCreate() {
         se->vertices = NULL;
         se->verticesSize = 0;
         se->verticesCount = 0;
+        se->objectCount = 1;
+        se->objectInfos = malloc(sizeof(VK2DShadowObjectInfo));
+
+        if (se->objectInfos == NULL) {
+            free(se);
+            se = NULL;
+            vk2dLogMessage("Failed to create shadow environment.");
+        } else {
+            se->objectInfos[0].enabled = true;
+            se->objectInfos[0].vertexCount = 0;
+            se->objectInfos[0].startingVertex = 0;
+            identityMatrix(se->objectInfos[0].model);
+        }
     } else {
         vk2dLogMessage("Failed to create shadow environment.");
     }
@@ -27,8 +43,36 @@ void vk2DShadowEnvironmentFree(VK2DShadowEnvironment shadowEnvironment) {
     if (shadowEnvironment != NULL) {
         free(shadowEnvironment->vertices);
         vk2dBufferFree(shadowEnvironment->vbo);
+        free(shadowEnvironment->objectInfos);
         free(shadowEnvironment);
     }
+}
+
+VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvironment) {
+    VK2DShadowObject so = VK2D_INVALID_SHADOW_OBJECT;
+    shadowEnvironment->objectCount++;
+    void *newMem = realloc(shadowEnvironment->objectInfos, sizeof(VK2DShadowObjectInfo) * shadowEnvironment->objectCount);
+
+    if (newMem != NULL) {
+        shadowEnvironment->objectInfos = newMem;
+        VK2DShadowObjectInfo *soi = &shadowEnvironment->objectInfos[shadowEnvironment->objectCount - 1];
+        soi->vertexCount = 0;
+        soi->startingVertex = shadowEnvironment->verticesCount;
+        soi->enabled = true;
+        identityMatrix(soi->model);
+    } else {
+        vk2dLogMessage("Failed to create shadow object.");
+    }
+
+    return so;
+}
+
+void vk2dShadowEnvironmentObjectTranslate(VK2DShadowObject object, float x, float y) {
+    // TODO: This
+}
+
+void vk2dShadowEnvironmentObjectUpdate(VK2DShadowObject object, float x, float y, float scaleX, float scaleY, float rotation, float originX, float originY) {
+    // TODO: This
 }
 
 void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float x1, float y1, float x2, float y2) {
@@ -60,6 +104,7 @@ void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float
 
         memcpy(&shadowEnvironment->vertices[shadowEnvironment->verticesCount], vert, sizeof(vec3) * 6);
         shadowEnvironment->verticesCount += 6;
+        shadowEnvironment->objectInfos[shadowEnvironment->objectCount - 1].vertexCount += 6;
     }
 }
 

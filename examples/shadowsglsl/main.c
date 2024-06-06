@@ -102,7 +102,7 @@ int main(int argc, const char *argv[]) {
     vk2dRendererSetCamera(defcam);
 
     // Setup lights
-    const int lightCount = 10;
+    const int lightCount = 8;
     const int playerLight = 0;
     Light *lights = malloc(sizeof(struct Light_t) * lightCount);
     for (int i = 1; i < lightCount; i++) {

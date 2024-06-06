@@ -25,6 +25,8 @@ const VK2DTexture VK2D_TARGET_SCREEN = NULL;
 
 const VK2DCameraIndex VK2D_DEFAULT_CAMERA = 0;
 
+const VK2DShadowObject VK2D_INVALID_SHADOW_OBJECT = -1;
+
 const vec4 VK2D_DEFAULT_COLOUR_MOD = {1, 1, 1, 1};
 
 const float VK2D_CIRCLE_VERTICES = 72;

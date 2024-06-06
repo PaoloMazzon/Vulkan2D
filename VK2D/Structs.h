@@ -158,6 +158,9 @@ typedef float vec4[4];
 /// \brief 4x4 matrix of floats
 typedef float mat4[16];
 
+/// \brief Type used for referencing shadow objects
+typedef int32_t VK2DShadowObject;
+
 /// \brief Type used for referencing cameras
 typedef int32_t VK2DCameraIndex;
 
@@ -193,6 +196,7 @@ struct VK2D3DPushBuffer {
 
 /// \brief Push buffer used for hardware-accelerated shadows
 struct VK2DShadowsPushBuffer {
+    mat4 model;       ///< Model matrix for this shadow object
     vec2 lightSource; ///< Light source position
     vec2 _alignment;  ///< Simply for memory alignment
     vec4 colour;      ///< Colour of this shadow render
@@ -278,6 +282,14 @@ struct VK2DDrawInstance {
 	mat4 model;      ///< Model for this instance, generally shouldn't contain translations
 };
 
+/// \brief Info for the shadow environment to keep track of
+struct VK2DShadowObjectInfo {
+    bool enabled;       ///< Whether or not this object is enabled
+    int startingVertex; ///< Vertex in the master VBO to start from for this object
+    int vertexCount;    ///< Number of vertices for this model
+    mat4 model;         ///< Model for this shadow object
+};
+
 /// \brief Information needed to queue an asset loading off-thread
 struct VK2DAssetLoad {
 	VK2DAssetType type;   ///< Type of asset this is
@@ -324,6 +336,7 @@ VK2D_USER_STRUCT(VK2DCameraSpec)
 VK2D_USER_STRUCT(VK2DRendererLimits)
 VK2D_USER_STRUCT(VK2DDrawInstance)
 VK2D_USER_STRUCT(VK2DAssetLoad)
+VK2D_USER_STRUCT(VK2DShadowObjectInfo)
 
 #ifdef __cplusplus
 }
