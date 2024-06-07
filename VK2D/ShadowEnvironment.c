@@ -143,6 +143,8 @@ void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float
 
 void vk2dShadowEnvironmentResetEdges(VK2DShadowEnvironment shadowEnvironment) {
     shadowEnvironment->verticesCount = 0;
+    free(shadowEnvironment->objectInfos);
+    shadowEnvironment->objectCount = 0;
 }
 
 void vk2DShadowEnvironmentFlushVBO(VK2DShadowEnvironment shadowEnvironment) {
