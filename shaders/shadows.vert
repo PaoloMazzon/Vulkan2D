@@ -6,6 +6,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 } ubo;
 
 layout(push_constant) uniform PushBuffer {
+    mat4 model; // Model for this shadow object
     vec2 lightSource; // Where the light is
     vec2 _alignment; // ignore
     vec4 colour; // Colour of the shadows
@@ -27,9 +28,9 @@ void main() {
             1.0,
             0.0
         );
-        gl_Position = ubo.viewproj * vertex;
+        gl_Position = ubo.viewproj * pushBuffer.model * vertex;
     } else {
         // Static vertices
-        gl_Position = ubo.viewproj * vec4(inPosition, 1.0);
+        gl_Position = ubo.viewproj * pushBuffer.model * vec4(inPosition, 1.0);
     }
 }

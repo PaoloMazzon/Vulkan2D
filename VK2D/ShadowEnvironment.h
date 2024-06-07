@@ -26,7 +26,7 @@ VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvi
 /// \param object Object to update
 /// \param x X position of the object
 /// \param y Y position of the object
-void vk2dShadowEnvironmentObjectTranslate(VK2DShadowObject object, float x, float y);
+void vk2dShadowEnvironmentObjectSetPos(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, float x, float y);
 
 /// \brief Updates a shadow object
 /// \param object Object to update
@@ -37,7 +37,7 @@ void vk2dShadowEnvironmentObjectTranslate(VK2DShadowObject object, float x, floa
 /// \param rotation Rotation of the object
 /// \param originX X origin of the object
 /// \param originY Y origin of the object
-void vk2dShadowEnvironmentObjectUpdate(VK2DShadowObject object, float x, float y, float scaleX, float scaleY, float rotation, float originX, float originY);
+void vk2dShadowEnvironmentObjectUpdate(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, float x, float y, float scaleX, float scaleY, float rotation, float originX, float originY);
 
 /// \brief Adds an edge to a shadow environment's current object, use this on wall edges
 /// \param shadowEnvironment Shadow environment to add to

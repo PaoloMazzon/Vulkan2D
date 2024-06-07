@@ -9,6 +9,9 @@
 
 // From Math.h
 void identityMatrix(float m[]);
+void scaleMatrix(float m[], float v[]);
+void translateMatrix(float m[], float v[]);
+void rotateMatrix(float m[], float w[], float r);
 
 VK2DShadowEnvironment vk2DShadowEnvironmentCreate() {
     VK2DShadowEnvironment se = malloc(sizeof(struct VK2DShadowEnvironment_t));
@@ -50,10 +53,11 @@ void vk2DShadowEnvironmentFree(VK2DShadowEnvironment shadowEnvironment) {
 
 VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvironment) {
     VK2DShadowObject so = VK2D_INVALID_SHADOW_OBJECT;
-    shadowEnvironment->objectCount++;
-    void *newMem = realloc(shadowEnvironment->objectInfos, sizeof(VK2DShadowObjectInfo) * shadowEnvironment->objectCount);
+    void *newMem = realloc(shadowEnvironment->objectInfos, sizeof(VK2DShadowObjectInfo) * (shadowEnvironment->objectCount + 1));
 
     if (newMem != NULL) {
+        so = shadowEnvironment->objectCount;
+        shadowEnvironment->objectCount++;
         shadowEnvironment->objectInfos = newMem;
         VK2DShadowObjectInfo *soi = &shadowEnvironment->objectInfos[shadowEnvironment->objectCount - 1];
         soi->vertexCount = 0;
@@ -67,12 +71,31 @@ VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvi
     return so;
 }
 
-void vk2dShadowEnvironmentObjectTranslate(VK2DShadowObject object, float x, float y) {
-    // TODO: This
+void vk2dShadowEnvironmentObjectSetPos(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, float x, float y) {
+    vec3 origin = {x, y, 0};
+    identityMatrix(shadowEnvironment->objectInfos[object].model);
+    translateMatrix(shadowEnvironment->objectInfos[object].model, origin);
 }
 
-void vk2dShadowEnvironmentObjectUpdate(VK2DShadowObject object, float x, float y, float scaleX, float scaleY, float rotation, float originX, float originY) {
-    // TODO: This
+void vk2dShadowEnvironmentObjectUpdate(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, float x, float y, float scaleX, float scaleY, float rotation, float originX, float originY) {
+    identityMatrix(shadowEnvironment->objectInfos[object].model);
+    // Only do rotation matrices if a rotation is specified for optimization purposes
+    if (rotation != 0) {
+        vec3 axis = {0, 0, 1};
+        vec3 origin = {-originX + x, originY + y, 0};
+        vec3 originTranslation = {originX, -originY, 0};
+        translateMatrix(shadowEnvironment->objectInfos[object].model, origin);
+        rotateMatrix(shadowEnvironment->objectInfos[object].model, axis, rotation);
+        translateMatrix(shadowEnvironment->objectInfos[object].model, originTranslation);
+    } else {
+        vec3 origin = {x, y, 0};
+        translateMatrix(shadowEnvironment->objectInfos[object].model, origin);
+    }
+    // Only scale matrix if specified for optimization purposes
+    if (scaleX != 1 || scaleY != 1) {
+        vec3 scale = {scaleX, scaleY, 1};
+        scaleMatrix(shadowEnvironment->objectInfos[object].model, scale);
+    }
 }
 
 void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float x1, float y1, float x2, float y2) {

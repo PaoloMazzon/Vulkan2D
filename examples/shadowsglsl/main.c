@@ -75,9 +75,17 @@ const vec2 POLY_5[] = {
 };
 const int POLY_5_COUNT = sizeof(POLY_5) / sizeof(vec2);
 
-const vec2 *POLYGONS[] = {POLY_1, POLY_2, POLY_3, POLY_4, POLY_5};
-const int POLYGON_COUNTS[] = {POLY_1_COUNT, POLY_2_COUNT, POLY_3_COUNT, POLY_4_COUNT, POLY_5_COUNT};
-const int POLYGON_COUNT = 5;
+const vec2 MOVING_POLY[] = {
+        {-10, 10},
+        {10, 10},
+        {10,-10},
+        {-10, -10},
+};
+const int MOVING_POLY_COUNT = sizeof(MOVING_POLY) / sizeof(vec2);
+
+const vec2 *POLYGONS[] = {POLY_1, POLY_2, POLY_3, POLY_4, POLY_5, MOVING_POLY};
+const int POLYGON_COUNTS[] = {POLY_1_COUNT, POLY_2_COUNT, POLY_3_COUNT, POLY_4_COUNT, POLY_5_COUNT, MOVING_POLY_COUNT};
+const int POLYGON_COUNT = 6;
 
 int main(int argc, const char *argv[]) {
     // Basic SDL setup
@@ -124,6 +132,7 @@ int main(int argc, const char *argv[]) {
     VK2DTexture lightTex = vk2dTextureCreate(400, 300);
     VK2DPolygon polygons[POLYGON_COUNT];
     VK2DPolygon polygonOutlines[POLYGON_COUNT];
+    const int MOUSE_POLYGON_INDEX = 5;
     for (int i = 0; i < POLYGON_COUNT; i++) {
         polygons[i] = vk2dPolygonCreate(POLYGONS[i], POLYGON_COUNTS[i]);
         polygonOutlines[i] = vk2dPolygonCreateOutline(POLYGONS[i], POLYGON_COUNTS[i]);
@@ -131,7 +140,10 @@ int main(int argc, const char *argv[]) {
     VK2DShadowEnvironment shadows = vk2DShadowEnvironmentCreate();
 
     // Add light edges
+    VK2DShadowObject mouseShadowObject;
     for (int i = 0; i < POLYGON_COUNT; i++) {
+        if (i == MOUSE_POLYGON_INDEX)
+            mouseShadowObject = vk2dShadowEnvironmentAddObject(shadows);
         for (int vertex = 0; vertex < POLYGON_COUNTS[i]; vertex++) {
             int prevIndex = vertex == 0 ? POLYGON_COUNTS[i] - 1 : vertex - 1;
             vk2DShadowEnvironmentAddEdge(
@@ -161,6 +173,7 @@ int main(int argc, const char *argv[]) {
     double velocityY = 0;
     double mouseX;
     double mouseY;
+    double mousePolyRot = 0;
 
     while (!quit) {
         while (SDL_PollEvent(&e)) {
@@ -192,6 +205,7 @@ int main(int argc, const char *argv[]) {
         playerY += velocityY;
         playerX = playerX > windowWidth * 0.5 ? -vk2dTextureWidth(playerTex) : (playerX < -vk2dTextureWidth(playerTex) ? windowWidth * 0.5 : playerX);
         playerY = playerY > windowHeight * 0.5 ? -vk2dTextureHeight(playerTex) : (playerY < -vk2dTextureHeight(playerTex) ? windowHeight * 0.5 : playerY);
+        mousePolyRot += VK2D_PI * 0.01;
 
         // All rendering must happen after this
         vk2dRendererStartFrame(clear);
@@ -202,6 +216,7 @@ int main(int argc, const char *argv[]) {
 
         // Draw the lights
         vk2dRendererLockCameras(testCamera);
+        vk2dShadowEnvironmentObjectUpdate(shadows, mouseShadowObject, mouseX, mouseY, 1, 1, mousePolyRot, 0, 0);
         lights[playerLight].pos[0] = playerX;
         lights[playerLight].pos[1] = playerY;
         for (int i = 0; i < lightCount; i++) {
@@ -226,10 +241,17 @@ int main(int argc, const char *argv[]) {
 
         // Draw player and walls on top of lights
         for (int i = 0; i < POLYGON_COUNT; i++) {
-            vk2dRendererDrawPolygon(polygons[i], 0, 0, true, 0, 1, 1, 0, 0, 0);
-            vk2dRendererSetColourMod(VK2D_BLACK);
-            vk2dRendererDrawPolygon(polygonOutlines[i], 0, 0, false, 3, 1, 1, 0, 0, 0);
-            vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
+            if (i != MOUSE_POLYGON_INDEX) {
+                vk2dRendererDrawPolygon(polygons[i], 0, 0, true, 0, 1, 1, 0, 0, 0);
+                vk2dRendererSetColourMod(VK2D_BLACK);
+                vk2dRendererDrawPolygon(polygonOutlines[i], 0, 0, false, 3, 1, 1, 0, 0, 0);
+                vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
+            } else {
+                vk2dRendererDrawPolygon(polygons[i], mouseX, mouseY, true, 0, 1, 1, mousePolyRot, 0, 0);
+                vk2dRendererSetColourMod(VK2D_BLACK);
+                vk2dRendererDrawPolygon(polygonOutlines[i], mouseX, mouseY, false, 3, 1, 1, mousePolyRot, 0, 0);
+                vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
+            }
         }
         vk2dDrawTexture(playerTex, playerX - (vk2dTextureWidth(playerTex) / 2), playerY - (vk2dTextureHeight(playerTex) / 2));
 

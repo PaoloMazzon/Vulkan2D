@@ -1290,10 +1290,11 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 		vkCmdDraw(buf, 6, 1, 0, 0);
 }
 
-void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource, VK2DCameraIndex cam) {
+void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, vec4 colour, vec2 lightSource, VK2DCameraIndex cam) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
     VK2DPipeline pipe = gRenderer->shadowsPipe;
+    VK2DShadowObjectInfo *objInfo = &shadowEnvironment->objectInfos[object];
 
     // Push constants
     VK2DShadowsPushBuffer push = {0};
@@ -1303,6 +1304,7 @@ void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shad
     push.colour[1] = colour[1];
     push.colour[2] = colour[2];
     push.colour[3] = colour[3];
+    memcpy(push.model, objInfo->model, sizeof(mat4));
     // Check if we actually need to bind things
     if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
         vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(pipe, gRenderer->blendMode));
@@ -1344,7 +1346,7 @@ void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shad
     vkCmdSetViewport(buf, 0, 1, &viewport);
     vkCmdSetScissor(buf, 0, 1, &scissor);
     vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DShadowsPushBuffer), &push);
-    vkCmdDraw(buf, shadowEnvironment->vboVertexSize, 1, 0, 0);
+    vkCmdDraw(buf, objInfo->vertexCount, 1, objInfo->startingVertex, 0);
 }
 
 void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count, VK2DCameraIndex cam) {
@@ -1510,13 +1512,20 @@ void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colo
     VkDescriptorSet set;
     if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
         set = gRenderer->targetUBOSet;
-        _vk2dRendererDrawRawShadows(set, shadowEnvironment, colour, lightSource, VK2D_INVALID_CAMERA);
+        for (int so = 0; so < shadowEnvironment->objectCount; so++) {
+            if (shadowEnvironment->objectInfos[so].enabled)
+                _vk2dRendererDrawRawShadows(set, shadowEnvironment, so, colour, lightSource, VK2D_INVALID_CAMERA);
+        }
     } else {
         // Only render to 2D cameras
         for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
             if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
                 set = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
-                _vk2dRendererDrawRawShadows(set, shadowEnvironment, colour, lightSource, i);
+                // Iterate through each shadow object
+                for (int so = 0; so < shadowEnvironment->objectCount; so++) {
+                    if (shadowEnvironment->objectInfos[so].enabled)
+                        _vk2dRendererDrawRawShadows(set, shadowEnvironment, so, colour, lightSource, i);
+                }
             }
         }
     }
