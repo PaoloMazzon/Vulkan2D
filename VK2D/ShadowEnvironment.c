@@ -33,6 +33,7 @@ VK2DShadowEnvironment vk2DShadowEnvironmentCreate() {
             se->objectInfos[0].enabled = true;
             se->objectInfos[0].vertexCount = 0;
             se->objectInfos[0].startingVertex = 0;
+            memset(se->objectInfos[0].model, 0, sizeof(mat4));
             identityMatrix(se->objectInfos[0].model);
         }
     } else {
@@ -53,6 +54,12 @@ void vk2DShadowEnvironmentFree(VK2DShadowEnvironment shadowEnvironment) {
 
 VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvironment) {
     VK2DShadowObject so = VK2D_INVALID_SHADOW_OBJECT;
+
+    // In case the user doesn't use the default one
+    if (shadowEnvironment->verticesCount == 0 && shadowEnvironment->objectInfos[0].vertexCount == 0)
+        return 0;
+
+    // Reallocate object array
     void *newMem = realloc(shadowEnvironment->objectInfos, sizeof(VK2DShadowObjectInfo) * (shadowEnvironment->objectCount + 1));
 
     if (newMem != NULL) {
@@ -63,6 +70,7 @@ VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvi
         soi->vertexCount = 0;
         soi->startingVertex = shadowEnvironment->verticesCount;
         soi->enabled = true;
+        memset(soi->model, 0, sizeof(mat4));
         identityMatrix(soi->model);
     } else {
         vk2dLogMessage("Failed to create shadow object.");
@@ -73,11 +81,13 @@ VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvi
 
 void vk2dShadowEnvironmentObjectSetPos(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, float x, float y) {
     vec3 origin = {x, y, 0};
+    memset(shadowEnvironment->objectInfos[object].model, 0, sizeof(mat4));
     identityMatrix(shadowEnvironment->objectInfos[object].model);
     translateMatrix(shadowEnvironment->objectInfos[object].model, origin);
 }
 
 void vk2dShadowEnvironmentObjectUpdate(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, float x, float y, float scaleX, float scaleY, float rotation, float originX, float originY) {
+    memset(shadowEnvironment->objectInfos[object].model, 0, sizeof(mat4));
     identityMatrix(shadowEnvironment->objectInfos[object].model);
     // Only do rotation matrices if a rotation is specified for optimization purposes
     if (rotation != 0) {

@@ -20,17 +20,18 @@ out gl_PerVertex {
 
 void main() {
     int mod = gl_VertexIndex % 6;
+    vec4 position = pushBuffer.model * vec4(inPosition, 1.0);
     if (mod == 1 || mod == 4 || mod == 5) {
         // One of the vertices that needs to be projected
         vec4 vertex = vec4(
-            (inPosition.x - pushBuffer.lightSource.x) * 1000,
-            (inPosition.y - pushBuffer.lightSource.y) * 1000,
+            (position.x - pushBuffer.lightSource.x) * 1000,
+            (position.y - pushBuffer.lightSource.y) * 1000,
             1.0,
             0.0
         );
-        gl_Position = ubo.viewproj * pushBuffer.model * vertex;
+        gl_Position = ubo.viewproj * vertex;
     } else {
         // Static vertices
-        gl_Position = ubo.viewproj * pushBuffer.model * vec4(inPosition, 1.0);
+        gl_Position = ubo.viewproj * position;
     }
 }
