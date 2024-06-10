@@ -108,6 +108,14 @@ void vk2dShadowEnvironmentObjectUpdate(VK2DShadowEnvironment shadowEnvironment, 
     }
 }
 
+void vk2dShadowEnvironmentObjectSetStatus(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, bool enabled) {
+    shadowEnvironment->objectInfos[object].enabled = enabled;
+}
+
+bool vk2dShadowEnvironmentObjectGetStatus(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object) {
+    return shadowEnvironment->objectInfos[object].enabled;
+}
+
 void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float x1, float y1, float x2, float y2) {
     bool failedToExtendList = false;
 

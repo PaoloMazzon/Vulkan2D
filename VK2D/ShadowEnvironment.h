@@ -23,12 +23,14 @@ void vk2DShadowEnvironmentFree(VK2DShadowEnvironment shadowEnvironment);
 VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvironment);
 
 /// \brief Translates a shadow object
+/// \param shadowEnvironment Shadow environment
 /// \param object Object to update
 /// \param x X position of the object
 /// \param y Y position of the object
 void vk2dShadowEnvironmentObjectSetPos(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, float x, float y);
 
 /// \brief Updates a shadow object
+/// \param shadowEnvironment Shadow environment
 /// \param object Object to update
 /// \param x X position of the object
 /// \param y Y position of the object
@@ -38,6 +40,18 @@ void vk2dShadowEnvironmentObjectSetPos(VK2DShadowEnvironment shadowEnvironment, 
 /// \param originX X origin of the object
 /// \param originY Y origin of the object
 void vk2dShadowEnvironmentObjectUpdate(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, float x, float y, float scaleX, float scaleY, float rotation, float originX, float originY);
+
+/// \brief Updates a shadow object's status
+/// \param shadowEnvironment Shadow environment
+/// \param object Object to update
+/// \param enabled Whether or not this object will be visible
+void vk2dShadowEnvironmentObjectSetStatus(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, bool enabled);
+
+/// \brief Returns a shadow object's status
+/// \param shadowEnvironment Shadow environment
+/// \param object Object to update
+/// \returns enabled Whether or not this object will be visible
+bool vk2dShadowEnvironmentObjectGetStatus(VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object);
 
 /// \brief Adds an edge to a shadow environment's current object, use this on wall edges
 /// \param shadowEnvironment Shadow environment to add to
