@@ -22,20 +22,9 @@ VK2DShadowEnvironment vk2DShadowEnvironmentCreate() {
         se->vertices = NULL;
         se->verticesSize = 0;
         se->verticesCount = 0;
-        se->objectCount = 1;
-        se->objectInfos = malloc(sizeof(VK2DShadowObjectInfo));
-
-        if (se->objectInfos == NULL) {
-            free(se);
-            se = NULL;
-            vk2dLogMessage("Failed to create shadow environment.");
-        } else {
-            se->objectInfos[0].enabled = true;
-            se->objectInfos[0].vertexCount = 0;
-            se->objectInfos[0].startingVertex = 0;
-            memset(se->objectInfos[0].model, 0, sizeof(mat4));
-            identityMatrix(se->objectInfos[0].model);
-        }
+        se->objectCount = 0;
+        se->objectInfos = NULL;
+        vk2dShadowEnvironmentAddObject(se);
     } else {
         vk2dLogMessage("Failed to create shadow environment.");
     }
@@ -56,7 +45,7 @@ VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvi
     VK2DShadowObject so = VK2D_INVALID_SHADOW_OBJECT;
 
     // In case the user doesn't use the default one
-    if (shadowEnvironment->verticesCount == 0 && shadowEnvironment->objectInfos[0].vertexCount == 0)
+    if (shadowEnvironment->verticesCount == 0 && shadowEnvironment->objectCount > 0 && shadowEnvironment->objectInfos[0].vertexCount == 0)
         return 0;
 
     // Reallocate object array
@@ -152,7 +141,9 @@ void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float
 void vk2dShadowEnvironmentResetEdges(VK2DShadowEnvironment shadowEnvironment) {
     shadowEnvironment->verticesCount = 0;
     free(shadowEnvironment->objectInfos);
+    shadowEnvironment->objectInfos = NULL;
     shadowEnvironment->objectCount = 0;
+    vk2dShadowEnvironmentAddObject(shadowEnvironment);
 }
 
 void vk2DShadowEnvironmentFlushVBO(VK2DShadowEnvironment shadowEnvironment) {
