@@ -312,7 +312,7 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 
 			// Reset shader desc cons
 			for (int i = 0; i < gRenderer->shaderListSize; i++)
-				if (gRenderer->customShaders[i] != NULL)
+                if (gRenderer->customShaders[i] != NULL && gRenderer->customShaders[i]->uniformSize != 0)
 					vk2dDescConReset(gRenderer->customShaders[i]->descCons[gRenderer->scImageIndex]);
 
 			// Setup render pass
