@@ -266,7 +266,7 @@ struct VK2DRendererLimits {
 	VK2DMSAA maxMSAA;                ///< Maximum MSAA the host supports, if you request an msaa higher than this value, this value will be used instead
 	bool supportsTripleBuffering;    ///< Whether or not the host supports triple buffering, if you request triple buffering and this is false, vsync will be used instead
 	bool supportsImmediate;          ///< Whether or not the host supports immediate mode, if you request immediate mode and this is false, vsync will be used instead
-	bool supportsWireframe;          ///< Doesn't really mean anything :skull:
+	bool supportsWireframe;          ///< Doesn't really mean anything 💀
 	float maxLineWidth;              ///< Maximum line width supported on the platform, if you specify a line width greater than this value, your requested line width will be clamped to this number
 	uint64_t maxInstancedDraws;      ///< Maximum amount of instances you may draw at once, if you request to draw more instances than this it will simply be capped to this number
 	uint64_t maxShaderBufferSize;    ///< Maximum size of a shader's uniform buffer in bytes, if you attempt to create a shader with a uniform buffer size greater than this value NULL will be returned

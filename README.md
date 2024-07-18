@@ -1,10 +1,10 @@
 ![basic demo](https://i.imgur.com/InP0Sou.gif)
 
-![another demo](assets/gif.gif)
+![gif](https://github.com/user-attachments/assets/ae0f05fd-7679-4061-ac89-dce66e163232)
 
-![another demo](examples/retrolook/example.gif)
+![example](https://github.com/user-attachments/assets/186de874-6f2f-47c4-8a58-52c14148bb46)
 
-![another demo](examples/shadowsglsl/example.gif)
+![example](https://github.com/user-attachments/assets/9a43483b-0bdd-4511-98a3-9ca839b070d5)
 
 Vulkan2D
 ========

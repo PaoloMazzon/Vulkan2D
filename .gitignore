@@ -15,4 +15,5 @@ __pycache__
 html/
 doxygen_sqlite3.db
 *.dll
-vk2derror.log
+vk2derror.txt
+latex/
