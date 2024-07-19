@@ -8,10 +8,11 @@
 
 Vulkan2D
 ========
-Vulkan2D is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
+[Vulkan2D](https://github.com/PaoloMazzon/Vulkan2D) is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
 simple API, requiring no Vulkan experience to use. [Astro](https://github.com/PaoloMazzon/Astro)
-and more recently [Bedlam](https://github.com/PaoloMazzon/Bedlam) internally use Vulkan2D for
-rendering. My other projects [Spacelink](https://github.com/PaoloMazzon/Spacelink) and
+and more recently [Sea of Clouds](https://devplo.itch.io/sea-of-clouds) internally use Vulkan2D for
+rendering. My other projects [Bedlam](https://github.com/PaoloMazzon/Bedlam), 
+[Spacelink](https://github.com/PaoloMazzon/Spacelink), and
 [Peace & Liberty](https://github.com/PaoloMazzon/PeacenLiberty) also used Vulkan2D, although
 a much older version of it. Check out the [quick-start](docs/QuickStart.md) guide.
 
@@ -29,9 +30,7 @@ Features
 
 Documentation
 =============
-Every file in VK2D is properly documented for doxygen, run `doxygen` in `Vulkan2D/` or check
-the header files. Additionally, there is a few miscellaneous pieces of documentation,
-[quick-start](docs/QuickStart.md) and [cameras](docs/Cameras.md). As a general overview,
+Check out the [documentation website](https://paolomazzon.github.io/Vulkan2D/index.html).
 
 Usage
 =====

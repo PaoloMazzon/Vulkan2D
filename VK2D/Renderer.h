@@ -149,7 +149,6 @@ VK2DRendererLimits vk2dRendererGetLimits();
 /// \param r Rotation of the rectangle
 /// \param ox X origin of rotation of the rectangle (in percentage)
 /// \param oy Y origin of rotation of the rectangle (in percentage)
-/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy);
 
 /// \brief Draws a rectangle using the current rendering colour
@@ -161,14 +160,12 @@ void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, floa
 /// \param ox X origin of rotation of the rectangle (in percentage)
 /// \param oy Y origin of rotation of the rectangle (in percentage)
 /// \param lineWidth Width of the outline
-/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
 void vk2dRendererDrawRectangleOutline(float x, float y, float w, float h, float r, float ox, float oy, float lineWidth);
 
 /// \brief Draws a circle using the current rendering colour
 /// \param x X position of the circle's center
 /// \param y Y position of the circle's center
 /// \param r Radius in pixels of the circle
-/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
 void vk2dRendererDrawCircle(float x, float y, float r);
 
 /// \brief Draws a circle using the current rendering colour
@@ -176,7 +173,6 @@ void vk2dRendererDrawCircle(float x, float y, float r);
 /// \param y Y position of the circle's center
 /// \param r Radius in pixels of the circle
 /// \param lineWidth Width of the outline
-/// \warning This will do nothing unless the VK2D_UNIT_GENERATION option is enabled
 void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth);
 
 /// \brief Draws a line using the current rendering colour
@@ -262,6 +258,9 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 /// \param originX X origin for rotation (in pixels)
 /// \param originY Y origin for rotation (in pixels)
 /// \warning If filled is true the polygon must be triangulated.
+///
+/// This function works by putting the geometry into a vram page before drawing,
+/// which means its limited by vk2dRendererGetLimits().maxGeometryVertices.
 void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY);
 
 /// \brief Draws a shadow environment
@@ -474,10 +473,8 @@ void vk2dAssetsSetShaderMemory(VK2DAssetLoad *array, int index, void *vertexBuff
 /// \brief Combines busy loops and SDL_Delay for a more accurate sleep function
 /// \param seconds Time in seconds to sleep - values equal or less than 0 do nothing
 ///
-/// In the worst case (the closer this is to a whole millisecond; i.e. 0.008005s will
-/// have a significantly higher error than 0.0085s), this can have upwards of 6% error.
-/// For games and most other use cases this more than accurate enough and less taxing
-/// on the CPU than a busy loop.
+/// This is a much more accurate sleep function that something like SDL_Delay without taxing
+/// the CPU as much as a simple busy loop.
 void vk2dSleep(double seconds);
 
 /************************* Shorthand for simpler drawing at no performance cost *************************/
