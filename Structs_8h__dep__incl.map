@@ -1,0 +1,13 @@
+<map id="VK2D/Structs.h" name="VK2D/Structs.h">
+<area shape="rect" id="node1" title="Forward declares struct typedefs." alt="" coords="665,5,783,32"/>
+<area shape="rect" id="node2" href="$Camera_8h.html" title="User&#45;level camera things." alt="" coords="5,80,131,107"/>
+<area shape="rect" id="node4" href="$DescriptorControl_8h.html" title="Makes dynamic descriptor control simpler." alt="" coords="155,80,343,107"/>
+<area shape="rect" id="node5" href="$Model_8h.html" title="Declares things related to loading and managing models." alt="" coords="368,80,483,107"/>
+<area shape="rect" id="node6" href="$Polygon_8h.html" title="Abstraction of VK2DBuffer for shapes." alt="" coords="507,80,634,107"/>
+<area shape="rect" id="node7" href="$Renderer_8h.html" title="The main renderer that handles all rendering." alt="" coords="658,80,790,107"/>
+<area shape="rect" id="node8" href="$Shader_8h.html" title="Makes shaders possible in VK2D." alt="" coords="814,80,933,107"/>
+<area shape="rect" id="node9" href="$ShadowEnvironment_8h.html" title="Information needed to use hardware&#45;accelerated shadows." alt="" coords="957,80,1165,107"/>
+<area shape="rect" id="node10" href="$Texture_8h.html" title="Makes managing textures samplers and off&#45;screen rendering simpler." alt="" coords="1189,80,1312,107"/>
+<area shape="rect" id="node11" href="$VulkanInterface_8h.html" title="Tools to allow the user to mess with vulkan themselves." alt="" coords="1337,80,1511,107"/>
+<area shape="rect" id="node3" href="$VK2D_8h.html" title="Includes all the relevant things you need." alt="" coords="669,155,779,181"/>
+</map>
