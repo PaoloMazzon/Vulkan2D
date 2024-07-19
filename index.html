@@ -1,9 +1,8 @@
-<!-- HTML header for doxygen 1.9.7-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="$langISO">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Vulkan2D: Main Page</title>
@@ -17,47 +16,23 @@
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
-$darkmode
 <link href="doxygen.css" rel="stylesheet" type="text/css" />
 <link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
 <link href="custom.css" rel="stylesheet" type="text/css"/>
 <link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
-<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
-<link href="custom-alternative.css" rel="stylesheet" type="text/css"/>
-    <script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
-    <script type="text/javascript">
-        DoxygenAwesomeDarkModeToggle.init()
-    </script>
 </head>
 <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
 <div id="titlearea">
 <table cellspacing="0" cellpadding="0">
  <tbody>
- <tr id="projectrow">
-  <td id="projectalign">
+ <tr style="height: 56px;">
+  <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Vulkan2D
    </div>
    <div id="projectbrief">2D renderer written in C using Vulkan and SDL2</div>
   </td>
  </tr>
-   <!--BEGIN FULL_SIDEBAR-->
-   <tr><td colspan="2">        <div id="MSearchBox" class="MSearchBoxInactive">
-        <span class="left">
-          <img id="MSearchSelect" src="search/mag_sel.svg"
-               onmouseover="return searchBox.OnSearchSelectShow()"
-               onmouseout="return searchBox.OnSearchSelectHide()"
-               alt=""/>
-          <input type="text" id="MSearchField" value="Search" accesskey="S"
-               onfocus="searchBox.OnSearchFieldFocus(true)" 
-               onblur="searchBox.OnSearchFieldFocus(false)" 
-               onkeyup="searchBox.OnSearchFieldChange(event)"/>
-          </span><span class="right">
-            <a id="MSearchClose" href="javascript:searchBox.CloseResultsWindow()"><img id="MSearchCloseImg" border="0" src="search/close.svg" alt=""/></a>
-          </span>
-        </div>
-</td></tr>
-   <!--END FULL_SIDEBAR-->
  </tbody>
 </table>
 </div>
@@ -120,7 +95,7 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <p><img src="https://github.com/user-attachments/assets/9a43483b-0bdd-4511-98a3-9ca839b070d5" alt="example" class="inline"/></p>
 <h1><a class="anchor" id="autotoc_md12"></a>
 Vulkan2D</h1>
-<p>Vulkan2D is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely simple API, requiring no Vulkan experience to use. <a href="https://github.com/PaoloMazzon/Astro">Astro</a> and more recently <a href="https://github.com/PaoloMazzon/Bedlam">Bedlam</a> internally use Vulkan2D for rendering. My other projects <a href="https://github.com/PaoloMazzon/Spacelink">Spacelink</a> and <a href="https://github.com/PaoloMazzon/PeacenLiberty">Peace &amp; Liberty</a> also used Vulkan2D, although a much older version of it. Check out the <a class="el" href="md_docs_QuickStart.html">quick-start</a> guide.</p>
+<p><a href="https://github.com/PaoloMazzon/Vulkan2D">Vulkan2D</a> is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely simple API, requiring no Vulkan experience to use. <a href="https://github.com/PaoloMazzon/Astro">Astro</a> and more recently <a href="https://devplo.itch.io/sea-of-clouds">Sea of Clouds</a> internally use Vulkan2D for rendering. My other projects <a href="https://github.com/PaoloMazzon/Bedlam">Bedlam</a>, <a href="https://github.com/PaoloMazzon/Spacelink">Spacelink</a>, and <a href="https://github.com/PaoloMazzon/PeacenLiberty">Peace &amp; Liberty</a> also used Vulkan2D, although a much older version of it. Check out the <a class="el" href="md_docs_QuickStart.html">quick-start</a> guide.</p>
 <h1><a class="anchor" id="autotoc_md13"></a>
 Features</h1>
 <ul>
@@ -135,7 +110,7 @@ Features</h1>
 </ul>
 <h1><a class="anchor" id="autotoc_md14"></a>
 Documentation</h1>
-<p>Every file in VK2D is properly documented for doxygen, run <code>doxygen</code> in <code>Vulkan2D/</code> or check the header files. Additionally, there is a few miscellaneous pieces of documentation, <a class="el" href="md_docs_QuickStart.html">quick-start</a> and <a class="el" href="md_docs_Cameras.html">cameras</a>. As a general overview,</p>
+<p>Check out the <a href="https://paolomazzon.github.io/Vulkan2D/index.html">documentation website</a>.</p>
 <h1><a class="anchor" id="autotoc_md15"></a>
 Usage</h1>
 <p>There are two parts to building it with your project: you must build VK2D and also VMA since VK2D needs VMA to function. You'll likely need to do something like this in CMake:</p>

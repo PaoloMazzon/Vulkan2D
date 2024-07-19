@@ -183,7 +183,7 @@ html {
     }
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
     html:not(.light-mode) {
         color-scheme: dark;
 
