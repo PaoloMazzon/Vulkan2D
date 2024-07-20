@@ -164,7 +164,10 @@ int _vk2dWorkerThread(void *data) {
 
 	// Setup the command pool
 	VkCommandPoolCreateInfo commandPoolCreateInfo2 = vk2dInitCommandPoolCreateInfo(dev->pd->QueueFamily.graphicsFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-	vk2dErrorCheck(vkCreateCommandPool(dev->dev, &commandPoolCreateInfo2, VK_NULL_HANDLE, &dev->loadPool));
+	VkResult result = vkCreateCommandPool(dev->dev, &commandPoolCreateInfo2, VK_NULL_HANDLE, &dev->loadPool);
+    if (result != VK_SUCCESS) {
+        vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create command buffer for worker thread.");
+    }
 	while (SDL_AtomicGet(&dev->quitThread) == 0) {
 		if (SDL_AtomicGet(&dev->loads) > 0) {
 			// Find an asset to load
@@ -255,7 +258,9 @@ void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count) {
 		SDL_AtomicSet(&dev->loadListSize, count);
 		SDL_AtomicSet(&dev->loads, count);
 		dev->loadList = malloc(sizeof(VK2DAssetLoad) * count);
-		vk2dPointerCheck(dev->loadList);
+		if (dev->loadList == NULL) {
+            vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to create load list for worker thread.");
+		}
 		memcpy(dev->loadList, assets, sizeof(VK2DAssetLoad) * count);
 		SDL_UnlockMutex(dev->loadListMutex);
 	} else {

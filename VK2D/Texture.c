@@ -26,6 +26,8 @@ static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer,
 VK2DTexture _vk2dTextureLoadFromImageInternal(VK2DImage image, bool mainThread) {
 	VK2DTexture out = calloc(1, sizeof(struct VK2DTexture_t));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
+	if (renderer == NULL)
+	    return NULL;
 
 	if (out != NULL) {
 		out->img = image;
@@ -93,6 +95,10 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 	VK2DTexture out = malloc(sizeof(struct VK2DTexture_t));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 	VK2DLogicalDevice dev = vk2dRendererGetDevice();
+
+	if (renderer == NULL) {
+	    return NULL;
+	}
 
 	// For the UBO
 	VK2DCameraSpec cam = {

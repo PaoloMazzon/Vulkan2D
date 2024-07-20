@@ -223,6 +223,9 @@ void vk2dRendererWait() {
 }
 
 VK2DRenderer vk2dRendererGetPointer() {
+    if (gRenderer == NULL) {
+        vk2dRaise(VK2D_STATUS_RENDERER_NOT_INITIALIZED, "Renderer not initialized.");
+    }
 	return gRenderer;
 }
 
