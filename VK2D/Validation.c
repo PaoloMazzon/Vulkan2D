@@ -82,11 +82,17 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
     va_start(list, fmt);
     vsnprintf(&gLogBuffer[startIndex], length, fmt, list);
     va_end(list);
+
+    // TODO: Print output to error file if one is provided
 }
 
 VK2DStatus vk2dGetStatus() {
     gResetLog = true;
     return gStatus;
+}
+
+bool vk2dCriticalStatus() {
+    return gStatus != VK2D_STATUS_NONE && gStatus != VK2D_STATUS_SDL_ERROR;
 }
 
 const char *vk2dGetStatusMessage() {

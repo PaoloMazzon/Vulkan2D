@@ -10,6 +10,12 @@
 extern "C" {
 #endif
 
+// For debug only
+#define vk2dPointerCheck(ptr) (ptr)
+#define vk2dErrorCheck(e) (e);
+#define vk2dErrorInline(ptr) (ptr)
+
+
 /// \brief Prints a log message if VKRE_VERBOSE_STDOUT is enabled
 void vk2dLog(const char* fmt, ...);
 
@@ -18,6 +24,9 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...);
 
 /// \brief Gets the current renderer status to check for errors and the like
 VK2DStatus vk2dGetStatus();
+
+/// \brief Returns whether or not there is a critical status (so the renderer knows to stop)
+bool vk2dCriticalStatus();
 
 /// \brief Creates validation synchronization primitives
 void vk2dValidationBegin();

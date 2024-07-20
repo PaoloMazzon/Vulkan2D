@@ -17,7 +17,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice_t));
 	uint32_t queueFamily = graphicsDevice == true ? dev->QueueFamily.graphicsFamily : dev->QueueFamily.computeFamily;
 
-	if (vk2dPointerCheck(ldev)) {
+	if (ldev != NULL) {
 		// Assemble the required features
 		VkPhysicalDeviceFeatures feats = {0};
 		if (enableAllFeatures) {
@@ -48,20 +48,31 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		queueCreateInfo.queueCount = gRenderer->limits.supportsMultiThreadLoading ? 2 : 1;
 		VkDeviceQueueCreateInfo queues[] = {queueCreateInfo};
 		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(queues, 1, &feats, debug);
-		vk2dErrorCheck(vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev));
+		VkResult result = vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev);
+		if (result != VK_SUCCESS) {
+		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create logical device, Vulkan error %i.", result);
+		    free(ldev);
+		    return NULL;
+		}
 		ldev->pd = dev;
 		vkGetDeviceQueue(ldev->dev, queueFamily, 0, &ldev->queue);
 		if (queueCreateInfo.queueCount == 2)
 			vkGetDeviceQueue(ldev->dev, queueFamily, 1, &ldev->loadQueue);
 
 		VkCommandPoolCreateInfo commandPoolCreateInfo = vk2dInitCommandPoolCreateInfo(queueFamily, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool));
+		result = vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool);
+        if (result != VK_SUCCESS) {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create command pool, Vulkan error %i.", result);
+            free(ldev);
+            return NULL;
+        }
 
 		if (gRenderer->limits.supportsMultiThreadLoading) {
             vk2dLog("Creating worker thread...");
 			ldev->loadList = NULL;
 			ldev->loadListMutex = SDL_CreateMutex();
 			ldev->shaderMutex = SDL_CreateMutex();
+
 			SDL_AtomicSet(&ldev->loadListSize, 0);
 			SDL_AtomicSet(&ldev->quitThread, 0);
 			SDL_AtomicSet(&ldev->loads, 0);
@@ -70,9 +81,18 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 			ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", NULL);
 
 			if (ldev->loadListMutex == NULL || ldev->workerThread == NULL || ldev->shaderMutex == NULL) {
-                vk2dLog("Failed to initialize off-thread loading: %s", SDL_GetError());
-			}
+                vk2dRaise(VK2D_STATUS_SDL_ERROR, "Failed to initialize worker thread, SDL error: %s", SDL_GetError());
+                gRenderer->limits.supportsMultiThreadLoading = false;
+                SDL_DestroyMutex(ldev->loadListMutex);
+                SDL_DestroyMutex(ldev->shaderMutex);
+                SDL_DetachThread(ldev->workerThread);
+                ldev->loadListMutex = NULL;
+                ldev->shaderMutex = NULL;
+                ldev->workerThread = NULL;
+            }
 		}
+	} else {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate logical device.");
 	}
 	
 	return ldev;
@@ -96,21 +116,30 @@ void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
 }
 
 void vk2dLogicalDeviceResetPool(VK2DLogicalDevice dev) {
-	vk2dErrorCheck(vkResetCommandPool(dev->dev, dev->pool, 0));
+	VkResult result = vkResetCommandPool(dev->dev, dev->pool, 0);
+	if (result != VK_SUCCESS) {
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to reset command pool, Vulkan error %i", result);
+	}
 }
 
 VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, bool primary) {
 	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool, 1);
 	allocInfo.level = primary ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : VK_COMMAND_BUFFER_LEVEL_SECONDARY;
 	VkCommandBuffer buffer;
-	vk2dErrorCheck(vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer));
+	VkResult result = vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer);
+    if (result != VK_SUCCESS) {
+        vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get command buffer, Vulkan error %i", result);
+    }
 	return buffer;
 }
 
 void vk2dLogicalDeviceGetCommandBuffers(VK2DLogicalDevice dev, bool primary, uint32_t n, VkCommandBuffer *list) {
 	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool, n);
 	allocInfo.level = primary ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	vk2dErrorCheck(vkAllocateCommandBuffers(dev->dev, &allocInfo, list));
+	VkResult result = vkAllocateCommandBuffers(dev->dev, &allocInfo, list);
+    if (result != VK_SUCCESS) {
+        vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to reset command pool, Vulkan error %i", result);
+    }
 }
 
 void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer) {
@@ -122,9 +151,15 @@ VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev, bool 
 	if (!mainThread)
 		allocInfo.commandPool = dev->loadPool;
 	VkCommandBuffer buffer;
-	vk2dErrorCheck(vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer));
+	VkResult result = vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer);
+    if (result != VK_SUCCESS) {
+        vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to allocate command buffers, Vulkan error %i", result);
+    }
 	VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VK_NULL_HANDLE);
-	vk2dErrorCheck(vkBeginCommandBuffer(buffer, &beginInfo));
+	result = vkBeginCommandBuffer(buffer, &beginInfo);
+    if (result != VK_SUCCESS) {
+        vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to begin command buffer, Vulkan error %i", result);
+    }
 	return buffer;
 }
 
@@ -132,20 +167,39 @@ void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer 
 	VkSubmitInfo submitInfo = vk2dInitSubmitInfo(&buffer, 1, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE);
 	vkEndCommandBuffer(buffer);
 	if (mainThread) {
-		vkQueueSubmit(dev->queue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(dev->queue);
-		vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
+		VkResult result = vkQueueSubmit(dev->queue, 1, &submitInfo, VK_NULL_HANDLE);
+        if (result == VK_SUCCESS) {
+            result = vkQueueWaitIdle(dev->queue);
+            if (result == VK_SUCCESS) {
+                vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
+            } else {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to wait for queue, Vulkan error %i", result);
+            }
+        } else {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to submit queue, Vulkan error %i", result);
+        }
 	} else {
-		vkQueueSubmit(dev->loadQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(dev->loadQueue);
-		vkFreeCommandBuffers(dev->dev, dev->loadPool, 1, &buffer);
+		VkResult result = vkQueueSubmit(dev->loadQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        if (result == VK_SUCCESS) {
+            result = vkQueueWaitIdle(dev->loadQueue);
+            if (result == VK_SUCCESS) {
+                vkFreeCommandBuffers(dev->dev, dev->loadPool, 1, &buffer);
+            } else {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to wait for queue, Vulkan error %i", result);
+            }
+        } else {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to submit queue, Vulkan error %i", result);
+        }
 	}
 }
 
 VkFence vk2dLogicalDeviceGetFence(VK2DLogicalDevice dev, VkFenceCreateFlagBits flags) {
 	VkFenceCreateInfo fenceCreateInfo = vk2dInitFenceCreateInfo(flags);
 	VkFence fence;
-	vk2dErrorCheck(vkCreateFence(dev->dev, &fenceCreateInfo, VK_NULL_HANDLE, &fence));
+	VkResult result = vkCreateFence(dev->dev, &fenceCreateInfo, VK_NULL_HANDLE, &fence);
+	if (result != VK_SUCCESS) {
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create fence, Vulkan error %i", result);
+	}
 	return fence;
 }
 
@@ -156,7 +210,10 @@ void vk2dLogicalDeviceFreeFence(VK2DLogicalDevice dev, VkFence fence) {
 VkSemaphore vk2dLogicalDeviceGetSemaphore(VK2DLogicalDevice dev) {
 	VkSemaphoreCreateInfo semaphoreCreateInfo = vk2dInitSemaphoreCreateInfo(0);
 	VkSemaphore semaphore;
-	vk2dErrorCheck(vkCreateSemaphore(dev->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &semaphore));
+	VkResult result = vkCreateSemaphore(dev->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &semaphore);
+	if (result != VK_SUCCESS) {
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create semaphore, Vulkan error %i", result);
+	}
 	return semaphore;
 }
 
