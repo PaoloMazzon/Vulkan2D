@@ -477,6 +477,15 @@ void vk2dAssetsSetShaderMemory(VK2DAssetLoad *array, int index, void *vertexBuff
 /// the CPU as much as a simple busy loop.
 void vk2dSleep(double seconds);
 
+/// \brief Gets the renderer's current status code.
+/// \return Returns the most recent status code
+VK2DStatus vk2dGetStatus();
+
+/// \brief Returns the current renderer status message, generally use this if vk2dGetStatus() returns something other than
+/// VK2D_STATUS_NONE
+/// \return Returns a message describing the most recent status code.
+const char *vk2dGetStatusMessage();
+
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)

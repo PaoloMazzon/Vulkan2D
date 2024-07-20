@@ -38,10 +38,10 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec) {
 				cam->uboSets[i] = vk2dDescConGetSet(gRenderer->descConVP);
 			}
 		} else {
-			vk2dLogMessage("Cannot create more cameras");
+            vk2dLog("Cannot create more cameras");
 		}
 	} else {
-		vk2dLogMessage("Renderer is not initialized");
+        vk2dLog("Renderer is not initialized");
 	}
 
 	return position;
@@ -58,7 +58,7 @@ void vk2dCameraUpdate(VK2DCameraIndex index, VK2DCameraSpec spec) {
 		if (gRenderer->cameras[index].spec.hOnScreen == 0)
 			gRenderer->cameras[index].spec.hOnScreen = gRenderer->surfaceHeight;
 	} else {
-		vk2dLogMessage("Renderer is not initialized");
+        vk2dLog("Renderer is not initialized");
 	}
 }
 
@@ -67,7 +67,7 @@ VK2DCameraSpec vk2dCameraGetSpec(VK2DCameraIndex index) {
 	if (gRenderer != NULL)
 		return gRenderer->cameras[index].spec;
 	else
-		vk2dLogMessage("Renderer is not initialized");
+        vk2dLog("Renderer is not initialized");
 	VK2DCameraSpec s = {0};
 	return s;
 }
@@ -83,7 +83,7 @@ void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state) {
 		}
 		gRenderer->cameras[index].state = state;
 	} else {
-		vk2dLogMessage("Renderer is not initialized");
+        vk2dLog("Renderer is not initialized");
 	}
 }
 
@@ -92,6 +92,6 @@ VK2DCameraState vk2dCameraGetState(VK2DCameraIndex index) {
 	if (gRenderer != NULL)
 		return gRenderer->cameras[index].state;
 	else
-		vk2dLogMessage("Renderer is not initialized");
+        vk2dLog("Renderer is not initialized");
 	return VK2D_CAMERA_STATE_MAX;
 }

@@ -69,7 +69,7 @@ VK2DTexture _vk2dTextureFromInternal(void *data, int size, bool mainThread) {
 VK2DTexture vk2dTextureFrom(void *data, int size) {
 	VK2DTexture tex = _vk2dTextureFromInternal(data, size, true);
 	if (tex == NULL)
-		vk2dLogMessage("Failed to load texture from data of size %i.", size);
+        vk2dLog("Failed to load texture from data of size %i.", size);
 	return tex;
 }
 
@@ -78,7 +78,7 @@ VK2DTexture vk2dTextureLoad(const char *filename) {
 	void *data = _vk2dLoadFile(filename, &size);
 	VK2DTexture tex = _vk2dTextureFromInternal(data, size, true);
 	if (tex == NULL)
-		vk2dLogMessage("Failed to load texture from file \"%s\".", filename);
+        vk2dLog("Failed to load texture from file \"%s\".", filename);
 	free(data);
 	return tex;
 }

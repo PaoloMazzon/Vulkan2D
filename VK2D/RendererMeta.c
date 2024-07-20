@@ -175,7 +175,7 @@ void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout ne
 		sourceStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT | VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	} else {
-		vk2dLogMessage("!!!Unsupported image transition!!!");
+        vk2dLog("!!!Unsupported image transition!!!");
 		vk2dErrorCheck(-1);
 	}
 
@@ -358,7 +358,7 @@ void _vk2dRendererCreateSwapchain() {
 		}
 	}
 
-	vk2dLogMessage("Swapchain (%i images) initialized...", swapchainCreateInfoKHR.minImageCount);
+    vk2dLog("Swapchain (%i images) initialized...", swapchainCreateInfoKHR.minImageCount);
 }
 
 void _vk2dRendererDestroySwapchain() {
@@ -390,9 +390,9 @@ void _vk2dRendererCreateDepthBuffer() {
 	if (selectedFormat != VK_FORMAT_MAX_ENUM) {
 		gRenderer->depthBufferFormat = selectedFormat;
 		gRenderer->depthBuffer = vk2dImageCreate(gRenderer->ld, gRenderer->surfaceWidth, gRenderer->surfaceHeight, gRenderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, (VkSampleCountFlagBits)gRenderer->config.msaa);
-		vk2dLogMessage("Depth buffer initialized...");
+        vk2dLog("Depth buffer initialized...");
 	} else {
-		vk2dLogMessage("Failed to create depth buffer.");
+        vk2dLog("Failed to create depth buffer.");
 	}
 }
 
@@ -414,9 +414,9 @@ void _vk2dRendererCreateColourResources() {
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 				(VkSampleCountFlagBits) gRenderer->config.msaa);
-		vk2dLogMessage("Colour resources initialized for MSAA of %i...", gRenderer->config.msaa);
+        vk2dLog("Colour resources initialized for MSAA of %i...", gRenderer->config.msaa);
 	} else {
-		vk2dLogMessage("Colour resources not enabled...");
+        vk2dLog("Colour resources not enabled...");
 	}
 }
 
@@ -440,7 +440,7 @@ void _vk2dRendererCreateDescriptorBuffers() {
 	gRenderer->limits.maxInstancedDraws = gRenderer->options.vramPageSize / sizeof(VK2DDrawInstance);
 	gRenderer->limits.maxInstancedDraws--;
 
-	vk2dLogMessage("Descriptor buffers created...");
+    vk2dLog("Descriptor buffers created...");
 }
 
 void _vk2dRendererDestroyDescriptorBuffers() {
@@ -565,7 +565,7 @@ void _vk2dRendererCreateRenderPass() {
 	}
 	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->externalTargetRenderPass));
 
-	vk2dLogMessage("Render pass initialized...");
+    vk2dLog("Render pass initialized...");
 }
 
 void _vk2dRendererDestroyRenderPass() {
@@ -605,7 +605,7 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 	VkDescriptorSetLayoutCreateInfo texDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingTex, texLayoutCount);
 	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &texDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslTexture));
 
-	vk2dLogMessage("Descriptor set layout initialized...");
+    vk2dLog("Descriptor set layout initialized...");
 }
 
 void _vk2dRendererDestroyDescriptorSetLayout() {
@@ -848,7 +848,7 @@ void _vk2dRendererCreatePipelines() {
     if (CustomShadowsFragShader)
         free(shaderShadowsFrag);
 
-    vk2dLogMessage("Pipelines initialized...");
+    vk2dLog("Pipelines initialized...");
 }
 
 void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
@@ -886,11 +886,11 @@ void _vk2dRendererCreateFrameBuffer() {
 
 			VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(gRenderer->renderPass, gRenderer->surfaceWidth, gRenderer->surfaceHeight, attachments, attachCount);
 			vk2dErrorCheck(vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->framebuffers[i]));
-			vk2dLogMessage("Framebuffer[%i] ready...", i);
+            vk2dLog("Framebuffer[%i] ready...", i);
 		}
 	}
 
-	vk2dLogMessage("Framebuffers initialized...");
+    vk2dLog("Framebuffers initialized...");
 }
 
 void _vk2dRendererDestroyFrameBuffer() {
@@ -951,7 +951,7 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	gRenderer->unitUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &unitUBO, true);
 	gRenderer->unitUBOSet = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->unitUBO);
 
-	vk2dLogMessage("UBO initialized...");
+    vk2dLog("UBO initialized...");
 }
 
 void _vk2dRendererDestroyUniformBuffers() {
@@ -978,9 +978,9 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = vk2dInitDescriptorSetAllocateInfo(gRenderer->samplerPool, 1, &gRenderer->dslSampler);
 		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->samplerSet));
 		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->modelSamplerSet));
-		vk2dLogMessage("Descriptor controllers initialized...");
+        vk2dLog("Descriptor controllers initialized...");
 	} else {
-		vk2dLogMessage("Descriptor controllers preserved...");
+        vk2dLog("Descriptor controllers preserved...");
 	}
 }
 
@@ -1023,7 +1023,7 @@ void _vk2dRendererCreateSynchronization() {
 		}
 	}
 
-	vk2dLogMessage("Synchronization initialized...");
+    vk2dLog("Synchronization initialized...");
 }
 
 void _vk2dRendererDestroySynchronization() {
@@ -1063,7 +1063,7 @@ void _vk2dRendererCreateSampler() {
 	write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLER, 1, gRenderer->modelSamplerSet, VK_NULL_HANDLE, 1, &imageInfo);
 	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
 
-	vk2dLogMessage("Created texture sampler...");
+    vk2dLog("Created texture sampler...");
 }
 
 void _vk2dRendererDestroySampler() {
@@ -1088,7 +1088,7 @@ void _vk2dRendererCreateUnits() {
 	gRenderer->unitCircle = vk2dPolygonCreate(circleVertices, VK2D_CIRCLE_VERTICES);
 	gRenderer->unitCircleOutline = vk2dPolygonCreateOutline(circleVertices, VK2D_CIRCLE_VERTICES);
 	gRenderer->unitLine = vk2dPolygonCreateOutline((void*)LINE_VERTICES, LINE_VERTEX_COUNT);
-	vk2dLogMessage("Created unit polygons...");
+    vk2dLog("Created unit polygons...");
 }
 
 void _vk2dRendererDestroyUnits() {
@@ -1141,7 +1141,7 @@ void _vk2dRendererRefreshTargets() {
 			vk2dErrorCheck(vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->targets[i]->fbo));
 		}
 	}
-	vk2dLogMessage("Refreshed %i render targets...", targetsRefreshed);
+    vk2dLog("Refreshed %i render targets...", targetsRefreshed);
 }
 
 void _vk2dRendererDestroyTargetsList() {
@@ -1173,7 +1173,7 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererDestroyColourResources();
 	_vk2dRendererDestroySwapchain();
 
-	vk2dLogMessage("Destroyed swapchain assets...");
+    vk2dLog("Destroyed swapchain assets...");
 
 	// Swap out configs in case they were changed
 	gRenderer->config = gRenderer->newConfig;
@@ -1192,7 +1192,7 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
 
-	vk2dLogMessage("Recreated swapchain assets...");
+    vk2dLog("Recreated swapchain assets...");
 }
 
 void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam) {

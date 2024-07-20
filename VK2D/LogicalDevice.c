@@ -12,7 +12,7 @@
 VK2DLogicalDevice gDeviceFromMainThread;
 
 VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug, VK2DRendererLimits *limits) {
-	vk2dLogMessage("Creating queues...");
+    vk2dLog("Creating queues...");
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice_t));
 	uint32_t queueFamily = graphicsDevice == true ? dev->QueueFamily.graphicsFamily : dev->QueueFamily.computeFamily;
@@ -58,7 +58,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		vk2dErrorCheck(vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool));
 
 		if (gRenderer->limits.supportsMultiThreadLoading) {
-			vk2dLogMessage("Creating worker thread...");
+            vk2dLog("Creating worker thread...");
 			ldev->loadList = NULL;
 			ldev->loadListMutex = SDL_CreateMutex();
 			ldev->shaderMutex = SDL_CreateMutex();
@@ -70,7 +70,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 			ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", NULL);
 
 			if (ldev->loadListMutex == NULL || ldev->workerThread == NULL || ldev->shaderMutex == NULL) {
-				vk2dLogMessage("Failed to initialize off-thread loading: %s", SDL_GetError());
+                vk2dLog("Failed to initialize off-thread loading: %s", SDL_GetError());
 			}
 		}
 	}

@@ -10,6 +10,12 @@
 
 static SDL_mutex *gLogMutex = NULL;
 
+// Global log buffer
+static const int32_t gLogBufferSize = 4096;
+static char gLogBuffer[4096] = {0};
+static VK2DStatus gStatus;
+static bool gResetLog; // so the raise method knows to reset after the user gets the output
+
 void vk2dValidationBegin() {
 	gLogMutex = SDL_CreateMutex();
 }
@@ -49,7 +55,45 @@ bool _vk2dPointerCheck(void* ptr, const char* function, int line, const char* va
 	return 1;
 }
 
-void vk2dLogMessage(const char* fmt, ...) {
+// Safe string length method
+static int32_t stringLength(const char *str, int32_t size) {
+    int32_t len = 0;
+    for (int32_t i = 0; str[i] != 0 && i < size; i++) {
+        len++;
+    }
+    return len;
+}
+
+void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
+    // Reset if the user got the log recently
+    if (gResetLog) {
+        gResetLog = false;
+        gStatus = 0;
+        gLogBuffer[0] = 0;
+    }
+
+    // Calculate what part of the buffer to write to
+    const int startIndex = stringLength(gLogBuffer, gLogBufferSize);
+    const int32_t length = gLogBufferSize - startIndex;
+
+    // Print output
+    va_list list;
+    va_start(list, fmt);
+    vsnprintf(&gLogBuffer[startIndex], length, fmt, list);
+    va_end(list);
+}
+
+VK2DStatus vk2dGetStatus() {
+    gResetLog = true;
+    return gStatus;
+}
+
+const char *vk2dGetStatusMessage() {
+    gResetLog = true;
+    return gLogBuffer;
+}
+
+void vk2dLog(const char* fmt, ...) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer->options.stdoutLogging) {
 		va_list list;

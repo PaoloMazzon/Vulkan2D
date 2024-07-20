@@ -114,6 +114,17 @@ typedef enum {
 	VK2D_ERROR = -1           ///< Error occurred
 } VK2DResult;
 
+/// \brief Status codes for logging/error reporting
+typedef enum {
+    VK2D_STATUS_NONE             = 0,    ///< Nothing important to report
+    VK2D_STATUS_FILE_NOT_FOUND   = 1>>0, ///< File was not found for something like an image load
+    VK2D_STATUS_BAD_FORMAT       = 1>>1, ///< Bad file format
+    VK2D_STATUS_TOO_MANY_CAMERAS = 1>>2, ///< No camera slots left to use
+    VK2D_STATUS_DEVICE_LOST      = 1>>3, ///< General Vulkan catch-all for when something goes wrong
+    VK2D_STATUS_OUT_OF_RAM       = 1>>4, ///< Out of host memory
+    VK2D_STATUS_OUT_OF_VRAM      = 1>>5, ///< Out of gpu memory
+} VK2DStatus;
+
 /// \brief Types of assets
 typedef enum {
 	VK2D_ASSET_TYPE_TEXTURE_FILE = 1,   ///< Load a texture from a filename

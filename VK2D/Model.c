@@ -41,7 +41,7 @@ VK2DModel _vk2dModelCreateInternal(const VK2DVertex3D *vertices, uint32_t vertex
 VK2DModel vk2dModelCreate(const VK2DVertex3D *vertices, uint32_t vertexCount, const uint16_t *indices, uint32_t indexCount, VK2DTexture tex) {
 	VK2DModel model = _vk2dModelCreateInternal(vertices, vertexCount, indices, indexCount, tex, true);
 	if (model == NULL)
-		vk2dLogMessage("Failed to create model.");
+        vk2dLog("Failed to create model.");
 	return model;
 }
 
@@ -119,7 +119,7 @@ VK2DModel _vk2dModelFromInternal(const void *objFile, uint32_t objFileSize, VK2D
 VK2DModel vk2dModelFrom(const void *objFile, uint32_t objFileSize, VK2DTexture texture) {
 	VK2DModel model = _vk2dModelFromInternal(objFile, objFileSize, texture, true);
 	if (model == NULL)
-		vk2dLogMessage("Failed to create model from buffer.");
+        vk2dLog("Failed to create model from buffer.");
 	return model;
 }
 
@@ -130,7 +130,7 @@ VK2DModel vk2dModelLoad(const char *objFile, VK2DTexture texture) {
 	m = _vk2dModelFromInternal(data, size, texture, true);
 	free((void*)data);
 	if (m == NULL)
-		vk2dLogMessage("Failed to create model from \"%s\".", objFile);
+        vk2dLog("Failed to create model from \"%s\".", objFile);
 	return m;
 }
 

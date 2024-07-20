@@ -188,23 +188,23 @@ int _vk2dWorkerThread(void *data) {
 				uint8_t *fileData = _vk2dLoadFile(asset.Load.filename, &size);
 				*asset.Output.texture = _vk2dTextureFromInternal(fileData, size, false);
 				if (*asset.Output.texture == NULL)
-					vk2dLogMessage("Failed to load texture \"%s\".", asset.Load.filename);
+                    vk2dLog("Failed to load texture \"%s\".", asset.Load.filename);
 				free(fileData);
 			} else if (asset.type == VK2D_ASSET_TYPE_TEXTURE_MEMORY) {
 				*asset.Output.texture = _vk2dTextureFromInternal(asset.Load.data, asset.Load.size, false);
 				if (*asset.Output.texture == NULL)
-					vk2dLogMessage("Failed to load texture from buffer.");
+                    vk2dLog("Failed to load texture from buffer.");
 			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_FILE) {
 				uint32_t size;
 				uint8_t *fileData = _vk2dLoadFile(asset.Load.filename, &size);
 				*asset.Output.model = _vk2dModelFromInternal(fileData, size, *asset.Data.Model.tex, false);
 				if (*asset.Output.model == NULL)
-					vk2dLogMessage("Failed to load model \"%s\".", asset.Load.filename);
+                    vk2dLog("Failed to load model \"%s\".", asset.Load.filename);
 				free(fileData);
 			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_MEMORY) {
 				*asset.Output.model = _vk2dModelFromInternal(asset.Load.data, asset.Load.size, *asset.Data.Model.tex, false);
 				if (*asset.Output.model == NULL)
-					vk2dLogMessage("Failed to load model from buffer.");
+                    vk2dLog("Failed to load model from buffer.");
 			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_FILE) {
 				// Shaders are internally synchronized
 				*asset.Output.shader = vk2dShaderLoad(asset.Load.filename, asset.Load.fragmentFilename, asset.Data.Shader.uniformBufferSize);
@@ -261,23 +261,23 @@ void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count) {
 				uint8_t *fileData = _vk2dLoadFile(asset.Load.filename, &size);
 				*asset.Output.texture = _vk2dTextureFromInternal(fileData, size, true);
 				if (*asset.Output.texture == NULL)
-					vk2dLogMessage("Failed to load texture \"%s\".", asset.Load.filename);
+                    vk2dLog("Failed to load texture \"%s\".", asset.Load.filename);
 				free(fileData);
 			} else if (asset.type == VK2D_ASSET_TYPE_TEXTURE_MEMORY) {
 				*asset.Output.texture = _vk2dTextureFromInternal(asset.Load.data, asset.Load.size, true);
 				if (*asset.Output.texture == NULL)
-					vk2dLogMessage("Failed to load texture from buffer.");
+                    vk2dLog("Failed to load texture from buffer.");
 			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_FILE) {
 				uint32_t size;
 				uint8_t *fileData = _vk2dLoadFile(asset.Load.filename, &size);
 				*asset.Output.model = _vk2dModelFromInternal(fileData, size, *asset.Data.Model.tex, true);
 				if (*asset.Output.model == NULL)
-					vk2dLogMessage("Failed to load model \"%s\".", asset.Load.filename);
+                    vk2dLog("Failed to load model \"%s\".", asset.Load.filename);
 				free(fileData);
 			} else if (asset.type == VK2D_ASSET_TYPE_MODEL_MEMORY) {
 				*asset.Output.model = _vk2dModelFromInternal(asset.Load.data, asset.Load.size, *asset.Data.Model.tex, true);
 				if (*asset.Output.model == NULL)
-					vk2dLogMessage("Failed to load model from buffer.");
+                    vk2dLog("Failed to load model from buffer.");
 			} else if (asset.type == VK2D_ASSET_TYPE_SHADER_FILE) {
 				// Shaders are internally synchronized
 				*asset.Output.shader = vk2dShaderLoad(asset.Load.filename, asset.Load.fragmentFilename, asset.Data.Shader.uniformBufferSize);

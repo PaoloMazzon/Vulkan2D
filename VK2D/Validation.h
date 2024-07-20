@@ -4,6 +4,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <stdbool.h>
+#include "VK2D/Structs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +17,13 @@ bool _vk2dErrorRaise(VkResult result, const char* function, int line, const char
 bool _vk2dPointerCheck(void* ptr, const char* function, int line, const char* varname);
 
 /// \brief Prints a log message if VKRE_VERBOSE_STDOUT is enabled
-void vk2dLogMessage(const char* fmt, ...);
+void vk2dLog(const char* fmt, ...);
+
+/// \brief Raises a status problem of some sort
+void vk2dRaise(VK2DStatus result, const char* fmt, ...);
+
+/// \brief Gets the current renderer status to check for errors and the like
+VK2DStatus vk2dGetStatus();
 
 /// \brief Creates validation synchronization primitives
 void vk2dValidationBegin();

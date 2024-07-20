@@ -98,7 +98,7 @@ void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkIma
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 		destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
 	} else {
-		vk2dLogMessage("Unsupported image transition");
+        vk2dLog("Unsupported image transition");
 		vk2dErrorCheck(-1);
 	}
 
@@ -151,7 +151,7 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 	if (pixels == NULL) { // Print out filename if the image couldn't be loaded
-		vk2dLogMessage("Failed to load image \"%s\"", filename);
+        vk2dLog("Failed to load image \"%s\"", filename);
 	}
 
 	if (vk2dPointerCheck(pixels)) {

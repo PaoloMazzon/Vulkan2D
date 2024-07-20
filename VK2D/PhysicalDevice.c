@@ -96,7 +96,7 @@ static VkPhysicalDevice _vk2dPhysicalDeviceGetBestDevice(VkInstance instance, VK
 			vkGetPhysicalDeviceProperties(choice, &choiceProps);
 		} else {
 			vk2dErrorCheck(-1);
-			vk2dLogMessage("Device \"%i\" out of range.", preferredDevice);
+            vk2dLog("Device \"%i\" out of range.", preferredDevice);
 			free(out);
 			out = NULL;
 		}
@@ -118,8 +118,10 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 
 		// Check if we found one and print if it was discrete (dedicated) or otherwise
 		if (choice != VK_NULL_HANDLE) {
-			vk2dLogMessage(foundPrimary ? "Found discrete device %s [Vulkan %i.%i.%i]" : "Found integrated device %s [Vulkan %i.%i.%i]",
-						   choiceProps.deviceName, VK_VERSION_MAJOR(choiceProps.apiVersion), VK_VERSION_MINOR(choiceProps.apiVersion), VK_VERSION_PATCH(choiceProps.apiVersion));
+            vk2dLog(foundPrimary ? "Found discrete device %s [Vulkan %i.%i.%i]"
+                                 : "Found integrated device %s [Vulkan %i.%i.%i]",
+                    choiceProps.deviceName, VK_VERSION_MAJOR(choiceProps.apiVersion),
+                    VK_VERSION_MINOR(choiceProps.apiVersion), VK_VERSION_PATCH(choiceProps.apiVersion));
 			out->props = choiceProps;
 			out->dev = choice;
 			vkGetPhysicalDeviceFeatures(choice, &out->feats);
