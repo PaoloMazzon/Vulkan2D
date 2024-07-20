@@ -121,8 +121,9 @@ typedef enum {
     VK2D_STATUS_BAD_FORMAT       = 1>>1, ///< Bad file format
     VK2D_STATUS_TOO_MANY_CAMERAS = 1>>2, ///< No camera slots left to use
     VK2D_STATUS_DEVICE_LOST      = 1>>3, ///< General Vulkan catch-all for when something goes wrong
-    VK2D_STATUS_OUT_OF_RAM       = 1>>4, ///< Out of host memory
-    VK2D_STATUS_OUT_OF_VRAM      = 1>>5, ///< Out of gpu memory
+    VK2D_STATUS_VULKAN_ERROR     = 1>>4, ///< Some sort of specific vulkan error
+    VK2D_STATUS_OUT_OF_RAM       = 1>>5, ///< Out of host memory
+    VK2D_STATUS_OUT_OF_VRAM      = 1>>6, ///< Out of gpu memory
 } VK2DStatus;
 
 /// \brief Types of assets

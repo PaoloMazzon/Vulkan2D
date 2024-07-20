@@ -71,6 +71,7 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
         gStatus = 0;
         gLogBuffer[0] = 0;
     }
+    gStatus = gStatus | result;
 
     // Calculate what part of the buffer to write to
     const int startIndex = stringLength(gLogBuffer, gLogBufferSize);

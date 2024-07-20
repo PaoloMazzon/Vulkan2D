@@ -11,6 +11,14 @@
 const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
+void handleVK2DStatus() {
+    if (vk2dGetStatus() != VK2D_STATUS_NONE) {
+        printf("[Vulkan2D error %i] %s\n", vk2dGetStatus(), vk2dGetStatusMessage());
+        fflush(stdout);
+        abort();
+    }
+}
+
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
 	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
@@ -58,6 +66,7 @@ int main(int argc, const char *argv[]) {
 	VK2DTexture texCaveguyUV = vk2dTextureLoad("assets/caveguyuv.png");
 	VK2DModel modelCaveguy = vk2dModelLoad("assets/caveguy.obj", texCaveguyUV);
 	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 4);
+	handleVK2DStatus();
 
 	// Delta and fps
 	double lastTime = SDL_GetPerformanceCounter();

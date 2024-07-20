@@ -132,8 +132,12 @@ unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size) {
 		if (buffer != NULL) {
 			// Fill the buffer
 			fread(buffer, 1, *size, file);
+		} else {
+            vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Unable to allocate buffer for file \"%s\".\n", filename);
 		}
 		fclose(file);
+	} else {
+	    vk2dRaise(VK2D_STATUS_FILE_NOT_FOUND, "File \"%s\" was unable to be opened.\n", filename);
 	}
 
 	return buffer;
@@ -145,6 +149,8 @@ unsigned char *_vk2dCopyBuffer(void *buffer, int size) {
 		new = malloc(size);
 		if (new != NULL) {
 			memcpy(new, buffer, size);
+		} else {
+            vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Unable to copy buffer of size %i bytes.\n", size);
 		}
 	}
 	return new;

@@ -27,12 +27,11 @@ VK2DTexture _vk2dTextureLoadFromImageInternal(VK2DImage image, bool mainThread) 
 	VK2DTexture out = calloc(1, sizeof(struct VK2DTexture_t));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 
-	if (vk2dPointerCheck(out)) {
+	if (out != NULL) {
 		out->img = image;
 		_vk2dTextureCreateDescriptor(out, renderer, mainThread);
 	} else {
-		free(out);
-		out = NULL;
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate texture.");
 	}
 
 	return out;
@@ -57,6 +56,8 @@ VK2DTexture _vk2dTextureFromInternal(void *data, int size, bool mainThread) {
 			else
 				vk2dImageFree(image);
 		}
+	} else {
+        vk2dRaise(VK2D_STATUS_BAD_FORMAT, "Problem with texture image format.");
 	}
 
 	if (pixels != NULL) {
@@ -75,11 +76,12 @@ VK2DTexture vk2dTextureFrom(void *data, int size) {
 
 VK2DTexture vk2dTextureLoad(const char *filename) {
 	uint32_t size;
-	void *data = _vk2dLoadFile(filename, &size);
-	VK2DTexture tex = _vk2dTextureFromInternal(data, size, true);
-	if (tex == NULL)
-        vk2dLog("Failed to load texture from file \"%s\".", filename);
-	free(data);
+    VK2DTexture tex = NULL;
+    void *data = _vk2dLoadFile(filename, &size);
+	if (data != NULL) {
+        tex = _vk2dTextureFromInternal(data, size, true);
+        free(data);
+    }
 	return tex;
 }
 
@@ -109,7 +111,7 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 	VK2DUniformBufferObject ubo = {0};
 	_vk2dCameraUpdateUBO(&ubo, &cam);
 
-	if (vk2dPointerCheck(out)) {
+	if (out != NULL) {
 		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
 		out->sampledImg = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
 		out->depthBuffer = vk2dImageCreate(dev, w, h, renderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, (VkSampleCountFlagBits)renderer->config.msaa);
@@ -130,7 +132,10 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 		}
 
 		VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(renderer->externalTargetRenderPass, w, h, attachments, attachCount);
-		vk2dErrorCheck(vkCreateFramebuffer(dev->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &out->fbo));
+		VkResult result = vkCreateFramebuffer(dev->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &out->fbo);
+		if (result != VK_SUCCESS) {
+		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create framebuffer for texture of size %.2fx%.2f, Vulkan error %i", w, h, result);
+		}
 
 		// And the UBO
 		out->ubo = vk2dBufferLoad(dev, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &ubo, true);
@@ -139,8 +144,7 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 		_vk2dRendererAddTarget(out);
 		_vk2dTextureCreateDescriptor(out, renderer, true);
 	} else {
-		free(out);
-		out = NULL;
+		vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate texture.");
 	}
 
 	return out;
