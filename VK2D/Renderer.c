@@ -62,7 +62,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 	const char** totalExtensions;
 
 	// Validation initialization needs to happen right away
-	vk2dValidationBegin();
+	vk2dValidationBegin(options->errorFile, options->quitOnError);
 
 	// Find the startup options
 	VK2DStartupOptions userOptions;

@@ -12,8 +12,8 @@ const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
 void handleVK2DStatus() {
-    if (vk2dGetStatus() != VK2D_STATUS_NONE) {
-        printf("[Vulkan2D error %i] %s\n", vk2dGetStatus(), vk2dGetStatusMessage());
+    if (vk2dStatus() != VK2D_STATUS_NONE) {
+        printf("[Vulkan2D error %i] %s\n", vk2dStatus(), vk2dStatusMessage());
         fflush(stdout);
         abort();
     }

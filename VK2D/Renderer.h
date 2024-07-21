@@ -479,12 +479,16 @@ void vk2dSleep(double seconds);
 
 /// \brief Gets the renderer's current status code.
 /// \return Returns the most recent status code
-VK2DStatus vk2dGetStatus();
+VK2DStatus vk2dStatus();
+
+/// \brief Returns true if the current status code should be considered fatal
+/// \returns Returns if the current renderer status is fatal.
+bool vk2dStatusFatal();
 
 /// \brief Returns the current renderer status message, generally use this if vk2dGetStatus() returns something other than
 /// VK2D_STATUS_NONE
 /// \return Returns a message describing the most recent status code.
-const char *vk2dGetStatusMessage();
+const char *vk2dStatusMessage();
 
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 

@@ -117,7 +117,7 @@ typedef enum {
 /// \brief Status codes for logging/error reporting
 typedef enum {
     VK2D_STATUS_NONE                     = 0,    ///< Nothing important to report
-    VK2D_STATUS_FILE_NOT_FOUND           = 1<<0, ///< File was not found for something like an image load
+    VK2D_STATUS_FILE_NOT_FOUND           = 1<<0, ///< File was not found for something like an image load, not fatal
     VK2D_STATUS_BAD_FORMAT               = 1<<1, ///< Bad file format
     VK2D_STATUS_TOO_MANY_CAMERAS         = 1<<2, ///< No camera slots left to use
     VK2D_STATUS_DEVICE_LOST              = 1<<3, ///< General Vulkan catch-all for when something goes wrong
@@ -125,7 +125,8 @@ typedef enum {
     VK2D_STATUS_OUT_OF_RAM               = 1<<5, ///< Out of host memory
     VK2D_STATUS_OUT_OF_VRAM              = 1<<6, ///< Out of gpu memory
     VK2D_STATUS_RENDERER_NOT_INITIALIZED = 1<<7, ///< Renderer has not been initialized
-    VK2D_STATUS_SDL_ERROR                = 1<<8, ///< General SDL-catch all
+    VK2D_STATUS_SDL_ERROR                = 1<<8, ///< General SDL-catch all, not fatal
+    VK2D_STATUS_BEYOND_LIMIT             = 1<<9, ///< User requested a setting that was beyond host limits, not fatal
 } VK2DStatus;
 
 /// \brief Types of assets

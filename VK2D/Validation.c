@@ -12,12 +12,17 @@ static SDL_mutex *gLogMutex = NULL;
 
 // Global log buffer
 static const int32_t gLogBufferSize = 4096;
-static char gLogBuffer[4096] = {0};
+static char gLogBuffer[4096] = "Vulkan2D is not initialized.";
 static VK2DStatus gStatus;
-static bool gResetLog; // so the raise method knows to reset after the user gets the output
+static bool gResetLog;         // So the raise method knows to reset after the user gets the output
+static const char *gErrorFile; // Makes sure this file has access to the error log file immediately
+static bool gQuitOnError;      // Same as above
 
-void vk2dValidationBegin() {
+void vk2dValidationBegin(const char *errorFile, bool quitOnError) {
 	gLogMutex = SDL_CreateMutex();
+	gErrorFile = errorFile;
+	gQuitOnError = quitOnError;
+	gLogBuffer[0] = 0;
 }
 
 void vk2dValidationEnd() {
@@ -83,19 +88,33 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
     vsnprintf(&gLogBuffer[startIndex], length, fmt, list);
     va_end(list);
 
-    // TODO: Print output to error file if one is provided
+    // Print output to file
+    if (gErrorFile != NULL) {
+        FILE *f = fopen(gErrorFile, "a");
+        if (f != NULL) {
+            va_start(list, fmt);
+            vfprintf(f, fmt, list);
+            va_end(list);
+            fclose(f);
+        }
+    }
+
+    // Crash if thats the user option
+    if (gQuitOnError && vk2dStatusFatal()) {
+        abort();
+    }
 }
 
-VK2DStatus vk2dGetStatus() {
+VK2DStatus vk2dStatus() {
     gResetLog = true;
     return gStatus;
 }
 
-bool vk2dCriticalStatus() {
-    return gStatus != VK2D_STATUS_NONE && gStatus != VK2D_STATUS_SDL_ERROR;
+bool vk2dStatusFatal() {
+    return (gStatus & ~(VK2D_STATUS_NONE | VK2D_STATUS_SDL_ERROR | VK2D_STATUS_FILE_NOT_FOUND)) != 0;
 }
 
-const char *vk2dGetStatusMessage() {
+const char *vk2dStatusMessage() {
     gResetLog = true;
     return gLogBuffer;
 }
