@@ -13,9 +13,22 @@ static VkPhysicalDevice* _vk2dPhysicalDeviceGetPhysicalDevices(VkInstance instan
 	VkPhysicalDevice *devices;
 
 	// Find out how many devices we have, allocate that amount, then fill in the blanks
-	vk2dErrorCheck(vkEnumeratePhysicalDevices(instance, size, NULL));
-	devices = malloc(sizeof(VkPhysicalDevice) * (*size));
-	vk2dErrorCheck(vkEnumeratePhysicalDevices(instance, size, devices));
+	VkResult result = vkEnumeratePhysicalDevices(instance, size, NULL);
+	if (result == VK_SUCCESS) {
+        devices = malloc(sizeof(VkPhysicalDevice) * (*size));
+        if (devices != NULL) {
+            result = vkEnumeratePhysicalDevices(instance, size, devices);
+            if (result != VK_SUCCESS) {
+                free(devices);
+                devices = NULL;
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to enumerate devices, Vulkan error %i.", result);
+            }
+        } else {
+            vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate %i devices.", *size);
+        }
+    } else {
+        vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to enumerate devices, Vulkan error %i.", result);
+	}
 
 	return devices;
 }
@@ -27,20 +40,24 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueFamilyCount, NULL);
 	queueList = malloc(sizeof(VkQueueFamilyProperties) * queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueFamilyCount, queueList);
-
 	bool gfx = false;
-	for (i = 0; i < queueFamilyCount && !gfx; i++) {
-		if (queueList[i].queueCount > 0) {
-			if (queueList[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
-				out->QueueFamily.computeFamily = i;
-			}
-			if (queueList[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-				out->QueueFamily.graphicsFamily = i;
-				gRenderer->limits.supportsMultiThreadLoading = queueList[i].queueCount >= 2;
-				gfx = true;
-			}
-		}
+
+	if (queueList != NULL) {
+        vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueFamilyCount, queueList);
+        for (i = 0; i < queueFamilyCount && !gfx; i++) {
+            if (queueList[i].queueCount > 0) {
+                if (queueList[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
+                    out->QueueFamily.computeFamily = i;
+                }
+                if (queueList[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                    out->QueueFamily.graphicsFamily = i;
+                    gRenderer->limits.supportsMultiThreadLoading = queueList[i].queueCount >= 2;
+                    gfx = true;
+                }
+            }
+        }
+    } else {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate queue family properties.");
 	}
 
 	free(queueList);
@@ -50,20 +67,21 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 // Checks if a device is supported, loading all the queue families if so
 static bool _vk2dPhysicalDeviceSupported(VkInstance instance, VkPhysicalDevice dev, VkPhysicalDeviceProperties *props, VK2DPhysicalDevice out) {
 	bool supportsQueueFamily = _vk2dPhysicalDeviceSupportsQueueFamilies(instance, dev, out);
-	//bool supports256PushConstants = props->limits.maxPushConstantsSize >= 256;
-	return supportsQueueFamily;// && supports256PushConstants;
+	return supportsQueueFamily;
 }
 
 VkPhysicalDeviceProperties *vk2dPhysicalDeviceGetList(VkInstance instance, uint32_t *size) {
 	VkPhysicalDevice *devs = _vk2dPhysicalDeviceGetPhysicalDevices(instance, size);
 	VkPhysicalDeviceProperties *props = NULL;
 
-	if (vk2dPointerCheck(devs)) {
+	if (devs != NULL) {
 		props = malloc(sizeof(VkPhysicalDeviceProperties) * (*size));
-		if (vk2dPointerCheck(props)) {
+		if (props != NULL) {
 			uint32_t i;
 			for (i = 0; i < *size; i++)
 				vkGetPhysicalDeviceProperties(devs[i], &props[i]);
+		} else {
+		    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate device properties.");
 		}
 	}
 
@@ -77,7 +95,7 @@ static VkPhysicalDevice _vk2dPhysicalDeviceGetBestDevice(VkInstance instance, VK
 	VkPhysicalDeviceProperties choiceProps;
 	*foundPrimary = false;
 	VkPhysicalDevice *devs = _vk2dPhysicalDeviceGetPhysicalDevices(instance, &devCount);
-	if (vk2dPointerCheck(devs) && preferredDevice == VK2D_DEVICE_BEST_FIT) {
+	if (devs != NULL && preferredDevice == VK2D_DEVICE_BEST_FIT) {
 		uint32_t i;
 		for (i = 0; i < devCount && !(*foundPrimary); i++) {
 			vkGetPhysicalDeviceProperties(devs[i], &choiceProps);
@@ -95,8 +113,7 @@ static VkPhysicalDevice _vk2dPhysicalDeviceGetBestDevice(VkInstance instance, VK
 			choice = devs[preferredDevice];
 			vkGetPhysicalDeviceProperties(choice, &choiceProps);
 		} else {
-			vk2dErrorCheck(-1);
-            vk2dLog("Device \"%i\" out of range.", preferredDevice);
+			vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Device \"%i\" out of range.", preferredDevice);
 			free(out);
 			out = NULL;
 		}
@@ -112,7 +129,7 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 	VkPhysicalDeviceProperties choiceProps;
 	bool foundPrimary;
 
-	if (vk2dPointerCheck(out)) {
+	if (out != NULL) {
 		choice = _vk2dPhysicalDeviceGetBestDevice(instance, out, preferredDevice, &foundPrimary);
 		vkGetPhysicalDeviceProperties(choice, &choiceProps);
 
@@ -129,8 +146,10 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 		} else {
 			free(out);
 			out = NULL;
-			vk2dErrorCheck(-1);
+			vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to find compatible device.");
 		}
+	} else {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate device.");
 	}
 
 	return out;

@@ -66,43 +66,65 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 	// Validation initialization needs to happen right away
 	vk2dValidationBegin(options->errorFile, options->quitOnError);
 
-	// Find the startup options
-	VK2DStartupOptions userOptions;
-	if (options == NULL) {
-		userOptions = DEFAULT_STARTUP_OPTIONS;
-	} else {
-		userOptions = *options;
-		if (userOptions.vramPageSize == 0)
-			userOptions.vramPageSize = 256 * 1024;
-	}
+    if (vk2dRendererGetPointer() != NULL) {
+        // Find the startup options
+        VK2DStartupOptions userOptions;
+        if (options == NULL) {
+            userOptions = DEFAULT_STARTUP_OPTIONS;
+        } else {
+            userOptions = *options;
+            if (userOptions.vramPageSize == 0)
+                userOptions.vramPageSize = 256 * 1024;
+        }
 
-	// Print all available layers
-	VkLayerProperties *systemLayers;
-	uint32_t systemLayerCount;
-	vkEnumerateInstanceLayerProperties(&systemLayerCount, VK_NULL_HANDLE);
-	systemLayers = malloc(sizeof(VkLayerProperties) * systemLayerCount);
-	vkEnumerateInstanceLayerProperties(&systemLayerCount, systemLayers);
-    vk2dLog("Available layers: ");
-	for (i = 0; i < systemLayerCount; i++)
-        vk2dLog("  - %s", systemLayers[i].layerName);
-    vk2dLog("");
-	free(systemLayers);
+        // Print all available layers
+        VkLayerProperties *systemLayers;
+        uint32_t systemLayerCount;
+        VkResult result = vkEnumerateInstanceLayerProperties(&systemLayerCount, VK_NULL_HANDLE);
 
-	// Find number of total number of extensions
-	SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, VK_NULL_HANDLE);
-	if (userOptions.enableDebug) {
-		totalExtensionCount = sdlExtensions + DEBUG_EXTENSION_COUNT;
-	} else {
-		totalExtensionCount = sdlExtensions + BASE_EXTENSION_COUNT;
-	}
-	totalExtensions = malloc(totalExtensionCount * sizeof(char*));
+        if (result != VK_SUCCESS) {
+            free(gRenderer);
+            gRenderer = NULL;
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get layers, Vulkan error %i.", result);
+            return VK2D_ERROR;
+        }
 
-	if (vk2dPointerCheck(gRenderer)) {
+        systemLayers = malloc(sizeof(VkLayerProperties) * systemLayerCount);
+        result = vkEnumerateInstanceLayerProperties(&systemLayerCount, systemLayers);
+
+        if (result != VK_SUCCESS) {
+            free(gRenderer);
+            gRenderer = NULL;
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get layers, Vulkan error %i.", result);
+            return VK2D_ERROR;
+        }
+
+        vk2dLog("Available layers: ");
+        for (i = 0; i < systemLayerCount; i++)
+            vk2dLog("  - %s", systemLayers[i].layerName);
+        vk2dLog("");
+        free(systemLayers);
+
+        // Find number of total number of extensions
+        SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, VK_NULL_HANDLE);
+        if (userOptions.enableDebug) {
+            totalExtensionCount = sdlExtensions + DEBUG_EXTENSION_COUNT;
+        } else {
+            totalExtensionCount = sdlExtensions + BASE_EXTENSION_COUNT;
+        }
+        totalExtensions = malloc(totalExtensionCount * sizeof(char*));
+
 		// Copy user options
 		gRenderer->options = userOptions;
 
 		// Load extensions
-		SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, totalExtensions);
+		if (!SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, totalExtensions)) {
+            free(gRenderer);
+            gRenderer = NULL;
+            vk2dRaise(VK2D_STATUS_SDL_ERROR | VK2D_STATUS_VULKAN_ERROR, "Failed to get extensions, SDL error %s.", SDL_GetError());
+            return VK2D_ERROR;
+        }
+
 		if (userOptions.enableDebug) {
 			for (i = sdlExtensions; i < totalExtensionCount; i++) totalExtensions[i] = DEBUG_EXTENSIONS[i - sdlExtensions];
 		} else {
@@ -126,9 +148,24 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 																				 BASE_LAYER_COUNT, totalExtensions,
 																				 totalExtensionCount);
 		}
-		vk2dErrorCheck(vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk))
+		result = vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
+		if (result != VK_SUCCESS) {
+		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create Vulkan instance, Vulkan error %i.", result);
+		    free(gRenderer);
+		    gRenderer = NULL;
+		    return VK2D_ERROR;
+		}
 		gRenderer->pd = vk2dPhysicalDeviceFind(gRenderer->vk, VK2D_DEVICE_BEST_FIT);
+		if (vk2dStatusFatal()) {
+            vk2dRaise(0, "\nFailed to initialize renderer.");
+            vk2dRendererQuit();
+            return VK2D_ERROR;
+		}
 		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true, userOptions.enableDebug, &gRenderer->limits);
+        if (vk2dStatusFatal()) {
+            vk2dRendererQuit();
+            return VK2D_ERROR;
+        }
 		gRenderer->window = window;
 
         // Make the host machine string
@@ -165,7 +202,12 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		allocatorCreateInfo.physicalDevice = gRenderer->pd->dev;
 		allocatorCreateInfo.instance = gRenderer->vk;
 		allocatorCreateInfo.vulkanApiVersion = VK_MAKE_VERSION(1, 1, 0);
-		vmaCreateAllocator(&allocatorCreateInfo, &gRenderer->vma);
+		result = vmaCreateAllocator(&allocatorCreateInfo, &gRenderer->vma);
+        if (result != VK_SUCCESS) {
+            vk2dRaise(0, "\nFailed to initialize VMA, Vulkan error %i.", result);
+            vk2dRendererQuit();
+            return VK2D_ERROR;
+        }
 
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();
@@ -184,6 +226,12 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		_vk2dRendererCreateUnits();
 		_vk2dRendererCreateSynchronization();
 
+		// Quit if something failed
+        if (vk2dStatusFatal()) {
+            vk2dRendererQuit();
+            return VK2D_ERROR;
+        }
+
 		vk2dRendererSetColourMod((void*)VK2D_DEFAULT_COLOUR_MOD);
 		gRenderer->viewport.x = 0;
 		gRenderer->viewport.y = 0;
@@ -196,14 +244,16 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		SDL_AtomicSet(&gRNG, time(0));
 	} else {
 		errorCode = VK2D_ERROR;
+		vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate renderer struct.");
 	}
 
 	return errorCode;
 }
 
 void vk2dRendererQuit() {
-	if (gRenderer != NULL) {
-		vkQueueWaitIdle(gRenderer->ld->queue);
+	if (vk2dRendererGetPointer() != NULL) {
+	    if (gRenderer->ld != NULL && gRenderer->ld->queue != NULL)
+		    vkQueueWaitIdle(gRenderer->ld->queue);
 
 		// Destroy subsystems
 		_vk2dRendererDestroySynchronization();
@@ -222,7 +272,6 @@ void vk2dRendererQuit() {
 		_vk2dRendererDestroySwapchain();
 		_vk2dRendererDestroyWindowSurface();
 		_vk2dRendererDestroyDebug();
-
 		vmaDestroyAllocator(gRenderer->vma);
 
 		// Destroy core bits
@@ -241,10 +290,8 @@ const char *vk2dHostInformation() {
 }
 
 void vk2dRendererWait() {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		vkQueueWaitIdle(gRenderer->ld->queue);
-	else
-        vk2dLog("Renderer is not initialized");
 }
 
 VK2DRenderer vk2dRendererGetPointer() {
@@ -255,33 +302,27 @@ VK2DRenderer vk2dRendererGetPointer() {
 }
 
 void vk2dRendererResetSwapchain() {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		gRenderer->resetSwapchain = true;
-	else
-        vk2dLog("Renderer is not initialized");
 }
 
 VK2DRendererConfig vk2dRendererGetConfig() {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		return gRenderer->config;
-	else
-        vk2dLog("Renderer is not initialized");
 	VK2DRendererConfig c = {0};
 	return c;
 }
 
 void vk2dRendererSetConfig(VK2DRendererConfig config) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		gRenderer->newConfig = config;
 		gRenderer->newConfig.msaa = gRenderer->limits.maxMSAA >= config.msaa ? config.msaa : gRenderer->limits.maxMSAA;
 		vk2dRendererResetSwapchain();
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererStartFrame(const vec4 clearColour) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		if (!gRenderer->procedStartFrame) {
 			gRenderer->procedStartFrame = true;
 
@@ -294,9 +335,19 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 							UINT64_MAX);
 
 			// Acquire image
-			vkAcquireNextImageKHR(gRenderer->ld->dev, gRenderer->swapchain, UINT64_MAX,
+			VkResult result = vkAcquireNextImageKHR(gRenderer->ld->dev, gRenderer->swapchain, UINT64_MAX,
 								  gRenderer->imageAvailableSemaphores[gRenderer->currentFrame], VK_NULL_HANDLE,
 								  &gRenderer->scImageIndex);
+
+			if (result < 0) {
+			    if (result == VK_ERROR_DEVICE_LOST) {
+                    vk2dRaise(VK2D_STATUS_DEVICE_LOST, "Vulkan device lost.");
+			    } else {
+                    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to acquire next image, Vulkan error %i.", result);
+			    }
+			    vk2dRendererQuit();
+			    return;
+			}
 
 			if (gRenderer->imagesInFlight[gRenderer->scImageIndex] != VK_NULL_HANDLE) {
 				vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->imagesInFlight[gRenderer->scImageIndex], VK_TRUE,
@@ -321,10 +372,20 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(
 					VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
 					VK_NULL_HANDLE);
-			vkResetCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], 0);
-			vkResetCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], 0);
-			vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], &beginInfo));
-			vk2dErrorCheck(vkBeginCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], &beginInfo));
+			result = vkResetCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], 0);
+			VkResult result2 = vkResetCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], 0);
+			if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
+			    vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to reset command buffer at start of frame.");
+			    vk2dRendererQuit();
+			    return;
+			}
+			result = vkBeginCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], &beginInfo);
+			result2 = vkBeginCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], &beginInfo);
+            if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to begin command buffer at start of frame, Vulkan error %i/%i.", result, result2);
+                vk2dRendererQuit();
+                return;
+            }
 
 			// Begin descriptor buffer
 			vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->commandBuffer[gRenderer->scImageIndex]);
@@ -364,14 +425,12 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo,
 								 VK_SUBPASS_CONTENTS_INLINE);
 		}
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 VK2DResult vk2dRendererEndFrame() {
 	VK2DResult res = VK2D_SUCCESS;
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		if (gRenderer->procedStartFrame) {
 			gRenderer->procedStartFrame = false;
 
@@ -383,8 +442,13 @@ VK2DResult vk2dRendererEndFrame() {
 			// Finish the primary command buffer, its time to PRESENT things
 			vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
 			vk2dDescriptorBufferEndFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
-			vk2dErrorCheck(vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]));
-			vk2dErrorCheck(vkEndCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex]));
+			VkResult result = vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]);
+            VkResult result2 = vkEndCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
+            if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to begin command buffer at start of frame, Vulkan error %i/%i.", result, result2);
+                vk2dRendererQuit();
+                return VK2D_ERROR;
+            }
 
 			// Wait for image before doing things
 			VkPipelineStageFlags waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -398,13 +462,24 @@ VK2DResult vk2dRendererEndFrame() {
 					1,
 					waitStage);
 
-			// Submit
-			vkResetFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame]);
-			vk2dErrorCheck(vkQueueSubmit(gRenderer->ld->queue, 1, &submitInfo,
-										 gRenderer->inFlightFences[gRenderer->currentFrame]));
+			// Submit queue
+			if (vkResetFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame]) != VK_SUCCESS) {
+			    vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to reset fences.");
+                vk2dRendererQuit();
+                return VK2D_ERROR;
+			}
+			result = vkQueueSubmit(gRenderer->ld->queue, 1, &submitInfo,
+										 gRenderer->inFlightFences[gRenderer->currentFrame]);
+			if (result < 0) {
+			    if (result == VK_ERROR_DEVICE_LOST)
+			        vk2dRaise(VK2D_STATUS_DEVICE_LOST, "Vulkan device lost.");
+			    else
+                    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to submit queue, Vulkan error %i.", result);
+                vk2dRendererQuit();
+                return VK2D_ERROR;
+			}
 
 			// Final present info bit
-			VkResult result;
 			VkPresentInfoKHR presentInfo = vk2dInitPresentInfoKHR(&gRenderer->swapchain, 1, &gRenderer->scImageIndex,
 																  &result,
 																  &gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
@@ -415,9 +490,8 @@ VK2DResult vk2dRendererEndFrame() {
 				_vk2dRendererResetSwapchain();
 				gRenderer->resetSwapchain = false;
 				res = VK2D_RESET_SWAPCHAIN;
-			} else {
-				vk2dErrorCheck(result);
-				vk2dErrorCheck(queueRes);
+			} else if (result < 0 || queueRes < 0) {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to present frame, Vulkan error %i/%i.", queueRes, result);
 			}
 
 			gRenderer->currentFrame = (gRenderer->currentFrame + 1) % VK2D_MAX_FRAMES_IN_FLIGHT;
@@ -432,23 +506,19 @@ VK2DResult vk2dRendererEndFrame() {
 				gRenderer->amountOfFrames = 0;
 			}
 		}
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 
 	return res;
 }
 
 VK2DLogicalDevice vk2dRendererGetDevice() {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		return gRenderer->ld;
-	else
-        vk2dLog("Renderer is not initialized");
 	return NULL;
 }
 
 void vk2dRendererSetTarget(VK2DTexture target) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		if (target != gRenderer->target) {
 			// In case the user attempts to switch targets from one texture to another
 			if (target != VK2D_TARGET_SCREEN && gRenderer->target != VK2D_TARGET_SCREEN) {
@@ -508,110 +578,86 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 
 			_vk2dRendererResetBoundPointers();
 		}
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererSetColourMod(const vec4 mod) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		gRenderer->colourBlend[0] = mod[0];
 		gRenderer->colourBlend[1] = mod[1];
 		gRenderer->colourBlend[2] = mod[2];
 		gRenderer->colourBlend[3] = mod[3];
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererGetColourMod(vec4 dst) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		dst[0] = gRenderer->colourBlend[0];
 		dst[1] = gRenderer->colourBlend[1];
 		dst[2] = gRenderer->colourBlend[2];
 		dst[3] = gRenderer->colourBlend[3];
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererSetBlendMode(VK2DBlendMode blendMode) {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		gRenderer->blendMode = blendMode;
-	else
-        vk2dLog("Renderer is not initialized");
 }
 
 VK2DBlendMode vk2dRendererGetBlendMode() {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		return gRenderer->blendMode;
-	else
-        vk2dLog("Renderer is not initialized");
 	return VK2D_BLEND_MODE_NONE;
 }
 
 void vk2dRendererSetCamera(VK2DCameraSpec camera) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec = camera;
 		gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.wOnScreen = gRenderer->surfaceWidth;
 		gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.hOnScreen = gRenderer->surfaceHeight;
 		gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.xOnScreen = 0;
 		gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.yOnScreen = 0;
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 VK2DCameraSpec vk2dRendererGetCamera() {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		return gRenderer->defaultCameraSpec;
-	else
-        vk2dLog("Renderer is not initialized");
 	VK2DCameraSpec c = {0};
 	return c;
 }
 
 void vk2dRendererSetTextureCamera(bool useCameraOnTextures) {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		gRenderer->enableTextureCameraUBO = useCameraOnTextures;
-	else
-        vk2dLog("Renderer is not initialized");
 }
 
 void vk2dRendererLockCameras(VK2DCameraIndex cam) {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		gRenderer->cameraLocked = cam;
-	else
-        vk2dLog("Renderer is not initialized");
 }
 
 void vk2dRendererUnlockCameras() {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		gRenderer->cameraLocked = VK2D_INVALID_CAMERA;
-	else
-        vk2dLog("Renderer is not initialized");
 }
 
 double vk2dRendererGetAverageFrameTime() {
-	if (gRenderer != NULL)
+	if (vk2dRendererGetPointer() != NULL)
 		return gRenderer->frameTimeAverage;
-	else
-        vk2dLog("Renderer is not initialized");
 	return 0;
 }
 
 void vk2dRendererClear() {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		VkDescriptorSet set = gRenderer->unitUBOSet;
 		_vk2dRendererDrawRaw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0,
 							 0, VK2D_INVALID_CAMERA);
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererEmpty() {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		// Save old renderer state to revert back
 		VK2DBlendMode bm = vk2dRendererGetBlendMode();
 		vec4 c;
@@ -625,65 +671,51 @@ void vk2dRendererEmpty() {
 
 		vk2dRendererSetColourMod(c);
 		vk2dRendererSetBlendMode(bm);
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 VK2DRendererLimits vk2dRendererGetLimits() {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		return gRenderer->limits;
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 	VK2DRendererLimits l = {0};
 	return l;
 }
 
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox / w, oy / h);
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawRectangleOutline(float x, float y, float w, float h, float r, float ox, float oy, float lineWidth) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		vk2dRendererDrawPolygon(gRenderer->unitSquareOutline, x, y, false, lineWidth, w, h, r, ox / w, oy / h);
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawCircle(float x, float y, float r) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		vk2dRendererDrawPolygon(gRenderer->unitCircle, x, y, true, 1, r * 2, r * 2, 0, 0, 0);
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		vk2dRendererDrawPolygon(gRenderer->unitCircleOutline, x, y, false, lineWidth, r * 2, r * 2, 0, 0, 0);
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		float x = sqrtf(powf(y2 - y1, 2) + powf(x2 - x1, 2));
 		float r = atan2f(y2 - y1, x2 - x1);
 		vk2dRendererDrawPolygon(gRenderer->unitLine, x1, y1, false, 1, x, 1, r, 0, 0);
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		if (shader != NULL) {
 			VkDescriptorSet sets[4];
 			sets[1] = gRenderer->samplerSet;
@@ -711,28 +743,24 @@ void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, floa
 							  xInTex,
 							  yInTex, texWidth, texHeight);
 		} else {
-            vk2dLog("Shader does not exist");
+            vk2dRaise(VK2D_STATUS_BAD_ASSET, "Shader does not exist.");
 		}
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawInstanced(VK2DTexture tex, VK2DDrawInstance *instances, uint32_t count) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		VkDescriptorSet sets[3];
 		sets[1] = gRenderer->samplerSet;
 		sets[2] = tex->img->set;
 		if (count > gRenderer->limits.maxInstancedDraws)
 			count = gRenderer->limits.maxInstancedDraws;
 		_vk2dRendererDrawInstanced(sets, 3, instances, count);
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		if (tex != NULL) {
 			VkDescriptorSet sets[3];
 			sets[1] = gRenderer->samplerSet;
@@ -740,30 +768,26 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 			_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
 							  yInTex, texWidth, texHeight);
 		} else {
-            vk2dLog("Texture does not exist");
+            vk2dRaise(VK2D_STATUS_BAD_ASSET, "Texture does not exist.");
 		}
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		if (polygon != NULL) {
 			VkDescriptorSet set;
 			_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y,
 							  xscale,
 							  yscale, rot, originX, originY, lineWidth, 0, 0, 0, 0);
 		} else {
-            vk2dLog("Polygon does not exist");
+            vk2dRaise(VK2D_STATUS_BAD_ASSET, "Polygon does not exist.");
 		}
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
-    if (gRenderer != NULL) {
+    if (vk2dRendererGetPointer() != NULL) {
         if (vertices != NULL && count > 0) {
             if (count <= gRenderer->limits.maxGeometryVertices) {
                 // Copy vertex data to the current descriptor buffer
@@ -785,28 +809,24 @@ void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, fl
                 _vk2dRendererResetBoundPointers();
             }
         } else {
-            vk2dLog("Vertices do not exist");
+            vk2dRaise(VK2D_STATUS_BAD_ASSET, "Vertices does not exist.");
         }
-    } else {
-        vk2dLog("Renderer is not initialized");
     }
 }
 
 void vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource) {
-    if (gRenderer != NULL) {
+    if (vk2dRendererGetPointer() != NULL) {
         if (shadowEnvironment != NULL && shadowEnvironment->vbo != NULL) {
             _vk2dRendererDrawShadows(shadowEnvironment, colour, lightSource);
             _vk2dRendererResetBoundPointers();
         } else {
-            vk2dLog("Shadow environment not prepared");
+            vk2dRaise(VK2D_STATUS_BAD_ASSET, "Shadow environment not prepared.");
         }
-    } else {
-        vk2dLog("Renderer is not initialized");
     }
 }
 
 void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		if (model != NULL) {
 			VkDescriptorSet sets[3];
 			sets[1] = gRenderer->modelSamplerSet;
@@ -814,15 +834,13 @@ void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xsc
 			_vk2dRendererDraw3D(sets, 3, model, gRenderer->modelPipe, x, y, z, xscale, yscale, zscale, rot, axis, originX,
 								originY, originZ, 1);
 		} else {
-            vk2dLog("Model does not exist");
+            vk2dRaise(VK2D_STATUS_BAD_ASSET, "Model does not exist.");
 		}
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 
 void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, float lineWidth) {
-	if (gRenderer != NULL) {
+	if (vk2dRendererGetPointer() != NULL) {
 		if (model != NULL) {
 			VkDescriptorSet sets[3];
 			sets[1] = gRenderer->modelSamplerSet;
@@ -830,10 +848,8 @@ void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float
 			_vk2dRendererDraw3D(sets, 3, model, gRenderer->wireframePipe, x, y, z, xscale, yscale, zscale, rot, axis, originX,
 								originY, originZ, lineWidth);
 		} else {
-            vk2dLog("Model does not exist");
+            vk2dRaise(VK2D_STATUS_BAD_ASSET, "Model does not exist.");
 		}
-	} else {
-        vk2dLog("Renderer is not initialized");
 	}
 }
 

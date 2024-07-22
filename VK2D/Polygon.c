@@ -9,14 +9,17 @@
 
 VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size, VK2DVertexType type) {
 	VK2DPolygon poly = malloc(sizeof(struct VK2DPolygon_t));
-	VK2DBuffer buf = vk2dBufferLoad(dev, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, data, true);
-	if (vk2dPointerCheck(buf) && vk2dPointerCheck(poly)) {
-		poly->vertices = buf;
-		poly->type = type;
+
+	if (poly != NULL) {
+        VK2DBuffer buf = vk2dBufferLoad(dev, size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, data, true);
+        if (buf != NULL) {
+            poly->vertices = buf;
+            poly->type = type;
+        } else {
+            vk2dRaise(0, "\nFailed to create polygon.");
+        }
 	} else {
-		free(poly);
-		vk2dBufferFree(buf);
-		poly = NULL;
+		vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate polygon.");
 	}
 	return poly;
 }
@@ -46,7 +49,7 @@ VK2DPolygon vk2dPolygonCreate(vec2 *vertices, uint32_t vertexCount) {
 	VK2DVertexColour defVert = {{0, 0, 0}, {1, 1, 1, 1}};
 	VK2DPolygon out = NULL;
 
-	if (vk2dPointerCheck(colourVertices)) {
+	if (colourVertices != NULL) {
 		for (i = 2; i < vertexCount; i++) {
 			defVert.pos[0] = vertices[0][0];
 			defVert.pos[1] = vertices[0][1];
@@ -61,6 +64,8 @@ VK2DPolygon vk2dPolygonCreate(vec2 *vertices, uint32_t vertexCount) {
 
 		out = vk2dPolygonShapeCreateRaw(colourVertices, finalVertexCount);
 		free(colourVertices);
+	} else {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate triangulation buffer for %i vertices.", vertexCount);
 	}
 
 	return out;
@@ -72,7 +77,7 @@ VK2DPolygon vk2dPolygonCreateOutline(vec2 *vertices, uint32_t vertexCount) {
 	VK2DPolygon out = NULL;
 	VK2DVertexColour *colourVertices = malloc(sizeof(VK2DVertexColour) * (vertexCount + 1));
 
-	if (vk2dPointerCheck(colourVertices)) {
+	if (colourVertices != NULL) {
 		for (i = 0; i < vertexCount; i++) {
 			defVert.pos[0] = vertices[i][0];
 			defVert.pos[1] = vertices[i][1];
@@ -82,6 +87,8 @@ VK2DPolygon vk2dPolygonCreateOutline(vec2 *vertices, uint32_t vertexCount) {
 		defVert.pos[1] = vertices[0][1];
 		colourVertices[vertexCount] = defVert;
 		out = vk2dPolygonShapeCreateRaw(colourVertices, vertexCount + 1);
+	} else {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate polygon outline.");
 	}
 
 	return out;

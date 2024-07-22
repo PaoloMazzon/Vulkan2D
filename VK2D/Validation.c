@@ -23,10 +23,12 @@ void vk2dValidationBegin(const char *errorFile, bool quitOnError) {
 	gErrorFile = errorFile;
 	gQuitOnError = quitOnError;
 	gLogBuffer[0] = 0;
+	gStatus = 0;
 }
 
 void vk2dValidationEnd() {
 	SDL_DestroyMutex(gLogMutex);
+	strncpy(gLogBuffer, "Vulkan2D is not initialized.", gLogBufferSize);
 }
 
 bool _vk2dErrorRaise(VkResult result, const char* function, int line, const char* varname) {
@@ -70,6 +72,10 @@ static int32_t stringLength(const char *str, int32_t size) {
 }
 
 void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
+    // Ignore double raises on "renderer not intialized"
+    if (result == VK2D_STATUS_RENDERER_NOT_INITIALIZED && (gStatus & VK2D_STATUS_RENDERER_NOT_INITIALIZED) != 0)
+        return;
+
     // Reset if the user got the log recently
     if (gResetLog) {
         gResetLog = false;
@@ -94,6 +100,7 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
         if (f != NULL) {
             va_start(list, fmt);
             vfprintf(f, fmt, list);
+            fprintf(f, "\n");
             va_end(list);
             fclose(f);
         }
@@ -111,7 +118,7 @@ VK2DStatus vk2dStatus() {
 }
 
 bool vk2dStatusFatal() {
-    return (gStatus & ~(VK2D_STATUS_NONE | VK2D_STATUS_SDL_ERROR | VK2D_STATUS_FILE_NOT_FOUND)) != 0;
+    return (gStatus & ~(VK2D_STATUS_NONE | VK2D_STATUS_SDL_ERROR | VK2D_STATUS_FILE_NOT_FOUND | VK2D_STATUS_BAD_ASSET)) != 0;
 }
 
 const char *vk2dStatusMessage() {
