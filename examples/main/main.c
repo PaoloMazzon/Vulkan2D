@@ -33,7 +33,7 @@ int main(int argc, const char *argv[]) {
 	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	VK2DStartupOptions options = {
-	        .quitOnError = true,
+	        .quitOnError = false,
 	        .errorFile = "vk2derror.txt",
 	        .enableDebug = true,
 	        .loadCustomShaders = false,

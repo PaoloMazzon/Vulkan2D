@@ -28,8 +28,8 @@ void _vk2dRendererFlushUBOBuffer(uint32_t frame, uint32_t descriptorFrame, int c
 // Grabs a preferred present mode if available returning FIFO if its unavailable
 VkPresentModeKHR _vk2dRendererGetPresentMode(VkPresentModeKHR mode);
 
-// Keeps track of a user shader in case the swapchain is reset
-void _vk2dRendererAddShader(VK2DShader shader);
+// Keeps track of a user shader in case the swapchain is reset, returns VK2D_ERROR if error
+VK2DResult _vk2dRendererAddShader(VK2DShader shader);
 
 // Stops tracking a user-created shader
 void _vk2dRendererRemoveShader(VK2DShader shader);
