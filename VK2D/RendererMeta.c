@@ -50,7 +50,7 @@ const uint32_t LINE_VERTEX_COUNT = 2;
 // Renderer has to keep track of user shaders in case the swapchain gets recreated
 VK2DResult _vk2dRendererAddShader(VK2DShader shader) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return VK2D_ERROR;
 	uint32_t i;
 	uint32_t found = UINT32_MAX;
@@ -83,7 +83,7 @@ VK2DResult _vk2dRendererAddShader(VK2DShader shader) {
 
 void _vk2dRendererRemoveShader(VK2DShader shader) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	uint32_t i;
 	for (i = 0; i < gRenderer->shaderListSize; i++)
@@ -102,7 +102,7 @@ uint64_t _vk2dHashSets(VkDescriptorSet *sets, uint32_t setCount) {
 
 void _vk2dRendererResetBoundPointers() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	gRenderer->prevPipe = VK_NULL_HANDLE;
 	gRenderer->prevSetHash = 0;
@@ -112,7 +112,7 @@ void _vk2dRendererResetBoundPointers() {
 // This is called when a render-target texture is created to make the renderer aware of it
 void _vk2dRendererAddTarget(VK2DTexture tex) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	uint32_t i;
 	bool foundSpot = false;
@@ -146,7 +146,7 @@ void _vk2dRendererAddTarget(VK2DTexture tex) {
 // Called when a render-target texture is destroyed so the renderer can remove it from its list
 void _vk2dRendererRemoveTarget(VK2DTexture tex) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	uint32_t i;
 	for (i = 0; i < gRenderer->targetListSize; i++)
@@ -157,7 +157,7 @@ void _vk2dRendererRemoveTarget(VK2DTexture tex) {
 // This is used when changing the render target to make sure the texture is either ready to be drawn itself or rendered to
 void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout new) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	if (gRenderer == NULL)
+	if (vk2dStatusFatal())
 	    return;
 
 	VkPipelineStageFlags sourceStage = 0;
@@ -241,7 +241,7 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
 void _vk2dRendererFlushUBOBuffer(uint32_t frame, uint32_t descriptorFrame, int camera) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	VkBuffer buffer;
 	VkDeviceSize offset;
@@ -306,7 +306,6 @@ void _vk2dRendererGetSurfaceSize() {
 	VkResult result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->surfaceCapabilities);
 	if (result != VK_SUCCESS) {
 	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get surface size, Vulkan error %i.", result);
-	    vk2dRendererQuit();
 	} else {
         if (gRenderer->surfaceCapabilities.currentExtent.width == UINT32_MAX ||
             gRenderer->surfaceCapabilities.currentExtent.height == UINT32_MAX) {
@@ -327,7 +326,6 @@ void _vk2dRendererCreateWindowSurface() {
             VkResult result = vkGetPhysicalDeviceSurfacePresentModesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->presentModeCount, VK_NULL_HANDLE);
             if (result != VK_SUCCESS) {
                 vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get present modes, Vulkan error %i.", result);
-                vk2dRendererQuit();
                 return;
             }
             gRenderer->presentModes = malloc(sizeof(VkPresentModeKHR) * gRenderer->presentModeCount);
@@ -335,9 +333,8 @@ void _vk2dRendererCreateWindowSurface() {
             if (gRenderer->presentModes) {
                 result = vkGetPhysicalDeviceSurfacePresentModesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->presentModeCount, gRenderer->presentModes);
                 VkResult result2 = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->surfaceCapabilities);
-                if (result != VK_SUCCESS || result2 != VK_SUCCESS || true) {
+                if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
                     vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get present modes, Vulkan error %i/%i.", result, result2);
-                    vk2dRendererQuit();
                     return;
                 }
 
@@ -347,7 +344,6 @@ void _vk2dRendererCreateWindowSurface() {
                 _vk2dRendererGetSurfaceSize();
             } else {
                 vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate %i present modes.", gRenderer->presentModeCount);
-                vk2dRendererQuit();
             }
         } else {
             vk2dRaise(VK2D_STATUS_VULKAN_ERROR | VK2D_STATUS_SDL_ERROR, "Failed to create surface, SDL error: %s.", SDL_GetError());
@@ -363,7 +359,7 @@ void _vk2dRendererDestroyWindowSurface() {
 
 void _vk2dRendererCreateSwapchain() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	uint32_t i;
 
@@ -385,22 +381,42 @@ void _vk2dRendererCreateSwapchain() {
 	);
 	VkBool32 supported;
 	vkGetPhysicalDeviceSurfaceSupportKHR(gRenderer->pd->dev, gRenderer->pd->QueueFamily.graphicsFamily, gRenderer->surface, &supported);
-	if (vk2dErrorInline(supported != VK_TRUE ? -1 : VK_SUCCESS))
+	if (supported) {
 		vkCreateSwapchainKHR(gRenderer->ld->dev, &swapchainCreateInfoKHR, VK_NULL_HANDLE, &gRenderer->swapchain);
 
-	vk2dErrorCheck(vkGetSwapchainImagesKHR(gRenderer->ld->dev, gRenderer->swapchain, &gRenderer->swapchainImageCount, VK_NULL_HANDLE));
-	gRenderer->swapchainImageViews = malloc(gRenderer->swapchainImageCount * sizeof(VkImageView));
-	gRenderer->swapchainImages = malloc(gRenderer->swapchainImageCount * sizeof(VkImage));
-	if (vk2dPointerCheck(gRenderer->swapchainImageViews) && vk2dPointerCheck(gRenderer->swapchainImages)) {
-		vk2dErrorCheck(vkGetSwapchainImagesKHR(gRenderer->ld->dev, gRenderer->swapchain, &gRenderer->swapchainImageCount, gRenderer->swapchainImages));
+        VkResult result = vkGetSwapchainImagesKHR(gRenderer->ld->dev, gRenderer->swapchain, &gRenderer->swapchainImageCount, VK_NULL_HANDLE);
+        if (result >= 0) {
+            gRenderer->swapchainImageViews = calloc(1, gRenderer->swapchainImageCount * sizeof(VkImageView));
+            gRenderer->swapchainImages = calloc(1, gRenderer->swapchainImageCount * sizeof(VkImage));
+            if (gRenderer->swapchainImageViews && gRenderer->swapchainImages) {
+                result = vkGetSwapchainImagesKHR(gRenderer->ld->dev, gRenderer->swapchain, &gRenderer->swapchainImageCount, gRenderer->swapchainImages);
 
-		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
-			VkImageViewCreateInfo imageViewCreateInfo = vk2dInitImageViewCreateInfo(gRenderer->swapchainImages[i], gRenderer->surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-			vk2dErrorCheck(vkCreateImageView(gRenderer->ld->dev, &imageViewCreateInfo, VK_NULL_HANDLE, &gRenderer->swapchainImageViews[i]));
-		}
+                if (result >= 0) {
+                    for (i = 0; i < gRenderer->swapchainImageCount; i++) {
+                        VkImageViewCreateInfo imageViewCreateInfo = vk2dInitImageViewCreateInfo(gRenderer->swapchainImages[i], gRenderer->surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+                        result = vkCreateImageView(gRenderer->ld->dev, &imageViewCreateInfo, VK_NULL_HANDLE, &gRenderer->swapchainImageViews[i]);
+                        if (result < 0) {
+                            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to acquire swapchain image [%i], Vulkan error %i.", i, result);
+                            break;
+                        }
+                    }
+                    vk2dLog("Swapchain (%i images) initialized...", swapchainCreateInfoKHR.minImageCount);
+                } else {
+                    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to acquire swapchain images, Vulkan error %i.", result);
+                }
+            } else {
+                vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate swapchain image arrays.");
+                free(gRenderer->swapchainImageViews);
+                gRenderer->swapchainImageViews = NULL;
+                free(gRenderer->swapchainImages);
+                gRenderer->swapchainImages = NULL;
+            }
+        } else {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get swapchain images, Vulkan error %i.", result);
+        }
+	} else {
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Physical device does not support KHR swapchain.");
 	}
-
-    vk2dLog("Swapchain (%i images) initialized...", swapchainCreateInfoKHR.minImageCount);
 }
 
 void _vk2dRendererDestroySwapchain() {
@@ -416,7 +432,7 @@ void _vk2dRendererDestroySwapchain() {
 
 void _vk2dRendererCreateDepthBuffer() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 
 	// Find a supported depth buffer format
@@ -436,7 +452,7 @@ void _vk2dRendererCreateDepthBuffer() {
 		gRenderer->depthBuffer = vk2dImageCreate(gRenderer->ld, gRenderer->surfaceWidth, gRenderer->surfaceHeight, gRenderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, (VkSampleCountFlagBits)gRenderer->config.msaa);
         vk2dLog("Depth buffer initialized...");
 	} else {
-        vk2dLog("Failed to create depth buffer.");
+        vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to acquire depth format.");
 	}
 }
 
@@ -449,7 +465,7 @@ void _vk2dRendererDestroyDepthBuffer() {
 
 void _vk2dRendererCreateColourResources() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	if (gRenderer->config.msaa != VK2D_MSAA_1X) {
 		gRenderer->msaaImage = vk2dImageCreate(
@@ -460,9 +476,9 @@ void _vk2dRendererCreateColourResources() {
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 				(VkSampleCountFlagBits) gRenderer->config.msaa);
-        vk2dLog("Colour resources initialized for MSAA of %i...", gRenderer->config.msaa);
+        vk2dLog("MSAA %ix enabled...", gRenderer->config.msaa);
 	} else {
-        vk2dLog("Colour resources not enabled...");
+        vk2dLog("MSAA disabled...");
 	}
 }
 
@@ -475,11 +491,13 @@ void _vk2dRendererDestroyColourResources() {
 
 void _vk2dRendererCreateDescriptorBuffers() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	gRenderer->descriptorBuffers = malloc(sizeof(VK2DDescriptorBuffer) * VK2D_MAX_FRAMES_IN_FLIGHT);
-
-	vk2dPointerCheck(gRenderer->descriptorBuffers);
+	if (gRenderer->descriptorBuffers == NULL) {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate descriptor buffers array.");
+	    return;
+	}
 	for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
 		gRenderer->descriptorBuffers[i] = vk2dDescriptorBufferCreate();
 	}
@@ -493,6 +511,8 @@ void _vk2dRendererCreateDescriptorBuffers() {
 
 void _vk2dRendererDestroyDescriptorBuffers() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (gRenderer->descriptorBuffers == NULL)
+	    return;
 	for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
 		vk2dDescriptorBufferFree(gRenderer->descriptorBuffers[i]);
 	free(gRenderer->descriptorBuffers);
@@ -501,7 +521,7 @@ void _vk2dRendererDestroyDescriptorBuffers() {
 
 void _vk2dRendererCreateRenderPass() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	uint32_t attachCount;
 	if (gRenderer->config.msaa != 1) {
@@ -572,7 +592,14 @@ void _vk2dRendererCreateRenderPass() {
 	subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 	VkRenderPassCreateInfo renderPassCreateInfo = vk2dInitRenderPassCreateInfo(attachments, attachCount, subpasses, subpassCount, &subpassDependency, 1);
-	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->renderPass));
+	VkResult result = vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->renderPass);
+	if (result == VK_ERROR_OUT_OF_HOST_MEMORY) {
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to create render pass, out of memory.");
+        return;
+	} else if (result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
+        vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to create render pass, out of video memory.");
+        return;
+	}
 
 	// Two more render passes for mid-frame render pass reset to swapchain and rendering to textures
 	if (gRenderer->config.msaa != 1) {
@@ -593,7 +620,14 @@ void _vk2dRendererCreateRenderPass() {
 		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 	}
-	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->midFrameSwapRenderPass));
+	result = vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->midFrameSwapRenderPass);
+    if (result == VK_ERROR_OUT_OF_HOST_MEMORY) {
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to create render pass, out of memory.");
+        return;
+    } else if (result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
+        vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to create render pass, out of video memory.");
+        return;
+    }
 
 	if (gRenderer->config.msaa != 1) {
 		attachments[0].initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -613,7 +647,14 @@ void _vk2dRendererCreateRenderPass() {
 		attachments[1].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 		attachments[1].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	}
-	vk2dErrorCheck(vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->externalTargetRenderPass));
+	result = vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->externalTargetRenderPass);
+    if (result == VK_ERROR_OUT_OF_HOST_MEMORY) {
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to create render pass, out of memory.");
+        return;
+    } else if (result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
+        vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to create render pass, out of video memory.");
+        return;
+    }
 
     vk2dLog("Render pass initialized...");
 }
@@ -627,35 +668,42 @@ void _vk2dRendererDestroyRenderPass() {
 
 void _vk2dRendererCreateDescriptorSetLayouts() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
-	// For texture samplers
+    VkResult r1, r2, r3, r4;
+
+    // For texture samplers
 	const uint32_t layoutCount = 1;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBinding[layoutCount];
 	descriptorSetLayoutBinding[0] = vk2dInitDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBinding, layoutCount);
-	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &descriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslSampler));
+	r1 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &descriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslSampler);
 
 	// For view projection buffers
 	const uint32_t shapeLayoutCount = 1;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingShapes[shapeLayoutCount];
 	descriptorSetLayoutBindingShapes[0] = vk2dInitDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo shapesDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingShapes, shapeLayoutCount);
-	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &shapesDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferVP));
+	r2 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &shapesDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferVP);
 
 	// For user-created shaders
 	const uint32_t userLayoutCount = 1;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingUser[userLayoutCount];
 	descriptorSetLayoutBindingUser[0] = vk2dInitDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo userDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingUser, userLayoutCount);
-	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &userDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferUser));
+	r3 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &userDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferUser);
 
 	// For sampled textures
 	const uint32_t texLayoutCount = 1;
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingTex[texLayoutCount];
 	descriptorSetLayoutBindingTex[0] = vk2dInitDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1, VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo texDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingTex, texLayoutCount);
-	vk2dErrorCheck(vkCreateDescriptorSetLayout(gRenderer->ld->dev, &texDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslTexture));
+	r4 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &texDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslTexture);
+
+	if (r1 != VK_SUCCESS || r2 != VK_SUCCESS || r3 != VK_SUCCESS || r4 != VK_SUCCESS) {
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create descriptor set layouts %i/%i/%i/%i.", r1, r2, r3, r4);
+	    return;
+	}
 
     vk2dLog("Descriptor set layout initialized...");
 }
@@ -673,7 +721,7 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetColourVertexInputState();
 void _vk2dShaderBuildPipe(VK2DShader shader);
 void _vk2dRendererCreatePipelines() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	uint32_t i;
 	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
@@ -757,6 +805,10 @@ void _vk2dRendererCreatePipelines() {
             shaderShadowsFrag = _vk2dLoadFile("shaders/shadowsfrag.spv", &shaderInstancedFragSize);
         }
 	}
+
+	// In case one of the load files failed
+	if (vk2dStatusFatal())
+	    return;
 
 	// Texture pipeline
 	VkDescriptorSetLayout layout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTexture};
@@ -902,7 +954,9 @@ void _vk2dRendererCreatePipelines() {
     if (CustomShadowsFragShader)
         free(shaderShadowsFrag);
 
-    vk2dLog("Pipelines initialized...");
+    // In case something somewhere failed
+    if (!vk2dStatusFatal())
+        vk2dLog("Pipelines initialized...");
 }
 
 void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
@@ -921,12 +975,12 @@ void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
 
 void _vk2dRendererCreateFrameBuffer() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	uint32_t i;
 	gRenderer->framebuffers = malloc(sizeof(VkFramebuffer) * gRenderer->swapchainImageCount);
 
-	if (vk2dPointerCheck(gRenderer->framebuffers)) {
+	if (gRenderer->framebuffers) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			// There is no 3rd attachment if msaa is disabled
 			const int attachCount = gRenderer->config.msaa > 1 ? 3 : 2;
@@ -941,25 +995,40 @@ void _vk2dRendererCreateFrameBuffer() {
 			}
 
 			VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(gRenderer->renderPass, gRenderer->surfaceWidth, gRenderer->surfaceHeight, attachments, attachCount);
-			vk2dErrorCheck(vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->framebuffers[i]));
-            vk2dLog("Framebuffer[%i] ready...", i);
+			VkResult result = vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->framebuffers[i]);
+			if (result == VK_SUCCESS) {
+                vk2dLog("Framebuffer[%i ready...", i);
+            } else {
+                if (result == VK_ERROR_OUT_OF_HOST_MEMORY) {
+                    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to create framebuffer, out of memory.");
+                } else if (result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
+                    vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to create framebuffer, out of video memory.");
+                }
+                free(gRenderer->framebuffers);
+                gRenderer->framebuffers = NULL;
+                break;
+			}
 		}
+        vk2dLog("Framebuffers initialized...");
+	} else {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate framebuffer list.");
 	}
 
-    vk2dLog("Framebuffers initialized...");
 }
 
 void _vk2dRendererDestroyFrameBuffer() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
-	for (i = 0; i < gRenderer->swapchainImageCount; i++)
-		vkDestroyFramebuffer(gRenderer->ld->dev, gRenderer->framebuffers[i], VK_NULL_HANDLE);
-	free(gRenderer->framebuffers);
+	if (gRenderer->framebuffers != NULL) {
+        for (i = 0; i < gRenderer->swapchainImageCount; i++)
+            vkDestroyFramebuffer(gRenderer->ld->dev, gRenderer->framebuffers[i], VK_NULL_HANDLE);
+        free(gRenderer->framebuffers);
+    }
 }
 
 void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	if (newCamera) { // If the renderer has not yet been initialized
 		VK2DCameraSpec cam = {
@@ -1023,7 +1092,7 @@ void _vk2dRendererDestroyUniformBuffers() {
 
 void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	if (!preserveDescCons) {
 		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2, VK2D_NO_LOCATION);
@@ -1057,7 +1126,7 @@ void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 
 void _vk2dRendererCreateSynchronization() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	uint32_t i;
 	VkSemaphoreCreateInfo semaphoreCreateInfo = vk2dInitSemaphoreCreateInfo(0);
@@ -1092,11 +1161,13 @@ void _vk2dRendererDestroySynchronization() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 
-	for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
-		vkDestroySemaphore(gRenderer->ld->dev, gRenderer->renderFinishedSemaphores[i], VK_NULL_HANDLE);
-		vkDestroySemaphore(gRenderer->ld->dev, gRenderer->imageAvailableSemaphores[i], VK_NULL_HANDLE);
-		vkDestroyFence(gRenderer->ld->dev, gRenderer->inFlightFences[i], VK_NULL_HANDLE);
-	}
+	if (gRenderer->renderFinishedSemaphores != NULL && gRenderer->imageAvailableSemaphores != NULL && gRenderer->inFlightFences != NULL) {
+        for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+            vkDestroySemaphore(gRenderer->ld->dev, gRenderer->renderFinishedSemaphores[i], VK_NULL_HANDLE);
+            vkDestroySemaphore(gRenderer->ld->dev, gRenderer->imageAvailableSemaphores[i], VK_NULL_HANDLE);
+            vkDestroyFence(gRenderer->ld->dev, gRenderer->inFlightFences[i], VK_NULL_HANDLE);
+        }
+    }
 	free(gRenderer->imagesInFlight);
 	free(gRenderer->inFlightFences);
 	free(gRenderer->imageAvailableSemaphores);
@@ -1106,7 +1177,7 @@ void _vk2dRendererDestroySynchronization() {
 
 void _vk2dRendererCreateSampler() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 
 	// 2D sampler
@@ -1138,7 +1209,7 @@ void _vk2dRendererDestroySampler() {
 
 void _vk2dRendererCreateUnits() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	// Squares are simple
 	gRenderer->unitSquare = vk2dPolygonShapeCreateRaw(unitSquare, unitSquareVertices);
@@ -1169,7 +1240,7 @@ void _vk2dRendererDestroyUnits() {
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
 void _vk2dRendererRefreshTargets() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	uint32_t i;
 	uint32_t targetsRefreshed = 0;
@@ -1220,7 +1291,7 @@ void _vk2dRendererDestroyTargetsList() {
 // If the window is resized or minimized or whatever
 void _vk2dRendererResetSwapchain() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 
 	// Hang while minimized
@@ -1268,7 +1339,7 @@ void _vk2dRendererResetSwapchain() {
 
 void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
@@ -1365,7 +1436,7 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
 
 void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, vec4 colour, vec2 lightSource, VK2DCameraIndex cam) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
     VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
     VK2DPipeline pipe = gRenderer->shadowsPipe;
@@ -1426,7 +1497,7 @@ void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shad
 
 void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count, VK2DCameraIndex cam) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
@@ -1477,7 +1548,7 @@ void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2
 // Same as above but for 3D rendering
 void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, VK2DCameraIndex cam, float lineWidth) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
@@ -1559,7 +1630,7 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 // Same as _vk2dRendererDraw below but specifically for 3D rendering
 void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, float lineWidth) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	// Only render to 3D cameras
 	for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
@@ -1573,7 +1644,7 @@ void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel mod
 // This is the upper level internal draw function that draws to each camera and not just with a scissor/viewport
 void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
     if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
         sets[0] = gRenderer->targetUBOSet;
@@ -1592,7 +1663,7 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
 // This is the upper level internal draw function for shadows that draws to each camera and not just with a scissor/viewport
 void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
     VkDescriptorSet set;
     if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
@@ -1618,7 +1689,7 @@ void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colo
 
 void _vk2dRendererDrawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL)
+    if (vk2dStatusFatal())
         return;
 	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
 		sets[0] = gRenderer->targetUBOSet;

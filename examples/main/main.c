@@ -40,10 +40,8 @@ int main(int argc, const char *argv[]) {
 	        .stdoutLogging = true,
 	        .vramPageSize = 0
 	};
-	int32_t error = vk2dRendererInit(window, config, &options);
-
-	if (error < 0)
-		return -1;
+	vk2dRendererInit(window, config, &options);
+	handleVK2DStatus();
 
 	VK2DCameraSpec defcam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, 1, 0};
 	vk2dRendererSetCamera(defcam);

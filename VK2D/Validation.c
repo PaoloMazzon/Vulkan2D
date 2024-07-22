@@ -28,7 +28,6 @@ void vk2dValidationBegin(const char *errorFile, bool quitOnError) {
 
 void vk2dValidationEnd() {
 	SDL_DestroyMutex(gLogMutex);
-	strncpy(gLogBuffer, "Vulkan2D is not initialized.", gLogBufferSize);
 }
 
 bool _vk2dErrorRaise(VkResult result, const char* function, int line, const char* varname) {
@@ -91,7 +90,7 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
     // Print output
     va_list list;
     va_start(list, fmt);
-    vsnprintf(&gLogBuffer[startIndex], length, fmt, list);
+    vsnprintf(gLogBuffer + startIndex, length, fmt, list);
     va_end(list);
 
     // Print output to file
@@ -118,7 +117,7 @@ VK2DStatus vk2dStatus() {
 }
 
 bool vk2dStatusFatal() {
-    return (gStatus & ~(VK2D_STATUS_NONE | VK2D_STATUS_SDL_ERROR | VK2D_STATUS_FILE_NOT_FOUND | VK2D_STATUS_BAD_ASSET)) != 0;
+    return (gStatus & ~(VK2D_STATUS_NONE | VK2D_STATUS_SDL_ERROR | VK2D_STATUS_FILE_NOT_FOUND | VK2D_STATUS_BAD_ASSET | VK2D_STATUS_TOO_MANY_CAMERAS)) !=  0;
 }
 
 const char *vk2dStatusMessage() {

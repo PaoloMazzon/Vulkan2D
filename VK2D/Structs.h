@@ -119,7 +119,7 @@ typedef enum {
     VK2D_STATUS_NONE                     = 0,     ///< Nothing important to report
     VK2D_STATUS_FILE_NOT_FOUND           = 1<<0,  ///< File was not found for something like an image load, not fatal
     VK2D_STATUS_BAD_FORMAT               = 1<<1,  ///< Bad file format
-    VK2D_STATUS_TOO_MANY_CAMERAS         = 1<<2,  ///< No camera slots left to use
+    VK2D_STATUS_TOO_MANY_CAMERAS         = 1<<2,  ///< No camera slots left to use, not fatal
     VK2D_STATUS_DEVICE_LOST              = 1<<3,  ///< General Vulkan catch-all for when something goes wrong
     VK2D_STATUS_VULKAN_ERROR             = 1<<4,  ///< Some sort of specific vulkan error
     VK2D_STATUS_OUT_OF_RAM               = 1<<5,  ///< Out of host memory
