@@ -490,6 +490,11 @@ bool vk2dStatusFatal();
 /// \return Returns a message describing the most recent status code.
 const char *vk2dStatusMessage();
 
+/// \brief Returns a string detailing information about the host machine
+/// \returns A string detailing information about the host machine
+/// \warning Will simply return an empty string before VK2D is initialized
+const char *vk2dHostInformation();
+
 /************************* Shorthand for simpler drawing at no performance cost *************************/
 
 /// \brief Draws a rectangle using the current render colour (floats all around)

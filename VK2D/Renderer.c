@@ -29,6 +29,8 @@ unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
 // For everything
 VK2DRenderer gRenderer = NULL;
 SDL_atomic_t gRNG;
+static const char *gHostMachineBuffer[4096];
+static int gHostMachineBufferSize = 4096;
 
 static const char* DEBUG_EXTENSIONS[] = {
 		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
@@ -129,6 +131,25 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		gRenderer->ld = vk2dLogicalDeviceCreate(gRenderer->pd, false, true, userOptions.enableDebug, &gRenderer->limits);
 		gRenderer->window = window;
 
+        // Make the host machine string
+        VkPhysicalDeviceProperties props;
+        vkGetPhysicalDeviceProperties(gRenderer->pd->dev, &props);
+        SDL_version version;
+        SDL_GetVersion(&version);
+        snprintf((void*)gHostMachineBuffer, gHostMachineBufferSize,
+                 "%s, SDL %i.%i.%i\nHost: %i cores, %0.2fgb RAM\nDevice: %s, Vulkan %i.%i.%i\n",
+                 SDL_GetPlatform(),
+                 version.major,
+                 version.minor,
+                 version.patch,
+                 SDL_GetCPUCount(),
+                 (float)SDL_GetSystemRAM() / 1024.0f,
+                 props.deviceName,
+                 VK_VERSION_MAJOR(props.apiVersion),
+                 VK_VERSION_MINOR(props.apiVersion),
+                 VK_VERSION_PATCH(props.apiVersion)
+        );
+
 		// Assign user settings, except for screen mode which will be handled later
 		gRenderer->config = config;
 		gRenderer->config.msaa = gRenderer->limits.maxMSAA >= config.msaa ? config.msaa : gRenderer->limits.maxMSAA;
@@ -213,6 +234,10 @@ void vk2dRendererQuit() {
 		free(gRenderer);
 		gRenderer = NULL;
 	}
+}
+
+const char *vk2dHostInformation() {
+    return gHostMachineBuffer;
 }
 
 void vk2dRendererWait() {
