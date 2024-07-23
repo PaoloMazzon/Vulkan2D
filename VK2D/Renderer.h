@@ -22,6 +22,16 @@ extern "C" {
 /// VK2DStartupOptions lets you control how some meta things in the renderer, such as
 /// whether or not to enable stdout logging or enable the Vulkan validation layers. Leave this
 /// null for options that would generally be fine for most things.
+///
+/// The following are default values for VK2DStartupOptions if none are provided:
+///
+/// `enableDebug` defaults to `false`
+/// `stdoutLogging` defaults to `true`
+/// `quitOnError` defaults to `true`
+/// `errorFile` defaults to `"vk2derror.txt"`
+/// `loadCustomShaders` defaults to `false`
+/// `vramPageSize` defaults to `256 * 1000`, setting this to 0 also uses `256 * 1000`
+///
 VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options);
 
 /// \brief Waits until current GPU tasks are done before moving on
@@ -483,11 +493,20 @@ VK2DStatus vk2dStatus();
 
 /// \brief Returns true if the current status code should be considered fatal
 /// \returns Returns if the current renderer status is fatal.
+///
+/// If you have `VK2DStartupOptions.quitOnError` set to true (which is the default option)
+/// a fatal status would have already crashed the program before you can check this. You
+/// may, however, choose to disable crashing on an error and quit gracefully on your own in
+/// which case this is very helpful. Some status are not considered fatal, like if a texture
+/// file is missing so you should use this to check for critical errors and not vk2dStatus().
 bool vk2dStatusFatal();
 
 /// \brief Returns the current renderer status message, generally use this if vk2dGetStatus() returns something other than
 /// VK2D_STATUS_NONE
 /// \return Returns a message describing the most recent status code.
+///
+/// Usually the status code is descriptive enough to figure out what happened but this can be helpful for a user facing
+/// error message. This is automatically put to a file if `VK2DStartupOptions.errorFile` is a valid filename.
 const char *vk2dStatusMessage();
 
 /// \brief Returns a string detailing information about the host machine

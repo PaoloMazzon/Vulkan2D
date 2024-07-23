@@ -21,7 +21,7 @@ Features
 
  + Simple and intuitive API built on top of SDL
  + Draw shapes/textures/3D models/arbitrary polygons to the screen or other textures
- + Fast, built with Vulkan 1.2 and doesn't require any device features (but it can make use of some)
+ + Fast, built with Vulkan 1.1 and doesn't require any device features (but it can make use of some)
  + Simple and fully-featured cameras, allowing for multiple concurrent cameras
  + Powerful and very simple shader interface
  + Simple access to the Vulkan implementation through `VK2D/VulkanInterface.h`
@@ -54,8 +54,10 @@ Vulkan2D also requires the following external dependencies:
 
 Example
 =======
-Using the renderer is quite simple, but there are some things to be aware of. For the sake
-of brevity, error checking is removed from the following example
+
+By default the program automatically crashes on fatal errors, but you may specify Vulkan2D to not do
+that and check for errors on your own. The following example uses default settings meaning that if there
+is an error in VK2D, it will print the status to `vk2derror.txt` and quit. 
 
 ```c
 SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
@@ -90,6 +92,12 @@ vk2dRendererQuit();
 SDL_DestroyWindow(window);
 ```
 
+If you don't want VK2D to crash on errors you may specify that in the struct `VK2DStartupOptions` passed to
+`vk2dRendererInit` and check for errors yourself with `vk2dStatus`, `vk2dStatusMessage`, and
+`vk2dStatusFatal`. Any VK2D function can raise fatal errors but unless you pass bad pointers
+to VK2D functions, they will not crash if there is a fatal error and will instead simply do
+nothing.
+
 Running the Examples
 ====================
 All examples are tested to work on Windows and Ubuntu. The `CMakeLists.txt` at the root
@@ -99,13 +107,17 @@ shader before running the `examples/main/` example with:
     glslc assets/test.frag -o assets/tex.frag.spv
     glslc assets/test.vert -o assets/tex.vert.spv
 
-You may also compile the binary shader blobs with the long command
+If you don't trust binary blobs you may also compile the binary shader blobs with the command
 
     genblobs.py colour.vert colour.frag instanced.vert instanced.frag model.vert model.frag shadows.vert shadows.frag tex.vert tex.frag
 
 run from the `shaders/` folder (requires Python).
 
-TODO
-====
+Roadmap
+=======
 
+ + Built-in imgui support
+ + Better multi-threaded loading support
+ + Soft shadows
+ + More flexibility with shader uniforms
  + 3D shaders

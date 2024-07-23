@@ -8,6 +8,7 @@
 #include "../debug.c"
 
 /************************ Constants ************************/
+
 const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
@@ -89,7 +90,7 @@ int main(int argc, const char *argv[]) {
 	float prevMY = 0;
 	float shaderFloat = 0;
 
-	while (!quit) {
+	while (!quit && !vk2dStatusFatal()) {
 		delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
 		lastTime = SDL_GetPerformanceCounter();
 
