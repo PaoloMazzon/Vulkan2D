@@ -28,6 +28,8 @@ Uint32 amask = 0xff000000;
 
 static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, bool mainThread) {
 	VkCommandBuffer commandBuffer = vk2dLogicalDeviceGetSingleUseBuffer(dev, mainThread);
+	if (commandBuffer == VK_NULL_HANDLE)
+	    return;
 
 	VkBufferImageCopy region = {0};
 	region.bufferOffset = 0;
@@ -57,6 +59,8 @@ static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, 
 
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, bool mainThread) {
 	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(dev, mainThread);
+    if (buffer == VK_NULL_HANDLE)
+        return;
 	VkPipelineStageFlags sourceStage = 0;
 	VkPipelineStageFlags destinationStage = 0;
 
@@ -98,8 +102,7 @@ void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkIma
 		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 		destinationStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_TRANSFER_BIT;
 	} else {
-        vk2dLog("Unsupported image transition");
-		vk2dErrorCheck(-1);
+        vk2dRaise(VK2D_STATUS_BAD_FORMAT, "Unsupported image transition.");
 	}
 
 	vkCmdPipelineBarrier(
@@ -121,7 +124,7 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 
 	VK2DImage out = malloc(sizeof(struct VK2DImage_t));
 
-	if (vk2dPointerCheck(out)) {
+	if (out != NULL) {
 		out->dev = dev;
 		out->width = width;
 		out->height = height;
@@ -129,13 +132,28 @@ VK2DImage vk2dImageCreate(VK2DLogicalDevice dev, uint32_t width, uint32_t height
 		VkImageCreateInfo imageCreateInfo = vk2dInitImageCreateInfo(width, height, format, usage, 1, samples);
 		VmaAllocationCreateInfo allocationCreateInfo = {0};
 		allocationCreateInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-		vk2dErrorCheck(vmaCreateImage(gRenderer->vma, &imageCreateInfo, &allocationCreateInfo, &out->img, &out->mem, VK_NULL_HANDLE));
-
-		// Create the image view
-		VkImageViewCreateInfo imageViewCreateInfo = vk2dInitImageViewCreateInfo(out->img, format, aspectMask, 1);
-		vk2dErrorCheck(vkCreateImageView(dev->dev, &imageViewCreateInfo, NULL, &out->view));
+		VkResult result = vmaCreateImage(gRenderer->vma, &imageCreateInfo, &allocationCreateInfo, &out->img, &out->mem, VK_NULL_HANDLE);
+		if (result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
+		    vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to create image of size %ix%i, out of video memory.", width, height);
+		    free(out);
+		    out = NULL;
+		} else if (result != VK_SUCCESS) {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create image of size %ix%i, Vulkan error %i.", width, height, result);
+            free(out);
+            out = NULL;
+		} else {
+            // Create the image view
+            VkImageViewCreateInfo imageViewCreateInfo = vk2dInitImageViewCreateInfo(out->img, format, aspectMask, 1);
+            result = vkCreateImageView(dev->dev, &imageViewCreateInfo, NULL, &out->view);
+            if (result != VK_SUCCESS) {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create image view for image of size %ix%i, Vulkan error %i.", width, height, result);
+                vmaDestroyImage(gRenderer->vma, out->img, out->mem);
+                free(out);
+                out = NULL;
+            }
+        }
 	} else {
-		free(out);
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate image struct.");
 		out = NULL;
 	}
 
@@ -150,34 +168,33 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 	unsigned char* pixels = stbi_load(filename, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-	if (pixels == NULL) { // Print out filename if the image couldn't be loaded
-        vk2dLog("Failed to load image \"%s\"", filename);
-	}
-
-	if (vk2dPointerCheck(pixels)) {
+	if (pixels != NULL) {
 		stage = vk2dBufferCreate(dev, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 								 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        if (stage != NULL) {
+            void *data;
+            vmaMapMemory(gRenderer->vma, stage->mem, &data);
+            memcpy(data, pixels, imageSize);
+            vmaUnmapMemory(gRenderer->vma, stage->mem);
 
-		void *data;
-		vmaMapMemory(gRenderer->vma, stage->mem, &data);
-		memcpy(data, pixels, imageSize);
-		vmaUnmapMemory(gRenderer->vma, stage->mem);
+            stbi_image_free(pixels);
 
-		stbi_image_free(pixels);
-
-		out = vk2dImageCreate(dev, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
-							  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
+            out = vk2dImageCreate(dev, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
+                                  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
 
 
-		if (vk2dPointerCheck(out)) {
-			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
-											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
-			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, texWidth, texHeight, true);
-			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, true);
-		}
+            if (out != NULL) {
+                _vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
+                                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
+                _vk2dImageCopyBufferToImage(dev, stage->buf, out->img, texWidth, texHeight, true);
+                _vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, true);
+            }
 
-		vk2dBufferFree(stage);
+            vk2dBufferFree(stage);
+        }
+	} else {
+        vk2dRaise(VK2D_STATUS_FILE_NOT_FOUND, "Failed to load image \"%s\".", filename);
 	}
 
 	return out;
@@ -188,28 +205,33 @@ VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, void *pixels, int w, int h,
 	VK2DImage out = NULL;
 	VK2DBuffer stage;
 
-	if (vk2dPointerCheck(pixels)) {
+	if (pixels != NULL) {
 		stage = vk2dBufferCreate(dev, w * h * 4, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 								 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        if (stage != NULL) {
+            void *data;
+            VkResult result = vmaMapMemory(gRenderer->vma, stage->mem, &data);
+            if (result == VK_SUCCESS) {
+                memcpy(data, pixels, w * h * 4);
+                vmaUnmapMemory(gRenderer->vma, stage->mem);
 
-		void *data;
-		vmaMapMemory(gRenderer->vma, stage->mem, &data);
-		memcpy(data, pixels, w * h * 4);
-		vmaUnmapMemory(gRenderer->vma, stage->mem);
-
-		out = vk2dImageCreate(dev, w, h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
-							  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
+                out = vk2dImageCreate(dev, w, h, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT,
+                                      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
 
 
-		if (vk2dPointerCheck(out)) {
-			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
-											VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mainThread);
-			_vk2dImageCopyBufferToImage(dev, stage->buf, out->img, w, h, mainThread);
-			_vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-											VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mainThread);
-		}
+                if (out != NULL) {
+                    _vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_UNDEFINED,
+                                                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mainThread);
+                    _vk2dImageCopyBufferToImage(dev, stage->buf, out->img, w, h, mainThread);
+                    _vk2dImageTransitionImageLayout(dev, out->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, mainThread);
+                }
+            } else {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to map memory, VMA error %i.", result);
+            }
 
-		vk2dBufferFree(stage);
+            vk2dBufferFree(stage);
+        }
 	}
 
 	return out;

@@ -30,37 +30,6 @@ void vk2dValidationEnd() {
 	SDL_DestroyMutex(gLogMutex);
 }
 
-bool _vk2dErrorRaise(VkResult result, const char* function, int line, const char* varname) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	fprintf(stderr, "[VK2D]: Error %i occurred in function \"%s\" line %i: %s\n", result, function, line, varname);
-	fflush(stderr);
-	if (gRenderer->options.errorFile != NULL) {
-		FILE *file = fopen(gRenderer->options.errorFile, "a");
-		fprintf(file, "[VK2D]: Error %i occurred in function \"%s\" line %i: %s\n", result, function, line, varname);
-		fclose(file);
-	}
-	if (gRenderer->options.quitOnError)
-		abort();
-	return false;
-}
-
-bool _vk2dPointerCheck(void* ptr, const char* function, int line, const char* varname) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	if (ptr == NULL) {
-		fprintf(stderr, "[VK2D]: Pointer check failed for \"%s\" in function \"%s\" on line %i\n", varname, function, line);
-		fflush(stderr);
-		if (gRenderer->options.errorFile != NULL) {
-			FILE *file = fopen(gRenderer->options.errorFile, "a");
-			fprintf(file, "[VK2D]: Pointer check failed for \"%s\" in function \"%s\" on line %i\n", varname, function,
-					line);
-			fclose(file);
-		}
-		if (gRenderer->options.quitOnError)
-			abort();
-	}
-	return 1;
-}
-
 // Safe string length method
 static int32_t stringLength(const char *str, int32_t size) {
     int32_t len = 0;

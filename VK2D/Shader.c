@@ -4,7 +4,6 @@
 #include "VK2D/Pipeline.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/Buffer.h"
-#include "VK2D/LogicalDevice.h"
 #include "VK2D/Validation.h"
 #include "VK2D/DescriptorControl.h"
 #include "VK2D/Util.h"
@@ -17,6 +16,8 @@ unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
 
 void _vk2dShaderBuildPipe(VK2DShader shader) {
+    if (vk2dStatusFatal())
+        return;
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
 
@@ -46,72 +47,96 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
 
 VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (vk2dStatusFatal() || gRenderer == NULL)
+        return NULL;
 	if (uniformBufferSize % 4 != 0) {
-        vk2dLog("Uniform buffer size for shader is invalid, must be multiple of 4");
+        vk2dRaise(VK2D_STATUS_BAD_FORMAT, "Uniform buffer size for shader is invalid, must be multiple of 4");
 		return NULL;
 	} else if (uniformBufferSize > gRenderer->limits.maxShaderBufferSize) {
-        vk2dLog("Uniform buffer of size %i is greater than the maximum allowed uniform buffer size of %i from vk2dRendererGetLimits",
+        vk2dRaise(VK2D_STATUS_BEYOND_LIMIT, "Uniform buffer of size %i is greater than the maximum allowed uniform buffer size of %i from vk2dRendererGetLimits",
                 uniformBufferSize, gRenderer->limits.maxShaderBufferSize);
 		return NULL;
 	}
 
-	VK2DShader out = malloc(sizeof(struct VK2DShader_t));
 	int i;
 	VK2DRenderer renderer = vk2dRendererGetPointer();
+
+	if (renderer == NULL)
+	    return NULL;
+
 	uint8_t *vertFile = _vk2dCopyBuffer(vertexShaderBuffer, vertexShaderBufferSize);
+	if (vertFile == NULL)
+	    return NULL;
+
 	uint8_t *fragFile = _vk2dCopyBuffer(fragmentShaderBuffer, fragmentShaderBufferSize);
+    if (vertFile == NULL) {
+        free(vertFile);
+        return NULL;
+    }
 	VK2DLogicalDevice dev = vk2dRendererGetDevice();
+    VK2DShader out = calloc(1, sizeof(struct VK2DShader_t));
 
-	if (vk2dRendererGetPointer() != NULL) {
-		if (vk2dPointerCheck(out) && vk2dPointerCheck((void*)vertFile) && vk2dPointerCheck((void*)fragFile)) {
-			out->spvFrag = fragFile;
-			out->spvVert = vertFile;
-			out->spvVertSize = vertexShaderBufferSize;
-			out->spvFragSize = fragmentShaderBufferSize;
-			out->uniformSize = uniformBufferSize;
-			out->dev = dev;
+    if (out != NULL) {
+        out->spvFrag = fragFile;
+        out->spvVert = vertFile;
+        out->spvVertSize = vertexShaderBufferSize;
+        out->spvFragSize = fragmentShaderBufferSize;
+        out->uniformSize = uniformBufferSize;
+        out->dev = dev;
 
-			if (uniformBufferSize != 0) {
-				for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
-					out->descCons[i] = vk2dDescConCreate(dev, renderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
-				}
-			}
+        if (uniformBufferSize != 0) {
+            for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
+                out->descCons[i] = vk2dDescConCreate(dev, renderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
+            }
+        }
 
-			SDL_LockMutex(dev->shaderMutex);
-			_vk2dRendererAddShader(out);
-			_vk2dShaderBuildPipe(out);
-			SDL_UnlockMutex(dev->shaderMutex);
-		}
-	} else {
-		free(out);
-		out = NULL;
-        vk2dLog("Renderer is not initialized");
-	}
+        if (!gRenderer->limits.supportsMultiThreadLoading || SDL_LockMutex(dev->shaderMutex) == 0) {
+            _vk2dRendererAddShader(out);
+            _vk2dShaderBuildPipe(out);
+            if (gRenderer->limits.supportsMultiThreadLoading)
+                SDL_UnlockMutex(dev->shaderMutex);
+        } else {
+            vk2dRaise(VK2D_STATUS_SDL_ERROR, "Failed to lock mutex, SDL error: %s.", SDL_GetError());
+            free(out);
+            out = NULL;
+        }
+    } else {
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate shader.");
+    }
 
 	return out;
 }
 
 VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	if (uniformBufferSize % 4 != 0) {
-        vk2dLog("Uniform buffer size for shader \"%s\"/\"%s\" is invalid, must be multiple of 4", vertexShader,
-                fragmentShader);
-		return NULL;
-	} else if (uniformBufferSize > gRenderer->limits.maxShaderBufferSize) {
-        vk2dLog("Uniform buffer of size %i is greater than the maximum allowed uniform buffer size of %i from vk2dRendererGetLimits",
-                uniformBufferSize, gRenderer->limits.maxShaderBufferSize);
-		return NULL;
-	}
+	if (vk2dStatusFatal() || gRenderer == NULL)
+        return NULL;
+    if (uniformBufferSize % 4 != 0) {
+        vk2dRaise(VK2D_STATUS_BAD_FORMAT, "Uniform buffer size for shader is invalid, must be multiple of 4");
+        return NULL;
+    } else if (uniformBufferSize > gRenderer->limits.maxShaderBufferSize) {
+        vk2dRaise(VK2D_STATUS_BEYOND_LIMIT, "Uniform buffer of size %i is greater than the maximum allowed uniform buffer size of %i from vk2dRendererGetLimits",
+                  uniformBufferSize, gRenderer->limits.maxShaderBufferSize);
+        return NULL;
+    }
 
-	VK2DShader out = malloc(sizeof(struct VK2DShader_t));
 	uint32_t vertFileSize, fragFileSize, i;
 	VK2DRenderer renderer = vk2dRendererGetPointer();
-	uint8_t *vertFile = _vk2dLoadFile(vertexShader, &vertFileSize);
-	uint8_t *fragFile = _vk2dLoadFile(fragmentShader, &fragFileSize);
+
+    uint8_t *vertFile = _vk2dLoadFile(vertexShader, &vertFileSize);
+    if (vertFile == NULL)
+        return NULL;
+
+    uint8_t *fragFile = _vk2dLoadFile(fragmentShader, &fragFileSize);
+    if (vertFile == NULL) {
+        free(vertFile);
+        return NULL;
+    }
+    VK2DShader out = malloc(sizeof(struct VK2DShader_t));
 	VK2DLogicalDevice dev = vk2dRendererGetDevice();
 
 	if (vk2dRendererGetPointer() != NULL) {
-		if (vk2dPointerCheck(out) && vk2dPointerCheck((void*)vertFile) && vk2dPointerCheck((void*)fragFile)) {
+		if (out != NULL) {
 			out->spvFrag = fragFile;
 			out->spvVert = vertFile;
 			out->spvVertSize = vertFileSize;
@@ -125,17 +150,19 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 				}
 			}
 
-			if (gRenderer->limits.supportsMultiThreadLoading)
-				SDL_LockMutex(dev->shaderMutex);
-			_vk2dRendererAddShader(out);
-			_vk2dShaderBuildPipe(out);
-			if (gRenderer->limits.supportsMultiThreadLoading)
-				SDL_UnlockMutex(dev->shaderMutex);
+            if (!gRenderer->limits.supportsMultiThreadLoading || SDL_LockMutex(dev->shaderMutex) == 0) {
+                _vk2dRendererAddShader(out);
+                _vk2dShaderBuildPipe(out);
+                if (gRenderer->limits.supportsMultiThreadLoading)
+                    SDL_UnlockMutex(dev->shaderMutex);
+            } else {
+                vk2dRaise(VK2D_STATUS_SDL_ERROR, "Failed to lock mutex, SDL error: %s.", SDL_GetError());
+                free(out);
+                out = NULL;
+            }
 		}
 	} else {
-		free(out);
-		out = NULL;
-        vk2dLog("Renderer is not initialized");
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate shader.");
 	}
 
 	return out;

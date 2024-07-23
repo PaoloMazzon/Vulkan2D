@@ -11,10 +11,9 @@ extern "C" {
 #endif
 
 // For debug only
-#define vk2dPointerCheck(ptr) (ptr)
-#define vk2dErrorCheck(e) (e);
-#define vk2dErrorInline(ptr) ((ptr) == VK_SUCCESS)
-
+//#define vk2dPointerCheck(ptr) (ptr)
+//#define vk2dErrorCheck(e) (e);
+//#define vk2dErrorInline(ptr) ((ptr) == VK_SUCCESS)
 
 /// \brief Prints a log message if VKRE_VERBOSE_STDOUT is enabled
 void vk2dLog(const char* fmt, ...);

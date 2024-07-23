@@ -3,18 +3,20 @@
 #include "VK2D/Pipeline.h"
 #include "VK2D/Initializers.h"
 #include "VK2D/Validation.h"
-#include "VK2D/LogicalDevice.h"
 #include "VK2D/BlendModes.h"
 #include <malloc.h>
 #include "VK2D/Renderer.h"
 #include "VK2D/Opaque.h"
 
 VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayouts, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa, VK2DPipelineType type) {
-	VK2DPipeline pipe = malloc(sizeof(struct VK2DPipeline_t));
+    if (vk2dStatusFatal())
+        return NULL;
+
+	VK2DPipeline pipe = calloc(1, sizeof(struct VK2DPipeline_t));
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 
-	if (vk2dPointerCheck(pipe)) {
+	if (pipe != NULL) {
 		// Figure out if wireframe is allowed
 		bool polygonFill = fill;
 		if (!polygonFill && !gRenderer->limits.supportsWireframe)
@@ -38,13 +40,20 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 		VkShaderModuleCreateInfo vertCreateInfo = vk2dInitShaderModuleCreateInfo((void*)vertBuffer, vertSize);
 		VkShaderModuleCreateInfo fragCreateInfo = vk2dInitShaderModuleCreateInfo((void*)fragBuffer, fragSize);
 		VkShaderModule vertShader, fragShader;
-		vkCreateShaderModule(dev->dev, &vertCreateInfo, VK_NULL_HANDLE, &vertShader);
-		vkCreateShaderModule(dev->dev, &fragCreateInfo, VK_NULL_HANDLE, &fragShader);
+		VkResult result = vkCreateShaderModule(dev->dev, &vertCreateInfo, VK_NULL_HANDLE, &vertShader);
+		VkResult result2 = vkCreateShaderModule(dev->dev, &fragCreateInfo, VK_NULL_HANDLE, &fragShader);
 		const uint32_t shaderStageCount = 2;
 		VkPipelineShaderStageCreateInfo shaderStageCreateInfo[] = {
 				vk2dInitPipelineShaderStageCreateInfo(VK_SHADER_STAGE_VERTEX_BIT, vertShader),
 				vk2dInitPipelineShaderStageCreateInfo(VK_SHADER_STAGE_FRAGMENT_BIT, fragShader),
 		};
+
+        if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create shader modules, Vulkan error %i/%i.", result, result2);
+            free(pipe);
+            pipe = NULL;
+            return NULL;
+        }
 
 		VkRect2D scissor = {0};
 		scissor.offset.x = 0;
@@ -78,8 +87,17 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 			pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 1, &range);
 		else
 			pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 0, VK_NULL_HANDLE);
-		vkCreatePipelineLayout(dev->dev, &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &pipe->layout);
+		result = vkCreatePipelineLayout(dev->dev, &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &pipe->layout);
 		VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo = vk2dInitPipelineInputAssemblyStateCreateInfo(fill);
+
+        if (result != VK_SUCCESS) {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create pipeline layout, Vulkan error %i.", result);
+            free(pipe);
+            pipe = NULL;
+            vkDestroyShaderModule(dev->dev, vertShader, VK_NULL_HANDLE);
+            vkDestroyShaderModule(dev->dev, fragShader, VK_NULL_HANDLE);
+            return NULL;
+        }
 
 		// 3D/shadow settings
 		if (type == VK2D_PIPELINE_TYPE_3D) {
@@ -106,17 +124,25 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 					&pipelineDynamicStateCreateInfo,
 					pipe->layout,
 					renderPass);
-			vk2dErrorCheck(vkCreateGraphicsPipelines(dev->dev, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, VK_NULL_HANDLE, &pipe->pipes[i]));
+			result = vkCreateGraphicsPipelines(dev->dev, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, VK_NULL_HANDLE, &pipe->pipes[i]);
+			if (result != VK_SUCCESS) {
+			    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create pipeline, Vulkan error %i.", result);
+			    break;
+			}
 		}
 
 		vkDestroyShaderModule(dev->dev, vertShader, VK_NULL_HANDLE);
 		vkDestroyShaderModule(dev->dev, fragShader, VK_NULL_HANDLE);
+	} else {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate pipeline struct.");
 	}
 
 	return pipe;
 }
 
 VkPipeline vk2dPipelineGetPipe(VK2DPipeline pipe, VK2DBlendMode blendMode) {
+    if (vk2dStatusFatal())
+        return NULL;
 	return pipe->pipes[blendMode];
 }
 
