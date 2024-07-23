@@ -1078,7 +1078,8 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	gRenderer->unitUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &unitUBO, true);
 	gRenderer->unitUBOSet = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->unitUBO);
 
-    vk2dLog("UBO initialized...");
+	if (!vk2dStatusFatal())
+        vk2dLog("UBO initialized...");
 }
 
 void _vk2dRendererDestroyUniformBuffers() {
@@ -1103,11 +1104,19 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		// And the one sampler set
 		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 4};
 		VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = vk2dInitDescriptorPoolCreateInfo(&sizes, 1, 4);
-		vk2dErrorCheck(vkCreateDescriptorPool(gRenderer->ld->dev, &descriptorPoolCreateInfo, VK_NULL_HANDLE, &gRenderer->samplerPool));
-		VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = vk2dInitDescriptorSetAllocateInfo(gRenderer->samplerPool, 1, &gRenderer->dslSampler);
-		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->samplerSet));
-		vk2dErrorCheck(vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->modelSamplerSet));
-        vk2dLog("Descriptor controllers initialized...");
+		VkResult result = vkCreateDescriptorPool(gRenderer->ld->dev, &descriptorPoolCreateInfo, VK_NULL_HANDLE, &gRenderer->samplerPool);
+		if (result == VK_SUCCESS) {
+            VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = vk2dInitDescriptorSetAllocateInfo(gRenderer->samplerPool, 1, &gRenderer->dslSampler);
+            result = vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->samplerSet);
+            VkResult result2 = vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->modelSamplerSet);
+
+            if (result != VK_SUCCESS || result2 != VK_SUCCESS)
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to allocate descriptor set, Vulkan error %i/%i.", result, result2);
+            else
+                vk2dLog("Descriptor controllers initialized...");
+		} else {
+		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to allocate descriptor pool, Vulkan error %i.", result);
+		}
 	} else {
         vk2dLog("Descriptor controllers preserved...");
 	}
@@ -1131,30 +1140,37 @@ void _vk2dRendererCreateSynchronization() {
 	uint32_t i;
 	VkSemaphoreCreateInfo semaphoreCreateInfo = vk2dInitSemaphoreCreateInfo(0);
 	VkFenceCreateInfo fenceCreateInfo = vk2dInitFenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
-	gRenderer->imageAvailableSemaphores = malloc(sizeof(VkSemaphore) * VK2D_MAX_FRAMES_IN_FLIGHT);
-	gRenderer->renderFinishedSemaphores = malloc(sizeof(VkSemaphore) * VK2D_MAX_FRAMES_IN_FLIGHT);
-	gRenderer->inFlightFences = malloc(sizeof(VkFence) * VK2D_MAX_FRAMES_IN_FLIGHT);
+	gRenderer->imageAvailableSemaphores = calloc(1, sizeof(VkSemaphore) * VK2D_MAX_FRAMES_IN_FLIGHT);
+	gRenderer->renderFinishedSemaphores = calloc(1, sizeof(VkSemaphore) * VK2D_MAX_FRAMES_IN_FLIGHT);
+	gRenderer->inFlightFences = calloc(1, sizeof(VkFence) * VK2D_MAX_FRAMES_IN_FLIGHT);
 	gRenderer->imagesInFlight = calloc(1, sizeof(VkFence) * gRenderer->swapchainImageCount);
-	gRenderer->commandBuffer = malloc(sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
-	gRenderer->dbCommandBuffer = malloc(sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
+	gRenderer->commandBuffer = calloc(1, sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
+	gRenderer->dbCommandBuffer = calloc(1, sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
 
-	if (vk2dPointerCheck(gRenderer->imageAvailableSemaphores) && vk2dPointerCheck(gRenderer->renderFinishedSemaphores)
-		&& vk2dPointerCheck(gRenderer->inFlightFences) && vk2dPointerCheck(gRenderer->imagesInFlight)) {
+	if (gRenderer->imageAvailableSemaphores != NULL && gRenderer->renderFinishedSemaphores != NULL
+		&& gRenderer->inFlightFences != NULL && gRenderer->imagesInFlight != NULL) {
 		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
-			vk2dErrorCheck(vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->imageAvailableSemaphores[i]));
-			vk2dErrorCheck(vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->renderFinishedSemaphores[i]));
-			vk2dErrorCheck(vkCreateFence(gRenderer->ld->dev, &fenceCreateInfo, VK_NULL_HANDLE, &gRenderer->inFlightFences[i]));
+			VkResult r1 = vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->imageAvailableSemaphores[i]);
+			VkResult r2 = vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->renderFinishedSemaphores[i]);
+			VkResult r3 = vkCreateFence(gRenderer->ld->dev, &fenceCreateInfo, VK_NULL_HANDLE, &gRenderer->inFlightFences[i]);
+			if (r1 != VK_SUCCESS || r2 != VK_SUCCESS || r3 != VK_SUCCESS)
+			    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create synchronization objects, Vulkan error %i/%i/%i.", r1, r2, r3);
 		}
+	} else {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate synchronization objects.");
 	}
 
-	if (vk2dPointerCheck(gRenderer->commandBuffer) && vk2dPointerCheck(gRenderer->dbCommandBuffer)) {
+	if (gRenderer->commandBuffer != NULL && gRenderer->dbCommandBuffer != NULL) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			gRenderer->commandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
 			gRenderer->dbCommandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
 		}
+	} else {
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate synchronization objects.");
 	}
 
-    vk2dLog("Synchronization initialized...");
+	if (!vk2dStatusFatal())
+        vk2dLog("Synchronization initialized...");
 }
 
 void _vk2dRendererDestroySynchronization() {
@@ -1182,7 +1198,7 @@ void _vk2dRendererCreateSampler() {
 
 	// 2D sampler
 	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode == VK2D_FILTER_TYPE_LINEAR, gRenderer->config.filterMode == VK2D_FILTER_TYPE_LINEAR ? gRenderer->config.msaa : 1, 1);
-	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler));
+	VkResult r1 = vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler);
 	VkDescriptorImageInfo imageInfo = {0};
 	imageInfo.sampler = gRenderer->textureSampler;
 	VkWriteDescriptorSet write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLER, 1, gRenderer->samplerSet, VK_NULL_HANDLE, 1, &imageInfo);
@@ -1193,12 +1209,15 @@ void _vk2dRendererCreateSampler() {
 	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	vk2dErrorCheck(vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->modelSampler));
+	VkResult r2 = vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->modelSampler);
 	imageInfo.sampler = gRenderer->modelSampler;
 	write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLER, 1, gRenderer->modelSamplerSet, VK_NULL_HANDLE, 1, &imageInfo);
 	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
 
-    vk2dLog("Created texture sampler...");
+	if (r1 == VK_SUCCESS && r2 == VK_SUCCESS)
+        vk2dLog("Created texture sampler...");
+	else
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create sampler descriptor sets, Vulkan error %i/%i.", r1, r2);
 }
 
 void _vk2dRendererDestroySampler() {
@@ -1225,7 +1244,8 @@ void _vk2dRendererCreateUnits() {
 	gRenderer->unitCircle = vk2dPolygonCreate(circleVertices, VK2D_CIRCLE_VERTICES);
 	gRenderer->unitCircleOutline = vk2dPolygonCreateOutline(circleVertices, VK2D_CIRCLE_VERTICES);
 	gRenderer->unitLine = vk2dPolygonCreateOutline((void*)LINE_VERTICES, LINE_VERTEX_COUNT);
-    vk2dLog("Created unit polygons...");
+    if (!vk2dStatusFatal())
+        vk2dLog("Created unit polygons...");
 }
 
 void _vk2dRendererDestroyUnits() {
@@ -1277,10 +1297,16 @@ void _vk2dRendererRefreshTargets() {
 			}
 
 			VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(gRenderer->externalTargetRenderPass, gRenderer->targets[i]->img->width, gRenderer->targets[i]->img->height, attachments, attachCount);
-			vk2dErrorCheck(vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->targets[i]->fbo));
+			VkResult result = vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->targets[i]->fbo);
+            if (result == VK_ERROR_OUT_OF_HOST_MEMORY) {
+                vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to create framebuffer, out of memory.");
+            } else if (result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
+                vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to create framebuffer, out of video memory.");
+            }
 		}
 	}
-    vk2dLog("Refreshed %i render targets...", targetsRefreshed);
+	if (!vk2dStatusFatal())
+        vk2dLog("Refreshed %i render targets...", targetsRefreshed);
 }
 
 void _vk2dRendererDestroyTargetsList() {
@@ -1301,7 +1327,17 @@ void _vk2dRendererResetSwapchain() {
 		flags = SDL_GetWindowFlags(gRenderer->window);
 		SDL_PumpEvents();
 	}
-	vkDeviceWaitIdle(gRenderer->ld->dev);
+	VkResult result = vkDeviceWaitIdle(gRenderer->ld->dev);
+    if (result == VK_ERROR_OUT_OF_HOST_MEMORY) {
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM,"Out of memory.");
+        return;
+    } else if (result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
+        vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Out of video memory.");
+        return;
+    } else if (result == VK_ERROR_DEVICE_LOST) {
+        vk2dRaise(VK2D_STATUS_DEVICE_LOST, "Device lost on wait.");
+        return;
+    }
 
 	// Free swapchain
 	_vk2dRendererDestroySynchronization();
@@ -1334,7 +1370,8 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
 
-    vk2dLog("Recreated swapchain assets...");
+	if (!vk2dStatusFatal())
+        vk2dLog("Recreated swapchain assets...");
 }
 
 void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam) {
