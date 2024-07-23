@@ -47,8 +47,8 @@ add_executable(... ${VK2D_FILES} ${VMA_FILES})
 
 Vulkan2D also requires the following external dependencies:
 
-    SDL2, 2.0+
-    Vulkan 1.2+
+    SDL2, 2.0.6+
+    Vulkan 1.1+
     C11 + C standard library
     C++17 (VMA uses C++17)
 

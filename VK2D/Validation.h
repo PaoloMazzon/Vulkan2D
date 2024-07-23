@@ -10,11 +10,6 @@
 extern "C" {
 #endif
 
-// For debug only
-//#define vk2dPointerCheck(ptr) (ptr)
-//#define vk2dErrorCheck(e) (e);
-//#define vk2dErrorInline(ptr) ((ptr) == VK_SUCCESS)
-
 /// \brief Prints a log message if VKRE_VERBOSE_STDOUT is enabled
 void vk2dLog(const char* fmt, ...);
 
@@ -32,6 +27,9 @@ void vk2dValidationBegin(const char *errorFile, bool quitOnError);
 
 /// \brief Cleans up validation synchronization primitives
 void vk2dValidationEnd();
+
+/// \brief Writes a header to the error file (if there is one) at the start of the program
+void vk2dValidationWriteHeader();
 
 /// \brief Used internally to handle debugging callbacks
 VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data);

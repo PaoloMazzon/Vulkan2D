@@ -2,6 +2,7 @@
 /// \author Paolo Mazzon
 #include "VK2D/Validation.h"
 #include <stdio.h>
+#include <time.h>
 #include <inttypes.h>
 #include <stdarg.h>
 #include <assert.h>
@@ -27,7 +28,28 @@ void vk2dValidationBegin(const char *errorFile, bool quitOnError) {
 }
 
 void vk2dValidationEnd() {
+    if (gErrorFile != NULL) {
+        FILE *f = fopen(gErrorFile, "a");
+        if (f != NULL) {
+            fprintf(f, "------END------\n");
+            fclose(f);
+        }
+    }
+
 	SDL_DestroyMutex(gLogMutex);
+}
+
+void vk2dValidationWriteHeader() {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+
+    if (gErrorFile != NULL) {
+        FILE *f = fopen(gErrorFile, "a");
+        if (f != NULL) {
+            time_t t = time(NULL);
+            fprintf(f, "------START------\n%s%s", ctime(&t), vk2dHostInformation());
+            fclose(f);
+        }
+    }
 }
 
 // Safe string length method
@@ -66,6 +88,7 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
     if (gErrorFile != NULL) {
         FILE *f = fopen(gErrorFile, "a");
         if (f != NULL) {
+            fprintf(f, "[VK2D Status %i] ", gStatus);
             va_start(list, fmt);
             vfprintf(f, fmt, list);
             fprintf(f, "\n");

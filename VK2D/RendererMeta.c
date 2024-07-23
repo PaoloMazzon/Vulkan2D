@@ -276,7 +276,7 @@ void _vk2dRendererCreateDebug() {
 
 void _vk2dRendererDestroyDebug() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	if (gRenderer->options.enableDebug) {
+	if (gRenderer->options.enableDebug && gRenderer->dr != NULL) {
 		fvkDestroyDebugReportCallbackEXT(gRenderer->vk, gRenderer->dr, VK_NULL_HANDLE);
 	}
 }

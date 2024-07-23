@@ -187,6 +187,8 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
                  VK_VERSION_PATCH(props.apiVersion)
         );
 
+        vk2dValidationWriteHeader();
+
 		// Assign user settings, except for screen mode which will be handled later
 		gRenderer->config = config;
 		gRenderer->config.msaa = gRenderer->limits.maxMSAA >= config.msaa ? config.msaa : gRenderer->limits.maxMSAA;
@@ -204,7 +206,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		allocatorCreateInfo.vulkanApiVersion = VK_MAKE_VERSION(1, 1, 0);
 		result = vmaCreateAllocator(&allocatorCreateInfo, &gRenderer->vma);
         if (result != VK_SUCCESS) {
-            vk2dRaise(0, "\nFailed to initialize VMA, Vulkan error %i.", result);
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "\nFailed to initialize VMA, Vulkan error %i.", result);
             vk2dRendererQuit();
             return VK2D_ERROR;
         }
