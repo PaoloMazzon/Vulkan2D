@@ -31,7 +31,7 @@ var NAVTREE =
     [ "Usage", "index.html#autotoc_md15", null ],
     [ "Example", "index.html#autotoc_md16", null ],
     [ "Running the Examples", "index.html#autotoc_md17", null ],
-    [ "TODO", "index.html#autotoc_md18", null ],
+    [ "Roadmap", "index.html#autotoc_md18", null ],
     [ "Cameras", "md_docs_Cameras.html", [
       [ "Creating Cameras", "md_docs_Cameras.html#autotoc_md0", null ],
       [ "Updating Cameras", "md_docs_Cameras.html#autotoc_md1", null ],
@@ -58,7 +58,7 @@ var NAVTREE =
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ],
       [ "Globals", "globals.html", [
-        [ "All", "globals.html", null ],
+        [ "All", "globals.html", "globals_dup" ],
         [ "Functions", "globals_func.html", null ],
         [ "Typedefs", "globals_type.html", null ],
         [ "Enumerations", "globals_enum.html", null ],
@@ -72,7 +72,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "Camera_8h.html",
-"md_docs_QuickStart.html#autotoc_md9"
+"index.html#autotoc_md12"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

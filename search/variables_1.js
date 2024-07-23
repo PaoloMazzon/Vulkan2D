@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['apiversion_424',['apiVersion',['../structVK2DConfiguration.html#a9fe8b1d44ee2cd0fa29bd5104f4c0270',1,'VK2DConfiguration']]],
-  ['applicationname_425',['applicationName',['../structVK2DConfiguration.html#aadacea83a3f294a8b4c43431e4a537e4',1,'VK2DConfiguration']]],
-  ['applicationversion_426',['applicationVersion',['../structVK2DConfiguration.html#af64a8b1d92f4a39a1b8b21d0540c9992',1,'VK2DConfiguration']]]
+  ['apiversion_445',['apiVersion',['../structVK2DConfiguration.html#a9fe8b1d44ee2cd0fa29bd5104f4c0270',1,'VK2DConfiguration']]],
+  ['applicationname_446',['applicationName',['../structVK2DConfiguration.html#aadacea83a3f294a8b4c43431e4a537e4',1,'VK2DConfiguration']]],
+  ['applicationversion_447',['applicationVersion',['../structVK2DConfiguration.html#af64a8b1d92f4a39a1b8b21d0540c9992',1,'VK2DConfiguration']]]
 ];

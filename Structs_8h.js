@@ -88,6 +88,20 @@ var Structs_8h =
       [ "VK2D_SHADER_STAGE_FRAGMENT", "Structs_8h.html#afdd9f0b05c83d540b0074f11ac07238faac2ca8a0611375ed56b281567742f90e", null ],
       [ "VK2D_SHADER_STAGE_VERTEX", "Structs_8h.html#afdd9f0b05c83d540b0074f11ac07238fa5a5840f56fcfe0329651bbba8d015f09", null ]
     ] ],
+    [ "VK2DStatus", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8", [
+      [ "VK2D_STATUS_NONE", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a6e481b7cedf4fcaeecad930f6a331fcc", null ],
+      [ "VK2D_STATUS_FILE_NOT_FOUND", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a98bb8aece455dd2324b106347697a9c4", null ],
+      [ "VK2D_STATUS_BAD_FORMAT", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8ac111c0fa5a2b506b044753aab195ac36", null ],
+      [ "VK2D_STATUS_TOO_MANY_CAMERAS", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a51cc692f5dfa5b4df227583616ae1adc", null ],
+      [ "VK2D_STATUS_DEVICE_LOST", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8ada76d7fc7ef1b423822a66646072ff80", null ],
+      [ "VK2D_STATUS_VULKAN_ERROR", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a3540e698b3db1c58c6d68a417aca1027", null ],
+      [ "VK2D_STATUS_OUT_OF_RAM", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8ab91d57a486aed51ecd57b2bb3abcb240", null ],
+      [ "VK2D_STATUS_OUT_OF_VRAM", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a393d8364ac3283db79cd6a8ad6e40764", null ],
+      [ "VK2D_STATUS_RENDERER_NOT_INITIALIZED", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a2fdfda28a4bb6d19b1d9b467f3267a68", null ],
+      [ "VK2D_STATUS_SDL_ERROR", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a002db4a119564ad540c47e3cd21570dd", null ],
+      [ "VK2D_STATUS_BEYOND_LIMIT", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a1a06c54c6b6bc9b862e33aa486fc5eee", null ],
+      [ "VK2D_STATUS_BAD_ASSET", "Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a340cafe56cfb17d9e6129fe927f4406a", null ]
+    ] ],
     [ "VK2DVertexType", "Structs_8h.html#a2315ba1312bc5507bd7873847143d91e", [
       [ "VK2D_VERTEX_TYPE_TEXTURE", "Structs_8h.html#a2315ba1312bc5507bd7873847143d91ea5ebc591c6dc23fce5cde2fb9753e390a", null ],
       [ "VK2D_VERTEX_TYPE_SHAPE", "Structs_8h.html#a2315ba1312bc5507bd7873847143d91ea089f50b2b77883d998658535de5366ba", null ],

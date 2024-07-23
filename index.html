@@ -101,7 +101,7 @@ Features</h1>
 <ul>
 <li>Simple and intuitive API built on top of SDL</li>
 <li>Draw shapes/textures/3D models/arbitrary polygons to the screen or other textures</li>
-<li>Fast, built with Vulkan 1.2 and doesn't require any device features (but it can make use of some)</li>
+<li>Fast, built with Vulkan 1.1 and doesn't require any device features (but it can make use of some)</li>
 <li>Simple and fully-featured cameras, allowing for multiple concurrent cameras</li>
 <li>Powerful and very simple shader interface</li>
 <li>Simple access to the Vulkan implementation through <code><a class="el" href="VulkanInterface_8h.html" title="Tools to allow the user to mess with vulkan themselves.">VK2D/VulkanInterface.h</a></code></li>
@@ -125,7 +125,7 @@ C11 + C standard library
 C++17 (VMA uses C++17)
 </pre> <h1><a class="anchor" id="autotoc_md16"></a>
 Example</h1>
-<p>Using the renderer is quite simple, but there are some things to be aware of. For the sake of brevity, error checking is removed from the following example</p>
+<p>By default the program automatically crashes on fatal errors, but you may specify Vulkan2D to not do that and check for errors on your own. The following example uses default settings meaning that if there is an error in VK2D, it will print the status to <code>vk2derror.txt</code> and quit.</p>
 <div class="fragment"><div class="line">SDL_Window *window = SDL_CreateWindow(<span class="stringliteral">&quot;VK2D&quot;</span>, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);</div>
 <div class="line">SDL_Event e;</div>
 <div class="line"><a class="code" href="structVK2DRendererConfig.html">VK2DRendererConfig</a> config = {<a class="code" href="Structs_8h.html#a919fd931caf982dcbafbb990822c1080af0086f86c7d7e8f25ec9c5586c6b38ab">VK2D_MSAA_32X</a>, <a class="code" href="Structs_8h.html#ae23085668becdf6f1d35fa76d8b9f66ba4bc3d657f6c53224ecedc663c02614b2">VK2D_SCREEN_MODE_TRIPLE_BUFFER</a>, <a class="code" href="Structs_8h.html#a281994ae2e0e24cd27f4678ec0def3fda05149beef54dd6b6b81e34f06dda6738">VK2D_FILTER_TYPE_NEAREST</a>};</div>
@@ -165,17 +165,22 @@ Example</h1>
 <div class="ttc" id="aStructs_8h_html_a281994ae2e0e24cd27f4678ec0def3fda05149beef54dd6b6b81e34f06dda6738"><div class="ttname"><a href="Structs_8h.html#a281994ae2e0e24cd27f4678ec0def3fda05149beef54dd6b6b81e34f06dda6738">VK2D_FILTER_TYPE_NEAREST</a></div><div class="ttdeci">@ VK2D_FILTER_TYPE_NEAREST</div><div class="ttdoc">Nearest neighbor filter, good for pixel art.</div><div class="ttdef"><b>Definition:</b> Structs.h:75</div></div>
 <div class="ttc" id="aStructs_8h_html_a919fd931caf982dcbafbb990822c1080af0086f86c7d7e8f25ec9c5586c6b38ab"><div class="ttname"><a href="Structs_8h.html#a919fd931caf982dcbafbb990822c1080af0086f86c7d7e8f25ec9c5586c6b38ab">VK2D_MSAA_32X</a></div><div class="ttdeci">@ VK2D_MSAA_32X</div><div class="ttdoc">32 samples per pixel</div><div class="ttdef"><b>Definition:</b> Structs.h:56</div></div>
 <div class="ttc" id="aStructs_8h_html_ae23085668becdf6f1d35fa76d8b9f66ba4bc3d657f6c53224ecedc663c02614b2"><div class="ttname"><a href="Structs_8h.html#ae23085668becdf6f1d35fa76d8b9f66ba4bc3d657f6c53224ecedc663c02614b2">VK2D_SCREEN_MODE_TRIPLE_BUFFER</a></div><div class="ttdeci">@ VK2D_SCREEN_MODE_TRIPLE_BUFFER</div><div class="ttdoc">Optimal for gaming but a bit slower than immediate (machines may not support this)</div><div class="ttdef"><b>Definition:</b> Structs.h:69</div></div>
-<div class="ttc" id="aStructs_8h_html_afc55c9af3f7597c47e740938df257ec4"><div class="ttname"><a href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a></div><div class="ttdeci">float vec4[4]</div><div class="ttdoc">4D vector of floats</div><div class="ttdef"><b>Definition:</b> Structs.h:156</div></div>
-<div class="ttc" id="astructVK2DRendererConfig_html"><div class="ttname"><a href="structVK2DRendererConfig.html">VK2DRendererConfig</a></div><div class="ttdoc">User configurable settings.</div><div class="ttdef"><b>Definition:</b> Structs.h:232</div></div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md17"></a>
+<div class="ttc" id="aStructs_8h_html_afc55c9af3f7597c47e740938df257ec4"><div class="ttname"><a href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a></div><div class="ttdeci">float vec4[4]</div><div class="ttdoc">4D vector of floats</div><div class="ttdef"><b>Definition:</b> Structs.h:172</div></div>
+<div class="ttc" id="astructVK2DRendererConfig_html"><div class="ttname"><a href="structVK2DRendererConfig.html">VK2DRendererConfig</a></div><div class="ttdoc">User configurable settings.</div><div class="ttdef"><b>Definition:</b> Structs.h:248</div></div>
+</div><!-- fragment --><p>If you don't want VK2D to crash on errors you may specify that in the struct <code><a class="el" href="structVK2DStartupOptions.html" title="Startup options that dictate some basic VK2D stuff.">VK2DStartupOptions</a></code> passed to <code>vk2dRendererInit</code> and check for errors yourself with <code>vk2dStatus</code>, <code>vk2dStatusMessage</code>, and <code>vk2dStatusFatal</code>. Any VK2D function can raise fatal errors but unless you pass bad pointers to VK2D functions, they will not crash if there is a fatal error and will instead simply do nothing.</p>
+<h1><a class="anchor" id="autotoc_md17"></a>
 Running the Examples</h1>
 <p>All examples are tested to work on Windows and Ubuntu. The <code>CMakeLists.txt</code> at the root directory will generate build systems for each example. Be sure to compile the test shader before running the <code>examples/main/</code> example with: </p><pre class="fragment">glslc assets/test.frag -o assets/tex.frag.spv
 glslc assets/test.vert -o assets/tex.vert.spv
-</pre><p> You may also compile the binary shader blobs with the long command </p><pre class="fragment">genblobs.py colour.vert colour.frag instanced.vert instanced.frag model.vert model.frag shadows.vert shadows.frag tex.vert tex.frag
+</pre><p> If you don't trust binary blobs you may also compile the binary shader blobs with the command </p><pre class="fragment">genblobs.py colour.vert colour.frag instanced.vert instanced.frag model.vert model.frag shadows.vert shadows.frag tex.vert tex.frag
 </pre><p> run from the <code>shaders/</code> folder (requires Python).</p>
 <h1><a class="anchor" id="autotoc_md18"></a>
-TODO</h1>
+Roadmap</h1>
 <ul>
+<li>Built-in imgui support</li>
+<li>Better multi-threaded loading support</li>
+<li>Soft shadows</li>
+<li>More flexibility with shader uniforms</li>
 <li>3D shaders </li>
 </ul>
 </div></div><!-- PageDoc -->

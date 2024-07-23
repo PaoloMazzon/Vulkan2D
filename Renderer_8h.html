@@ -358,6 +358,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Rend
 <tr class="memitem:a58fd89a3f92e6edb6865ae4932d56a10"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a58fd89a3f92e6edb6865ae4932d56a10">vk2dSleep</a> (double seconds)</td></tr>
 <tr class="memdesc:a58fd89a3f92e6edb6865ae4932d56a10"><td class="mdescLeft">&#160;</td><td class="mdescRight">Combines busy loops and SDL_Delay for a more accurate sleep function.  <a href="Renderer_8h.html#a58fd89a3f92e6edb6865ae4932d56a10">More...</a><br /></td></tr>
 <tr class="separator:a58fd89a3f92e6edb6865ae4932d56a10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6182d5644eaa0985ccbeccfc7849063"><td class="memItemLeft" align="right" valign="top"><a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8">VK2DStatus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#ae6182d5644eaa0985ccbeccfc7849063">vk2dStatus</a> ()</td></tr>
+<tr class="memdesc:ae6182d5644eaa0985ccbeccfc7849063"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the renderer's current status code.  <a href="Renderer_8h.html#ae6182d5644eaa0985ccbeccfc7849063">More...</a><br /></td></tr>
+<tr class="separator:ae6182d5644eaa0985ccbeccfc7849063"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ce46cb99871a73f14142f38383b5a79"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a4ce46cb99871a73f14142f38383b5a79">vk2dStatusFatal</a> ()</td></tr>
+<tr class="memdesc:a4ce46cb99871a73f14142f38383b5a79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the current status code should be considered fatal.  <a href="Renderer_8h.html#a4ce46cb99871a73f14142f38383b5a79">More...</a><br /></td></tr>
+<tr class="separator:a4ce46cb99871a73f14142f38383b5a79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad199f09ce00cb06b878fe9dfded5be79"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#ad199f09ce00cb06b878fe9dfded5be79">vk2dStatusMessage</a> ()</td></tr>
+<tr class="memdesc:ad199f09ce00cb06b878fe9dfded5be79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the current renderer status message, generally use this if vk2dGetStatus() returns something other than VK2D_STATUS_NONE.  <a href="Renderer_8h.html#ad199f09ce00cb06b878fe9dfded5be79">More...</a><br /></td></tr>
+<tr class="separator:ad199f09ce00cb06b878fe9dfded5be79"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0b39d04acd341f61960e3a38ae3a2f7"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#af0b39d04acd341f61960e3a38ae3a2f7">vk2dHostInformation</a> ()</td></tr>
+<tr class="memdesc:af0b39d04acd341f61960e3a38ae3a2f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a string detailing information about the host machine.  <a href="Renderer_8h.html#af0b39d04acd341f61960e3a38ae3a2f7">More...</a><br /></td></tr>
+<tr class="separator:af0b39d04acd341f61960e3a38ae3a2f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The main renderer that handles all rendering. </p>
@@ -1010,6 +1022,27 @@ If <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="af0b39d04acd341f61960e3a38ae3a2f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0b39d04acd341f61960e3a38ae3a2f7">&#9670;&nbsp;</a></span>vk2dHostInformation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* vk2dHostInformation </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a string detailing information about the host machine. </p>
+<dl class="section return"><dt>Returns</dt><dd>A string detailing information about the host machine </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Will simply return an empty string before VK2D is initialized </dd></dl>
 
 </div>
 </div>
@@ -2593,7 +2626,9 @@ The wireframe may not look as you expect because models are triangulated </dd></
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a VK2DResult enum</dd></dl>
 <p>GPUs are not guaranteed to support certain screen modes and msaa levels (integrated gpus often don't support triple buffering, 32x msaa is not terribly common), so if you request something that isn't supported, the next best thing is used in its place.</p>
-<p><a class="el" href="structVK2DStartupOptions.html" title="Startup options that dictate some basic VK2D stuff.">VK2DStartupOptions</a> lets you control how some meta things in the renderer, such as whether or not to enable stdout logging or enable the Vulkan validation layers. Leave this null for options that would generally be fine for most things. </p>
+<p><a class="el" href="structVK2DStartupOptions.html" title="Startup options that dictate some basic VK2D stuff.">VK2DStartupOptions</a> lets you control how some meta things in the renderer, such as whether or not to enable stdout logging or enable the Vulkan validation layers. Leave this null for options that would generally be fine for most things.</p>
+<p>The following are default values for <a class="el" href="structVK2DStartupOptions.html" title="Startup options that dictate some basic VK2D stuff.">VK2DStartupOptions</a> if none are provided:</p>
+<p><code>enableDebug</code> defaults to <code>false</code> <code>stdoutLogging</code> defaults to <code>true</code> <code>quitOnError</code> defaults to <code>true</code> <code>errorFile</code> defaults to <code>"vk2derror.txt"</code> <code>loadCustomShaders</code> defaults to <code>false</code> <code>vramPageSize</code> defaults to <code>256 * 1000</code>, setting this to 0 also uses <code>256 * 1000</code> </p>
 
 </div>
 </div>
@@ -2875,6 +2910,68 @@ The wireframe may not look as you expect because models are triangulated </dd></
   </dd>
 </dl>
 <p>This is a much more accurate sleep function that something like SDL_Delay without taxing the CPU as much as a simple busy loop. </p>
+
+</div>
+</div>
+<a id="ae6182d5644eaa0985ccbeccfc7849063"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6182d5644eaa0985ccbeccfc7849063">&#9670;&nbsp;</a></span>vk2dStatus()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8">VK2DStatus</a> vk2dStatus </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Gets the renderer's current status code. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns the most recent status code </dd></dl>
+
+</div>
+</div>
+<a id="a4ce46cb99871a73f14142f38383b5a79"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4ce46cb99871a73f14142f38383b5a79">&#9670;&nbsp;</a></span>vk2dStatusFatal()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vk2dStatusFatal </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns true if the current status code should be considered fatal. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns if the current renderer status is fatal.</dd></dl>
+<p>If you have <code><a class="el" href="structVK2DStartupOptions.html#a872cce9098c27c733189490c6400f65a" title="Crash the program when an error occurs.">VK2DStartupOptions.quitOnError</a></code> set to true (which is the default option) a fatal status would have already crashed the program before you can check this. You may, however, choose to disable crashing on an error and quit gracefully on your own in which case this is very helpful. Some status are not considered fatal, like if a texture file is missing so you should use this to check for critical errors and not <a class="el" href="Renderer_8h.html#ae6182d5644eaa0985ccbeccfc7849063" title="Gets the renderer&#39;s current status code.">vk2dStatus()</a>. </p>
+
+</div>
+</div>
+<a id="ad199f09ce00cb06b878fe9dfded5be79"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad199f09ce00cb06b878fe9dfded5be79">&#9670;&nbsp;</a></span>vk2dStatusMessage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char* vk2dStatusMessage </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the current renderer status message, generally use this if vk2dGetStatus() returns something other than VK2D_STATUS_NONE. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns a message describing the most recent status code.</dd></dl>
+<p>Usually the status code is descriptive enough to figure out what happened but this can be helpful for a user facing error message. This is automatically put to a file if <code><a class="el" href="structVK2DStartupOptions.html#ace5e52e6cdb475598cb34a5c891346e5" title="The file to output errors to, or NULL to disable file output.">VK2DStartupOptions.errorFile</a></code> is a valid filename. </p>
 
 </div>
 </div>

@@ -298,6 +298,25 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ab348e0269ab2d86be36a8f2524b042f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return codes through the renderer.  <a href="Structs_8h.html#ab348e0269ab2d86be36a8f2524b042f7">More...</a><br /></td></tr>
 <tr class="separator:ab348e0269ab2d86be36a8f2524b042f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9e490ad8613812918eb1a63a1cf24b8"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8">VK2DStatus</a> { <br />
+&#160;&#160;<a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a6e481b7cedf4fcaeecad930f6a331fcc">VK2D_STATUS_NONE</a> = 0
+, <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a98bb8aece455dd2324b106347697a9c4">VK2D_STATUS_FILE_NOT_FOUND</a> = 1&lt;&lt;0
+, <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8ac111c0fa5a2b506b044753aab195ac36">VK2D_STATUS_BAD_FORMAT</a> = 1&lt;&lt;1
+, <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a51cc692f5dfa5b4df227583616ae1adc">VK2D_STATUS_TOO_MANY_CAMERAS</a> = 1&lt;&lt;2
+, <br />
+&#160;&#160;<a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8ada76d7fc7ef1b423822a66646072ff80">VK2D_STATUS_DEVICE_LOST</a> = 1&lt;&lt;3
+, <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a3540e698b3db1c58c6d68a417aca1027">VK2D_STATUS_VULKAN_ERROR</a> = 1&lt;&lt;4
+, <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8ab91d57a486aed51ecd57b2bb3abcb240">VK2D_STATUS_OUT_OF_RAM</a> = 1&lt;&lt;5
+, <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a393d8364ac3283db79cd6a8ad6e40764">VK2D_STATUS_OUT_OF_VRAM</a> = 1&lt;&lt;6
+, <br />
+&#160;&#160;<a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a2fdfda28a4bb6d19b1d9b467f3267a68">VK2D_STATUS_RENDERER_NOT_INITIALIZED</a> = 1&lt;&lt;7
+, <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a002db4a119564ad540c47e3cd21570dd">VK2D_STATUS_SDL_ERROR</a> = 1&lt;&lt;8
+, <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a1a06c54c6b6bc9b862e33aa486fc5eee">VK2D_STATUS_BEYOND_LIMIT</a> = 1&lt;&lt;9
+, <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8a340cafe56cfb17d9e6129fe927f4406a">VK2D_STATUS_BAD_ASSET</a> = 1&lt;&lt;10
+<br />
+ }</td></tr>
+<tr class="memdesc:af9e490ad8613812918eb1a63a1cf24b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Status codes for logging/error reporting.  <a href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8">More...</a><br /></td></tr>
+<tr class="separator:af9e490ad8613812918eb1a63a1cf24b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a036320fa73b21fe5955b28a54ce54411"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Structs_8h.html#a036320fa73b21fe5955b28a54ce54411">VK2DAssetType</a> { <br />
 &#160;&#160;<a class="el" href="Structs_8h.html#a036320fa73b21fe5955b28a54ce54411ac9c38dc834178515af806b839855ecde">VK2D_ASSET_TYPE_TEXTURE_FILE</a> = 1
 , <a class="el" href="Structs_8h.html#a036320fa73b21fe5955b28a54ce54411a7fafbd6fa5f49743f2bdf99e5bb892d9">VK2D_ASSET_TYPE_TEXTURE_MEMORY</a> = 2
@@ -610,6 +629,48 @@ Enumerations</h2></td></tr>
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="afdd9f0b05c83d540b0074f11ac07238faac2ca8a0611375ed56b281567742f90e"></a>VK2D_SHADER_STAGE_FRAGMENT&#160;</td><td class="fielddoc"><p>Fragment (pixel) shader. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="afdd9f0b05c83d540b0074f11ac07238fa5a5840f56fcfe0329651bbba8d015f09"></a>VK2D_SHADER_STAGE_VERTEX&#160;</td><td class="fielddoc"><p>Vertex shader. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="af9e490ad8613812918eb1a63a1cf24b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9e490ad8613812918eb1a63a1cf24b8">&#9670;&nbsp;</a></span>VK2DStatus</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="Structs_8h.html#af9e490ad8613812918eb1a63a1cf24b8">VK2DStatus</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Status codes for logging/error reporting. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8a6e481b7cedf4fcaeecad930f6a331fcc"></a>VK2D_STATUS_NONE&#160;</td><td class="fielddoc"><p>Nothing important to report. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8a98bb8aece455dd2324b106347697a9c4"></a>VK2D_STATUS_FILE_NOT_FOUND&#160;</td><td class="fielddoc"><p>File was not found for something like an image load, not fatal. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8ac111c0fa5a2b506b044753aab195ac36"></a>VK2D_STATUS_BAD_FORMAT&#160;</td><td class="fielddoc"><p>Bad file format. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8a51cc692f5dfa5b4df227583616ae1adc"></a>VK2D_STATUS_TOO_MANY_CAMERAS&#160;</td><td class="fielddoc"><p>No camera slots left to use, not fatal. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8ada76d7fc7ef1b423822a66646072ff80"></a>VK2D_STATUS_DEVICE_LOST&#160;</td><td class="fielddoc"><p>General Vulkan catch-all for when something goes wrong. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8a3540e698b3db1c58c6d68a417aca1027"></a>VK2D_STATUS_VULKAN_ERROR&#160;</td><td class="fielddoc"><p>Some sort of specific vulkan error. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8ab91d57a486aed51ecd57b2bb3abcb240"></a>VK2D_STATUS_OUT_OF_RAM&#160;</td><td class="fielddoc"><p>Out of host memory. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8a393d8364ac3283db79cd6a8ad6e40764"></a>VK2D_STATUS_OUT_OF_VRAM&#160;</td><td class="fielddoc"><p>Out of gpu memory. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8a2fdfda28a4bb6d19b1d9b467f3267a68"></a>VK2D_STATUS_RENDERER_NOT_INITIALIZED&#160;</td><td class="fielddoc"><p>Renderer has not been initialized. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8a002db4a119564ad540c47e3cd21570dd"></a>VK2D_STATUS_SDL_ERROR&#160;</td><td class="fielddoc"><p>General SDL-catch all, not fatal. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8a1a06c54c6b6bc9b862e33aa486fc5eee"></a>VK2D_STATUS_BEYOND_LIMIT&#160;</td><td class="fielddoc"><p>User requested a setting that was beyond host limits, not fatal. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="af9e490ad8613812918eb1a63a1cf24b8a340cafe56cfb17d9e6129fe927f4406a"></a>VK2D_STATUS_BAD_ASSET&#160;</td><td class="fielddoc"><p>User tried to pass a NULL asset to a VK2D method, not fatal. </p>
 </td></tr>
 </table>
 
