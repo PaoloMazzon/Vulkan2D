@@ -12,12 +12,19 @@
 
 static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDescriptorBuffer db) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (vk2dStatusFatal() || gRenderer == NULL)
+        return NULL;
 	// Potentially increase the size of the buffer list
 	if (db->bufferCount == db->bufferListSize) {
 		db->buffers = realloc(db->buffers, sizeof(_VK2DDescriptorBufferInternal) * (db->bufferListSize + VK2D_DEFAULT_ARRAY_EXTENSION));
-		vk2dPointerCheck(db->buffers);
 		db->bufferListSize += VK2D_DEFAULT_ARRAY_EXTENSION;
+		if (db->buffers == NULL) {
+		    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to reallocate buffers list.");
+		}
 	}
+
+	if (vk2dStatusFatal())
+	    return NULL;
 
 	// Find a spot in the buffer list for the new buffer
 	_VK2DDescriptorBufferInternal *buffer = &db->buffers[db->bufferCount];
@@ -36,18 +43,36 @@ static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDesc
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
+	if (buffer->stageBuffer == NULL || buffer->deviceBuffer == NULL) {
+        db->bufferCount--;
+        vk2dBufferFree(buffer->stageBuffer);
+        vk2dBufferFree(buffer->deviceBuffer);
+        return NULL;
+    }
+
 	return buffer;
 }
 
 VK2DDescriptorBuffer vk2dDescriptorBufferCreate() {
+    if (vk2dStatusFatal() || vk2dRendererGetPointer() == NULL)
+        return NULL;
 	VK2DDescriptorBuffer db = calloc(1, sizeof(struct VK2DDescriptorBuffer_t));
-	vk2dPointerCheck(db);
+	if (db == NULL) {
+	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate descriptor buffer.");
+	    return NULL;
+	}
+
 	db->dev = vk2dRendererGetDevice();
-	_vk2dDescriptorBufferAppendBuffer(db);
+	if (_vk2dDescriptorBufferAppendBuffer(db) == NULL) {
+	    free(db);
+	    return NULL;
+	}
 	return db;
 }
 
 void vk2dDescriptorBufferFree(VK2DDescriptorBuffer db) {
+    if (vk2dStatusFatal() || vk2dRendererGetPointer() == NULL)
+        return;
 	if (db != NULL) {
 		for (int i = 0; i < db->bufferCount; i++) {
 			vk2dBufferFree(db->buffers[i].deviceBuffer);
@@ -60,9 +85,15 @@ void vk2dDescriptorBufferFree(VK2DDescriptorBuffer db) {
 
 void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer drawBuffer) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (vk2dStatusFatal() || gRenderer == NULL)
+        return;
 	for (int i = 0; i < db->bufferCount; i++) {
 		db->buffers[i].size = 0;
-		vk2dErrorCheck(vmaMapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem, &db->buffers[i].hostData));
+		VkResult result = vmaMapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem, &db->buffers[i].hostData);
+		if (result != VK_SUCCESS) {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to map memory, VMA error %i.", result);
+            return;
+		}
 	}
 
 	vkCmdPipelineBarrier(
@@ -81,6 +112,11 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
 
 void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *offset) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	*outBuffer = VK_NULL_HANDLE;
+	*offset = 0;
+	if (vk2dStatusFatal() || gRenderer == NULL)
+        return;
+
 	if (size < gRenderer->options.vramPageSize) {
 		// Find a buffer with enough space
 		_VK2DDescriptorBufferInternal *spot = NULL;
@@ -93,8 +129,16 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
 		// If no buffer exists, make a new one
 		if (spot == NULL) {
 			spot = _vk2dDescriptorBufferAppendBuffer(db);
-			spot->size = 0;
-			vmaMapMemory(gRenderer->vma, spot->stageBuffer->mem, &spot->hostData);
+			if (spot != NULL) {
+                spot->size = 0;
+                VkResult result = vmaMapMemory(gRenderer->vma, spot->stageBuffer->mem, &spot->hostData);
+                if (result != VK_SUCCESS) {
+                    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to map memory, VMA error %i.", result);
+                    return;
+                }
+            } else {
+                return;
+			}
 		}
 
 		// Copy data over
@@ -114,6 +158,8 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
 
 void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyBuffer) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (vk2dStatusFatal() || gRenderer == NULL)
+        return;
 
 	// Unmap all of the buffers then queue a buffer copy if their size is greater than 0
 	for (int i = 0; i < db->bufferCount; i++) {
