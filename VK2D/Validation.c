@@ -40,8 +40,6 @@ void vk2dValidationEnd() {
 }
 
 void vk2dValidationWriteHeader() {
-    VK2DRenderer gRenderer = vk2dRendererGetPointer();
-
     if (gErrorFile != NULL) {
         FILE *f = fopen(gErrorFile, "a");
         if (f != NULL) {

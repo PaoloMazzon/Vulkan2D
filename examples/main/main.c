@@ -176,7 +176,7 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererLockCameras(testCamera);
 		vk2dDrawTexture(testSurface, -100, -100);
 		vk2dDrawPolygon(testPoly, 0, 0);
-		vk2dRendererDrawGeometry(SAMPLE_RECTANGLE, SAMPLE_RECTANGLE_VERTICES, 400, 400, false, 3, 1, 1, 0, 0, 0);
+		vk2dRendererDrawGeometry((void*)SAMPLE_RECTANGLE, SAMPLE_RECTANGLE_VERTICES, 400, 400, false, 3, 1, 1, 0, 0, 0);
 		vk2dDrawTexture(testTexture, 0, 0);
 		shaderFloat += delta * 5;
 		vk2dRendererDrawShader(shader, &shaderFloat, testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);

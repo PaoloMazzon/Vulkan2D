@@ -288,7 +288,7 @@ void vk2dRendererQuit() {
 }
 
 const char *vk2dHostInformation() {
-    return gHostMachineBuffer;
+    return (void*)gHostMachineBuffer;
 }
 
 void vk2dRendererWait() {

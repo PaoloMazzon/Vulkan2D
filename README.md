@@ -116,6 +116,7 @@ run from the `shaders/` folder (requires Python).
 Roadmap
 =======
 
+ + Sprite batching
  + Built-in imgui support
  + Better multi-threaded loading support
  + Soft shadows
