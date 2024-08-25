@@ -83,6 +83,7 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
         out->spvFragSize = fragmentShaderBufferSize;
         out->uniformSize = uniformBufferSize;
         out->dev = dev;
+        out->currentDescCon = 0;
 
         if (uniformBufferSize != 0) {
             for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
@@ -143,6 +144,7 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 			out->spvFragSize = fragFileSize;
 			out->uniformSize = uniformBufferSize;
 			out->dev = dev;
+			out->currentDescCon = 0;
 
 			if (uniformBufferSize != 0) {
 				for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {

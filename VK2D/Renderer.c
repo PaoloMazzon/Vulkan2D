@@ -399,9 +399,15 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			}
 
 			// Reset shader desc cons
-			for (int i = 0; i < gRenderer->shaderListSize; i++)
-                if (gRenderer->customShaders[i] != NULL && gRenderer->customShaders[i]->uniformSize != 0)
-					vk2dDescConReset(gRenderer->customShaders[i]->descCons[gRenderer->scImageIndex]);
+			for (int i = 0; i < gRenderer->shaderListSize; i++) {
+                if (gRenderer->customShaders[i] != NULL && gRenderer->customShaders[i]->uniformSize != 0) {
+                    gRenderer->customShaders[i]->currentDescCon += 1;
+                    if (gRenderer->customShaders[i]->currentDescCon >= VK2D_MAX_FRAMES_IN_FLIGHT) {
+                        gRenderer->customShaders[i]->currentDescCon = 0;
+                    }
+                    vk2dDescConReset(gRenderer->customShaders[i]->descCons[gRenderer->customShaders[i]->currentDescCon]);
+                }
+            }
 
 			// Setup render pass
 			VkRect2D rect = {0};
@@ -720,7 +726,7 @@ void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, floa
 			// Create the data uniform
 			uint32_t setCount = 3;
 			if (shader->uniformSize != 0) {
-				sets[3] = vk2dDescConGetSet(shader->descCons[gRenderer->scImageIndex]);
+				sets[3] = vk2dDescConGetSet(shader->descCons[shader->currentDescCon]);
 				VkBuffer buffer;
 				VkDeviceSize offset;
 				vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], data, shader->uniformSize, &buffer, &offset);

@@ -143,6 +143,7 @@ struct VK2DShader_t {
 	uint32_t uniformSize;    ///< Uniform buffer size in bytes
 	VK2DLogicalDevice dev;   ///< Device this belongs to
 	VK2DDescCon descCons[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor sets for the uniform buffers
+	int currentDescCon;      ///< Points to the current desc con since for this frame since we have 1 per image in flight
 };
 
 /// \brief Simple wrapper that groups image things together
