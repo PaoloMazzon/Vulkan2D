@@ -259,6 +259,7 @@ struct VK2DRenderer_t {
 	VkDescriptorSetLayout dslBufferVP;        ///< Descriptor set layout for the view-projection buffer
 	VkDescriptorSetLayout dslBufferUser;      ///< Descriptor set layout for user data buffers (custom shaders uniforms)
 	VkDescriptorSetLayout dslTexture;         ///< Descriptor set layout for the textures
+	VkDescriptorSetLayout dslTextureArray;    ///< Descriptor set layout for texture array
 	VK2DDescCon descConSamplers;              ///< Descriptor controller for samplers
 	VK2DDescCon descConSamplersOff;           ///< Descriptor controller for samplers off thread
 	VK2DDescCon descConVP;                    ///< Descriptor controller for view projection buffers
@@ -267,6 +268,7 @@ struct VK2DRenderer_t {
 	VkDescriptorSet samplerSet;               ///< Sampler for all textures
 	VkDescriptorSet modelSamplerSet;          ///< Sampler for all 3D models
 	VK2DDescriptorBuffer *descriptorBuffers;  ///< Descriptor buffer, one per swapchain image
+    VkDescriptorPool texturePool;             ///< Pool used for the dynamic texture array
 
 	// Frame synchronization
 	uint32_t currentFrame;                 ///< Current frame being looped through

@@ -670,7 +670,7 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
-    VkResult r1, r2, r3, r4;
+    VkResult r1, r2, r3, r4, r5;
 
     // For texture samplers
 	const uint32_t layoutCount = 1;
@@ -700,8 +700,35 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 	VkDescriptorSetLayoutCreateInfo texDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingTex, texLayoutCount);
 	r4 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &texDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslTexture);
 
-	if (r1 != VK_SUCCESS || r2 != VK_SUCCESS || r3 != VK_SUCCESS || r4 != VK_SUCCESS) {
-	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create descriptor set layouts %i/%i/%i/%i.", r1, r2, r3, r4);
+	// For texture array
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBindingTexArray = {
+            .binding = 2,
+            .descriptorCount = 10000,
+            .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+            .pImmutableSamplers = VK_NULL_HANDLE,
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+    };
+    const VkDescriptorBindingFlagsEXT flags =
+            VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT |
+            VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT_EXT |
+            VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT |
+            VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT_EXT;
+    VkDescriptorSetLayoutBindingFlagsCreateInfoEXT bindingFlags = {
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+            .bindingCount = 1,
+            .pBindingFlags = &flags
+    };
+    VkDescriptorSetLayoutCreateInfo texArraySetLayoutCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT,
+            .pNext = &bindingFlags,
+            .pBindings = &descriptorSetLayoutBindingTexArray,
+            .bindingCount = 1
+    };
+    r5 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &texArraySetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslTextureArray);
+
+	if (r1 != VK_SUCCESS || r2 != VK_SUCCESS || r3 != VK_SUCCESS || r4 != VK_SUCCESS || r5 != VK_SUCCESS) {
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create descriptor set layouts %i/%i/%i/%i/%i.", r1, r2, r3, r4, r5);
 	    return;
 	}
 
@@ -713,7 +740,8 @@ void _vk2dRendererDestroyDescriptorSetLayout() {
 	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslSampler, VK_NULL_HANDLE);
 	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferVP, VK_NULL_HANDLE);
 	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferUser, VK_NULL_HANDLE);
-	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslTexture, VK_NULL_HANDLE);
+    vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslTexture, VK_NULL_HANDLE);
+    vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslTextureArray, VK_NULL_HANDLE);
 }
 
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();

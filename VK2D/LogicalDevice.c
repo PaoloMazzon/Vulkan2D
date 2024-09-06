@@ -43,11 +43,23 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 			}
 		}
 
+		// For dynamic descriptor arrays
+        VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures = {
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES,
+                .shaderSampledImageArrayNonUniformIndexing = VK_TRUE,
+                .runtimeDescriptorArray = VK_TRUE,
+                .descriptorBindingVariableDescriptorCount = VK_TRUE,
+                .descriptorBindingPartiallyBound = VK_TRUE,
+                .descriptorBindingUpdateUnusedWhilePending = VK_TRUE,
+                .descriptorBindingSampledImageUpdateAfterBind = VK_TRUE
+		};
+
 		float priority[] = {1, 1};
 		VkDeviceQueueCreateInfo queueCreateInfo = vk2dInitDeviceQueueCreateInfo(queueFamily, priority);
 		queueCreateInfo.queueCount = gRenderer->limits.supportsMultiThreadLoading ? 2 : 1;
 		VkDeviceQueueCreateInfo queues[] = {queueCreateInfo};
 		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(queues, 1, &feats, debug);
+        deviceCreateInfo.pNext = &indexingFeatures;
 		VkResult result = vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev);
 		if (result != VK_SUCCESS) {
 		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create logical device, Vulkan error %i.", result);
