@@ -14,6 +14,44 @@
 #include "VK2D/Util.h"
 #include <malloc.h>
 
+static void _vk2dTextureAddToTextureArray(VK2DTexture tex) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (tex == NULL || vk2dStatusFatal())
+        return;
+
+    // Find an available slot
+    int spot = -1;
+    for (int i = 0; i < gRenderer->options.maxTextures; i++) {
+        if (!gRenderer->textureArray[i].active) {
+            spot = i;
+            break;
+        }
+    }
+
+    if (spot == -1) {
+        vk2dRaise(VK2D_STATUS_BAD_ASSET, "Ran out of space for more textures.");
+    } else {
+        tex->descriptorIndex = spot;
+        gRenderer->textureArray[spot].active = true;
+
+        // Write the descriptor set
+        VkDescriptorImageInfo imageInfo = {
+                .imageView = tex->img->view,
+                .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        };
+        VkWriteDescriptorSet write = {
+                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+                .dstArrayElement = spot,
+                .pImageInfo = &imageInfo,
+                .dstBinding = 2,
+                .dstSet = gRenderer->texArrayDescriptorSet,
+                .descriptorCount = 1,
+        };
+        vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
+    }
+}
+
 static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer, bool mainThread) {
 	if (tex->img->set == NULL) {
 		if (mainThread)
@@ -82,6 +120,7 @@ VK2DTexture vk2dTextureLoad(const char *filename) {
     void *data = _vk2dLoadFile(filename, &size);
 	if (data != NULL) {
         tex = _vk2dTextureFromInternal(data, size, true);
+        _vk2dTextureAddToTextureArray(tex);
         free(data);
     }
 	return tex;
@@ -149,6 +188,7 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 
 		_vk2dRendererAddTarget(out);
 		_vk2dTextureCreateDescriptor(out, renderer, true);
+		_vk2dTextureAddToTextureArray(out);
 	} else {
 		vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate texture.");
 	}
@@ -184,6 +224,8 @@ void vk2dTextureFree(VK2DTexture tex) {
 		} else if (tex->imgHandled) {
 			vk2dImageFree(tex->img);
 		}
+        VK2DRenderer renderer = vk2dRendererGetPointer();
+		renderer->textureArray[tex->descriptorIndex].active = false;
 		free(tex);
 	}
 }

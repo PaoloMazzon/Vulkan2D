@@ -709,12 +709,12 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
     };
     const VkDescriptorBindingFlagsEXT flags =
-            VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT |
-            VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT_EXT |
-            VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT |
-            VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT_EXT;
+            VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT |
+            VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT |
+            VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT |
+            VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
     VkDescriptorSetLayoutBindingFlagsCreateInfoEXT bindingFlags = {
-            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT,
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO,
             .bindingCount = 1,
             .pBindingFlags = &flags
     };
@@ -1025,7 +1025,7 @@ void _vk2dRendererCreateFrameBuffer() {
 			VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(gRenderer->renderPass, gRenderer->surfaceWidth, gRenderer->surfaceHeight, attachments, attachCount);
 			VkResult result = vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->framebuffers[i]);
 			if (result == VK_SUCCESS) {
-                vk2dLog("Framebuffer[%i ready...", i);
+                vk2dLog("Framebuffer[%i] ready...", i);
             } else {
                 if (result == VK_ERROR_OUT_OF_HOST_MEMORY) {
                     vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to create framebuffer, out of memory.");
@@ -1159,9 +1159,33 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		        .flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT,
 		};
 		VkResult texArrayResult = vkCreateDescriptorPool(gRenderer->ld->dev, &texArrayPoolCreateInfo, VK_NULL_HANDLE, &gRenderer->texArrayPool);
-		if (texArrayResult) {
+		if (texArrayResult != VK_SUCCESS) {
             vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to allocate texture array descriptor pool, Vulkan error %i.", result);
 		}
+
+		// Make the tex array set
+		VkDescriptorSetVariableDescriptorCountAllocateInfo setCounts = {
+		        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO,
+		        .pDescriptorCounts = &gRenderer->options.maxTextures,
+		        .descriptorSetCount = 1
+		};
+		VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {
+		        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		        .descriptorPool = gRenderer->texArrayPool,
+		        .descriptorSetCount = 1,
+		        .pSetLayouts = &gRenderer->dslTextureArray,
+		        .pNext = &setCounts
+		};
+		result = vkAllocateDescriptorSets(gRenderer->ld->dev, &descriptorSetAllocateInfo, &gRenderer->texArrayDescriptorSet);
+        if (result != VK_SUCCESS) {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to allocate texture array descriptor set, Vulkan error %i.", result);
+        }
+
+        // Make the descriptor tracker
+        gRenderer->textureArray = calloc(gRenderer->options.maxTextures, sizeof(struct VK2DTextureDescriptorInfo_t));
+        if (gRenderer->textureArray == NULL) {
+            vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate texture info for %i potential textures.", gRenderer->options.maxTextures);
+        }
 	} else {
         vk2dLog("Descriptor controllers preserved...");
 	}
@@ -1176,6 +1200,7 @@ void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 		vk2dDescConFree(gRenderer->descConUser);
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->samplerPool, VK_NULL_HANDLE);
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->texArrayPool, VK_NULL_HANDLE);
+        free(gRenderer->textureArray);
     }
 }
 

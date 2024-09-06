@@ -163,13 +163,14 @@ struct VK2DImage_t {
 /// set the render target to a texture not created with vk2dTextureCreate, you can expect
 /// a segfault.
 struct VK2DTexture_t {
-	VK2DImage img;          ///< Internal image
-	VK2DImage depthBuffer;  ///< For 3D rendering when its a target
-	VK2DImage sampledImg;   ///< Image for MSAA
-	VkFramebuffer fbo;      ///< Framebuffer of this texture so it can be drawn to
-	VK2DBuffer ubo;         ///< UBO that will be used when drawing to this texture
-	VkDescriptorSet uboSet; ///< Set for the UBO
-	bool imgHandled;        ///< Whether or not to free the image with the texture (if it was loaded with vk2dTextureLoad)
+	VK2DImage img;            ///< Internal image
+	VK2DImage depthBuffer;    ///< For 3D rendering when its a target
+	VK2DImage sampledImg;     ///< Image for MSAA
+	VkFramebuffer fbo;        ///< Framebuffer of this texture so it can be drawn to
+	VK2DBuffer ubo;           ///< UBO that will be used when drawing to this texture
+	VkDescriptorSet uboSet;   ///< Set for the UBO
+	bool imgHandled;          ///< Whether or not to free the image with the texture (if it was loaded with vk2dTextureLoad)
+	uint32_t descriptorIndex; ///< Index in the descriptor array of this texture
 };
 
 /// \brief A 3D model
@@ -193,6 +194,11 @@ struct VK2DShadowEnvironment_t {
     int verticesSize;                  ///< Size of the vertex list in elements
     int verticesCount;                 ///< Number of vertices in the vertices list
 };
+
+/// \brief Information per texture
+typedef struct VK2DTextureDescriptorInfo_t {
+    bool active;
+} VK2DTextureDescriptorInfo;
 
 /// \brief Core rendering data, don't modify values unless you know what you're doing
 struct VK2DRenderer_t {
@@ -266,10 +272,12 @@ struct VK2DRenderer_t {
 	VK2DDescCon descConUser;                  ///< Descriptor controller for user buffers
 	VkDescriptorPool samplerPool;             ///< Sampler pool for 1 sampler
 	VkDescriptorPool texArrayPool;            ///< Tex array pool
+	VkDescriptorSet texArrayDescriptorSet;    ///< Tex array set
 	VkDescriptorSet samplerSet;               ///< Sampler for all textures
 	VkDescriptorSet modelSamplerSet;          ///< Sampler for all 3D models
 	VK2DDescriptorBuffer *descriptorBuffers;  ///< Descriptor buffer, one per swapchain image
     VkDescriptorPool texturePool;             ///< Pool used for the dynamic texture array
+    VK2DTextureDescriptorInfo *textureArray;  ///< Array of information per texture
 
 	// Frame synchronization
 	uint32_t currentFrame;                 ///< Current frame being looped through
