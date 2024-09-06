@@ -234,6 +234,7 @@ struct VK2DStartupOptions {
 	bool quitOnError;       ///< Crash the program when an error occurs
 	const char *errorFile;  ///< The file to output errors to, or NULL to disable file output
 	bool loadCustomShaders; ///< Whether or not to load shaders from a file instead of the built-in ones
+	int maxTextures;        ///< Max number of textures active at once
 
 	/// Determines the size of a video-memory page in bytes. This can cap the max uniform
 	/// buffer size for shaders, max instances in one instanced call, and max vertices in

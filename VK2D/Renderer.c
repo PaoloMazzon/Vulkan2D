@@ -52,7 +52,8 @@ static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
     .quitOnError = true,
     .errorFile = "vk2derror.txt",
     .loadCustomShaders = false,
-    .vramPageSize = 256 * 1000
+    .vramPageSize = 256 * 1000,
+    .maxTextures = 10000
 };
 
 /******************************* User-visible functions *******************************/
@@ -70,7 +71,11 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
     } else {
         userOptions = *options;
         if (userOptions.vramPageSize == 0)
-            userOptions.vramPageSize = 256 * 1024;
+            userOptions.vramPageSize = DEFAULT_STARTUP_OPTIONS.vramPageSize;
+        if (userOptions.maxTextures == 0)
+            userOptions.maxTextures = DEFAULT_STARTUP_OPTIONS.maxTextures;
+        if (userOptions.errorFile == NULL)
+            userOptions.errorFile = DEFAULT_STARTUP_OPTIONS.errorFile;
     }
 
 	// Validation initialization needs to happen right away

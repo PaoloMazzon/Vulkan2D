@@ -703,7 +703,7 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 	// For texture array
     VkDescriptorSetLayoutBinding descriptorSetLayoutBindingTexArray = {
             .binding = 2,
-            .descriptorCount = 10000,
+            .descriptorCount = gRenderer->options.maxTextures,
             .descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
             .pImmutableSamplers = VK_NULL_HANDLE,
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -1145,6 +1145,23 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		} else {
 		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to allocate descriptor pool, Vulkan error %i.", result);
 		}
+
+		// Tex array set
+		VkDescriptorPoolSize texArraySize = {
+		        .descriptorCount = gRenderer->options.maxTextures,
+		        .type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE
+		};
+		VkDescriptorPoolCreateInfo texArrayPoolCreateInfo = {
+		        .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+		        .pPoolSizes = &texArraySize,
+		        .poolSizeCount = 1,
+		        .maxSets = 1,
+		        .flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT,
+		};
+		VkResult texArrayResult = vkCreateDescriptorPool(gRenderer->ld->dev, &texArrayPoolCreateInfo, VK_NULL_HANDLE, &gRenderer->texArrayPool);
+		if (texArrayResult) {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to allocate texture array descriptor pool, Vulkan error %i.", result);
+		}
 	} else {
         vk2dLog("Descriptor controllers preserved...");
 	}
@@ -1157,8 +1174,9 @@ void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 		vk2dDescConFree(gRenderer->descConSamplersOff);
 		vk2dDescConFree(gRenderer->descConVP);
 		vk2dDescConFree(gRenderer->descConUser);
-		vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->samplerPool, VK_NULL_HANDLE);
-	}
+        vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->samplerPool, VK_NULL_HANDLE);
+        vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->texArrayPool, VK_NULL_HANDLE);
+    }
 }
 
 void _vk2dRendererCreateSynchronization() {

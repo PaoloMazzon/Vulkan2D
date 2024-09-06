@@ -265,6 +265,7 @@ struct VK2DRenderer_t {
 	VK2DDescCon descConVP;                    ///< Descriptor controller for view projection buffers
 	VK2DDescCon descConUser;                  ///< Descriptor controller for user buffers
 	VkDescriptorPool samplerPool;             ///< Sampler pool for 1 sampler
+	VkDescriptorPool texArrayPool;            ///< Tex array pool
 	VkDescriptorSet samplerSet;               ///< Sampler for all textures
 	VkDescriptorSet modelSamplerSet;          ///< Sampler for all 3D models
 	VK2DDescriptorBuffer *descriptorBuffers;  ///< Descriptor buffer, one per swapchain image
