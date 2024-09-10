@@ -40,7 +40,7 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetModelVertexInputState() {
 
 VkPipelineVertexInputStateCreateInfo _vk2dGetInstanceVertexInputState() {
 	static VkVertexInputBindingDescription vertexInputBindingDescription;
-	static VkVertexInputAttributeDescription vertexInputAttributeDescription[7];
+	static VkVertexInputAttributeDescription vertexInputAttributeDescription[8];
 	static VkPipelineVertexInputStateCreateInfo pipelineVertexInputStateCreateInfo;
 	static bool init = false;
 
@@ -52,8 +52,9 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetInstanceVertexInputState() {
 		vertexInputAttributeDescription[3] = vk2dInitVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(VK2DDrawInstance, model));
 		vertexInputAttributeDescription[4] = vk2dInitVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(VK2DDrawInstance, model) + (sizeof(vec4) * 1));
 		vertexInputAttributeDescription[5] = vk2dInitVertexInputAttributeDescription(5, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(VK2DDrawInstance, model) + (sizeof(vec4) * 2));
-		vertexInputAttributeDescription[6] = vk2dInitVertexInputAttributeDescription(6, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(VK2DDrawInstance, model) + (sizeof(vec4) * 3));
-		pipelineVertexInputStateCreateInfo = vk2dInitPipelineVertexInputStateCreateInfo(&vertexInputBindingDescription, 1, vertexInputAttributeDescription, 7);
+        vertexInputAttributeDescription[6] = vk2dInitVertexInputAttributeDescription(6, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(VK2DDrawInstance, model) + (sizeof(vec4) * 3));
+        vertexInputAttributeDescription[7] = vk2dInitVertexInputAttributeDescription(7, 0, VK_FORMAT_R32_UINT, offsetof(VK2DDrawInstance, textureIndex));
+        pipelineVertexInputStateCreateInfo = vk2dInitPipelineVertexInputStateCreateInfo(&vertexInputBindingDescription, 1, vertexInputAttributeDescription, 8);
 		init = true;
 	}
 

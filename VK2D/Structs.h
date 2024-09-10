@@ -293,10 +293,11 @@ struct VK2DRendererLimits {
 
 /// \brief Represents the data you need for each element in an instanced draw
 struct VK2DDrawInstance {
-	vec4 texturePos; ///< x in tex, y in tex, w in tex, and h in tex
-	vec4 colour;     ///< Colour mod of this draw
-	vec2 pos;        ///< X/Y in game world for this instance
-	mat4 model;      ///< Model for this instance, generally shouldn't contain translations
+	vec4 texturePos;       ///< x in tex, y in tex, w in tex, and h in tex
+	vec4 colour;           ///< Colour mod of this draw
+	vec2 pos;              ///< X/Y in game world for this instance
+	mat4 model;            ///< Model for this instance, generally shouldn't contain translations
+	uint32_t textureIndex; ///< Which texture this instance is using
 };
 
 /// \brief Info for the shadow environment to keep track of

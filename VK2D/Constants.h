@@ -13,6 +13,9 @@ extern "C" {
 /// Tells vk2dPhysicalDeviceFind to use the best device it finds (basically just the first non-integrated it finds that meets criteria)
 extern const int32_t VK2D_DEVICE_BEST_FIT;
 
+/// Tells drawing functions to use the full width of the texture instead of specifying width/height yourself
+extern const float VK2D_FULL_TEXTURE;
+
 /// Default configuration of this renderer
 extern const VkApplicationInfo VK2D_DEFAULT_CONFIG;
 

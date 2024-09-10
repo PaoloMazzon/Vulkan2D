@@ -1,5 +1,6 @@
 /// \file Constants.c
 /// \author Paolo Mazzon
+#include <math.h>
 #include <vulkan/vulkan.h>
 #include "VK2D/Structs.h"
 
@@ -14,6 +15,8 @@ const VkApplicationInfo VK2D_DEFAULT_CONFIG = {
 		VK_MAKE_VERSION(1, 0, 0),
 		VK_MAKE_VERSION(1, 2, 0)
 };
+
+const float VK2D_FULL_TEXTURE = HUGE_VALF;
 
 const uint32_t VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION = 1000;
 

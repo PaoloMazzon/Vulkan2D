@@ -839,8 +839,9 @@ void _vk2dRendererCreatePipelines() {
 	    return;
 
 	// Texture pipeline
-	VkDescriptorSetLayout layout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTexture};
-	gRenderer->texPipe = vk2dPipelineCreate(
+    VkDescriptorSetLayout layout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTexture};
+    VkDescriptorSetLayout instancedLayout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTextureArray};
+    gRenderer->texPipe = vk2dPipelineCreate(
 			gRenderer->ld,
 			gRenderer->renderPass,
 			gRenderer->surfaceWidth,
@@ -928,7 +929,7 @@ void _vk2dRendererCreatePipelines() {
 			shaderInstancedVertSize,
 			shaderInstancedFrag,
 			shaderInstancedFragSize,
-			layout,
+			instancedLayout,
 			3,
 			&instanceVertexInfo,
 			true,
@@ -1813,7 +1814,7 @@ void _vk2dRendererDrawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDr
 	}
 }
 
-void vk2dInstanceSet(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour) {
+void vk2dInstanceSet(VK2DDrawInstance *instance, VK2DTexture tex, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour) {
 	memset(instance->model, 0, sizeof(mat4));
 	identityMatrix(instance->model);
 	if (rot != 0) {
@@ -1838,27 +1839,29 @@ void vk2dInstanceSet(VK2DDrawInstance *instance, float x, float y, float xScale,
 	}
 	instance->texturePos[0] = xInTex;
 	instance->texturePos[1] = yInTex;
-	instance->texturePos[2] = wInTex;
-	instance->texturePos[3] = hInTex;
+	instance->texturePos[2] = wInTex == VK2D_FULL_TEXTURE ? tex->img->width : wInTex;
+	instance->texturePos[3] = hInTex == VK2D_FULL_TEXTURE ? tex->img->height : hInTex;
 	instance->colour[0] = colour[0];
 	instance->colour[1] = colour[1];
 	instance->colour[2] = colour[2];
 	instance->colour[3] = colour[3];
+	instance->textureIndex = tex->descriptorIndex;
 }
 
-void vk2dInstanceSetFast(VK2DDrawInstance *instance, float x, float y, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour) {
+void vk2dInstanceSetFast(VK2DDrawInstance *instance, VK2DTexture tex, float x, float y, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour) {
 	memset(instance->model, 0, sizeof(mat4));
 	identityMatrix(instance->model);
 	instance->pos[0] = x;
 	instance->pos[1] = y;
 	instance->texturePos[0] = xInTex;
 	instance->texturePos[1] = yInTex;
-	instance->texturePos[2] = wInTex;
-	instance->texturePos[3] = hInTex;
+	instance->texturePos[2] = wInTex == VK2D_FULL_TEXTURE ? tex->img->width : wInTex;
+	instance->texturePos[3] = hInTex == VK2D_FULL_TEXTURE ? tex->img->height : hInTex;
 	instance->colour[0] = colour[0];
 	instance->colour[1] = colour[1];
 	instance->colour[2] = colour[2];
 	instance->colour[3] = colour[3];
+	instance->textureIndex = tex->descriptorIndex;
 }
 
 void vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin) {

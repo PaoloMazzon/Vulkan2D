@@ -11,9 +11,12 @@ layout(location = 0) in vec4 instanceTexturePos;
 layout(location = 1) in vec4 instanceColour;
 layout(location = 2) in vec2 instancePos;
 layout(location = 3) in mat4 instanceModel;
+// This is 7 because the mat4 above this takes 4 locations
+layout(location = 7) in uint instanceTextureIndex;
 
 layout(location = 1) out vec2 fragTexCoord;
 layout(location = 2) out vec4 fragColour;
+layout(location = 3) out uint textureIndex;
 
 vec2 vertices[] = {
     vec2(0.0f, 0.0f),
@@ -45,4 +48,5 @@ void main() {
     fragTexCoord.x = instanceTexturePos.x + (texCoords[gl_VertexIndex].x * instanceTexturePos.z);
     fragTexCoord.y = instanceTexturePos.y + (texCoords[gl_VertexIndex].y * instanceTexturePos.w);
     fragColour = instanceColour;
+    textureIndex = instanceTextureIndex;
 }

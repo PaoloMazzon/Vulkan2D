@@ -4,15 +4,16 @@
 #extension GL_EXT_nonuniform_qualifier : enable
 
 layout(set = 1, binding = 1) uniform sampler texSampler;
-layout(set = 2, binding = 2) uniform texture2D tex;
+layout(set = 2, binding = 2) uniform texture2D tex[];
 
 layout(location = 1) in vec2 fragTexCoord;
 layout(location = 2) in vec4 fragColour;
+layout(location = 3) in flat uint instanceTextureIndex;
 
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    vec4 colour = texture(sampler2D(tex, texSampler), fragTexCoord);
+    vec4 colour = texture(sampler2D(tex[instanceTextureIndex], texSampler), fragTexCoord);
     outColor = vec4(
             colour.r * fragColour.r,
             colour.g * fragColour.g,

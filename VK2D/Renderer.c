@@ -755,11 +755,11 @@ void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, floa
 	}
 }
 
-void vk2dRendererDrawInstanced(VK2DTexture tex, VK2DDrawInstance *instances, uint32_t count) {
+void vk2dRendererDrawInstanced(VK2DDrawInstance *instances, uint32_t count) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
 		VkDescriptorSet sets[3];
 		sets[1] = gRenderer->samplerSet;
-		sets[2] = tex->img->set;
+		sets[2] = gRenderer->texArrayDescriptorSet;
 		if (count > gRenderer->limits.maxInstancedDraws)
 			count = gRenderer->limits.maxInstancedDraws;
 		_vk2dRendererDrawInstanced(sets, 3, instances, count);
