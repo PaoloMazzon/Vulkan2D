@@ -1120,6 +1120,21 @@ void _vk2dRendererDestroyUniformBuffers() {
 	vk2dBufferFree(gRenderer->unitUBO);
 }
 
+void _vk2dRendererCreateSpriteBatching() {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    gRenderer->textureDrawInstances = malloc(sizeof(struct VK2DDrawInstance) * gRenderer->limits.maxInstancedDraws);
+    gRenderer->textureDrawInstanceCount = 0;
+
+    if (gRenderer->textureDrawInstances == NULL) {
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate sprite batch of count %i.", gRenderer->limits.maxInstancedDraws);
+    }
+}
+
+void _vk2dRendererDestroySpriteBatching() {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    free(gRenderer->textureDrawInstances);
+}
+
 void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())

@@ -318,6 +318,10 @@ struct VK2DRenderer_t {
 	double amountOfFrames;   ///< Number of frames needed to calculate frameTimeAverage
 	double accumulatedTime;  ///< Total time of frames for average in ms
 	double frameTimeAverage; ///< Average amount of time frames are taking over a second (in ms)
+
+	// Sprite batching
+	VK2DDrawInstance *textureDrawInstances; ///< Stores current frames texture draws before they are flushed to an instanced draw - this array will always be of size limits.maxInstancedDraws
+	int textureDrawInstanceCount;           ///< Number of textures currently in textureDrawInstances array
 };
 
 #ifdef __cplusplus

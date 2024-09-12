@@ -339,6 +339,18 @@ void vk2dColourInt(vec4 dst, uint32_t colour);
 /// \param a Alpha component, from 0-255
 void vk2dColourRGBA(vec4 dst, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
+/// \brief Forces the renderer to flush the current sprite batch
+/// The renderer automatically does this in a few conditions but you
+/// can force it to flush if you need to for whatever reason.
+///
+/// The renderer automatically flushes under these circumstances:
+///
+///  + The current pipeline is switched (user goes from drawing textures to 3D models or shapes, blend mode is switched, ...)
+///  + vk2dRendererGetLimits().maxInstancedDraws is reached in the current batch
+///  + Render target changes
+///  + End of the frame
+void vk2dFlushSpriteBatch();
+
 /// \brief Sets up an instance's data in full - this is quite heavy and only intended for initialization
 /// \param instance Pointer to the instance data to set up
 /// \param tex Texture to use for this instance

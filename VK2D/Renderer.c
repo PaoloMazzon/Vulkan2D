@@ -232,6 +232,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		_vk2dRendererCreateSampler();
 		_vk2dRendererCreateUnits();
 		_vk2dRendererCreateSynchronization();
+		_vk2dRendererCreateSpriteBatching();
 
 		// Quit if something failed
         if (vk2dStatusFatal()) {
@@ -263,6 +264,7 @@ void vk2dRendererQuit() {
 		    vkQueueWaitIdle(gRenderer->ld->queue);
 
 		// Destroy subsystems
+        _vk2dRendererDestroySpriteBatching();
 		_vk2dRendererDestroySynchronization();
 		_vk2dRendererDestroyTargetsList();
 		_vk2dRendererDestroyUnits();
@@ -858,6 +860,10 @@ void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float
             vk2dRaise(VK2D_STATUS_BAD_ASSET, "Model does not exist.");
 		}
 	}
+}
+
+void vk2dFlushSpriteBatch() {
+    // TODO: This
 }
 
 static inline float _getHexValue(char c) {

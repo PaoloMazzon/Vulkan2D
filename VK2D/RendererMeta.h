@@ -67,6 +67,8 @@ void _vk2dRendererCreateFrameBuffer();
 void _vk2dRendererDestroyFrameBuffer();
 void _vk2dRendererCreateUniformBuffers(bool newCamera);
 void _vk2dRendererDestroyUniformBuffers();
+void _vk2dRendererCreateSpriteBatching();
+void _vk2dRendererDestroySpriteBatching();
 void _vk2dRendererCreateDescriptorPool(bool preserveDescCons);
 void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons);
 void _vk2dRendererCreateSynchronization();
