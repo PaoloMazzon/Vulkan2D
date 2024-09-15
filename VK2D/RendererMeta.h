@@ -20,10 +20,10 @@ void _vk2dRendererRemoveTarget(VK2DTexture tex);
 void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout new);
 
 // Rebuilds the matrices for a given buffer and camera
-void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera);
+void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera, int index);
 
 // Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
-void _vk2dRendererFlushUBOBuffer(uint32_t frame, uint32_t descriptorFrame, int camera);
+void _vk2dRendererFlushUBOBuffers();
 
 // Grabs a preferred present mode if available returning FIFO if its unavailable
 VkPresentModeKHR _vk2dRendererGetPresentMode(VkPresentModeKHR mode);

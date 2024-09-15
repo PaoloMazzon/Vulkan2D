@@ -204,7 +204,7 @@ void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout ne
 
 // Rebuilds the matrices for a given buffer and camera
 void _vk2dPrintMatrix(FILE* out, mat4 m, const char* prefix);
-void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) {
+void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera, int index) {
 	if (camera->type == VK2D_CAMERA_TYPE_DEFAULT) {
 		// Assemble view
 		mat4 view = {0};
@@ -219,7 +219,7 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 
 		// Multiply together
 		memset(ubo->viewproj, 0, 64);
-		multiplyMatrix(view, proj, ubo->viewproj);
+		multiplyMatrix(view, proj, ubo->viewproj[index]);
 	} else {
 		// Assemble view
 		mat4 view = {0};
@@ -234,25 +234,27 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera) 
 
 		// Multiply together
 		memset(ubo->viewproj, 0, 64);
-		multiplyMatrix(view, proj, ubo->viewproj);
+		multiplyMatrix(view, proj, ubo->viewproj[index]);
 	}
 }
 
-// Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
-void _vk2dRendererFlushUBOBuffer(uint32_t frame, uint32_t descriptorFrame, int camera) {
+//uint32_t frame, uint32_t descriptorFrame, int camera
+// Copies the camera ubos to the descriptor buffer and spits out the corresponding descriptor set
+void _vk2dRendererFlushUBOBuffers() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
+
 	VkBuffer buffer;
 	VkDeviceSize offset;
-	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[descriptorFrame], &gRenderer->cameras[camera].ubos[frame], sizeof(VK2DUniformBufferObject), &buffer, &offset);
+	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->scImageIndex], &gRenderer->workingUBO, sizeof(VK2DUniformBufferObject), &buffer, &offset);
 	VkDescriptorBufferInfo bufferInfo = {buffer, offset, sizeof(VK2DUniformBufferObject)};
 	VkWriteDescriptorSet write = {0};
 	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 	write.descriptorCount = 1;
 	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	write.pBufferInfo = &bufferInfo;
-	write.dstSet = gRenderer->cameras[camera].uboSets[frame];
+	write.dstSet = gRenderer->uboDescriptorSets[gRenderer->currentFrame];
 	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
 }
 

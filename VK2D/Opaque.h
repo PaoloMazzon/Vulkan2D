@@ -50,8 +50,6 @@ struct VK2DLogicalDevice_t {
 /// will automatically update the relevant parts of a camera whenever needed.
 typedef struct VK2DCamera {
 	VK2DCameraSpec spec;           ///< Info on how to create the UBO and scissor/viewport
-	VK2DUniformBufferObject *ubos; ///< UBO data for each frame
-	VkDescriptorSet *uboSets;      ///< List of UBO sets, 1 per swapchain image
 	VK2DCameraState state;         ///< State of this camera
 } VK2DCamera;
 
@@ -226,6 +224,10 @@ struct VK2DRenderer_t {
 	VK2DStartupOptions options;           ///< Root options for the renderer
 	VK2DRendererLimits limits;            ///< For user safety
 
+	// Cameras/ubos
+	VkDescriptorSet uboDescriptorSets[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor sets holding a UBO per frame in flight
+	VK2DUniformBufferObject workingUBO;                           ///< This frame's ubo, basically just has VK2D_MAX_CAMERAS viewproj matricies
+
 	// KHR Surface
 	SDL_Window *window;                           ///< Window this renderer belongs to
 	VkSurfaceKHR surface;                         ///< Window surface
@@ -275,7 +277,7 @@ struct VK2DRenderer_t {
 	VkDescriptorSet texArrayDescriptorSet;    ///< Tex array set
 	VkDescriptorSet samplerSet;               ///< Sampler for all textures
 	VkDescriptorSet modelSamplerSet;          ///< Sampler for all 3D models
-	VK2DDescriptorBuffer *descriptorBuffers;  ///< Descriptor buffer, one per swapchain image
+	VK2DDescriptorBuffer *descriptorBuffers;  ///< Descriptor buffer, one per swapchain image TODO -- this should be per frame in flight
     VkDescriptorPool texturePool;             ///< Pool used for the dynamic texture array
     VK2DTextureDescriptorInfo *textureArray;  ///< Array of information per texture
 

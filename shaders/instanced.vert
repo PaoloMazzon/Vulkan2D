@@ -4,15 +4,15 @@
 #extension GL_EXT_nonuniform_qualifier : enable
 
 layout(set = 0, binding = 0) uniform UniformBufferObject {
-    mat4 viewproj;
+    mat4 cameras[10];
 } ubo;
 
 layout(location = 0) in vec4 instanceTexturePos;
 layout(location = 1) in vec4 instanceColour;
 layout(location = 2) in vec2 instancePos;
-layout(location = 3) in mat4 instanceModel;
-// This is 7 because the mat4 above this takes 4 locations
-layout(location = 7) in uint instanceTextureIndex;
+layout(location = 3) in uint instanceTextureIndex;
+layout(location = 4) in uint instanceCameraIndex;
+layout(location = 5) in mat4 instanceModel;
 
 layout(location = 1) out vec2 fragTexCoord;
 layout(location = 2) out vec4 fragColour;
@@ -44,7 +44,7 @@ void main() {
     vec2 newPos;
     newPos.x = vertices[gl_VertexIndex].x * instanceTexturePos.z;
     newPos.y = vertices[gl_VertexIndex].y * instanceTexturePos.w;
-    gl_Position = ubo.viewproj * instanceModel * vec4(newPos + instancePos, 1.0, 1.0);
+    gl_Position = ubo.cameras[instanceCameraIndex] * instanceModel * vec4(newPos + instancePos, 1.0, 1.0);
     fragTexCoord.x = instanceTexturePos.x + (texCoords[gl_VertexIndex].x * instanceTexturePos.z);
     fragTexCoord.y = instanceTexturePos.y + (texCoords[gl_VertexIndex].y * instanceTexturePos.w);
     fragColour = instanceColour;

@@ -373,7 +373,7 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			gRenderer->targetRenderPass = gRenderer->renderPass;
 			gRenderer->targetSubPass = 0;
 			gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
-			gRenderer->targetUBOSet = gRenderer->cameras[0].uboSets[gRenderer->scImageIndex]; // TODO: Should prob be reworked
+			gRenderer->targetUBOSet = gRenderer->uboDescriptorSets[gRenderer->currentFrame]; // TODO: Should prob be reworked
 			gRenderer->target = VK2D_TARGET_SCREEN;
 
 			// Start the render pass
@@ -397,13 +397,10 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->commandBuffer[gRenderer->scImageIndex]);
 
 			// Flush the current ubo into its buffer for the frame
-			for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-				if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL) {
-					_vk2dCameraUpdateUBO(&gRenderer->cameras[i].ubos[gRenderer->scImageIndex],
-										 &gRenderer->cameras[i].spec);
-					_vk2dRendererFlushUBOBuffer(gRenderer->scImageIndex, gRenderer->currentFrame, i);
-				}
-			}
+            for (int i = 0; i < VK2D_MAX_CAMERAS; i++)
+                if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL)
+                    _vk2dCameraUpdateUBO(&gRenderer->workingUBO, &gRenderer->cameras[i].spec, i);
+			_vk2dRendererFlushUBOBuffers();
 
 			// Reset shader desc cons
 			for (int i = 0; i < gRenderer->shaderListSize; i++) {
@@ -550,7 +547,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 			VkImage image = target == VK2D_TARGET_SCREEN ? gRenderer->swapchainImages[gRenderer->scImageIndex]
 														 : target->img->img;
 			VkDescriptorSet buffer =
-					target == VK2D_TARGET_SCREEN ? gRenderer->cameras[0].uboSets[gRenderer->scImageIndex]
+					target == VK2D_TARGET_SCREEN ? gRenderer->uboDescriptorSets[gRenderer->currentFrame]
 												 : target->uboSet;
 
 			vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);

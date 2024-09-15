@@ -9,6 +9,9 @@
 extern "C" {
 #endif
 
+/// Maximum number of cameras that can exist, enabled or disabled, at once - this is here instead of constants to avoid circular dependencies
+#define VK2D_MAX_CAMERAS 10
+
 // For opaque pointer types
 #define VK2D_OPAQUE_POINTER(type) typedef struct type##_t *type;
 
@@ -194,7 +197,7 @@ struct VK2DVertex3D {
 
 /// \brief The VP buffer
 struct VK2DUniformBufferObject {
-	mat4 viewproj; ///< View and projection matrix multiplied together
+	mat4 viewproj[VK2D_MAX_CAMERAS]; ///< View and projection matrix multiplied together
 } ;
 
 /// \brief Buffer passed per-model via push constants
@@ -296,8 +299,9 @@ struct VK2DDrawInstance {
 	vec4 texturePos;       ///< x in tex, y in tex, w in tex, and h in tex
 	vec4 colour;           ///< Colour mod of this draw
 	vec2 pos;              ///< X/Y in game world for this instance
-	mat4 model;            ///< Model for this instance, generally shouldn't contain translations
 	uint32_t textureIndex; ///< Which texture this instance is using
+	uint32_t cameraIndex;  ///< Camera meant for this draw call
+	mat4 model;            ///< Model for this instance, generally shouldn't contain translations
 };
 
 /// \brief Info for the shadow environment to keep track of

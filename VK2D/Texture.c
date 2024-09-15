@@ -126,7 +126,7 @@ VK2DTexture vk2dTextureLoad(const char *filename) {
 	return tex;
 }
 
-void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera);
+void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera, int index);
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, bool mainThread);
 void _vk2dRendererAddTarget(VK2DTexture tex);
 void _vk2dRendererRemoveTarget(VK2DTexture tex);
@@ -154,7 +154,7 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 			h
 	};
 	VK2DUniformBufferObject ubo = {0};
-	_vk2dCameraUpdateUBO(&ubo, &cam);
+	_vk2dCameraUpdateUBO(&ubo, &cam, 0);
 
 	if (out != NULL) {
 		out->img = vk2dImageCreate(dev, w, h, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 1);
