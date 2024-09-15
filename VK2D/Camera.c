@@ -28,22 +28,7 @@ VK2DCameraIndex vk2dCameraCreate(VK2DCameraSpec spec) {
         vk2dCameraUpdate(position, spec);
 
         // Create the lists first
-        cam->ubos = calloc(1, sizeof(VK2DUniformBufferObject) * gRenderer->swapchainImageCount);
-        cam->uboSets = malloc(sizeof(VkDescriptorSet) * gRenderer->swapchainImageCount);
-
-        if (cam->uboSets != NULL && cam->ubos != NULL) {
-            cam->state = VK2D_CAMERA_STATE_NORMAL;
-
-            // Populate the lists
-            for (int i = 0; i < gRenderer->swapchainImageCount; i++) {
-                _vk2dCameraUpdateUBO(&cam->ubos[i], &spec);
-                cam->uboSets[i] = vk2dDescConGetSet(gRenderer->descConVP);
-            }
-        } else {
-            free(cam->uboSets);
-            free(cam->ubos);
-            vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate camera.");
-        }
+        cam->state = VK2D_CAMERA_STATE_NORMAL;
     } else {
         vk2dRaise(VK2D_STATUS_TOO_MANY_CAMERAS, "No more cameras available.");
     }
@@ -81,13 +66,6 @@ void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state) {
 	    return;
 	}
 
-
-    // Free internal resources
-    if ((state == VK2D_CAMERA_STATE_DELETED || state == VK2D_CAMERA_STATE_RESET) &&
-        (gRenderer->cameras[index].state == VK2D_CAMERA_STATE_DISABLED || gRenderer->cameras[index].state == VK2D_CAMERA_STATE_NORMAL)) {
-        free(gRenderer->cameras[index].ubos);
-        free(gRenderer->cameras[index].uboSets);
-    }
     gRenderer->cameras[index].state = state;
 }
 

@@ -277,7 +277,7 @@ struct VK2DRenderer_t {
 	VkDescriptorSet texArrayDescriptorSet;    ///< Tex array set
 	VkDescriptorSet samplerSet;               ///< Sampler for all textures
 	VkDescriptorSet modelSamplerSet;          ///< Sampler for all 3D models
-	VK2DDescriptorBuffer *descriptorBuffers;  ///< Descriptor buffer, one per swapchain image TODO -- this should be per frame in flight
+	VK2DDescriptorBuffer *descriptorBuffers;  ///< Descriptor buffer, one per frame in flight
     VkDescriptorPool texturePool;             ///< Pool used for the dynamic texture array
     VK2DTextureDescriptorInfo *textureArray;  ///< Array of information per texture
 

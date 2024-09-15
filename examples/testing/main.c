@@ -38,10 +38,10 @@ int main(int argc, const char *argv[]) {
 	// Load Some test assets
 	VK2DTexture texCaveguy = vk2dTextureLoad("assets/caveguy.png");
 	VK2DDrawInstance drawInstances[MAX_DRAW_INSTANCES] = {0};
+	drawInstances[0].cameraIndex = 0;
 
 	// Delta and fps
 	const double startTime = SDL_GetPerformanceCounter();
-
 
 	while (!quit && !vk2dStatusFatal()) {
 		const double time = (double)(SDL_GetPerformanceCounter() - startTime) / (double)SDL_GetPerformanceFrequency();
@@ -62,12 +62,9 @@ int main(int argc, const char *argv[]) {
         const float originY = vk2dTextureHeight(texCaveguy) * 0.5 * scale;
         vk2dInstanceSetFast(&drawInstances[0], texCaveguy, (windowWidth / 2) + (cos(time * 2) * 100) - originX, (windowHeight / 2) + (sin(time * 2) * 100) - originY, 0, 0, VK2D_FULL_TEXTURE, VK2D_FULL_TEXTURE, VK2D_DEFAULT_COLOUR_MOD);
         vk2dRendererDrawInstanced(drawInstances, 1);
-        //vk2dDrawTextureExt(texCaveguy, (windowWidth / 2) + (cos(time * 2) * 100) - originX, (windowHeight / 2) + (sin(time * 2) * 100) - originY, scale, scale, time * 5, originX / scale, originY / scale);
 		debugRenderOverlay();
 
 		vk2dRendererEndFrame();
-
-
 	}
 
 	// vk2dRendererWait must be called before freeing things

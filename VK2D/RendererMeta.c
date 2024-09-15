@@ -218,7 +218,7 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera, 
 		orthographicMatrix(proj, camera->h / camera->zoom, camera->w / camera->h, 0.1, 10);
 
 		// Multiply together
-		memset(ubo->viewproj, 0, 64);
+		memset(ubo->viewproj[index], 0, 64);
 		multiplyMatrix(view, proj, ubo->viewproj[index]);
 	} else {
 		// Assemble view
@@ -233,7 +233,7 @@ void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera, 
 			perspectiveMatrix(proj, camera->Perspective.fov, camera->w /camera->h, 0.1, 10);
 
 		// Multiply together
-		memset(ubo->viewproj, 0, 64);
+		memset(ubo->viewproj[index], 0, 64);
 		multiplyMatrix(view, proj, ubo->viewproj[index]);
 	}
 }
@@ -247,7 +247,7 @@ void _vk2dRendererFlushUBOBuffers() {
 
 	VkBuffer buffer;
 	VkDeviceSize offset;
-	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->scImageIndex], &gRenderer->workingUBO, sizeof(VK2DUniformBufferObject), &buffer, &offset);
+	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], &gRenderer->workingUBO, sizeof(VK2DUniformBufferObject), &buffer, &offset);
 	VkDescriptorBufferInfo bufferInfo = {buffer, offset, sizeof(VK2DUniformBufferObject)};
 	VkWriteDescriptorSet write = {0};
 	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -1105,7 +1105,7 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 			1,
 	};
 	VK2DUniformBufferObject unitUBO = {0};
-	_vk2dCameraUpdateUBO(&unitUBO, &unitCam);
+	_vk2dCameraUpdateUBO(&unitUBO, &unitCam, 0);
 	gRenderer->unitUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &unitUBO, true);
 	gRenderer->unitUBOSet = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->unitUBO);
 
@@ -1204,6 +1204,10 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
         if (gRenderer->textureArray == NULL) {
             vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate texture info for %i potential textures.", gRenderer->options.maxTextures);
         }
+
+        // Make the viewproj descriptor sets
+        for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
+            gRenderer->uboDescriptorSets[i] = vk2dDescConGetSet(gRenderer->descConVP);
 	} else {
         vk2dLog("Descriptor controllers preserved...");
 	}
@@ -1761,7 +1765,7 @@ void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel mod
 	// Only render to 3D cameras
 	for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 		if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type != VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
-			sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+			sets[0] = gRenderer->uboDescriptorSets[gRenderer->currentFrame];
 			_vk2dRendererDrawRaw3D(sets, setCount, model, pipe, x, y, z, xscale, yscale, zscale, rot, axis, originX, originY, originZ, i, lineWidth);
 		}
 	}
@@ -1779,7 +1783,7 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
         // Only render to 2D cameras
         for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
             if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
-                sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+                sets[0] = gRenderer->uboDescriptorSets[gRenderer->currentFrame];
                 _vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
             }
         }
@@ -1802,7 +1806,7 @@ void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colo
         // Only render to 2D cameras
         for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
             if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
-                set = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+                set = gRenderer->uboDescriptorSets[gRenderer->currentFrame];
                 // Iterate through each shadow object
                 for (int so = 0; so < shadowEnvironment->objectCount; so++) {
                     if (shadowEnvironment->objectInfos[so].enabled)
@@ -1824,7 +1828,7 @@ void _vk2dRendererDrawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDr
 		// Only render to 2D cameras
 		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
 			if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
-				sets[0] = gRenderer->cameras[i].uboSets[gRenderer->scImageIndex];
+				sets[0] = gRenderer->uboDescriptorSets[gRenderer->currentFrame];
 				_vk2dRendererDrawRawInstanced(sets, setCount, instances, count, i);
 			}
 		}
