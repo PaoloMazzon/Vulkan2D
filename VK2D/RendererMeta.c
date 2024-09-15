@@ -1127,6 +1127,8 @@ void _vk2dRendererCreateSpriteBatching() {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     gRenderer->drawCommands = malloc(sizeof(struct VK2DDrawCommand) * gRenderer->limits.maxInstancedDraws);
     gRenderer->drawCommandCount = 0;
+    gRenderer->drawInstancesList = malloc(sizeof(struct VK2DDrawInstance) * gRenderer->limits.maxInstancedDraws);
+    gRenderer->drawInstanceListCount = 0;
 
     // Each page in the descriptor buffer is enough room for 2 draw batches
     for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
@@ -1144,6 +1146,7 @@ void _vk2dRendererDestroySpriteBatching() {
         vk2dDescriptorBufferFree(gRenderer->drawInstances[i]);
     }
     free(gRenderer->drawCommands);
+    free(gRenderer->drawInstancesList);
 }
 
 void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {

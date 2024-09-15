@@ -349,6 +349,8 @@ void vk2dColourRGBA(vec4 dst, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 ///  + vk2dRendererGetLimits().maxInstancedDraws is reached in the current batch
 ///  + Render target changes
 ///  + End of the frame
+///  + Camera lock is changed
+///  + A camera is enabled/disabled
 void vk2dRendererFlushSpriteBatch();
 
 /// \brief Sets up an instance's data in full - this is quite heavy and only intended for initialization

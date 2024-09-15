@@ -325,9 +325,12 @@ struct VK2DRenderer_t {
 
 	// Sprite batching
 	VK2DDescriptorBuffer drawInstances[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor buffers for the compute shader output
-    VK2DDrawCommand *drawCommands;  ///< User-side draw commands
-    int drawCommandCount;           ///< Number of draw commands
-    int32_t currentBatchPipelineID; ///< Pipeline id for the current batch
+    VK2DDrawCommand *drawCommands;       ///< User-side draw commands
+    int drawCommandCount;                ///< Number of draw commands
+    VK2DDrawInstance *drawInstancesList; ///< TODO: Remove this once we have compute shader
+    int drawInstanceListCount;           ///< TODO: Remove this once we have compute shader
+    int32_t currentBatchPipelineID;      ///< Pipeline id for the current batch
+    VK2DPipeline currentBatchPipeline;   ///< Pipeline for the current batch
 };
 
 #ifdef __cplusplus

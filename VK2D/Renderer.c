@@ -396,7 +396,8 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
             }
 
 			// Begin descriptor buffer
-			vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->commandBuffer[gRenderer->scImageIndex]);
+            vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->commandBuffer[gRenderer->scImageIndex]);
+            vk2dDescriptorBufferBeginFrame(gRenderer->drawInstances[gRenderer->currentFrame], gRenderer->commandBuffer[gRenderer->scImageIndex]);
 
 			// Flush the current ubo into its buffer for the frame
             for (int i = 0; i < VK2D_MAX_CAMERAS; i++)
@@ -452,8 +453,9 @@ VK2DResult vk2dRendererEndFrame() {
 
 			// Finish the primary command buffer, its time to PRESENT things
 			vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
-			vk2dDescriptorBufferEndFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
-			VkResult result = vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]);
+            vk2dDescriptorBufferEndFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
+            vk2dDescriptorBufferEndFrame(gRenderer->drawInstances[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
+            VkResult result = vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]);
             VkResult result2 = vkEndCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
             if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
                 vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to begin command buffer at start of frame, Vulkan error %i/%i.", result, result2);
@@ -774,6 +776,7 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 		    const VK2DPipeline pipe = gRenderer->instancedPipe;
 		    if (vk2dPipelineGetID(pipe, 0) != gRenderer->currentBatchPipelineID) {
                 gRenderer->currentBatchPipelineID = vk2dPipelineGetID(pipe, 0);
+                gRenderer->currentBatchPipeline = pipe;
                 vk2dRendererFlushSpriteBatch();
 		    }
 
@@ -880,9 +883,11 @@ void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float
 		}
 	}
 }
-
+void identityMatrix(float *m);
+void translateMatrix(float *m, float *m2);
+void rotateMatrix(float *m, float *m2, float r);
+void scaleMatrix(float *m, float *m2);
 void vk2dRendererFlushSpriteBatch() {
-    // TODO: This
     // This should
     //  1. Copy the current drawCommand list to the descriptor buffer
     //  2. Make sure there is enough space in the compute descriptor buffer
@@ -890,6 +895,107 @@ void vk2dRendererFlushSpriteBatch() {
     //  3. Dispatch compute with command list input and draw instance output
     //  4. Queue the draw command for this sprite batch
     // If the compute is ready and to debug just compute them all here and copy to the other descriptor buffer
+    if (gRenderer->currentBatchPipeline != NULL && gRenderer->drawCommandCount > 0) {
+        for (int i = 0; i < gRenderer->drawCommandCount; i++) {
+            VK2DDrawInstance *instance = &gRenderer->drawInstancesList[i];
+            VK2DDrawCommand *command = &gRenderer->drawCommands[i];
+            memset(instance, 0, sizeof(struct VK2DDrawInstance));
+            command->origin[0] *= -command->scale[0];
+            command->origin[1] *= command->scale[1];
+            identityMatrix(instance->model);
+
+            // Only do rotation matrices if a rotation is specified for optimization purposes
+            if (command->rotation != 0) {
+                vec3 axis = {0, 0, 1};
+                vec3 origin = {-command->origin[0] + command->pos[0], command->origin[1] + command->pos[1], 0};
+                vec3 originTranslation = {command->origin[0], -command->origin[1], 0};
+                translateMatrix(instance->model, origin);
+                rotateMatrix(instance->model, axis, command->rotation);
+                translateMatrix(instance->model, originTranslation);
+            } else {
+                vec3 origin = {command->pos[0], command->pos[1], 0};
+                translateMatrix(instance->model, origin);
+            }
+            // Only scale matrix if specified for optimization purposes
+            if (command->scale[0] != 1 || command->scale[1] != 1) {
+                vec3 scale = {command->scale[0], command->scale[1], 1};
+                scaleMatrix(instance->model, scale);
+            }
+
+            // Copy other data
+            instance->colour[0] = command->colour[0];
+            instance->colour[1] = command->colour[1];
+            instance->colour[2] = command->colour[2];
+            instance->colour[3] = command->colour[3];
+            instance->texturePos[0] = command->texturePos[0];
+            instance->texturePos[1] = command->texturePos[1];
+            instance->texturePos[2] = command->texturePos[2];
+            instance->texturePos[3] = command->texturePos[3];
+            instance->cameraIndex = command->cameraIndex;
+            instance->textureIndex = command->textureIndex;
+        }
+
+        // Copy the instance data
+        VkBuffer buffer;
+        VkDeviceSize offset;
+        vk2dDescriptorBufferCopyData(
+                gRenderer->drawInstances[gRenderer->currentFrame],
+                gRenderer->drawInstancesList,
+                gRenderer->drawCommandCount * sizeof(struct VK2DDrawInstance),
+                &buffer,
+                &offset
+        );
+
+        // Viewport/scissor
+        const int cam = 0; // TODO: Fix this
+        VkRect2D scissor;
+        VkViewport viewport;
+        if (gRenderer->target == NULL) {
+            viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
+            viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
+            viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
+            viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
+            viewport.minDepth = 0;
+            viewport.maxDepth = 1;
+            scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
+            scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
+            scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
+            scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
+        } else {
+            viewport.x = 0;
+            viewport.y = 0;
+            viewport.width = gRenderer->target->img->width;
+            viewport.height = gRenderer->target->img->height;
+            viewport.minDepth = 0;
+            viewport.maxDepth = 1;
+            scissor.extent.width = gRenderer->target->img->width;
+            scissor.extent.height = gRenderer->target->img->height;
+            scissor.offset.x = 0;
+            scissor.offset.y = 0;
+        }
+
+        // Queue the actual draw command
+        VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
+        _vk2dRendererResetBoundPointers();
+        vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(gRenderer->instancedPipe, gRenderer->blendMode));
+        VkDescriptorSet sets[] = {
+            gRenderer->targetUBOSet,
+            gRenderer->samplerSet,
+            gRenderer->texArrayDescriptorSet
+        };
+        vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->instancedPipe->layout, 0, 3, sets, 0, VK_NULL_HANDLE);
+
+        vkCmdBindVertexBuffers(buf, 0, 1, &buffer, &offset);
+        vkCmdSetViewport(buf, 0, 1, &viewport);
+        vkCmdSetScissor(buf, 0, 1, &scissor);
+        vkCmdSetLineWidth(buf, 1);
+        vkCmdDraw(buf, 6, gRenderer->drawCommandCount, 0, 0);
+
+        // Reset the current batch
+        gRenderer->drawCommandCount = 0;
+        gRenderer->currentBatchPipeline = NULL;
+        gRenderer->currentBatchPipelineID = INT32_MAX;
+    }
 }
 
 static inline float _getHexValue(char c) {

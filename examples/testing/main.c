@@ -63,6 +63,7 @@ int main(int argc, const char *argv[]) {
         vk2dInstanceSetFast(&drawInstances[0], texCaveguy, (windowWidth / 2) + (cos(time * 2) * 100) - originX, (windowHeight / 2) + (sin(time * 2) * 100) - originY, 0, 0, VK2D_FULL_TEXTURE, VK2D_FULL_TEXTURE, VK2D_DEFAULT_COLOUR_MOD);
         vk2dRendererDrawInstanced(drawInstances, 1);
 		debugRenderOverlay();
+		vk2dRendererFlushSpriteBatch();
 
 		vk2dRendererEndFrame();
 	}
