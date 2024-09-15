@@ -87,6 +87,7 @@ struct VK2DDescriptorBuffer_t {
 	int bufferCount;          ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
 	int bufferListSize;       ///< Actual number of elements in the buffer lists
 	VK2DLogicalDevice dev;    ///< Device this lives on
+	VkDeviceSize pageSize;    ///< Page size for this descriptor buffer
 };
 
 /// \brief Abstraction for descriptor pools and sets so you can dynamically use them
@@ -111,7 +112,8 @@ struct VK2DPipeline_t {
 	VkPipelineLayout layout;    ///< Internal pipeline layout
 	VkRect2D rect;              ///< For setting up command buffers
 	VkClearValue clearValue[2]; ///< Clear values for the two attachments: colour and depth
-	VkPipeline pipes[VK2D_BLEND_MODE_MAX];   ///< Internal pipelines if `VK2D_GENERATE_BLEND_MODES` is enabled
+	int32_t id;                 ///< Unique id for this pipeline
+	VkPipeline pipes[VK2D_BLEND_MODE_MAX]; ///< Internal pipelines if `VK2D_GENERATE_BLEND_MODES` is enabled
 };
 
 /// \brief Makes shapes easier to deal with
@@ -322,8 +324,10 @@ struct VK2DRenderer_t {
 	double frameTimeAverage; ///< Average amount of time frames are taking over a second (in ms)
 
 	// Sprite batching
-	VK2DDrawInstance *textureDrawInstances; ///< Stores current frames texture draws before they are flushed to an instanced draw - this array will always be of size limits.maxInstancedDraws
-	int textureDrawInstanceCount;           ///< Number of textures currently in textureDrawInstances array
+	VK2DDescriptorBuffer drawInstances[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor buffers for the compute shader output
+    VK2DDrawCommand *drawCommands;  ///< User-side draw commands
+    int drawCommandCount;           ///< Number of draw commands
+    int32_t currentBatchPipelineID; ///< Pipeline id for the current batch
 };
 
 #ifdef __cplusplus

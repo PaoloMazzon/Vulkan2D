@@ -10,8 +10,9 @@ extern "C" {
 #include "VK2D/Structs.h"
 
 /// \brief Creates an empty descriptor buffer of default size
+/// \param vramPageSize Size of each page for this descriptor buffer
 /// \return Returns a new descriptor buffer or NULL if it fails
-VK2DDescriptorBuffer vk2dDescriptorBufferCreate();
+VK2DDescriptorBuffer vk2dDescriptorBufferCreate(VkDeviceSize vramPageSize);
 
 /// \brief Frees a descriptor buffer from memory
 /// \param db Descriptor buffer to free

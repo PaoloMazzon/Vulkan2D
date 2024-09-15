@@ -18,6 +18,7 @@
 #include "VK2D/DescriptorBuffer.h"
 #include "VK2D/DescriptorControl.h"
 #include "VK2D/Opaque.h"
+#include "VK2D/Pipeline.h"
 
 /******************************* Forward declarations *******************************/
 
@@ -375,6 +376,7 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
 			gRenderer->targetUBOSet = gRenderer->uboDescriptorSets[gRenderer->currentFrame]; // TODO: Should prob be reworked
 			gRenderer->target = VK2D_TARGET_SCREEN;
+			gRenderer->currentBatchPipelineID = INT32_MAX;
 
 			// Start the render pass
 			VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(
@@ -768,11 +770,31 @@ void vk2dRendererDrawInstanced(VK2DDrawInstance *instances, uint32_t count) {
 void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
 		if (tex != NULL) {
-			VkDescriptorSet sets[3];
-			sets[1] = gRenderer->samplerSet;
-			sets[2] = tex->img->set;
-			_vk2dRendererDraw(sets, 3, NULL, gRenderer->texPipe, x, y, xscale, yscale, rot, originX, originY, 1, xInTex,
-							  yInTex, texWidth, texHeight);
+		    // Flush sprite batch if this is a pipeline change or commands at limit
+		    const VK2DPipeline pipe = gRenderer->instancedPipe;
+		    if (vk2dPipelineGetID(pipe, 0) != gRenderer->currentBatchPipelineID) {
+                gRenderer->currentBatchPipelineID = vk2dPipelineGetID(pipe, 0);
+                vk2dRendererFlushSpriteBatch();
+		    }
+
+		    VK2DDrawCommand command;
+		    command.textureIndex = tex->descriptorIndex;
+            command.texturePos[0] = xInTex;
+            command.texturePos[1] = yInTex;
+            command.texturePos[2] = texWidth;
+            command.texturePos[3] = texHeight;
+            command.rotation = rot;
+            command.colour[0] = gRenderer->colourBlend[0];
+            command.colour[1] = gRenderer->colourBlend[1];
+            command.colour[2] = gRenderer->colourBlend[2];
+            command.colour[3] = gRenderer->colourBlend[3];
+            command.origin[0] = originX;
+            command.origin[1] = originY;
+            command.scale[0] = xscale;
+            command.scale[1] = yscale;
+            command.pos[0] = x;
+            command.pos[1] = y;
+            _vk2dRendererAddDrawCommand(&command);
 		} else {
             vk2dRaise(VK2D_STATUS_BAD_ASSET, "Texture does not exist.");
 		}
@@ -859,8 +881,15 @@ void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float
 	}
 }
 
-void vk2dFlushSpriteBatch() {
+void vk2dRendererFlushSpriteBatch() {
     // TODO: This
+    // This should
+    //  1. Copy the current drawCommand list to the descriptor buffer
+    //  2. Make sure there is enough space in the compute descriptor buffer
+    //     for the next batch
+    //  3. Dispatch compute with command list input and draw instance output
+    //  4. Queue the draw command for this sprite batch
+    // If the compute is ready and to debug just compute them all here and copy to the other descriptor buffer
 }
 
 static inline float _getHexValue(char c) {

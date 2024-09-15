@@ -8,6 +8,8 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Opaque.h"
 
+static int32_t gID = 0x10;
+
 VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, uint32_t width, uint32_t height, unsigned char *vertBuffer, uint32_t vertSize, unsigned char *fragBuffer, uint32_t fragSize, VkDescriptorSetLayout *setLayouts, uint32_t layoutCount, VkPipelineVertexInputStateCreateInfo *vertexInfo, bool fill, VK2DMSAA msaa, VK2DPipelineType type) {
     if (vk2dStatusFatal())
         return NULL;
@@ -17,6 +19,7 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 	uint32_t i;
 
 	if (pipe != NULL) {
+	    pipe->id = gID++;
 		// Figure out if wireframe is allowed
 		bool polygonFill = fill;
 		if (!polygonFill && !gRenderer->limits.supportsWireframe)
@@ -144,6 +147,10 @@ VkPipeline vk2dPipelineGetPipe(VK2DPipeline pipe, VK2DBlendMode blendMode) {
     if (vk2dStatusFatal())
         return NULL;
 	return pipe->pipes[blendMode];
+}
+
+int32_t vk2dPipelineGetID(VK2DPipeline pipe, VK2DBlendMode blendMode) {
+    return pipe->id + blendMode;
 }
 
 void vk2dPipelineFree(VK2DPipeline pipe) {

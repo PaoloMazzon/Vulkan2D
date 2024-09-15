@@ -34,12 +34,12 @@ static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDesc
 	buffer->size = 0;
 	buffer->stageBuffer = vk2dBufferCreate(
 			db->dev,
-			gRenderer->options.vramPageSize,
+			db->pageSize,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 	buffer->deviceBuffer = vk2dBufferCreate(
 			db->dev,
-			gRenderer->options.vramPageSize,
+			db->pageSize,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -53,7 +53,7 @@ static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDesc
 	return buffer;
 }
 
-VK2DDescriptorBuffer vk2dDescriptorBufferCreate() {
+VK2DDescriptorBuffer vk2dDescriptorBufferCreate(VkDeviceSize vramPageSize) {
     if (vk2dStatusFatal() || vk2dRendererGetPointer() == NULL)
         return NULL;
 	VK2DDescriptorBuffer db = calloc(1, sizeof(struct VK2DDescriptorBuffer_t));
@@ -63,6 +63,7 @@ VK2DDescriptorBuffer vk2dDescriptorBufferCreate() {
 	}
 
 	db->dev = vk2dRendererGetDevice();
+	db->pageSize = vramPageSize;
 	if (_vk2dDescriptorBufferAppendBuffer(db) == NULL) {
 	    free(db);
 	    return NULL;
@@ -117,11 +118,11 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
 	if (vk2dStatusFatal() || gRenderer == NULL)
         return;
 
-	if (size < gRenderer->options.vramPageSize) {
+	if (size < db->pageSize) {
 		// Find a buffer with enough space
 		_VK2DDescriptorBufferInternal *spot = NULL;
 		for (int i = 0; i < db->bufferCount && spot == NULL; i++) {
-			if (size <= gRenderer->options.vramPageSize - db->buffers[i].size) {
+			if (size <= db->pageSize - db->buffers[i].size) {
 				spot = &db->buffers[i];
 			}
 		}
@@ -166,7 +167,7 @@ void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyB
 		vmaUnmapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem);
 		if (db->buffers[i].size > 0) {
 			VkBufferCopy bufferCopy = {0};
-			bufferCopy.size = (db->buffers[i].size < gRenderer->options.vramPageSize) ? db->buffers[i].size : gRenderer->options.vramPageSize;
+			bufferCopy.size = (db->buffers[i].size < db->pageSize) ? db->buffers[i].size : db->pageSize;
 			vkCmdCopyBuffer(copyBuffer, db->buffers[i].stageBuffer->buf, db->buffers[i].deviceBuffer->buf, 1, &bufferCopy);
 		}
 	}

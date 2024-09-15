@@ -501,11 +501,12 @@ void _vk2dRendererCreateDescriptorBuffers() {
 	    return;
 	}
 	for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
-		gRenderer->descriptorBuffers[i] = vk2dDescriptorBufferCreate();
+		gRenderer->descriptorBuffers[i] = vk2dDescriptorBufferCreate(gRenderer->options.vramPageSize);
 	}
 
 	// Calculate max instances
-	gRenderer->limits.maxInstancedDraws = gRenderer->options.vramPageSize / sizeof(VK2DDrawInstance);
+	const int maxDrawCommands = gRenderer->options.vramPageSize / sizeof(VK2DDrawCommand);
+	gRenderer->limits.maxInstancedDraws = maxDrawCommands;
 	gRenderer->limits.maxInstancedDraws--;
 
     vk2dLog("Descriptor buffers created...");
@@ -1124,17 +1125,25 @@ void _vk2dRendererDestroyUniformBuffers() {
 
 void _vk2dRendererCreateSpriteBatching() {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    gRenderer->textureDrawInstances = malloc(sizeof(struct VK2DDrawInstance) * gRenderer->limits.maxInstancedDraws);
-    gRenderer->textureDrawInstanceCount = 0;
+    gRenderer->drawCommands = malloc(sizeof(struct VK2DDrawCommand) * gRenderer->limits.maxInstancedDraws);
+    gRenderer->drawCommandCount = 0;
 
-    if (gRenderer->textureDrawInstances == NULL) {
+    // Each page in the descriptor buffer is enough room for 2 draw batches
+    for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+        gRenderer->drawInstances[i] = vk2dDescriptorBufferCreate(gRenderer->limits.maxInstancedDraws * sizeof(struct VK2DDrawInstance) * 2);
+    }
+
+    if (gRenderer->drawCommands == NULL) {
         vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate sprite batch of count %i.", gRenderer->limits.maxInstancedDraws);
     }
 }
 
 void _vk2dRendererDestroySpriteBatching() {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    free(gRenderer->textureDrawInstances);
+    for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+        vk2dDescriptorBufferFree(gRenderer->drawInstances[i]);
+    }
+    free(gRenderer->drawCommands);
 }
 
 void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
@@ -1908,4 +1917,29 @@ void vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xSca
 		vec3 scale = {xScale, yScale, 1};
 		scaleMatrix(instance->model, scale);
 	}
+}
+
+static void _vk2dRendererAddDrawCommandInternal(VK2DDrawCommand *command) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (gRenderer->drawCommandCount == gRenderer->limits.maxInstancedDraws)
+        vk2dRendererFlushSpriteBatch();
+    memcpy(&gRenderer->drawCommands[gRenderer->drawCommandCount++], command, sizeof(struct VK2DDrawCommand));
+}
+
+void _vk2dRendererAddDrawCommand(VK2DDrawCommand *command) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (vk2dStatusFatal())
+        return;
+    if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
+        command->cameraIndex = 0; // texture internal ubo only exists at index 0
+        _vk2dRendererAddDrawCommandInternal(command);
+    } else {
+        // Only render to 2D cameras
+        for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+            if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+                command->cameraIndex = i;
+                _vk2dRendererAddDrawCommandInternal(command);
+            }
+        }
+    }
 }

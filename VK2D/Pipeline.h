@@ -39,6 +39,12 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 /// \return Returns a pipeline with the desired blend mode
 VkPipeline vk2dPipelineGetPipe(VK2DPipeline pipe, VK2DBlendMode blendMode);
 
+/// \brief Gets a unique id for this specific pipeline and blend mode
+/// \param pipe Pipeline to get the id from
+/// \param blendMode Blend mode
+/// \return Returns a unique id from this pipe and blend mode, guaranteed to be unique from any other
+int32_t vk2dPipelineGetID(VK2DPipeline pipe, VK2DBlendMode blendMode);
+
 /// \brief Frees a pipeline from memory
 /// \param pipe Pipeline to free
 void vk2dPipelineFree(VK2DPipeline pipe);

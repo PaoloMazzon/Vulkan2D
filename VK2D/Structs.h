@@ -304,6 +304,18 @@ struct VK2DDrawInstance {
 	mat4 model;            ///< Model for this instance, generally shouldn't contain translations
 };
 
+/// \brief Represents a user's draw command which will later be processed into an instance
+struct VK2DDrawCommand {
+    vec4 texturePos;       ///< x in tex, y in tex, w in tex, and h in tex
+    vec4 colour;           ///< Colour mod of this draw
+    vec2 pos;              ///< X/Y in game world for this instance
+    vec2 origin;           ///< X/Y Origin of this draw
+    vec2 scale;            ///< X/Y Scale of this draw
+    float rotation;        ///< Rotation of the draw centered around the origin
+    uint32_t textureIndex; ///< Texture index for this draw
+    uint32_t cameraIndex;  ///< Camera index for this draw
+};
+
 /// \brief Info for the shadow environment to keep track of
 struct VK2DShadowObjectInfo {
     bool enabled;       ///< Whether or not this object is enabled
@@ -357,6 +369,7 @@ VK2D_USER_STRUCT(VK2DRendererConfig)
 VK2D_USER_STRUCT(VK2DCameraSpec)
 VK2D_USER_STRUCT(VK2DRendererLimits)
 VK2D_USER_STRUCT(VK2DDrawInstance)
+VK2D_USER_STRUCT(VK2DDrawCommand)
 VK2D_USER_STRUCT(VK2DAssetLoad)
 VK2D_USER_STRUCT(VK2DShadowObjectInfo)
 
