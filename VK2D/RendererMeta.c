@@ -1933,7 +1933,8 @@ void _vk2dRendererAddDrawCommand(VK2DDrawCommand *command) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
-    if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
+    _vk2dRendererAddDrawCommandInternal(command);
+    /*if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
         command->cameraIndex = 0; // texture internal ubo only exists at index 0
         _vk2dRendererAddDrawCommandInternal(command);
     } else {
@@ -1944,5 +1945,5 @@ void _vk2dRendererAddDrawCommand(VK2DDrawCommand *command) {
                 _vk2dRendererAddDrawCommandInternal(command);
             }
         }
-    }
+    }*/
 }

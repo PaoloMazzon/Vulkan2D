@@ -883,6 +883,44 @@ void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float
 		}
 	}
 }
+
+static void _vk2dRendererFlushPerCamera(VkCommandBuffer buf, int cameraIndex) {
+    // Viewport/scissor
+    const int cam = cameraIndex; // TODO: Fix this
+    VK2DInstancedPushBuffer push = {
+            .cameraIndex = cameraIndex
+    };
+    VkRect2D scissor;
+    VkViewport viewport;
+    if (gRenderer->target == NULL) {
+        viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
+        viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
+        viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
+        viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
+        viewport.minDepth = 0;
+        viewport.maxDepth = 1;
+        scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
+        scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
+        scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
+        scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
+    } else {
+        viewport.x = 0;
+        viewport.y = 0;
+        viewport.width = gRenderer->target->img->width;
+        viewport.height = gRenderer->target->img->height;
+        viewport.minDepth = 0;
+        viewport.maxDepth = 1;
+        scissor.extent.width = gRenderer->target->img->width;
+        scissor.extent.height = gRenderer->target->img->height;
+        scissor.offset.x = 0;
+        scissor.offset.y = 0;
+    }
+    vkCmdSetViewport(buf, 0, 1, &viewport);
+    vkCmdSetScissor(buf, 0, 1, &scissor);
+    vkCmdPushConstants(buf, gRenderer->currentBatchPipeline->layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct VK2DInstancedPushBuffer), &push);
+    vkCmdDraw(buf, 6, gRenderer->drawCommandCount, 0, 0);
+}
+
 void identityMatrix(float *m);
 void translateMatrix(float *m, float *m2);
 void rotateMatrix(float *m, float *m2, float r);
@@ -931,7 +969,6 @@ void vk2dRendererFlushSpriteBatch() {
             instance->texturePos[1] = command->texturePos[1];
             instance->texturePos[2] = command->texturePos[2];
             instance->texturePos[3] = command->texturePos[3];
-            instance->cameraIndex = command->cameraIndex;
             instance->textureIndex = command->textureIndex;
         }
 
@@ -946,34 +983,6 @@ void vk2dRendererFlushSpriteBatch() {
                 &offset
         );
 
-        // Viewport/scissor
-        const int cam = 0; // TODO: Fix this
-        VkRect2D scissor;
-        VkViewport viewport;
-        if (gRenderer->target == NULL) {
-            viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
-            viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
-            viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
-            viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
-            viewport.minDepth = 0;
-            viewport.maxDepth = 1;
-            scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
-            scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
-            scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
-            scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
-        } else {
-            viewport.x = 0;
-            viewport.y = 0;
-            viewport.width = gRenderer->target->img->width;
-            viewport.height = gRenderer->target->img->height;
-            viewport.minDepth = 0;
-            viewport.maxDepth = 1;
-            scissor.extent.width = gRenderer->target->img->width;
-            scissor.extent.height = gRenderer->target->img->height;
-            scissor.offset.x = 0;
-            scissor.offset.y = 0;
-        }
-
         // Queue the actual draw command
         VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
         _vk2dRendererResetBoundPointers();
@@ -983,13 +992,22 @@ void vk2dRendererFlushSpriteBatch() {
             gRenderer->samplerSet,
             gRenderer->texArrayDescriptorSet
         };
+        // These things are the same across every camera, so they are only bound once
         vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->instancedPipe->layout, 0, 3, sets, 0, VK_NULL_HANDLE);
-
         vkCmdBindVertexBuffers(buf, 0, 1, &buffer, &offset);
-        vkCmdSetViewport(buf, 0, 1, &viewport);
-        vkCmdSetScissor(buf, 0, 1, &scissor);
         vkCmdSetLineWidth(buf, 1);
-        vkCmdDraw(buf, 6, gRenderer->drawCommandCount, 0, 0);
+
+        // Draw once per camera
+        if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
+            _vk2dRendererFlushPerCamera(buf, 0);
+        } else {
+            // Only render to 2D cameras
+            for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+                if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+                    _vk2dRendererFlushPerCamera(buf, i);
+                }
+            }
+        }
 
         // Reset the current batch
         gRenderer->drawCommandCount = 0;

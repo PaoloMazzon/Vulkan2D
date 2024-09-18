@@ -83,13 +83,12 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
             range.size = sizeof(VK2DPushBuffer);
         } else if (type == VK2D_PIPELINE_TYPE_SHADOWS) {
             range.size = sizeof(VK2DShadowsPushBuffer);
+        } else if (type == VK2D_PIPELINE_TYPE_INSTANCING) {
+            range.size = sizeof(VK2DInstancedPushBuffer);
         }
         range.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT;
 		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
-		if (type != VK2D_PIPELINE_TYPE_INSTANCING)
-			pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 1, &range);
-		else
-			pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 0, VK_NULL_HANDLE);
+		pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 1, &range);
 		result = vkCreatePipelineLayout(dev->dev, &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &pipe->layout);
 		VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo = vk2dInitPipelineInputAssemblyStateCreateInfo(fill);
 

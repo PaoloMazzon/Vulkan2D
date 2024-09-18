@@ -300,7 +300,6 @@ struct VK2DDrawInstance {
 	vec4 colour;           ///< Colour mod of this draw
 	vec2 pos;              ///< X/Y in game world for this instance
 	uint32_t textureIndex; ///< Which texture this instance is using
-	uint32_t cameraIndex;  ///< Camera meant for this draw call
 	mat4 model;            ///< Model for this instance, generally shouldn't contain translations
 };
 
@@ -313,7 +312,11 @@ struct VK2DDrawCommand {
     vec2 scale;            ///< X/Y Scale of this draw
     float rotation;        ///< Rotation of the draw centered around the origin
     uint32_t textureIndex; ///< Texture index for this draw
-    uint32_t cameraIndex;  ///< Camera index for this draw
+};
+
+/// \brief A push buffer for an instanced draw
+struct VK2DInstancedPushBuffer {
+    uint32_t cameraIndex; ///< Index of the camera for this draw
 };
 
 /// \brief Info for the shadow environment to keep track of
@@ -372,6 +375,7 @@ VK2D_USER_STRUCT(VK2DDrawInstance)
 VK2D_USER_STRUCT(VK2DDrawCommand)
 VK2D_USER_STRUCT(VK2DAssetLoad)
 VK2D_USER_STRUCT(VK2DShadowObjectInfo)
+VK2D_USER_STRUCT(VK2DInstancedPushBuffer)
 
 #ifdef __cplusplus
 }
