@@ -298,7 +298,6 @@ struct VK2DRendererLimits {
 struct VK2DDrawInstance {
 	vec4 texturePos;       ///< x in tex, y in tex, w in tex, and h in tex
 	vec4 colour;           ///< Colour mod of this draw
-	vec2 pos;              ///< X/Y in game world for this instance
 	uint32_t textureIndex; ///< Which texture this instance is using
 	mat4 model;            ///< Model for this instance, generally shouldn't contain translations
 };
@@ -317,6 +316,11 @@ struct VK2DDrawCommand {
 /// \brief A push buffer for an instanced draw
 struct VK2DInstancedPushBuffer {
     uint32_t cameraIndex; ///< Index of the camera for this draw
+};
+
+/// \brief Push buffer for the sprite batch compute shader
+struct VK2DComputePushBuffer {
+    uint32_t drawCount; ///< Number of draws being processed in this compute pass
 };
 
 /// \brief Info for the shadow environment to keep track of
@@ -376,6 +380,7 @@ VK2D_USER_STRUCT(VK2DDrawCommand)
 VK2D_USER_STRUCT(VK2DAssetLoad)
 VK2D_USER_STRUCT(VK2DShadowObjectInfo)
 VK2D_USER_STRUCT(VK2DInstancedPushBuffer)
+VK2D_USER_STRUCT(VK2DComputePushBuffer)
 
 #ifdef __cplusplus
 }

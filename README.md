@@ -109,7 +109,7 @@ shader before running the `examples/main/` example with:
 
 If you don't trust binary blobs you may also compile the binary shader blobs with the command
 
-    genblobs.py colour.vert colour.frag instanced.vert instanced.frag model.vert model.frag shadows.vert shadows.frag tex.vert tex.frag
+    genblobs.py colour.vert colour.frag instanced.vert instanced.frag tex.frag tex.vert model.vert model.frag shadows.vert shadows.frag spritebatch.comp
 
 run from the `shaders/` folder (requires Python).
 

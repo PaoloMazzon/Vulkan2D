@@ -1,0 +1,66 @@
+#version 450
+
+struct DrawInstance {
+    vec4 texturePos;
+    vec4 colour;
+    uint textureIndex;
+    mat4 model;
+};
+
+struct DrawCommand {
+    vec4 texturePos;
+    vec4 colour;
+    vec2 pos;
+    vec2 origin;
+    vec2 scale;
+    float rotation;
+    uint textureIndex;
+};
+
+layout(push_constant) uniform PushBuffer {
+    uint drawCount;
+} ubo;
+
+layout(std140, binding = 0) readonly buffer DrawCommandsIn {
+    DrawCommand draws[ ];
+} drawCommandsIn;
+
+layout(std140, binding = 1) buffer DrawInstancesOut {
+    DrawInstance draws[ ];
+} drawInstancesOut;
+
+layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+mat4 translationMatrix(vec2 delta) {
+    return mat4(
+    vec4(1.0, 0.0, 0.0, 0.0),
+    vec4(0.0, 1.0, 0.0, 0.0),
+    vec4(0.0, 0.0, 1.0, 0.0),
+    vec4(delta, 0.0, 1.0)
+    );
+}
+
+mat4 scalingMatrix(vec2 scale) {
+    return mat4(
+    vec4(scale.x, 0.0, 0.0, 0.0),
+    vec4(0.0, scale.y, 0.0, 0.0),
+    vec4(0.0, 0.0, 1.0, 0.0),
+    vec4(0.0, 0.0, 0.0, 1.0)
+    );
+}
+
+void main() {
+    uint gID = gl_GlobalInvocationID.x;
+
+    if (gID < ubo.drawCount) {
+        // Assemble the model matrix
+        mat4 translation = translationMatrix(drawCommandsIn.draws[gID].pos);
+        // TODO: Scaling and rotation matrices
+
+        // Copy data over
+        drawInstancesOut.draws[gID].model = mat4(1.0) * translation;
+        drawInstancesOut.draws[gID].texturePos = drawCommandsIn.draws[gID].texturePos;
+        drawInstancesOut.draws[gID].colour = drawCommandsIn.draws[gID].colour;
+        drawInstancesOut.draws[gID].textureIndex = drawCommandsIn.draws[gID].textureIndex;
+    }
+}

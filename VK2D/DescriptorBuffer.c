@@ -40,7 +40,7 @@ static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDesc
 	buffer->deviceBuffer = vk2dBufferCreate(
 			db->dev,
 			db->pageSize,
-			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	if (buffer->stageBuffer == NULL || buffer->deviceBuffer == NULL) {
@@ -88,7 +88,34 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (vk2dStatusFatal() || gRenderer == NULL)
         return;
+	db->drawBuffer = drawBuffer;
+
 	for (int i = 0; i < db->bufferCount; i++) {
+	    // Lock out this memory from the other shaders
+        VkBufferMemoryBarrier barrier = {
+                .buffer = db->buffers[i].deviceBuffer->buf,
+                .offset = 0,
+                .size = db->pageSize,
+                .dstAccessMask = VK_ACCESS_SHADER_READ_BIT,
+                .srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT,
+                .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                .srcQueueFamilyIndex = db->dev->pd->QueueFamily.graphicsFamily,
+                .dstQueueFamilyIndex = db->dev->pd->QueueFamily.graphicsFamily
+        };
+        vkCmdPipelineBarrier(
+                drawBuffer,
+                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+                0,
+                0,
+                VK_NULL_HANDLE,
+                1,
+                &barrier,
+                0,
+                VK_NULL_HANDLE
+        );
+
+        // Map this buffer to ram
 		db->buffers[i].size = 0;
 		VkResult result = vmaMapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem, &db->buffers[i].hostData);
 		if (result != VK_SUCCESS) {
@@ -96,19 +123,6 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
             return;
 		}
 	}
-
-	vkCmdPipelineBarrier(
-			drawBuffer,
-			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
-			0,
-			0,
-			VK_NULL_HANDLE,
-			0,
-			VK_NULL_HANDLE,
-			0,
-			VK_NULL_HANDLE
-	);
 }
 
 void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *offset) {
@@ -137,6 +151,30 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
                     vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to map memory, VMA error %i.", result);
                     return;
                 }
+
+                // Guard the new memory
+                VkBufferMemoryBarrier barrier = {
+                        .buffer = spot->deviceBuffer->buf,
+                        .offset = 0,
+                        .size = db->pageSize,
+                        .dstAccessMask = VK_ACCESS_SHADER_READ_BIT,
+                        .srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT,
+                        .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                        .srcQueueFamilyIndex = db->dev->pd->QueueFamily.graphicsFamily,
+                        .dstQueueFamilyIndex = db->dev->pd->QueueFamily.graphicsFamily
+                };
+                vkCmdPipelineBarrier(
+                        db->drawBuffer,
+                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                        VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+                        0,
+                        0,
+                        VK_NULL_HANDLE,
+                        1,
+                        &barrier,
+                        0,
+                        VK_NULL_HANDLE
+                );
             } else {
                 return;
 			}

@@ -84,10 +84,11 @@ typedef struct _VK2DDescriptorBufferInternal {
 /// frame so Vulkan copies the buffer to device memory all at once instead of tiny increments.
 struct VK2DDescriptorBuffer_t {
 	_VK2DDescriptorBufferInternal *buffers; ///< List of internal buffers so that we can allocate more on the fly
-	int bufferCount;          ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
-	int bufferListSize;       ///< Actual number of elements in the buffer lists
-	VK2DLogicalDevice dev;    ///< Device this lives on
-	VkDeviceSize pageSize;    ///< Page size for this descriptor buffer
+	int bufferCount;            ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
+	int bufferListSize;         ///< Actual number of elements in the buffer lists
+	VK2DLogicalDevice dev;      ///< Device this lives on
+	VkDeviceSize pageSize;      ///< Page size for this descriptor buffer
+	VkCommandBuffer drawBuffer; ///< Draw command buffer for this frame
 };
 
 /// \brief Abstraction for descriptor pools and sets so you can dynamically use them
@@ -254,15 +255,16 @@ struct VK2DRenderer_t {
 	bool procedStartFrame;                 ///< End frame things are only done if this is true and start frame things are only done if this is false
 
 	// Pipelines
-	VK2DPipeline texPipe;       ///< Pipeline for rendering textures
-	VK2DPipeline modelPipe;     ///< Pipeline for 3D models
-	VK2DPipeline wireframePipe; ///< Pipeline for 3D wireframes
-	VK2DPipeline primFillPipe;  ///< Pipeline for rendering filled shapes
-	VK2DPipeline primLinePipe;  ///< Pipeline for rendering shape outlines
-	VK2DPipeline instancedPipe; ///< Pipeline for instancing textures
-	VK2DPipeline shadowsPipe;   ///< Pipeline for hardware-accelerated shadows
-	uint32_t shaderListSize;    ///< Size of the list of customShaders
-	VK2DShader *customShaders;  ///< Custom shaders the user creates
+	VK2DPipeline texPipe;         ///< Pipeline for rendering textures
+	VK2DPipeline modelPipe;       ///< Pipeline for 3D models
+	VK2DPipeline wireframePipe;   ///< Pipeline for 3D wireframes
+	VK2DPipeline primFillPipe;    ///< Pipeline for rendering filled shapes
+	VK2DPipeline primLinePipe;    ///< Pipeline for rendering shape outlines
+	VK2DPipeline instancedPipe;   ///< Pipeline for instancing textures
+	VK2DPipeline shadowsPipe;     ///< Pipeline for hardware-accelerated shadows
+	VK2DPipeline spriteBatchPipe; ///< Compute pipeline for sprite batching
+	uint32_t shaderListSize;      ///< Size of the list of customShaders
+	VK2DShader *customShaders;    ///< Custom shaders the user creates
 
 	// Uniform things
 	VkDescriptorSetLayout dslSampler;         ///< Descriptor set layout for texture samplers
@@ -270,6 +272,7 @@ struct VK2DRenderer_t {
 	VkDescriptorSetLayout dslBufferUser;      ///< Descriptor set layout for user data buffers (custom shaders uniforms)
 	VkDescriptorSetLayout dslTexture;         ///< Descriptor set layout for the textures
 	VkDescriptorSetLayout dslTextureArray;    ///< Descriptor set layout for texture array
+	VkDescriptorSetLayout dslSpriteBatch;     ///< DSL for compute sprite batch pipeline
 	VK2DDescCon descConSamplers;              ///< Descriptor controller for samplers
 	VK2DDescCon descConSamplersOff;           ///< Descriptor controller for samplers off thread
 	VK2DDescCon descConVP;                    ///< Descriptor controller for view projection buffers

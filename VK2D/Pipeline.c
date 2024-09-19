@@ -19,7 +19,8 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 	uint32_t i;
 
 	if (pipe != NULL) {
-	    pipe->id = gID++;
+	    pipe->id = gID;
+	    gID += 0x10;
 		// Figure out if wireframe is allowed
 		bool polygonFill = fill;
 		if (!polygonFill && !gRenderer->limits.supportsWireframe)
@@ -145,6 +146,82 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
 	return pipe;
 }
 
+VK2DPipeline vk2dPipelineCreateCompute(VK2DLogicalDevice dev, uint32_t pushBufferSize, unsigned char *shaderBuffer, uint32_t shaderSize, VkDescriptorSetLayout *setLayout, uint32_t layoutCount) {
+    if (vk2dStatusFatal())
+        return NULL;
+
+    VK2DPipeline pipe = calloc(1, sizeof(struct VK2DPipeline_t));
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    uint32_t i;
+
+    if (pipe != NULL) {
+        pipe->dev = dev;
+        pipe->id = gID;
+        gID += 0x10;
+        VkPushConstantRange range = {
+                .stageFlags = VK_SHADER_STAGE_COMPUTE_BIT,
+                .offset = 0,
+                .size = pushBufferSize
+        };
+        VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {
+                .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+                .pSetLayouts = setLayout,
+                .setLayoutCount = layoutCount,
+                .pushConstantRangeCount = pushBufferSize > 0 ? 1 : 0,
+                .pPushConstantRanges = pushBufferSize > 0 ? &range : VK_NULL_HANDLE
+        };
+        VkShaderModuleCreateInfo shaderModuleCreateInfo = {
+                .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+                .codeSize = shaderSize,
+                .pCode = (void*)shaderBuffer
+        };
+        VkShaderModule shader;
+        VkResult shaderRes = vkCreateShaderModule(dev->dev, &shaderModuleCreateInfo, VK_NULL_HANDLE, &shader);
+        VkResult res = vkCreatePipelineLayout(dev->dev, &pipelineLayoutCreateInfo, VK_NULL_HANDLE, &pipe->layout);
+
+        if (res == VK_SUCCESS && shaderRes == VK_SUCCESS) {
+            VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {
+                    .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+                    .stage = VK_SHADER_STAGE_COMPUTE_BIT,
+                    .module = shader,
+                    .pName = "main"
+            };
+
+            VkComputePipelineCreateInfo pipelineCreateInfo = {
+                    .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+                    .layout = pipe->layout,
+                    .stage = shaderStageCreateInfo,
+            };
+
+            res = vkCreateComputePipelines(dev->dev, VK_NULL_HANDLE, 1, &pipelineCreateInfo, VK_NULL_HANDLE, &pipe->pipes[0]);
+
+            if (res != VK_SUCCESS) {
+                free(pipe);
+                pipe = NULL;
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create compute pipeline, Vulkan error %i.", res);
+            }
+
+            vkDestroyShaderModule(dev->dev, shader, VK_NULL_HANDLE);
+        } else {
+            free(pipe);
+            pipe = NULL;
+            if (res != VK_SUCCESS)
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create compute pipeline layout, Vulkan error %i.", res);
+            if (shaderRes != VK_SUCCESS)
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create compute shader module, Vulkan error %i.", res);
+        }
+    } else {
+        vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate pipeline struct.");
+    }
+    return pipe;
+}
+
+VkPipeline vk2dPipelineGetCompute(VK2DPipeline pipe) {
+    if (vk2dStatusFatal())
+        return NULL;
+    return pipe->pipes[0];
+}
+
 VkPipeline vk2dPipelineGetPipe(VK2DPipeline pipe, VK2DBlendMode blendMode) {
     if (vk2dStatusFatal())
         return NULL;
@@ -152,6 +229,8 @@ VkPipeline vk2dPipelineGetPipe(VK2DPipeline pipe, VK2DBlendMode blendMode) {
 }
 
 int32_t vk2dPipelineGetID(VK2DPipeline pipe, VK2DBlendMode blendMode) {
+    if (vk2dStatusFatal())
+        return 0;
     return pipe->id + blendMode;
 }
 
@@ -160,7 +239,8 @@ void vk2dPipelineFree(VK2DPipeline pipe) {
 		vkDestroyPipelineLayout(pipe->dev->dev, pipe->layout, VK_NULL_HANDLE);
 		uint32_t i;
 		for (i = 0; i < VK2D_BLEND_MODE_MAX; i++)
-			vkDestroyPipeline(pipe->dev->dev, pipe->pipes[i], VK_NULL_HANDLE);
+		    if (pipe->pipes[i] != NULL)
+			    vkDestroyPipeline(pipe->dev->dev, pipe->pipes[i], VK_NULL_HANDLE);
 		free(pipe);
 	}
 }

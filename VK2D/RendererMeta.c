@@ -673,7 +673,7 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
-    VkResult r1, r2, r3, r4, r5;
+    VkResult r1, r2, r3, r4, r5, r6;
 
     // For texture samplers
 	const uint32_t layoutCount = 1;
@@ -730,8 +730,31 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
     };
     r5 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &texArraySetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslTextureArray);
 
-	if (r1 != VK_SUCCESS || r2 != VK_SUCCESS || r3 != VK_SUCCESS || r4 != VK_SUCCESS || r5 != VK_SUCCESS) {
-	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create descriptor set layouts %i/%i/%i/%i/%i.", r1, r2, r3, r4, r5);
+    // DSL for compute
+    VkDescriptorSetLayoutBinding dslbCompute[2] = {
+            {
+                    .descriptorCount = 1,
+                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                    .stageFlags = VK_SHADER_STAGE_COMPUTE_BIT,
+                    .binding = 0
+            },
+            {
+                    .descriptorCount = 1,
+                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                    .stageFlags = VK_SHADER_STAGE_COMPUTE_BIT,
+                    .binding = 1
+            }
+    };
+    VkDescriptorSetLayoutCreateInfo dslComputeCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+            .pBindings = dslbCompute,
+            .bindingCount = 2
+    };
+    r6 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &dslComputeCreateInfo, VK_NULL_HANDLE, &gRenderer->dslSpriteBatch);
+
+
+	if (r1 != VK_SUCCESS || r2 != VK_SUCCESS || r3 != VK_SUCCESS || r4 != VK_SUCCESS || r5 != VK_SUCCESS || r6 != VK_SUCCESS) {
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create descriptor set layouts %i/%i/%i/%i/%i/%i.", r1, r2, r3, r4, r5, r6);
 	    return;
 	}
 
@@ -745,6 +768,7 @@ void _vk2dRendererDestroyDescriptorSetLayout() {
 	vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferUser, VK_NULL_HANDLE);
     vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslTexture, VK_NULL_HANDLE);
     vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslTextureArray, VK_NULL_HANDLE);
+    vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslSpriteBatch, VK_NULL_HANDLE);
 }
 
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
@@ -956,6 +980,15 @@ void _vk2dRendererCreatePipelines() {
             gRenderer->config.msaa,
             VK2D_PIPELINE_TYPE_SHADOWS);
 
+    // Compute
+    gRenderer->spriteBatchPipe = vk2dPipelineCreateCompute(
+            gRenderer->ld,
+            sizeof(VK2DComputePushBuffer),
+            (void*)VK2DCompSpritebatch,
+            sizeof(VK2DCompSpritebatch),
+            &gRenderer->dslSpriteBatch,
+            1);
+
 	// Shader pipelines
 	for (i = 0; i < gRenderer->shaderListSize; i++) {
 		if (gRenderer->customShaders[i] != NULL) {
@@ -1000,6 +1033,7 @@ void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
 	vk2dPipelineFree(gRenderer->wireframePipe);
     vk2dPipelineFree(gRenderer->instancedPipe);
     vk2dPipelineFree(gRenderer->shadowsPipe);
+    vk2dPipelineFree(gRenderer->spriteBatchPipe);
 
     if (!preserveCustomPipes)
 		free(gRenderer->customShaders);
@@ -1848,78 +1882,15 @@ void _vk2dRendererDrawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDr
 }
 
 void vk2dInstanceSet(VK2DDrawInstance *instance, VK2DTexture tex, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour) {
-	memset(instance->model, 0, sizeof(mat4));
-	identityMatrix(instance->model);
-	if (rot != 0) {
-		xOrigin *= -xScale;
-		xOrigin *= yScale;
-		instance->pos[0] = 0;
-		instance->pos[1] = 0;
-		vec3 axis = {0, 0, 1};
-		vec3 origin = {-xOrigin + x, yOrigin + y, 0};
-		vec3 originTranslation = {xOrigin, -yOrigin, 0};
-		translateMatrix(instance->model, origin);
-		rotateMatrix(instance->model, axis, rot);
-		translateMatrix(instance->model, originTranslation);
-	} else {
-		instance->pos[0] = x;
-		instance->pos[1] = y;
-	}
-	// Only scale matrix if specified for optimization purposes
-	if (xScale != 1 || yScale != 1) {
-		vec3 scale = {xScale, yScale, 1};
-		scaleMatrix(instance->model, scale);
-	}
-	instance->texturePos[0] = xInTex;
-	instance->texturePos[1] = yInTex;
-	instance->texturePos[2] = wInTex == VK2D_FULL_TEXTURE ? tex->img->width : wInTex;
-	instance->texturePos[3] = hInTex == VK2D_FULL_TEXTURE ? tex->img->height : hInTex;
-	instance->colour[0] = colour[0];
-	instance->colour[1] = colour[1];
-	instance->colour[2] = colour[2];
-	instance->colour[3] = colour[3];
-	instance->textureIndex = tex->descriptorIndex;
+    // TODO: This
 }
 
 void vk2dInstanceSetFast(VK2DDrawInstance *instance, VK2DTexture tex, float x, float y, float xInTex, float yInTex, float wInTex, float hInTex, vec4 colour) {
-	memset(instance->model, 0, sizeof(mat4));
-	identityMatrix(instance->model);
-	instance->pos[0] = x;
-	instance->pos[1] = y;
-	instance->texturePos[0] = xInTex;
-	instance->texturePos[1] = yInTex;
-	instance->texturePos[2] = wInTex == VK2D_FULL_TEXTURE ? tex->img->width : wInTex;
-	instance->texturePos[3] = hInTex == VK2D_FULL_TEXTURE ? tex->img->height : hInTex;
-	instance->colour[0] = colour[0];
-	instance->colour[1] = colour[1];
-	instance->colour[2] = colour[2];
-	instance->colour[3] = colour[3];
-	instance->textureIndex = tex->descriptorIndex;
+	// TODO: This
 }
 
 void vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin) {
-	memset(instance->model, 0, sizeof(mat4));
-	identityMatrix(instance->model);
-	if (rot != 0) {
-		xOrigin *= -xScale;
-		yOrigin *= yScale;
-		instance->pos[0] = 0;
-		instance->pos[1] = 0;
-		vec3 axis = {0, 0, 1};
-		vec3 origin = {-xOrigin + x, yOrigin + y, 0};
-		vec3 originTranslation = {xOrigin, -yOrigin, 0};
-		translateMatrix(instance->model, origin);
-		rotateMatrix(instance->model, axis, rot);
-		translateMatrix(instance->model, originTranslation);
-	} else {
-		instance->pos[0] = x;
-		instance->pos[1] = y;
-	}
-	// Only scale matrix if specified for optimization purposes
-	if (xScale != 1 || yScale != 1) {
-		vec3 scale = {xScale, yScale, 1};
-		scaleMatrix(instance->model, scale);
-	}
+	// TODO: This
 }
 
 static void _vk2dRendererAddDrawCommandInternal(VK2DDrawCommand *command) {

@@ -41,18 +41,18 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 	vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueFamilyCount, NULL);
 	queueList = malloc(sizeof(VkQueueFamilyProperties) * queueFamilyCount);
 	bool gfx = false;
+	bool comp = false;
 
 	if (queueList != NULL) {
         vkGetPhysicalDeviceQueueFamilyProperties(dev, &queueFamilyCount, queueList);
         for (i = 0; i < queueFamilyCount && !gfx; i++) {
             if (queueList[i].queueCount > 0) {
-                if (queueList[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
-                    out->QueueFamily.computeFamily = i;
-                }
-                if (queueList[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                if (queueList[i].queueFlags & VK_QUEUE_GRAPHICS_BIT && queueList[i].queueFlags & VK_QUEUE_COMPUTE_BIT) {
                     out->QueueFamily.graphicsFamily = i;
                     gRenderer->limits.supportsMultiThreadLoading = queueList[i].queueCount >= 2;
                     gfx = true;
+                    out->QueueFamily.computeFamily = i;
+                    comp = true;
                 }
             }
         }
@@ -61,7 +61,7 @@ static bool _vk2dPhysicalDeviceSupportsQueueFamilies(VkInstance instance, VkPhys
 	}
 
 	free(queueList);
-	return gfx;
+	return gfx && comp;
 }
 
 // Checks if a device is supported, loading all the queue families if so
