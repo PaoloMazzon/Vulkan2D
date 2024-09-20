@@ -299,6 +299,7 @@ struct VK2DDrawInstance {
 	vec4 texturePos;       ///< x in tex, y in tex, w in tex, and h in tex
 	vec4 colour;           ///< Colour mod of this draw
 	uint32_t textureIndex; ///< Which texture this instance is using
+	vec3 padding;          ///< Padding
 	mat4 model;            ///< Model for this instance, generally shouldn't contain translations
 };
 

@@ -13,7 +13,7 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
 VkPipelineVertexInputStateCreateInfo _vk2dGetModelVertexInputState();
 
 /// \brief Gets the vertex input information for the instancing pipeline
-VkPipelineVertexInputStateCreateInfo _vk2dGetInstanceVertexInputState();
+VkPipelineVertexInputStateCreateInfo _vk2dGetInstanceVertexInputState(uint32_t stride);
 
 /// \brief Gets the vertex input information for the shadows pipeline
 VkPipelineVertexInputStateCreateInfo _vk2dGetShadowsVertexInputState();

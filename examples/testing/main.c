@@ -11,7 +11,6 @@
 
 const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
-#define MAX_DRAW_INSTANCES 10
 
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
@@ -28,16 +27,15 @@ int main(int argc, const char *argv[]) {
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	VK2DStartupOptions options = {
 	        .quitOnError = true,
-	        .enableDebug = true,
+	        .enableDebug = false,
 	        .loadCustomShaders = false,
-	        .stdoutLogging = true,
+	        .stdoutLogging = true
 	};
 	vk2dRendererInit(window, config, &options);
     debugInit(window);
 
 	// Load Some test assets
 	VK2DTexture texCaveguy = vk2dTextureLoad("assets/caveguy.png");
-	VK2DDrawInstance drawInstances[MAX_DRAW_INSTANCES] = {0};
 
 	// Delta and fps
 	const double startTime = SDL_GetPerformanceCounter();
@@ -59,9 +57,8 @@ int main(int argc, const char *argv[]) {
 		const float scale = 5;
         const float originX = vk2dTextureWidth(texCaveguy) * 0.5 * scale;
         const float originY = vk2dTextureHeight(texCaveguy) * 0.5 * scale;
-        vk2dInstanceSetFast(&drawInstances[0], texCaveguy, (windowWidth / 2) + (cos(time * 2) * 100) - originX, (windowHeight / 2) + (sin(time * 2) * 100) - originY, 0, 0, VK2D_FULL_TEXTURE, VK2D_FULL_TEXTURE, VK2D_DEFAULT_COLOUR_MOD);
-        //vk2dRendererDrawInstanced(drawInstances, 1);
-        vk2dDrawTexture(texCaveguy, (windowWidth / 2) + (cos(time * 2) * 100) - originX, (windowHeight / 2) + (sin(time * 2) * 100) - originY);
+        for (int i = 0; i < 100000; i++)
+            vk2dDrawTexture(texCaveguy, (windowWidth / 2) + (cos(time * 2) * 100) - originX, (windowHeight / 2) + (sin(time * 2) * 100) - originY);
 		debugRenderOverlay();
 		vk2dRendererFlushSpriteBatch();
 

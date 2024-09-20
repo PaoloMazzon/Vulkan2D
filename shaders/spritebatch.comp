@@ -55,10 +55,12 @@ void main() {
     if (gID < ubo.drawCount) {
         // Assemble the model matrix
         mat4 translation = translationMatrix(drawCommandsIn.draws[gID].pos);
+        mat4 scaling = scalingMatrix(drawCommandsIn.draws[gID].scale);
         // TODO: Scaling and rotation matrices
 
         // Copy data over
-        drawInstancesOut.draws[gID].model = mat4(1.0) * translation;
+        drawInstancesOut.draws[gID].model = mat4(1.0) * translation * scaling;
+
         drawInstancesOut.draws[gID].texturePos = drawCommandsIn.draws[gID].texturePos;
         drawInstancesOut.draws[gID].colour = drawCommandsIn.draws[gID].colour;
         drawInstancesOut.draws[gID].textureIndex = drawCommandsIn.draws[gID].textureIndex;

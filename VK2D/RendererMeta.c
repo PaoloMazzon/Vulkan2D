@@ -505,7 +505,7 @@ void _vk2dRendererCreateDescriptorBuffers() {
 	}
 
 	// Calculate max instances
-	const int maxDrawCommands = gRenderer->options.vramPageSize / sizeof(VK2DDrawInstance);
+	const int maxDrawCommands = gRenderer->options.vramPageSize / gRenderer->instanceDataStride;
 	gRenderer->limits.maxInstancedDraws = maxDrawCommands;
 	gRenderer->limits.maxInstancedDraws--;
 
@@ -782,7 +782,13 @@ void _vk2dRendererCreatePipelines() {
 	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
 	VkPipelineVertexInputStateCreateInfo colourVertexInfo = _vk2dGetColourVertexInputState();
 	VkPipelineVertexInputStateCreateInfo modelVertexInfo = _vk2dGetModelVertexInputState();
-	VkPipelineVertexInputStateCreateInfo instanceVertexInfo = _vk2dGetInstanceVertexInputState();
+
+    if (sizeof(VK2DDrawInstance) % gRenderer->pd->props.limits.minStorageBufferOffsetAlignment != 0)
+        gRenderer->instanceDataStride = ((sizeof(VK2DDrawInstance) / gRenderer->pd->props.limits.minStorageBufferOffsetAlignment) + 1) * gRenderer->pd->props.limits.minStorageBufferOffsetAlignment;
+    else
+        gRenderer->instanceDataStride = sizeof(VK2DDrawInstance);
+
+	VkPipelineVertexInputStateCreateInfo instanceVertexInfo = _vk2dGetInstanceVertexInputState(gRenderer->instanceDataStride);
     VkPipelineVertexInputStateCreateInfo shadowsVertexInfo = _vk2dGetShadowsVertexInputState();
 
 	// Default shader files
@@ -1184,7 +1190,8 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		gRenderer->descConSamplersOff = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2, VK2D_NO_LOCATION);
 		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
 		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
-		gRenderer->descConCompute = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 0);
+		for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
+		    gRenderer->descConCompute[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 0);
 
 		// And the one sampler set
 		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 4};
@@ -1259,7 +1266,8 @@ void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 		vk2dDescConFree(gRenderer->descConSamplersOff);
 		vk2dDescConFree(gRenderer->descConVP);
 		vk2dDescConFree(gRenderer->descConUser);
-		vk2dDescConFree(gRenderer->descConCompute);
+        for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
+		    vk2dDescConFree(gRenderer->descConCompute[i]);
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->samplerPool, VK_NULL_HANDLE);
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->texArrayPool, VK_NULL_HANDLE);
         free(gRenderer->textureArray);
@@ -1889,8 +1897,6 @@ void vk2dInstanceUpdate(VK2DDrawInstance *instance, float x, float y, float xSca
 
 static void _vk2dRendererAddDrawCommandInternal(VK2DDrawCommand *command) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer->drawCommandCount == gRenderer->limits.maxInstancedDraws)
-        vk2dRendererFlushSpriteBatch();
     memcpy(&gRenderer->drawCommands[gRenderer->drawCommandCount++], command, sizeof(struct VK2DDrawCommand));
 }
 
@@ -1912,7 +1918,7 @@ void _vk2dRendererAddDrawCommand(VK2DDrawCommand *command) {
         }
     }*/
 }
-
+/*
 // This is to add a new compute batch
 void _vk2dRendererAddSpriteBatch(void *batch) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
@@ -1935,6 +1941,7 @@ void _vk2dRendererAddSpriteBatch(void *batch) {
 
 // This is meant to be called at the end of each frame outside of a render pass
 void _vk2dRendererDispatchCompute() {
+    return;
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     for (int i = 0; i < gRenderer->spriteBatchCount; i++) {
         VK2DSpriteBatch *batch = &gRenderer->spriteBatches[i];
@@ -1972,3 +1979,4 @@ void _vk2dRendererDispatchCompute() {
         vkCmdDispatch(buf, (batch->drawCount / 64) + 1, 1, 1);
     }
 }
+*/

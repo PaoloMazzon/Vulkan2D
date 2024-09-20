@@ -286,7 +286,7 @@ struct VK2DRenderer_t {
 	VK2DDescCon descConSamplersOff;           ///< Descriptor controller for samplers off thread
 	VK2DDescCon descConVP;                    ///< Descriptor controller for view projection buffers
 	VK2DDescCon descConUser;                  ///< Descriptor controller for user buffers
-	VK2DDescCon descConCompute;               ///< Descriptor controller for sprite batch compute buffer
+	VK2DDescCon descConCompute[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor controller for sprite batch compute buffer
 	VkDescriptorPool samplerPool;             ///< Sampler pool for 1 sampler
 	VkDescriptorPool texArrayPool;            ///< Tex array pool
 	VkDescriptorSet texArrayDescriptorSet;    ///< Tex array set
@@ -343,9 +343,10 @@ struct VK2DRenderer_t {
     int drawInstanceListCount;           ///< TODO: Remove this once we have compute shader
     int32_t currentBatchPipelineID;      ///< Pipeline id for the current batch
     VK2DPipeline currentBatchPipeline;   ///< Pipeline for the current batch
-    VK2DSpriteBatch *spriteBatches;      ///< Sprite batches that will be processed at the end of the frame
+    VkDeviceSize instanceDataStride;     ///< Stride for each instance data to meet storage buffer alignment requirements
+    /*VK2DSpriteBatch *spriteBatches;      ///< Sprite batches that will be processed at the end of the frame
     int32_t spriteBatchCount;            ///< Number of sprite batches this frame
-    uint32_t spriteBatchListSize;        ///< Size of the sprite batch list
+    uint32_t spriteBatchListSize;*/        ///< Size of the sprite batch list
 };
 
 #ifdef __cplusplus
