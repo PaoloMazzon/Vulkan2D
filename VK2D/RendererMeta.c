@@ -505,7 +505,7 @@ void _vk2dRendererCreateDescriptorBuffers() {
 	}
 
 	// Calculate max instances
-	const int maxDrawCommands = gRenderer->options.vramPageSize / sizeof(VK2DDrawCommand);
+	const int maxDrawCommands = gRenderer->options.vramPageSize / sizeof(VK2DDrawInstance);
 	gRenderer->limits.maxInstancedDraws = maxDrawCommands;
 	gRenderer->limits.maxInstancedDraws--;
 
@@ -1164,11 +1164,6 @@ void _vk2dRendererCreateSpriteBatching() {
     gRenderer->drawInstancesList = malloc(sizeof(struct VK2DDrawInstance) * gRenderer->limits.maxInstancedDraws);
     gRenderer->drawInstanceListCount = 0;
 
-    // Each page in the descriptor buffer is enough room for 2 draw batches
-    for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
-        gRenderer->drawInstances[i] = vk2dDescriptorBufferCreate(gRenderer->limits.maxInstancedDraws * sizeof(struct VK2DDrawInstance) * 2);
-    }
-
     if (gRenderer->drawCommands == NULL) {
         vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate sprite batch of count %i.", gRenderer->limits.maxInstancedDraws);
     }
@@ -1176,9 +1171,6 @@ void _vk2dRendererCreateSpriteBatching() {
 
 void _vk2dRendererDestroySpriteBatching() {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
-        vk2dDescriptorBufferFree(gRenderer->drawInstances[i]);
-    }
     free(gRenderer->drawCommands);
     free(gRenderer->drawInstancesList);
 }
@@ -1192,6 +1184,7 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		gRenderer->descConSamplersOff = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2, VK2D_NO_LOCATION);
 		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
 		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
+		gRenderer->descConCompute = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 0);
 
 		// And the one sampler set
 		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 4};
@@ -1266,6 +1259,7 @@ void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 		vk2dDescConFree(gRenderer->descConSamplersOff);
 		vk2dDescConFree(gRenderer->descConVP);
 		vk2dDescConFree(gRenderer->descConUser);
+		vk2dDescConFree(gRenderer->descConCompute);
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->samplerPool, VK_NULL_HANDLE);
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->texArrayPool, VK_NULL_HANDLE);
         free(gRenderer->textureArray);
@@ -1917,4 +1911,64 @@ void _vk2dRendererAddDrawCommand(VK2DDrawCommand *command) {
             }
         }
     }*/
+}
+
+// This is to add a new compute batch
+void _vk2dRendererAddSpriteBatch(void *batch) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+
+    // Make sure there is enough space in the sprite batch list
+    if (gRenderer->spriteBatchCount == gRenderer->spriteBatchListSize) {
+        gRenderer->spriteBatches = realloc(gRenderer->spriteBatches, (gRenderer->spriteBatchListSize + VK2D_DEFAULT_ARRAY_EXTENSION) * sizeof(VK2DSpriteBatch));
+        gRenderer->spriteBatchListSize += VK2D_DEFAULT_ARRAY_EXTENSION;
+
+        if (gRenderer->spriteBatches == NULL) {
+            vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to resize sprite batches.");
+            return;
+        }
+    }
+
+    // Copy the batch over
+    memcpy(&gRenderer->spriteBatches[gRenderer->spriteBatchCount], batch, sizeof(VK2DSpriteBatch));
+    gRenderer->spriteBatchCount++;
+}
+
+// This is meant to be called at the end of each frame outside of a render pass
+void _vk2dRendererDispatchCompute() {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    for (int i = 0; i < gRenderer->spriteBatchCount; i++) {
+        VK2DSpriteBatch *batch = &gRenderer->spriteBatches[i];
+
+        // Create descriptor set
+        VkDescriptorSet descriptorSet = vk2dDescConGetSet(gRenderer->descConCompute);
+        VkDescriptorBufferInfo bufferInfos[2] = {
+                {
+                        .buffer = batch->drawCommands,
+                        .offset = batch->drawCommandsOffset,
+                        .range = batch->drawCount * sizeof(struct VK2DDrawCommand)
+                },
+                {
+                        .buffer = batch->drawInstances,
+                        .offset = batch->drawInstancesOffset,
+                        .range = batch->drawCount * sizeof(struct VK2DDrawInstance)
+                }
+        };
+        VkWriteDescriptorSet write = {
+                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                .dstSet = descriptorSet,
+                .dstBinding = 0,
+                .descriptorCount = 2,
+                .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                .pBufferInfo = bufferInfos
+        };
+        vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
+
+        // Queue the actual dispatches
+        VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
+        vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_COMPUTE, vk2dPipelineGetCompute(gRenderer->spriteBatchPipe));
+        VK2DComputePushBuffer push = { .drawCount = batch->drawCount };
+        vkCmdPushConstants(buf, gRenderer->spriteBatchPipe->layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(VK2DComputePushBuffer), &push);
+        vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_COMPUTE, gRenderer->spriteBatchPipe->layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
+        vkCmdDispatch(buf, (batch->drawCount / 64) + 1, 1, 1);
+    }
 }

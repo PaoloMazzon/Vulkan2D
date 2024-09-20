@@ -201,6 +201,15 @@ typedef struct VK2DTextureDescriptorInfo_t {
     bool active;
 } VK2DTextureDescriptorInfo;
 
+/// \brief Information about this frame's sprite batches that need compute dispatched on them
+typedef struct VK2DSpriteBatch_t {
+    VkBuffer drawCommands;            ///< Buffer the draw commands are in
+    VkBuffer drawInstances;           ///< Buffer where space is reserved for the resultant draw instances
+    VkDeviceSize drawCommandsOffset;  ///< Offset in the draw command buffer
+    VkDeviceSize drawInstancesOffset; ///< Offset in the draw instances buffer
+    uint32_t drawCount;               ///< Number of draws in this batch
+} VK2DSpriteBatch;
+
 /// \brief Core rendering data, don't modify values unless you know what you're doing
 struct VK2DRenderer_t {
 	// Devices/core functionality (these have short names because they're constantly referenced)
@@ -277,6 +286,7 @@ struct VK2DRenderer_t {
 	VK2DDescCon descConSamplersOff;           ///< Descriptor controller for samplers off thread
 	VK2DDescCon descConVP;                    ///< Descriptor controller for view projection buffers
 	VK2DDescCon descConUser;                  ///< Descriptor controller for user buffers
+	VK2DDescCon descConCompute;               ///< Descriptor controller for sprite batch compute buffer
 	VkDescriptorPool samplerPool;             ///< Sampler pool for 1 sampler
 	VkDescriptorPool texArrayPool;            ///< Tex array pool
 	VkDescriptorSet texArrayDescriptorSet;    ///< Tex array set
@@ -327,13 +337,15 @@ struct VK2DRenderer_t {
 	double frameTimeAverage; ///< Average amount of time frames are taking over a second (in ms)
 
 	// Sprite batching
-	VK2DDescriptorBuffer drawInstances[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor buffers for the compute shader output
     VK2DDrawCommand *drawCommands;       ///< User-side draw commands
     int drawCommandCount;                ///< Number of draw commands
     VK2DDrawInstance *drawInstancesList; ///< TODO: Remove this once we have compute shader
     int drawInstanceListCount;           ///< TODO: Remove this once we have compute shader
     int32_t currentBatchPipelineID;      ///< Pipeline id for the current batch
     VK2DPipeline currentBatchPipeline;   ///< Pipeline for the current batch
+    VK2DSpriteBatch *spriteBatches;      ///< Sprite batches that will be processed at the end of the frame
+    int32_t spriteBatchCount;            ///< Number of sprite batches this frame
+    uint32_t spriteBatchListSize;        ///< Size of the sprite batch list
 };
 
 #ifdef __cplusplus

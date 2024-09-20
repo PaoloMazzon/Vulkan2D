@@ -123,28 +123,46 @@ void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer dra
             return;
 		}
 	}
+
+	// Transfer needs to be done before compute shader gets the buffers
+    vkCmdPipelineBarrier(
+            drawBuffer,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+            0,
+            0,
+            VK_NULL_HANDLE,
+            0,
+            VK_NULL_HANDLE,
+            0,
+            VK_NULL_HANDLE
+    );
+}
+
+static VkDeviceSize maxTwo(VkDeviceSize s1, VkDeviceSize s2) {
+    return s1 > s2 ? s1 : s2;
 }
 
 void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *offset) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	*outBuffer = VK_NULL_HANDLE;
-	*offset = 0;
-	if (vk2dStatusFatal() || gRenderer == NULL)
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    *outBuffer = VK_NULL_HANDLE;
+    *offset = 0;
+    if (vk2dStatusFatal() || gRenderer == NULL)
         return;
 
-	if (size < db->pageSize) {
-		// Find a buffer with enough space
-		_VK2DDescriptorBufferInternal *spot = NULL;
-		for (int i = 0; i < db->bufferCount && spot == NULL; i++) {
-			if (size <= db->pageSize - db->buffers[i].size) {
-				spot = &db->buffers[i];
-			}
-		}
+    if (size < db->pageSize) {
+        // Find a buffer with enough space
+        _VK2DDescriptorBufferInternal *spot = NULL;
+        for (int i = 0; i < db->bufferCount && spot == NULL; i++) {
+            if (size <= db->pageSize - db->buffers[i].size) {
+                spot = &db->buffers[i];
+            }
+        }
 
-		// If no buffer exists, make a new one
-		if (spot == NULL) {
-			spot = _vk2dDescriptorBufferAppendBuffer(db);
-			if (spot != NULL) {
+        // If no buffer exists, make a new one
+        if (spot == NULL) {
+            spot = _vk2dDescriptorBufferAppendBuffer(db);
+            if (spot != NULL) {
                 spot->size = 0;
                 VkResult result = vmaMapMemory(gRenderer->vma, spot->stageBuffer->mem, &spot->hostData);
                 if (result != VK_SUCCESS) {
@@ -166,7 +184,7 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
                 vkCmdPipelineBarrier(
                         db->drawBuffer,
                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                        VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+                        VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
                         0,
                         0,
                         VK_NULL_HANDLE,
@@ -177,22 +195,92 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
                 );
             } else {
                 return;
-			}
-		}
+            }
+        }
 
-		// Copy data over
-		uint8_t *np = spot->hostData;
-		memcpy(np + spot->size, data, size);
-		*outBuffer = spot->deviceBuffer->buf;
-		*offset = spot->size;
+        // Copy data over
+        uint8_t *np = spot->hostData;
+        memcpy(np + spot->size, data, size);
+        *outBuffer = spot->deviceBuffer->buf;
+        *offset = spot->size;
 
-		// We may only move size in accordance with minUniformBufferOffsetAlignment
-		if (size % gRenderer->pd->props.limits.minUniformBufferOffsetAlignment != 0) {
-			spot->size += ((size / gRenderer->pd->props.limits.minUniformBufferOffsetAlignment) + 1) * gRenderer->pd->props.limits.minUniformBufferOffsetAlignment;
-		} else {
-			spot->size += size;
-		}
-	}
+        // We may only move size in accordance with minUniformBufferOffsetAlignment
+        const VkDeviceSize alignment = maxTwo(gRenderer->pd->props.limits.minStorageBufferOffsetAlignment, gRenderer->pd->props.limits.minUniformBufferOffsetAlignment);
+        if (size % alignment != 0) {
+            spot->size += ((size / alignment) + 1) * alignment;
+        } else {
+            spot->size += size;
+        }
+    }
+}
+
+void vk2dDescriptorBufferReserveSpace(VK2DDescriptorBuffer db, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *offset) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    *outBuffer = VK_NULL_HANDLE;
+    *offset = 0;
+    if (vk2dStatusFatal() || gRenderer == NULL)
+        return;
+
+    if (size < db->pageSize) {
+        // Find a buffer with enough space
+        _VK2DDescriptorBufferInternal *spot = NULL;
+        for (int i = 0; i < db->bufferCount && spot == NULL; i++) {
+            if (size <= db->pageSize - db->buffers[i].size) {
+                spot = &db->buffers[i];
+            }
+        }
+
+        // If no buffer exists, make a new one
+        if (spot == NULL) {
+            spot = _vk2dDescriptorBufferAppendBuffer(db);
+            if (spot != NULL) {
+                spot->size = 0;
+                VkResult result = vmaMapMemory(gRenderer->vma, spot->stageBuffer->mem, &spot->hostData);
+                if (result != VK_SUCCESS) {
+                    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to map memory, VMA error %i.", result);
+                    return;
+                }
+
+                // Guard the new memory
+                VkBufferMemoryBarrier barrier = {
+                        .buffer = spot->deviceBuffer->buf,
+                        .offset = 0,
+                        .size = db->pageSize,
+                        .dstAccessMask = VK_ACCESS_SHADER_READ_BIT,
+                        .srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT,
+                        .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+                        .srcQueueFamilyIndex = db->dev->pd->QueueFamily.graphicsFamily,
+                        .dstQueueFamilyIndex = db->dev->pd->QueueFamily.graphicsFamily
+                };
+                vkCmdPipelineBarrier(
+                        db->drawBuffer,
+                        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+                        VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                        0,
+                        0,
+                        VK_NULL_HANDLE,
+                        1,
+                        &barrier,
+                        0,
+                        VK_NULL_HANDLE
+                );
+            } else {
+                return;
+            }
+        }
+
+        // Copy data over
+        *outBuffer = spot->deviceBuffer->buf;
+        *offset = spot->size;
+
+        // We may only move size in accordance with minUniformBufferOffsetAlignment
+        const VkDeviceSize alignment = maxTwo(gRenderer->pd->props.limits.minStorageBufferOffsetAlignment, gRenderer->pd->props.limits.minUniformBufferOffsetAlignment);
+        if (size % alignment != 0) {
+            spot->size += ((size / alignment) + 1) * alignment;
+        } else {
+            spot->size += size;
+        }
+    }
 }
 
 void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyBuffer) {

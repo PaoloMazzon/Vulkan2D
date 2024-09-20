@@ -395,9 +395,9 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
                 return;
             }
 
-			// Begin descriptor buffer
+			// Begin descriptor buffer and sprite batching
             vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->commandBuffer[gRenderer->scImageIndex]);
-            vk2dDescriptorBufferBeginFrame(gRenderer->drawInstances[gRenderer->currentFrame], gRenderer->commandBuffer[gRenderer->scImageIndex]);
+            gRenderer->spriteBatchCount = 0;
 
 			// Flush the current ubo into its buffer for the frame
             for (int i = 0; i < VK2D_MAX_CAMERAS; i++)
@@ -451,10 +451,12 @@ VK2DResult vk2dRendererEndFrame() {
 				vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
 			}
 
-			// Finish the primary command buffer, its time to PRESENT things
-			vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
+			// Dispatch compute and end the descriptor buffer frame
+            vkCmdEndRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex]);
+			_vk2dRendererDispatchCompute();
             vk2dDescriptorBufferEndFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
-            vk2dDescriptorBufferEndFrame(gRenderer->drawInstances[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
+
+            // PRESENT
             VkResult result = vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]);
             VkResult result2 = vkEndCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
             if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
@@ -934,7 +936,8 @@ void vk2dRendererFlushSpriteBatch() {
     //  4. Queue the draw command for this sprite batch
     // If the compute is ready and to debug just compute them all here and copy to the other descriptor buffer
     if (gRenderer->currentBatchPipeline != NULL && gRenderer->drawCommandCount > 0) {
-        for (int i = 0; i < gRenderer->drawCommandCount; i++) {
+        ///////////////// TEMPORARY /////////////////
+        /*for (int i = 0; i < gRenderer->drawCommandCount; i++) {
             VK2DDrawInstance *instance = &gRenderer->drawInstancesList[i];
             VK2DDrawCommand *command = &gRenderer->drawCommands[i];
             memset(instance, 0, sizeof(struct VK2DDrawInstance));
@@ -976,14 +979,43 @@ void vk2dRendererFlushSpriteBatch() {
         VkBuffer buffer;
         VkDeviceSize offset;
         vk2dDescriptorBufferCopyData(
-                gRenderer->drawInstances[gRenderer->currentFrame],
+                gRenderer->descriptorBuffers[gRenderer->currentFrame],
                 gRenderer->drawInstancesList,
                 gRenderer->drawCommandCount * sizeof(struct VK2DDrawInstance),
                 &buffer,
                 &offset
+        );*/
+        ///////////////// TEMPORARY /////////////////
+
+        // Copy the draw commands into a buffer
+        VkBuffer drawCommands, drawInstances;
+        VkDeviceSize drawCommandsOffset, drawInstancesOffset;
+        vk2dDescriptorBufferCopyData(
+                gRenderer->descriptorBuffers[gRenderer->currentFrame],
+                gRenderer->drawCommands,
+                gRenderer->drawCommandCount * sizeof(struct VK2DDrawCommand),
+                &drawCommands,
+                &drawCommandsOffset
         );
 
-        // Queue the actual draw command
+        // Reserve space for the draw instances
+        vk2dDescriptorBufferReserveSpace(
+                gRenderer->descriptorBuffers[gRenderer->currentFrame],
+                gRenderer->drawCommandCount * sizeof(struct VK2DDrawInstance),
+                &drawInstances,
+                &drawInstancesOffset
+        );
+
+        VK2DSpriteBatch batch = {
+                .drawCommands = drawCommands,
+                .drawCommandsOffset = drawCommandsOffset,
+                .drawInstances = drawInstances,
+                .drawInstancesOffset = drawInstancesOffset,
+                .drawCount = gRenderer->drawCommandCount
+        };
+        _vk2dRendererAddSpriteBatch(&batch);
+
+        // Dispatch compute and draw command
         VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
         _vk2dRendererResetBoundPointers();
         vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(gRenderer->instancedPipe, gRenderer->blendMode));
@@ -994,7 +1026,7 @@ void vk2dRendererFlushSpriteBatch() {
         };
         // These things are the same across every camera, so they are only bound once
         vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->instancedPipe->layout, 0, 3, sets, 0, VK_NULL_HANDLE);
-        vkCmdBindVertexBuffers(buf, 0, 1, &buffer, &offset);
+        vkCmdBindVertexBuffers(buf, 0, 1, &drawInstances, &drawInstancesOffset);
         vkCmdSetLineWidth(buf, 1);
 
         // Draw once per camera
