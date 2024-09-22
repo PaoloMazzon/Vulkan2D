@@ -66,6 +66,7 @@ void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state) {
 	    return;
 	}
 
+    vk2dRendererFlushSpriteBatch();
     gRenderer->cameras[index].state = state;
 }
 

@@ -54,6 +54,13 @@ bool vk2dTextureIsTarget(VK2DTexture tex);
 /// \return Returns the texture's image
 VK2DImage vk2dTextureGetImage(VK2DTexture tex);
 
+/// \brief Returns a unique ID for this texture
+/// \param tex Texture to get the id of
+/// \return Returns a unique uint32_t ID for this texture, used for sprite batching/user shaders
+///
+/// This function is thread-safe.
+uint32_t vk2dTextureGetID(VK2DTexture tex);
+
 /// \brief Frees a texture from memory
 /// \param tex Texture to free
 void vk2dTextureFree(VK2DTexture tex);

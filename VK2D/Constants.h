@@ -22,6 +22,9 @@ extern const VkApplicationInfo VK2D_DEFAULT_CONFIG;
 /// How many sets to allocate in a pool at a time (10 should be a good amount)
 extern const uint32_t VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION;
 
+/// ID representing an invalid pipeline or one not existing
+extern const int32_t VK2D_PIPELINE_ID_NONE;
+
 /// How many array slots to allocate at a time with realloc (to avoid constantly reallocating memory)
 extern const uint32_t VK2D_DEFAULT_ARRAY_EXTENSION;
 

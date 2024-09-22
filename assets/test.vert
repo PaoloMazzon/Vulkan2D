@@ -1,39 +1,44 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(set = 3, binding = 3) uniform UserData {
-    float colour;
-} userData;
+struct DrawInstance {
+    vec4 texturePos;
+    vec4 colour;
+    uint textureIndex;
+    mat4 model;
+};
 
 layout(set = 0, binding = 0) uniform UniformBufferObject {
-    mat4 viewproj;
+    mat4 viewproj[10];
 } ubo;
 
-layout(push_constant) uniform PushBuffer {
-    mat4 model;
-    vec4 colourMod;
-    vec4 textureCoords;
-} pushBuffer;
+layout(set = 3, binding = 3) readonly buffer drawInstances {
+    DrawInstance draws[];
+};
+
+layout(set = 4, binding = 4) uniform UserData {
+    float colour;
+} userData;
 
 layout(location = 1) out vec2 fragTexCoord;
 layout(location = 2) out vec4 fragColour;
 
 vec2 vertices[] = {
-vec2(0.0f, 0.0f),
-vec2(1.0f, 0.0f),
-vec2(1.0f, 1.0f),
-vec2(1.0f, 1.0f),
-vec2(0.0f, 1.0f),
-vec2(0.0f, 0.0f),
+    vec2(0.0f, 0.0f),
+    vec2(1.0f, 0.0f),
+    vec2(1.0f, 1.0f),
+    vec2(1.0f, 1.0f),
+    vec2(0.0f, 1.0f),
+    vec2(0.0f, 0.0f),
 };
 
 vec2 texCoords[] = {
-vec2(0.0f, 0.0f),
-vec2(1.0f, 0.0f),
-vec2(1.0f, 1.0f),
-vec2(1.0f, 1.0f),
-vec2(0.0f, 1.0f),
-vec2(0.0f, 0.0f),
+    vec2(0.0f, 0.0f),
+    vec2(1.0f, 0.0f),
+    vec2(1.0f, 1.0f),
+    vec2(1.0f, 1.0f),
+    vec2(0.0f, 1.0f),
+    vec2(0.0f, 0.0f),
 };
 
 out gl_PerVertex {

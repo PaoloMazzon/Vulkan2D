@@ -311,7 +311,7 @@ struct VK2DDrawCommand {
     vec2 origin;           ///< X/Y Origin of this draw
     vec2 scale;            ///< X/Y Scale of this draw
     float rotation;        ///< Rotation of the draw centered around the origin
-    uint32_t textureIndex; ///< Texture index for this draw
+    uint32_t textureIndex; ///< Texture index for this draw (use vk2dTextureGetID)
 };
 
 /// \brief A push buffer for an instanced draw

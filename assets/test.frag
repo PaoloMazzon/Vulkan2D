@@ -3,9 +3,9 @@
 #define pi 3.141592635
 
 layout(set = 1, binding = 1) uniform sampler texSampler;
-layout(set = 2, binding = 2) uniform texture2D tex;
+layout(set = 2, binding = 2) uniform texture2D tex[];
 
-layout(set = 3, binding = 3) uniform UserData {
+layout(set = 4, binding = 4) uniform UserData {
     float colour;
 } userData;
 

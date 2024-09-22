@@ -164,14 +164,14 @@ struct VK2DImage_t {
 /// set the render target to a texture not created with vk2dTextureCreate, you can expect
 /// a segfault.
 struct VK2DTexture_t {
-	VK2DImage img;            ///< Internal image
-	VK2DImage depthBuffer;    ///< For 3D rendering when its a target
-	VK2DImage sampledImg;     ///< Image for MSAA
-	VkFramebuffer fbo;        ///< Framebuffer of this texture so it can be drawn to
-	VK2DBuffer ubo;           ///< UBO that will be used when drawing to this texture
-	VkDescriptorSet uboSet;   ///< Set for the UBO
-	bool imgHandled;          ///< Whether or not to free the image with the texture (if it was loaded with vk2dTextureLoad)
-	uint32_t descriptorIndex; ///< Index in the descriptor array of this texture
+	VK2DImage img;                ///< Internal image
+	VK2DImage depthBuffer;        ///< For 3D rendering when its a target
+	VK2DImage sampledImg;         ///< Image for MSAA
+	VkFramebuffer fbo;            ///< Framebuffer of this texture so it can be drawn to
+	VK2DBuffer ubo;               ///< UBO that will be used when drawing to this texture
+	VkDescriptorSet uboSet;       ///< Set for the UBO
+	bool imgHandled;              ///< Whether or not to free the image with the texture (if it was loaded with vk2dTextureLoad)
+	SDL_atomic_t descriptorIndex; ///< Index in the descriptor array of this texture
 };
 
 /// \brief A 3D model

@@ -376,7 +376,7 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			gRenderer->targetImage = gRenderer->swapchainImages[gRenderer->scImageIndex];
 			gRenderer->targetUBOSet = gRenderer->uboDescriptorSets[gRenderer->currentFrame]; // TODO: Should prob be reworked
 			gRenderer->target = VK2D_TARGET_SCREEN;
-			gRenderer->currentBatchPipelineID = INT32_MAX;
+			_vk2dRendererResetBatch();
 
 			// Start the render pass
 			VkCommandBufferBeginInfo beginInfo = vk2dInitCommandBufferBeginInfo(
@@ -445,6 +445,9 @@ VK2DResult vk2dRendererEndFrame() {
 	VK2DResult res = VK2D_SUCCESS;
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
 		if (gRenderer->procedStartFrame) {
+		    // Flush whatevers on batch
+		    vk2dRendererFlushSpriteBatch();
+
 			gRenderer->procedStartFrame = false;
 
 			// Make sure we're not in the wrong pipeline
@@ -533,6 +536,8 @@ VK2DLogicalDevice vk2dRendererGetDevice() {
 void vk2dRendererSetTarget(VK2DTexture target) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
 		if (target != gRenderer->target) {
+            vk2dRendererFlushSpriteBatch();
+
 			// In case the user attempts to switch targets from one texture to another
 			if (target != VK2D_TARGET_SCREEN && gRenderer->target != VK2D_TARGET_SCREEN) {
 				vk2dRendererSetTarget(VK2D_TARGET_SCREEN);
@@ -641,16 +646,19 @@ VK2DCameraSpec vk2dRendererGetCamera() {
 }
 
 void vk2dRendererSetTextureCamera(bool useCameraOnTextures) {
+    vk2dRendererFlushSpriteBatch();
 	if (vk2dRendererGetPointer() != NULL)
 		gRenderer->enableTextureCameraUBO = useCameraOnTextures;
 }
 
 void vk2dRendererLockCameras(VK2DCameraIndex cam) {
+    vk2dRendererFlushSpriteBatch();
 	if (vk2dRendererGetPointer() != NULL)
 		gRenderer->cameraLocked = cam;
 }
 
 void vk2dRendererUnlockCameras() {
+    vk2dRendererFlushSpriteBatch();
 	if (vk2dRendererGetPointer() != NULL)
 		gRenderer->cameraLocked = VK2D_INVALID_CAMERA;
 }
@@ -663,6 +671,8 @@ double vk2dRendererGetAverageFrameTime() {
 
 void vk2dRendererClear() {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        vk2dRendererFlushSpriteBatch();
+
 		VkDescriptorSet set = gRenderer->unitUBOSet;
 		_vk2dRendererDrawRaw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0,
 							 0, VK2D_INVALID_CAMERA);
@@ -671,6 +681,8 @@ void vk2dRendererClear() {
 
 void vk2dRendererEmpty() {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        vk2dRendererFlushSpriteBatch();
+
 		// Save old renderer state to revert back
 		VK2DBlendMode bm = vk2dRendererGetBlendMode();
 		vec4 c;
@@ -697,30 +709,35 @@ VK2DRendererLimits vk2dRendererGetLimits() {
 
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        vk2dRendererFlushSpriteBatch();
 		vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox / w, oy / h);
 	}
 }
 
 void vk2dRendererDrawRectangleOutline(float x, float y, float w, float h, float r, float ox, float oy, float lineWidth) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        vk2dRendererFlushSpriteBatch();
 		vk2dRendererDrawPolygon(gRenderer->unitSquareOutline, x, y, false, lineWidth, w, h, r, ox / w, oy / h);
 	}
 }
 
 void vk2dRendererDrawCircle(float x, float y, float r) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        vk2dRendererFlushSpriteBatch();
 		vk2dRendererDrawPolygon(gRenderer->unitCircle, x, y, true, 1, r * 2, r * 2, 0, 0, 0);
 	}
 }
 
 void vk2dRendererDrawCircleOutline(float x, float y, float r, float lineWidth) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        vk2dRendererFlushSpriteBatch();
 		vk2dRendererDrawPolygon(gRenderer->unitCircleOutline, x, y, false, lineWidth, r * 2, r * 2, 0, 0, 0);
 	}
 }
 
 void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        vk2dRendererFlushSpriteBatch();
 		float x = sqrtf(powf(y2 - y1, 2) + powf(x2 - x1, 2));
 		float r = atan2f(y2 - y1, x2 - x1);
 		vk2dRendererDrawPolygon(gRenderer->unitLine, x1, y1, false, 1, x, 1, r, 0, 0);
@@ -730,6 +747,8 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
 void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
 		if (shader != NULL) {
+            _vk2dRendererFlushBatchIfNeeded(shader->pipe);
+
 			VkDescriptorSet sets[4];
 			sets[1] = gRenderer->samplerSet;
 			sets[2] = tex->img->set;
@@ -761,14 +780,11 @@ void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, floa
 	}
 }
 
-void vk2dRendererDrawInstanced(VK2DDrawInstance *instances, uint32_t count) {
+void vk2dRendererAddBatch(VK2DDrawCommand *commands, uint32_t count) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
-		VkDescriptorSet sets[3];
-		sets[1] = gRenderer->samplerSet;
-		sets[2] = gRenderer->texArrayDescriptorSet;
-		if (count > gRenderer->limits.maxInstancedDraws)
-			count = gRenderer->limits.maxInstancedDraws;
-		_vk2dRendererDrawInstanced(sets, 3, instances, count);
+        for (int i = 0; i < count; i++) {
+            _vk2dRendererAddDrawCommand(&commands[i]);
+        }
 	}
 }
 
@@ -777,14 +793,10 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 		if (tex != NULL) {
 		    // Flush sprite batch if this is a pipeline change or commands at limit
 		    const VK2DPipeline pipe = gRenderer->instancedPipe;
-		    if (vk2dPipelineGetID(pipe, 0) != gRenderer->currentBatchPipelineID || gRenderer->drawCommandCount >= gRenderer->limits.maxInstancedDraws) {
-                vk2dRendererFlushSpriteBatch();
-                gRenderer->currentBatchPipelineID = vk2dPipelineGetID(pipe, 0);
-                gRenderer->currentBatchPipeline = pipe;
-		    }
+            _vk2dRendererFlushBatchIfNeeded(pipe);
 
 		    VK2DDrawCommand command;
-		    command.textureIndex = tex->descriptorIndex;
+		    command.textureIndex = vk2dTextureGetID(tex);
             command.texturePos[0] = xInTex;
             command.texturePos[1] = yInTex;
             command.texturePos[2] = texWidth;
@@ -809,7 +821,9 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 
 void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
-		if (polygon != NULL) {
+        vk2dRendererFlushSpriteBatch();
+
+        if (polygon != NULL) {
 			VkDescriptorSet set;
 			_vk2dRendererDraw(&set, 1, polygon, filled ? gRenderer->primFillPipe : gRenderer->primLinePipe, x, y,
 							  xscale,
@@ -823,6 +837,8 @@ void vk2dRendererDrawPolygon(VK2DPolygon polygon, float x, float y, bool filled,
 void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, float y, bool filled, float lineWidth, float xscale, float yscale, float rot, float originX, float originY) {
     if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
         if (vertices != NULL && count > 0) {
+            vk2dRendererFlushSpriteBatch();
+
             if (count <= gRenderer->limits.maxGeometryVertices) {
                 // Copy vertex data to the current descriptor buffer
                 VkBuffer buffer;
@@ -850,6 +866,8 @@ void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, fl
 
 void vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource) {
     if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        vk2dRendererFlushSpriteBatch();
+
         if (shadowEnvironment != NULL && shadowEnvironment->vbo != NULL) {
             _vk2dRendererDrawShadows(shadowEnvironment, colour, lightSource);
             _vk2dRendererResetBoundPointers();
@@ -862,6 +880,8 @@ void vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colou
 void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
 		if (model != NULL) {
+            vk2dRendererFlushSpriteBatch();
+
 			VkDescriptorSet sets[3];
 			sets[1] = gRenderer->modelSamplerSet;
 			sets[2] = model->tex->img->set;
@@ -876,6 +896,8 @@ void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xsc
 void vk2dRendererDrawWireframe(VK2DModel model, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, float lineWidth) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
 		if (model != NULL) {
+		    vk2dRendererFlushSpriteBatch();
+
 			VkDescriptorSet sets[3];
 			sets[1] = gRenderer->modelSamplerSet;
 			sets[2] = model->tex->img->set;
@@ -1062,7 +1084,7 @@ void vk2dRendererFlushSpriteBatch() {
         // Reset the current batch
         gRenderer->drawCommandCount = 0;
         gRenderer->currentBatchPipeline = NULL;
-        gRenderer->currentBatchPipelineID = INT32_MAX;
+        gRenderer->currentBatchPipelineID = VK2D_PIPELINE_ID_NONE;
     }
 }
 
