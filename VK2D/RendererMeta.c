@@ -505,8 +505,10 @@ void _vk2dRendererCreateDescriptorBuffers() {
 	}
 
 	// Calculate max instances
-	const int maxDrawCommands = gRenderer->options.vramPageSize / gRenderer->instanceDataStride;
-	gRenderer->limits.maxInstancedDraws = maxDrawCommands;
+	const int maxDrawInstances = gRenderer->options.vramPageSize / sizeof(VK2DDrawInstance);
+	const int maxDrawCommands = gRenderer->options.vramPageSize / sizeof(VK2DDrawCommand);
+
+	gRenderer->limits.maxInstancedDraws = maxDrawCommands < maxDrawInstances ? maxDrawCommands : maxDrawInstances;
 	gRenderer->limits.maxInstancedDraws--;
 
     vk2dLog("Descriptor buffers created...");
@@ -783,12 +785,7 @@ void _vk2dRendererCreatePipelines() {
 	VkPipelineVertexInputStateCreateInfo colourVertexInfo = _vk2dGetColourVertexInputState();
 	VkPipelineVertexInputStateCreateInfo modelVertexInfo = _vk2dGetModelVertexInputState();
 
-    if (sizeof(VK2DDrawInstance) % gRenderer->pd->props.limits.minStorageBufferOffsetAlignment != 0)
-        gRenderer->instanceDataStride = ((sizeof(VK2DDrawInstance) / gRenderer->pd->props.limits.minStorageBufferOffsetAlignment) + 1) * gRenderer->pd->props.limits.minStorageBufferOffsetAlignment;
-    else
-        gRenderer->instanceDataStride = sizeof(VK2DDrawInstance);
-
-	VkPipelineVertexInputStateCreateInfo instanceVertexInfo = _vk2dGetInstanceVertexInputState(gRenderer->instanceDataStride);
+	VkPipelineVertexInputStateCreateInfo instanceVertexInfo = _vk2dGetInstanceVertexInputState();
     VkPipelineVertexInputStateCreateInfo shadowsVertexInfo = _vk2dGetShadowsVertexInputState();
 
 	// Default shader files

@@ -343,7 +343,6 @@ struct VK2DRenderer_t {
     int drawInstanceListCount;           ///< TODO: Remove this once we have compute shader
     int32_t currentBatchPipelineID;      ///< Pipeline id for the current batch
     VK2DPipeline currentBatchPipeline;   ///< Pipeline for the current batch
-    VkDeviceSize instanceDataStride;     ///< Stride for each instance data to meet storage buffer alignment requirements
     /*VK2DSpriteBatch *spriteBatches;      ///< Sprite batches that will be processed at the end of the frame
     int32_t spriteBatchCount;            ///< Number of sprite batches this frame
     uint32_t spriteBatchListSize;*/        ///< Size of the sprite batch list

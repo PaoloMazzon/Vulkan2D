@@ -973,7 +973,7 @@ void vk2dRendererFlushSpriteBatch() {
         // Reserve space for the draw instances
         vk2dDescriptorBufferReserveSpace(
                 gRenderer->descriptorBuffers[gRenderer->currentFrame],
-                gRenderer->drawCommandCount * gRenderer->instanceDataStride,
+                gRenderer->drawCommandCount * sizeof(VK2DDrawInstance),
                 &drawInstances,
                 &drawInstancesOffset
         );
@@ -990,7 +990,7 @@ void vk2dRendererFlushSpriteBatch() {
                 {
                         .buffer = drawInstances,
                         .offset = drawInstancesOffset,
-                        .range = drawCount * gRenderer->instanceDataStride
+                        .range = drawCount * sizeof(struct VK2DDrawInstance)
                 }
         };
         VkWriteDescriptorSet write = {
@@ -1016,7 +1016,7 @@ void vk2dRendererFlushSpriteBatch() {
         VkBufferMemoryBarrier barrier = {
                 .buffer = drawInstances,
                 .offset = drawInstancesOffset,
-                .size = drawCount * gRenderer->instanceDataStride,
+                .size = drawCount * sizeof(VK2DDrawInstance),
                 .dstAccessMask = VK_ACCESS_SHADER_READ_BIT,
                 .srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT,
                 .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
