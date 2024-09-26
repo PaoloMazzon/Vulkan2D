@@ -23,11 +23,11 @@ int main(int argc, const char *argv[]) {
 		return -1;
 
 	// Initialize vk2d
-	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
+	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	VK2DStartupOptions options = {
 	        .quitOnError = true,
-	        .enableDebug = true,
+	        .enableDebug = false,
 	        .loadCustomShaders = false,
 	        .stdoutLogging = true
 	};
@@ -57,7 +57,7 @@ int main(int argc, const char *argv[]) {
 		const float scale = 5;
         const float originX = vk2dTextureWidth(texCaveguy) * 0.5 * scale;
         const float originY = vk2dTextureHeight(texCaveguy) * 0.5 * scale;
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 100000; i++)
             vk2dDrawTexture(texCaveguy, (windowWidth / 2) + (cos(time * 2) * 100) - originX, (windowHeight / 2) + (sin(time * 2) * 100) - originY);
 		debugRenderOverlay();
 		vk2dRendererFlushSpriteBatch();

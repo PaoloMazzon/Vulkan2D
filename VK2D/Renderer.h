@@ -1,6 +1,68 @@
 /// \file Renderer.h
 /// \author Paolo Mazzon
 /// \brief The main renderer that handles all rendering
+///
+/// Below is a brief technical breakdown of the renderer.
+///
+/// The first thing VK2D does is initialize the swapchain and its corresponding resources.
+/// Of note, there are
+///
+///  + Three maximum frames in flight (not a direct resource but relevant to everything)
+///  + Three render passes - one to start the frame, one for writing to a texture, and one to swap back to after texture writes
+///  + A descriptor buffer per frame in flight
+///  + A framebuffer per swapchain image
+///  + Several `DescriptorController`s for different resources
+///  + Many pipelines, particularly one graphics pipeline for each supported blend mode per shader
+///  + A depth buffer per swapchain image
+///
+/// Additionally, every time the window is resized (or really for any reason, that's just the most common)
+/// most of those resources are recreated, which is why on older hardware changing window size could take up
+/// to a few seconds.
+///
+/// The user may then load/create their textures/models/etc, this is mostly boring the only noteworthy
+/// point is that all textures' descriptors are stored in a global descriptor array, meaning every shader
+/// has access to every texture currently loaded at once without the need for more descriptor sets. This is
+/// useful for instancing and sprite batching, not to mention user convenience.
+///
+/// Once the user is ready to start rendering they use vk2dRendererStartFrame which does a lot of things
+///
+///  + If there is vsync, wait till the swapchain hands us an image, otherwise wait till the frame in flight is ready (don't worry about this)
+///  + Reset and begin recording the three command buffers - copy, compute, and draw
+///  + Begin the renderpass on the draw buffer, and bind the sprite-batching compute shader on the compute buffer
+///  + Clear the spritebatch information to prepare for this frame
+///
+/// Then the user may record draw commands. Some draw commands like drawing shapes/models are simple and
+/// just record a vkCmdDraw to the draw buffer, but sprite-batching and switching render targets is more complex.
+///
+/// Switching render pass involves a few steps:
+///
+///  + End the render pass
+///  + Put a pipeline barrier to put the image into either shader-read-optimal mode or color-attachment mode
+///  + Start a new render pass depending on if the target is now a texture or the swapchain
+///
+/// Also, briefly, of note is the DescriptorBuffer. The DescriptorBuffer is responsible for most VRAM memory management
+/// during the frame. VK2D gives the current frame's DescriptorBuffer random shader/vertex data and it puts it in
+/// VRAM pages, their size specified at the start of the program via vramPageSize. At the end of each frame it copies
+/// all data it was given from RAM to VRAM and inserts a pipeline barrier on the copy buffer to block compute until
+/// it finishes copying. Just know that any data that is not known ahead of time is put into this, ie, sprite batch
+/// input/output, vk2dRendererDrawGeometry, shader uniforms, view matrices, ...
+///
+/// More interestingly, sprite batching happens automatically and consists of a list in the renderer that keeps track
+/// of the current batch and any sort of texture drawing. When the current batch reaches the batch limit (as determined
+/// by the vram page size), a camera is changed, pipelines are swapped, or some other things, the current batch is
+/// flushed. When a batch is flushed, the batch is pushed to VRAM through the current descriptor buffer, space on the
+/// descriptor buffer is reserved for the compute shader output, then the compute shader to process the batch's model
+/// matrices is dispatched on the compute buffer. A draw command is also queued on the draw buffer using the compute
+/// shader's output as vertex input data for the instances.
+///
+/// At the end of the frame:
+///
+///  + A pipeline barrier is inserted at the end of the copy buffer to block compute until copy is done
+///  + A pipeline barrier is inserted at the end of the compute buffer to block vertex input until compute is done
+///  + The command buffers are ended and submitted
+///  + The swapchain is presented
+///
+/// This is still not super detailed, but its a good starting point to understanding whats going on.
 #pragma once
 #include "VK2D/Structs.h"
 #include <SDL2/SDL.h>
@@ -31,6 +93,7 @@ extern "C" {
 /// `errorFile` defaults to `"vk2derror.txt"`
 /// `loadCustomShaders` defaults to `false`
 /// `vramPageSize` defaults to `256 * 1000`, setting this to 0 also uses `256 * 1000`
+/// `maxTextures` defaults to 10000, setting this to 0 also uses 10000.
 ///
 VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options);
 

@@ -84,11 +84,12 @@ typedef struct _VK2DDescriptorBufferInternal {
 /// frame so Vulkan copies the buffer to device memory all at once instead of tiny increments.
 struct VK2DDescriptorBuffer_t {
 	_VK2DDescriptorBufferInternal *buffers; ///< List of internal buffers so that we can allocate more on the fly
-	int bufferCount;            ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
-	int bufferListSize;         ///< Actual number of elements in the buffer lists
-	VK2DLogicalDevice dev;      ///< Device this lives on
-	VkDeviceSize pageSize;      ///< Page size for this descriptor buffer
-	VkCommandBuffer drawBuffer; ///< Draw command buffer for this frame
+	int bufferCount;                        ///< Amount of internal buffers in the descriptor buffer, for when it needs to be resized
+	int bufferListSize;                     ///< Actual number of elements in the buffer lists
+	VK2DLogicalDevice dev;                  ///< Device this lives on
+	VkDeviceSize pageSize;                  ///< Page size for this descriptor buffer
+	VkCommandBuffer copyCommandBuffer;      ///< Draw command buffer for this frame
+	VkBufferMemoryBarrier *memoryBarriers;  ///< List of barriers that matches the size of the buffer list size
 };
 
 /// \brief Abstraction for descriptor pools and sets so you can dynamically use them
@@ -201,15 +202,6 @@ typedef struct VK2DTextureDescriptorInfo_t {
     bool active;
 } VK2DTextureDescriptorInfo;
 
-/// \brief Information about this frame's sprite batches that need compute dispatched on them
-typedef struct VK2DSpriteBatch_t {
-    VkBuffer drawCommands;            ///< Buffer the draw commands are in
-    VkBuffer drawInstances;           ///< Buffer where space is reserved for the resultant draw instances
-    VkDeviceSize drawCommandsOffset;  ///< Offset in the draw command buffer
-    VkDeviceSize drawInstancesOffset; ///< Offset in the draw instances buffer
-    uint32_t drawCount;               ///< Number of draws in this batch
-} VK2DSpriteBatch;
-
 /// \brief Core rendering data, don't modify values unless you know what you're doing
 struct VK2DRenderer_t {
 	// Devices/core functionality (these have short names because they're constantly referenced)
@@ -305,6 +297,7 @@ struct VK2DRenderer_t {
 	VkFence *imagesInFlight;               ///< Individual images in flight
 	VkCommandBuffer *commandBuffer;        ///< Command buffers, recreated each frame
 	VkCommandBuffer *dbCommandBuffer;      ///< Command buffers for descriptor buffers
+	VkCommandBuffer *computeCommandBuffer; ///< Command buffers for compute passes
 
 	// Render targeting info
 	uint32_t targetSubPass;          ///< Current sub pass being rendered to

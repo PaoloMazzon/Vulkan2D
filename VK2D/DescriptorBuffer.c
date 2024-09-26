@@ -17,8 +17,9 @@ static _VK2DDescriptorBufferInternal *_vk2dDescriptorBufferAppendBuffer(VK2DDesc
 	// Potentially increase the size of the buffer list
 	if (db->bufferCount == db->bufferListSize) {
 		db->buffers = realloc(db->buffers, sizeof(_VK2DDescriptorBufferInternal) * (db->bufferListSize + VK2D_DEFAULT_ARRAY_EXTENSION));
+		db->memoryBarriers = realloc(db->memoryBarriers, sizeof(VkBufferMemoryBarrier) * (db->bufferListSize + VK2D_DEFAULT_ARRAY_EXTENSION));
 		db->bufferListSize += VK2D_DEFAULT_ARRAY_EXTENSION;
-		if (db->buffers == NULL) {
+		if (db->buffers == NULL || db->memoryBarriers == NULL) {
 		    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to reallocate buffers list.");
 		}
 	}
@@ -80,15 +81,16 @@ void vk2dDescriptorBufferFree(VK2DDescriptorBuffer db) {
 			vk2dBufferFree(db->buffers[i].stageBuffer);
 		}
 		free(db->buffers);
+		free(db->memoryBarriers);
 		free(db);
 	}
 }
 
-void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer drawBuffer) {
+void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyCommandBuffer) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (vk2dStatusFatal() || gRenderer == NULL)
         return;
-	db->drawBuffer = drawBuffer;
+	db->copyCommandBuffer = copyCommandBuffer;
 
 	for (int i = 0; i < db->bufferCount; i++) {
         // Map this buffer to ram
@@ -211,4 +213,76 @@ void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyB
 			vkCmdCopyBuffer(copyBuffer, db->buffers[i].stageBuffer->buf, db->buffers[i].deviceBuffer->buf, 1, &bufferCopy);
 		}
 	}
+}
+
+void vk2dDescriptorBufferRecordCopyPipelineBarrier(VK2DDescriptorBuffer db, VkCommandBuffer buf) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (vk2dStatusFatal() || gRenderer == NULL)
+        return;
+
+    int barrierCount = 0;
+    for (int i = 0; i < db->bufferCount; i++) {
+        if (db->buffers[i].size > 0) {
+            db->memoryBarriers[i].sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            db->memoryBarriers[i].pNext = VK_NULL_HANDLE;
+            db->memoryBarriers[i].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            db->memoryBarriers[i].dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+            db->memoryBarriers[i].srcQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily;
+            db->memoryBarriers[i].dstQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily;
+            db->memoryBarriers[i].buffer = db->buffers[i].deviceBuffer->buf;
+            db->memoryBarriers[i].offset = 0;
+            db->memoryBarriers[i].size = db->buffers[i].size;
+            barrierCount++;
+        } else {
+            break;
+        }
+    }
+
+    vkCmdPipelineBarrier(
+            buf,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+            0,
+            0,
+            VK_NULL_HANDLE,
+            barrierCount,
+            db->memoryBarriers,
+            0,
+            VK_NULL_HANDLE);
+}
+
+void vk2dDescriptorBufferRecordComputePipelineBarrier(VK2DDescriptorBuffer db, VkCommandBuffer buf) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (vk2dStatusFatal() || gRenderer == NULL)
+        return;
+
+    int barrierCount = 0;
+    for (int i = 0; i < db->bufferCount; i++) {
+        if (db->buffers[i].size > 0) {
+            db->memoryBarriers[i].sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+            db->memoryBarriers[i].pNext = VK_NULL_HANDLE;
+            db->memoryBarriers[i].srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+            db->memoryBarriers[i].dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+            db->memoryBarriers[i].srcQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily;
+            db->memoryBarriers[i].dstQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily;
+            db->memoryBarriers[i].buffer = db->buffers[i].deviceBuffer->buf;
+            db->memoryBarriers[i].offset = 0;
+            db->memoryBarriers[i].size = db->buffers[i].size;
+            barrierCount++;
+        } else {
+            break;
+        }
+    }
+
+    vkCmdPipelineBarrier(
+            buf,
+            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+            VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+            0,
+            0,
+            VK_NULL_HANDLE,
+            barrierCount,
+            db->memoryBarriers,
+            0,
+            VK_NULL_HANDLE);
 }

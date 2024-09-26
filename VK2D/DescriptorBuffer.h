@@ -20,8 +20,8 @@ void vk2dDescriptorBufferFree(VK2DDescriptorBuffer db);
 
 /// \brief Prepares the buffer for copying
 /// \param db Descriptor buffer to prepare
-/// \param drawBuffer Command buffer that will be used for drawing, in recording state
-void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer drawBuffer);
+/// \param copyCommandBuffer Command buffer that will be used for drawing, in recording state
+void vk2dDescriptorBufferBeginFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyCommandBuffer);
 
 /// \brief Adds data to the buffer, resizing itself if it needs to
 /// \param db Descriptor buffer to add data to
@@ -44,6 +44,16 @@ void vk2dDescriptorBufferReserveSpace(VK2DDescriptorBuffer db, VkDeviceSize size
 /// \param db Descriptor buffer to finish the frame on
 /// \param copyBuffer A (likely new) command buffer in recording state that will have the memory copy placed into it
 void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyBuffer);
+
+/// \brief Records a pipeline barrier to block compute until copy is done
+/// \param db Descriptor buffer to get the memory barriers from
+/// \param buf Buffer to record to
+void vk2dDescriptorBufferRecordCopyPipelineBarrier(VK2DDescriptorBuffer db, VkCommandBuffer buf);
+
+/// \brief Records a pipeline barrier to block vertex input until compute is done
+/// \param db Descriptor buffer to get the memory barriers from
+/// \param buf Buffer to record to
+void vk2dDescriptorBufferRecordComputePipelineBarrier(VK2DDescriptorBuffer db, VkCommandBuffer buf);
 
 #ifdef __cplusplus
 }

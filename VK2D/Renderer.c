@@ -383,20 +383,22 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 					VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
 					VK_NULL_HANDLE);
 			result = vkResetCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], 0);
-			VkResult result2 = vkResetCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], 0);
-			if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
+            VkResult result2 = vkResetCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], 0);
+            VkResult result3 = vkResetCommandBuffer(gRenderer->computeCommandBuffer[gRenderer->scImageIndex], 0);
+            if (result != VK_SUCCESS || result2 != VK_SUCCESS || result3 != VK_SUCCESS) {
 			    vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to reset command buffer at start of frame.");
 			    return;
 			}
 			result = vkBeginCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex], &beginInfo);
-			result2 = vkBeginCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], &beginInfo);
-            if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
-                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to begin command buffer at start of frame, Vulkan error %i/%i.", result, result2);
+            result2 = vkBeginCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], &beginInfo);
+            result3 = vkBeginCommandBuffer(gRenderer->computeCommandBuffer[gRenderer->scImageIndex], &beginInfo);
+            if (result != VK_SUCCESS || result2 != VK_SUCCESS || result3 != VK_SUCCESS) {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to begin command buffer at start of frame, Vulkan error %i/%i/%i.", result, result2, result3);
                 return;
             }
 
 			// Begin descriptor buffer and sprite batching
-            vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->commandBuffer[gRenderer->scImageIndex]);
+            vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
             //gRenderer->spriteBatchCount = 0;
 
 			// Flush the current ubo into its buffer for the frame
@@ -437,6 +439,9 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 
 			vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo,
 								 VK_SUBPASS_CONTENTS_INLINE);
+
+			// Bind compute pipeline to the compute buffer
+            vkCmdBindPipeline(gRenderer->computeCommandBuffer[gRenderer->scImageIndex], VK_PIPELINE_BIND_POINT_COMPUTE, vk2dPipelineGetCompute(gRenderer->spriteBatchPipe));
 		}
 	}
 }
@@ -460,20 +465,25 @@ VK2DResult vk2dRendererEndFrame() {
 			//_vk2dRendererDispatchCompute();
             vk2dDescriptorBufferEndFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
 
+            // Record necessary pipeline barriers to the copy and compute buffers
+            vk2dDescriptorBufferRecordCopyPipelineBarrier(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
+            vk2dDescriptorBufferRecordComputePipelineBarrier(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->computeCommandBuffer[gRenderer->scImageIndex]);
+
             // PRESENT
             VkResult result = vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]);
             VkResult result2 = vkEndCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
-            if (result != VK_SUCCESS || result2 != VK_SUCCESS) {
-                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to begin command buffer at start of frame, Vulkan error %i/%i.", result, result2);
+            VkResult result3 = vkEndCommandBuffer(gRenderer->computeCommandBuffer[gRenderer->scImageIndex]);
+            if (result != VK_SUCCESS || result2 != VK_SUCCESS || result3 != VK_SUCCESS) {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to begin command buffer at start of frame, Vulkan error %i/%i/%i.", result, result2, result3);
                 return VK2D_ERROR;
             }
 
 			// Wait for image before doing things
 			VkPipelineStageFlags waitStage[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-			VkCommandBuffer bufs[] = {gRenderer->commandBuffer[gRenderer->scImageIndex], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]};
+			VkCommandBuffer bufs[] = {gRenderer->dbCommandBuffer[gRenderer->scImageIndex], gRenderer->computeCommandBuffer[gRenderer->scImageIndex], gRenderer->commandBuffer[gRenderer->scImageIndex]};
 			VkSubmitInfo submitInfo = vk2dInitSubmitInfo(
 					bufs,
-					2,
+					3,
 					&gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
 					1,
 					&gRenderer->imageAvailableSemaphores[gRenderer->currentFrame],
@@ -946,18 +956,12 @@ static void _vk2dRendererFlushPerCamera(VkCommandBuffer buf, int cameraIndex) {
     vkCmdDraw(buf, 6, gRenderer->drawCommandCount, 0, 0);
 }
 
-void identityMatrix(float *m);
-void translateMatrix(float *m, float *m2);
-void rotateMatrix(float *m, float *m2, float r);
-void scaleMatrix(float *m, float *m2);
 void vk2dRendererFlushSpriteBatch() {
-    // This should
-    //  1. Copy the current drawCommand list to the descriptor buffer
-    //  2. Make sure there is enough space in the compute descriptor buffer
-    //     for the next batch
-    //  3. Dispatch compute with command list input and draw instance output
-    //  4. Queue the draw command for this sprite batch
-    // If the compute is ready and to debug just compute them all here and copy to the other descriptor buffer
+    // This function does several things
+    //  1. Copies the current sprite batch to the descriptor buffer
+    //  2. Reserves space on the descriptor buffer for the compute output
+    //  3. Dispatch the compute shader on the compute command buffer
+    //  4. Send out the draw command that uses the soon-to-be-filled compute output as vertex input
     if (gRenderer->currentBatchPipeline != NULL && gRenderer->drawCommandCount > 0) {
         // Copy the draw commands into a buffer
         VkBuffer drawCommands, drawInstances;
@@ -1003,60 +1007,15 @@ void vk2dRendererFlushSpriteBatch() {
         };
         vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
 
-        // Queue the actual dispatches
-        VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
-        vkCmdEndRenderPass(buf);
-        vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_COMPUTE, vk2dPipelineGetCompute(gRenderer->spriteBatchPipe));
+        // Queue compute dispatches to the compute command buffer, synchronization will be recorded at the end of the frame
+        VkCommandBuffer computeBuf = gRenderer->computeCommandBuffer[gRenderer->scImageIndex];
         VK2DComputePushBuffer push = { .drawCount = drawCount };
-        vkCmdPushConstants(buf, gRenderer->spriteBatchPipe->layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(VK2DComputePushBuffer), &push);
-        vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_COMPUTE, gRenderer->spriteBatchPipe->layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
-        vkCmdDispatch(buf, (drawCount / 64) + 1, 1, 1);
-
-        // Block vertex input until the compute completes
-        VkBufferMemoryBarrier barrier = {
-                .buffer = drawInstances,
-                .offset = drawInstancesOffset,
-                .size = drawCount * sizeof(VK2DDrawInstance),
-                .dstAccessMask = VK_ACCESS_SHADER_READ_BIT,
-                .srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT,
-                .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-                .srcQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily,
-                .dstQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily
-        };
-        vkCmdPipelineBarrier(
-                buf,
-                VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-                0,
-                0,
-                VK_NULL_HANDLE,
-                1,
-                &barrier,
-                0,
-                VK_NULL_HANDLE
-        );
-
-        // Restart render pass
-        VkRenderPass pass = gRenderer->target == VK2D_TARGET_SCREEN ? gRenderer->midFrameSwapRenderPass
-                                                         : gRenderer->externalTargetRenderPass;
-        VkFramebuffer framebuffer =
-                gRenderer->target == VK2D_TARGET_SCREEN ? gRenderer->framebuffers[gRenderer->scImageIndex] : gRenderer->target->fbo;
-        VkRect2D rect = {0};
-        rect.extent.width = gRenderer->target == VK2D_TARGET_SCREEN ? gRenderer->surfaceWidth : gRenderer->target->img->width;
-        rect.extent.height = gRenderer->target == VK2D_TARGET_SCREEN ? gRenderer->surfaceHeight : gRenderer->target->img->height;
-        VkClearValue clear[2] = {0};
-        clear[1].depthStencil.depth = 1;
-        VkRenderPassBeginInfo renderPassBeginInfo = vk2dInitRenderPassBeginInfo(
-                pass,
-                framebuffer,
-                rect,
-                clear,
-                2);
-
-        vkCmdBeginRenderPass(gRenderer->commandBuffer[gRenderer->scImageIndex], &renderPassBeginInfo,
-                             VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdPushConstants(computeBuf, gRenderer->spriteBatchPipe->layout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(VK2DComputePushBuffer), &push);
+        vkCmdBindDescriptorSets(computeBuf, VK_PIPELINE_BIND_POINT_COMPUTE, gRenderer->spriteBatchPipe->layout, 0, 1, &descriptorSet, 0, VK_NULL_HANDLE);
+        vkCmdDispatch(computeBuf, (drawCount / 64) + 1, 1, 1);
 
         // Dispatch compute and draw command
+        VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
         _vk2dRendererResetBoundPointers();
         vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(gRenderer->instancedPipe, gRenderer->blendMode));
         VkDescriptorSet sets[] = {

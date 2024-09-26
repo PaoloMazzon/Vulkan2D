@@ -1283,9 +1283,10 @@ void _vk2dRendererCreateSynchronization() {
 	gRenderer->inFlightFences = calloc(1, sizeof(VkFence) * VK2D_MAX_FRAMES_IN_FLIGHT);
 	gRenderer->imagesInFlight = calloc(1, sizeof(VkFence) * gRenderer->swapchainImageCount);
 	gRenderer->commandBuffer = calloc(1, sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
-	gRenderer->dbCommandBuffer = calloc(1, sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
+    gRenderer->dbCommandBuffer = calloc(1, sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
+    gRenderer->computeCommandBuffer = calloc(1, sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
 
-	if (gRenderer->imageAvailableSemaphores != NULL && gRenderer->renderFinishedSemaphores != NULL
+    if (gRenderer->imageAvailableSemaphores != NULL && gRenderer->renderFinishedSemaphores != NULL
 		&& gRenderer->inFlightFences != NULL && gRenderer->imagesInFlight != NULL) {
 		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
 			VkResult r1 = vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->imageAvailableSemaphores[i]);
@@ -1301,8 +1302,9 @@ void _vk2dRendererCreateSynchronization() {
 	if (gRenderer->commandBuffer != NULL && gRenderer->dbCommandBuffer != NULL) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			gRenderer->commandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
-			gRenderer->dbCommandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
-		}
+            gRenderer->dbCommandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
+            gRenderer->computeCommandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
+        }
 	} else {
         vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate synchronization objects.");
 	}
@@ -1326,7 +1328,9 @@ void _vk2dRendererDestroySynchronization() {
 	free(gRenderer->inFlightFences);
 	free(gRenderer->imageAvailableSemaphores);
 	free(gRenderer->renderFinishedSemaphores);
-	free(gRenderer->commandBuffer);
+    free(gRenderer->commandBuffer);
+    free(gRenderer->dbCommandBuffer);
+    free(gRenderer->computeCommandBuffer);
 }
 
 void _vk2dRendererCreateSampler() {
