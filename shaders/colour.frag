@@ -4,7 +4,7 @@
 layout(push_constant) uniform PushBuffer {
     mat4 model;
     vec4 colourMod;
-    vec4 textureCoords;
+    uint cameraIndex;
 } pushBuffer;
 
 layout(location = 0) in vec4 fragColor;

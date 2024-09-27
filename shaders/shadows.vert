@@ -2,7 +2,7 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(set = 0, binding = 0) uniform UniformBufferObject {
-    mat4 viewproj;
+    mat4 viewproj[10];
 } ubo;
 
 layout(push_constant) uniform PushBuffer {
@@ -10,6 +10,7 @@ layout(push_constant) uniform PushBuffer {
     vec2 lightSource; // Where the light is
     vec2 _alignment; // ignore
     vec4 colour; // Colour of the shadows
+    uint cameraIndex;
 } pushBuffer;
 
 layout(location = 0) in vec3 inPosition;
@@ -29,9 +30,9 @@ void main() {
             1.0,
             0.0
         );
-        gl_Position = ubo.viewproj * vertex;
+        gl_Position = ubo.viewproj[pushBuffer.cameraIndex] * vertex;
     } else {
         // Static vertices
-        gl_Position = ubo.viewproj * position;
+        gl_Position = ubo.viewproj[pushBuffer.cameraIndex] * position;
     }
 }

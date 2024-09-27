@@ -27,9 +27,8 @@ int main(int argc, const char *argv[]) {
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	VK2DStartupOptions options = {
 	        .quitOnError = true,
-	        .enableDebug = false,
-	        .loadCustomShaders = false,
-	        .stdoutLogging = true
+	        .enableDebug = true,
+	        .stdoutLogging = true,
 	};
 	vk2dRendererInit(window, config, &options);
     debugInit(window);

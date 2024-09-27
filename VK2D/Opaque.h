@@ -256,7 +256,6 @@ struct VK2DRenderer_t {
 	bool procedStartFrame;                 ///< End frame things are only done if this is true and start frame things are only done if this is false
 
 	// Pipelines
-	VK2DPipeline texPipe;         ///< Pipeline for rendering textures
 	VK2DPipeline modelPipe;       ///< Pipeline for 3D models
 	VK2DPipeline wireframePipe;   ///< Pipeline for 3D wireframes
 	VK2DPipeline primFillPipe;    ///< Pipeline for rendering filled shapes

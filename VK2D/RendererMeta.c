@@ -789,80 +789,22 @@ void _vk2dRendererCreatePipelines() {
     VkPipelineVertexInputStateCreateInfo shadowsVertexInfo = _vk2dGetShadowsVertexInputState();
 
 	// Default shader files
-	uint32_t shaderTexVertSize = sizeof(VK2DVertTex);
-	bool CustomTexVertShader = false;
-	unsigned char *shaderTexVert = (void*)VK2DVertTex;
-	uint32_t shaderTexFragSize = sizeof(VK2DFragTex);
-	bool CustomTexFragShader = false;
-	unsigned char *shaderTexFrag = (void*)VK2DFragTex;
 	uint32_t shaderColourVertSize = sizeof(VK2DVertColour);
-	bool CustomColourVertShader = false;
 	unsigned char *shaderColourVert = (void*)VK2DVertColour;
 	uint32_t shaderColourFragSize = sizeof(VK2DFragColour);
-	bool CustomColourFragShader = false;
 	unsigned char *shaderColourFrag = (void*)VK2DFragColour;
 	uint32_t shaderModelVertSize = sizeof(VK2DVertModel);
-	bool CustomModelVertShader = false;
 	unsigned char *shaderModelVert = (void*)VK2DVertModel;
 	uint32_t shaderModelFragSize = sizeof(VK2DFragModel);
-	bool CustomModelFragShader = false;
 	unsigned char *shaderModelFrag = (void*)VK2DFragModel;
     uint32_t shaderInstancedVertSize = sizeof(VK2DVertInstanced);
-    bool CustomInstancedVertShader = false;
     unsigned char *shaderInstancedVert = (void*)VK2DVertInstanced;
     uint32_t shaderInstancedFragSize = sizeof(VK2DFragInstanced);
-    bool CustomInstancedFragShader = false;
     unsigned char *shaderInstancedFrag = (void*)VK2DFragInstanced;
     uint32_t shaderShadowsVertSize = sizeof(VK2DVertShadows);
-    bool CustomShadowsVertShader = false;
     unsigned char *shaderShadowsVert = (void*)VK2DVertShadows;
     uint32_t shaderShadowsFragSize = sizeof(VK2DFragShadows);
-    bool CustomShadowsFragShader = false;
     unsigned char *shaderShadowsFrag = (void*)VK2DFragShadows;
-
-    // Potentially load some different ones
-	if (gRenderer->options.loadCustomShaders) {
-		if (_vk2dFileExists("shaders/texvert.spv")) {
-			CustomTexVertShader = true;
-			shaderTexVert = _vk2dLoadFile("shaders/texvert.spv", &shaderTexVertSize);
-		}
-		if (_vk2dFileExists("shaders/texfrag.spv")) {
-			CustomTexFragShader = true;
-			shaderTexFrag = _vk2dLoadFile("shaders/texfrag.spv", &shaderTexFragSize);
-		}
-		if (_vk2dFileExists("shaders/colourvert.spv")) {
-			CustomColourVertShader = true;
-			shaderColourVert = _vk2dLoadFile("shaders/colourvert.spv", &shaderColourVertSize);
-		}
-		if (_vk2dFileExists("shaders/colourfrag.spv")) {
-			CustomColourFragShader = true;
-			shaderColourFrag = _vk2dLoadFile("shaders/colourfrag.spv", &shaderColourFragSize);
-		}
-		if (_vk2dFileExists("shaders/modelvert.spv")) {
-			CustomModelVertShader = true;
-			shaderModelVert = _vk2dLoadFile("shaders/modelvert.spv", &shaderModelVertSize);
-		}
-		if (_vk2dFileExists("shaders/modelfrag.spv")) {
-			CustomModelFragShader = true;
-			shaderModelFrag = _vk2dLoadFile("shaders/modelfrag.spv", &shaderModelFragSize);
-		}
-        if (_vk2dFileExists("shaders/instancedvert.spv")) {
-            CustomInstancedVertShader = true;
-            shaderInstancedVert = _vk2dLoadFile("shaders/instancedvert.spv", &shaderInstancedVertSize);
-        }
-        if (_vk2dFileExists("shaders/instancedfrag.spv")) {
-            CustomInstancedFragShader = true;
-            shaderInstancedFrag = _vk2dLoadFile("shaders/instancedfrag.spv", &shaderInstancedFragSize);
-        }
-        if (_vk2dFileExists("shaders/shadowsvert.spv")) {
-            CustomShadowsVertShader = true;
-            shaderShadowsVert = _vk2dLoadFile("shaders/shadowsvert.spv", &shaderInstancedVertSize);
-        }
-        if (_vk2dFileExists("shaders/shadowsfrag.spv")) {
-            CustomShadowsFragShader = true;
-            shaderShadowsFrag = _vk2dLoadFile("shaders/shadowsfrag.spv", &shaderInstancedFragSize);
-        }
-	}
 
 	// In case one of the load files failed
 	if (vk2dStatusFatal())
@@ -871,21 +813,6 @@ void _vk2dRendererCreatePipelines() {
 	// Texture pipeline
     VkDescriptorSetLayout layout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTexture};
     VkDescriptorSetLayout instancedLayout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTextureArray};
-    gRenderer->texPipe = vk2dPipelineCreate(
-			gRenderer->ld,
-			gRenderer->renderPass,
-			gRenderer->surfaceWidth,
-			gRenderer->surfaceHeight,
-			shaderTexVert,
-			shaderTexVertSize,
-			shaderTexFrag,
-			shaderTexFragSize,
-			layout,
-			3,
-			&textureVertexInfo,
-			true,
-			gRenderer->config.msaa,
-            VK2D_PIPELINE_TYPE_DEFAULT);
 
 	// Polygon pipelines
 	gRenderer->primFillPipe = vk2dPipelineCreate(
@@ -1000,28 +927,6 @@ void _vk2dRendererCreatePipelines() {
 		}
 	}
 
-	// Free custom shaders
-	if (CustomTexVertShader)
-		free(shaderTexVert);
-	if (CustomTexFragShader)
-		free(shaderTexFrag);
-	if (CustomColourVertShader)
-		free(shaderColourVert);
-	if (CustomColourFragShader)
-		free(shaderColourFrag);
-	if (CustomModelVertShader)
-		free(shaderModelVert);
-	if (CustomModelFragShader)
-		free(shaderModelFrag);
-    if (CustomInstancedVertShader)
-        free(shaderInstancedVert);
-    if (CustomInstancedFragShader)
-        free(shaderInstancedFrag);
-    if (CustomShadowsVertShader)
-        free(shaderShadowsVert);
-    if (CustomShadowsFragShader)
-        free(shaderShadowsFrag);
-
     // In case something somewhere failed
     if (!vk2dStatusFatal())
         vk2dLog("Pipelines initialized...");
@@ -1031,7 +936,6 @@ void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vk2dPipelineFree(gRenderer->primLinePipe);
 	vk2dPipelineFree(gRenderer->primFillPipe);
-	vk2dPipelineFree(gRenderer->texPipe);
 	vk2dPipelineFree(gRenderer->modelPipe);
 	vk2dPipelineFree(gRenderer->wireframePipe);
     vk2dPipelineFree(gRenderer->instancedPipe);
@@ -1516,101 +1420,98 @@ void _vk2dRendererResetSwapchain() {
         vk2dLog("Recreated swapchain assets...");
 }
 
+
 void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
-	VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
+    VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
 
-	// Account for various coordinate-based qualms
-	originX *= -xscale;
-	originY *= yscale;
-	//originX -= xInTex;
-	//originY -= yInTex;
+    // Account for various coordinate-based qualms
+    originX *= -xscale;
+    originY *= yscale;
+    //originX -= xInTex;
+    //originY -= yInTex;
 
-	// Push constants
-	VK2DPushBuffer push = {0};
-	identityMatrix(push.model);
-	// Only do rotation matrices if a rotation is specified for optimization purposes
-	if (rot != 0) {
-		vec3 axis = {0, 0, 1};
-		vec3 origin = {-originX + x, originY + y, 0};
-		vec3 originTranslation = {originX, -originY, 0};
-		translateMatrix(push.model, origin);
-		rotateMatrix(push.model, axis, rot);
-		translateMatrix(push.model, originTranslation);
-	} else {
-		vec3 origin = {x, y, 0};
-		translateMatrix(push.model, origin);
-	}
-	// Only scale matrix if specified for optimization purposes
-	if (xscale != 1 || yscale != 1) {
-		vec3 scale = {xscale, yscale, 1};
-		scaleMatrix(push.model, scale);
-	}
-	push.colourMod[0] = gRenderer->colourBlend[0];
-	push.colourMod[1] = gRenderer->colourBlend[1];
-	push.colourMod[2] = gRenderer->colourBlend[2];
-	push.colourMod[3] = gRenderer->colourBlend[3];
-	push.texCoords[0] = xInTex;
-	push.texCoords[1] = yInTex;
-	push.texCoords[2] = texWidth;
-	push.texCoords[3] = texHeight;
+    // Push constants
+    VK2DPushBuffer push = {0};
+    identityMatrix(push.model);
+    // Only do rotation matrices if a rotation is specified for optimization purposes
+    if (rot != 0) {
+        vec3 axis = {0, 0, 1};
+        vec3 origin = {-originX + x, originY + y, 0};
+        vec3 originTranslation = {originX, -originY, 0};
+        translateMatrix(push.model, origin);
+        rotateMatrix(push.model, axis, rot);
+        translateMatrix(push.model, originTranslation);
+    } else {
+        vec3 origin = {x, y, 0};
+        translateMatrix(push.model, origin);
+    }
+    // Only scale matrix if specified for optimization purposes
+    if (xscale != 1 || yscale != 1) {
+        vec3 scale = {xscale, yscale, 1};
+        scaleMatrix(push.model, scale);
+    }
+    push.colourMod[0] = gRenderer->colourBlend[0];
+    push.colourMod[1] = gRenderer->colourBlend[1];
+    push.colourMod[2] = gRenderer->colourBlend[2];
+    push.colourMod[3] = gRenderer->colourBlend[3];
 
-	// Check if we actually need to bind things
-	uint64_t hash = _vk2dHashSets(sets, setCount);
-	if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
-		vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(pipe, gRenderer->blendMode));
-		gRenderer->prevPipe = vk2dPipelineGetPipe(pipe, gRenderer->blendMode);
-	}
-	if (gRenderer->prevSetHash != hash) {
-		vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, setCount, sets, 0, VK_NULL_HANDLE);
-		gRenderer->prevSetHash = hash;
-	}
-	if (poly != NULL && gRenderer->prevVBO != poly->vertices->buf) {
-		VkDeviceSize offsets[] = {poly->vertices->offset};
-		vkCmdBindVertexBuffers(buf, 0, 1, &poly->vertices->buf, offsets);
-		gRenderer->prevVBO = poly->vertices->buf;
-	}
+    // Check if we actually need to bind things
+    uint64_t hash = _vk2dHashSets(sets, setCount);
+    if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
+        vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(pipe, gRenderer->blendMode));
+        gRenderer->prevPipe = vk2dPipelineGetPipe(pipe, gRenderer->blendMode);
+    }
+    if (gRenderer->prevSetHash != hash) {
+        vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, setCount, sets, 0, VK_NULL_HANDLE);
+        gRenderer->prevSetHash = hash;
+    }
+    if (poly != NULL && gRenderer->prevVBO != poly->vertices->buf) {
+        VkDeviceSize offsets[] = {poly->vertices->offset};
+        vkCmdBindVertexBuffers(buf, 0, 1, &poly->vertices->buf, offsets);
+        gRenderer->prevVBO = poly->vertices->buf;
+    }
 
-	// Dynamic state that can't be optimized further and the draw call
-	cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
-	VkRect2D scissor;
-	VkViewport viewport;
-	if (gRenderer->target == NULL) {
-		viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
-		viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
-		viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
-		viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
-		viewport.minDepth = 0;
-		viewport.maxDepth = 1;
-		scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
-		scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
-		scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
-		scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
-	} else {
-		viewport.x = 0;
-		viewport.y = 0;
-		viewport.width = gRenderer->target->img->width;
-		viewport.height = gRenderer->target->img->height;
-		viewport.minDepth = 0;
-		viewport.maxDepth = 1;
-		scissor.extent.width = gRenderer->target->img->width;
-		scissor.extent.height = gRenderer->target->img->height;
-		scissor.offset.x = 0;
-		scissor.offset.y = 0;
-	}
-	vkCmdSetViewport(buf, 0, 1, &viewport);
-	vkCmdSetScissor(buf, 0, 1, &scissor);
-	if (gRenderer->limits.maxLineWidth != 1)
-		vkCmdSetLineWidth(buf, lineWidth);
-	else
-		vkCmdSetLineWidth(buf, 1);
-	vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
-	if (poly != NULL)
-		vkCmdDraw(buf, poly->vertexCount, 1, 0, 0);
-	else // The only time this would be the case is for textures, where the shader provides the vertices
-		vkCmdDraw(buf, 6, 1, 0, 0);
+    // Dynamic state that can't be optimized further and the draw call
+    cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
+    VkRect2D scissor;
+    VkViewport viewport;
+    if (gRenderer->target == NULL) {
+        viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
+        viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
+        viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
+        viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
+        viewport.minDepth = 0;
+        viewport.maxDepth = 1;
+        scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
+        scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
+        scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
+        scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
+    } else {
+        viewport.x = 0;
+        viewport.y = 0;
+        viewport.width = gRenderer->target->img->width;
+        viewport.height = gRenderer->target->img->height;
+        viewport.minDepth = 0;
+        viewport.maxDepth = 1;
+        scissor.extent.width = gRenderer->target->img->width;
+        scissor.extent.height = gRenderer->target->img->height;
+        scissor.offset.x = 0;
+        scissor.offset.y = 0;
+    }
+    vkCmdSetViewport(buf, 0, 1, &viewport);
+    vkCmdSetScissor(buf, 0, 1, &scissor);
+    if (gRenderer->limits.maxLineWidth != 1)
+        vkCmdSetLineWidth(buf, lineWidth);
+    else
+        vkCmdSetLineWidth(buf, 1);
+    vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DPushBuffer), &push);
+    if (poly != NULL)
+        vkCmdDraw(buf, poly->vertexCount, 1, 0, 0);
+    else // The only time this would be the case is for textures, where the shader provides the vertices
+        vkCmdDraw(buf, 6, 1, 0, 0);
 }
 
 void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, vec4 colour, vec2 lightSource, VK2DCameraIndex cam) {
@@ -1629,6 +1530,7 @@ void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shad
     push.colour[1] = colour[1];
     push.colour[2] = colour[2];
     push.colour[3] = colour[3];
+    push.cameraIndex = cam;
     memcpy(push.model, objInfo->model, sizeof(mat4));
     // Check if we actually need to bind things
     if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
@@ -1753,6 +1655,8 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 	push.colourMod[1] = gRenderer->colourBlend[1];
 	push.colourMod[2] = gRenderer->colourBlend[2];
 	push.colourMod[3] = gRenderer->colourBlend[3];
+	push.cameraIndex = cam;
+	push.textureIndex = SDL_AtomicGet(&model->tex->descriptorIndex);
 
 	// Check if we actually need to bind things
 	uint64_t hash = _vk2dHashSets(sets, setCount);
@@ -1864,24 +1768,6 @@ void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colo
             }
         }
     }
-}
-
-void _vk2dRendererDrawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (vk2dStatusFatal())
-        return;
-	if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
-		sets[0] = gRenderer->targetUBOSet;
-		_vk2dRendererDrawRawInstanced(sets, setCount, instances, count, VK2D_INVALID_CAMERA);
-	} else {
-		// Only render to 2D cameras
-		for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
-			if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
-				sets[0] = gRenderer->uboDescriptorSets[gRenderer->currentFrame];
-				_vk2dRendererDrawRawInstanced(sets, setCount, instances, count, i);
-			}
-		}
-	}
 }
 
 static void _vk2dRendererAddDrawCommandInternal(VK2DDrawCommand *command) {

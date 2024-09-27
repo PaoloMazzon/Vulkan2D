@@ -202,23 +202,26 @@ struct VK2DUniformBufferObject {
 
 /// \brief Buffer passed per-model via push constants
 struct VK2DPushBuffer {
-	mat4 model;     ///< Model matrix
-	vec4 colourMod; ///< Current colour modifier
-	vec4 texCoords; ///< Where in the texture to draw from and to (x, y, w, h)
+	mat4 model;           ///< Model matrix
+	vec4 colourMod;       ///< Current colour modifier
+	uint32_t cameraIndex; ///< Index of the camera
 };
 
 /// \brief Push buffer used for 3D models
 struct VK2D3DPushBuffer {
-	mat4 model;     ///< Model matrix
-	vec4 colourMod; ///< Color modifier
+	mat4 model;            ///< Model matrix
+	vec4 colourMod;        ///< Color modifier
+	uint32_t textureIndex; ///< Index of the texture
+	uint32_t cameraIndex;  ///< Index of the camera
 };
 
 /// \brief Push buffer used for hardware-accelerated shadows
 struct VK2DShadowsPushBuffer {
-    mat4 model;       ///< Model matrix for this shadow object
-    vec2 lightSource; ///< Light source position
-    vec2 _alignment;  ///< Simply for memory alignment
-    vec4 colour;      ///< Colour of this shadow render
+    mat4 model;           ///< Model matrix for this shadow object
+    vec2 lightSource;     ///< Light source position
+    vec2 _alignment;      ///< Simply for memory alignment
+    vec4 colour;          ///< Colour of this shadow render
+    uint32_t cameraIndex; ///< Index of the camera
 };
 
 /// \brief User configurable settings
@@ -236,7 +239,6 @@ struct VK2DStartupOptions {
 	bool stdoutLogging;     ///< Print VK2D information to stdout
 	bool quitOnError;       ///< Crash the program when an error occurs
 	const char *errorFile;  ///< The file to output errors to, or NULL to disable file output
-	bool loadCustomShaders; ///< Whether or not to load shaders from a file instead of the built-in ones
 	uint32_t maxTextures;   ///< Max number of textures active at once
 
 	/// Determines the size of a video-memory page in bytes. This can cap the max uniform

@@ -52,7 +52,6 @@ static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
     .stdoutLogging = true,
     .quitOnError = true,
     .errorFile = "vk2derror.txt",
-    .loadCustomShaders = false,
     .vramPageSize = 256 * 1000,
     .maxTextures = 10000
 };
