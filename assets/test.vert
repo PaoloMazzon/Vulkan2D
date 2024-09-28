@@ -33,9 +33,11 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 
 out gl_PerVertex {
     vec4 gl_Position;
-    vec2 fragTexCoord;
-    vec4 fragColour;
 };
+
+
+layout(location = 1) out vec2 fragTexCoord;
+layout(location = 2) out vec4 fragColour;
 
 layout(set = 3, binding = 3) uniform UserData {
     float colour;
@@ -43,10 +45,10 @@ layout(set = 3, binding = 3) uniform UserData {
 
 void main() {
     vec2 newPos;
-    newPos.x = VERTICES[gl_VertexIndex].x * pushBuffer.textureCoords.z;
-    newPos.y = VERTICES[gl_VertexIndex].y * pushBuffer.textureCoords.w;
-    gl_Position = ubo.viewproj * pushBuffer.model * vec4(newPos, 1.0, 1.0);
-    fragTexCoord.x = pushBuffer.textureCoords.x + (TEX_COORDS[gl_VertexIndex].x * pushBuffer.textureCoords.z);
-    fragTexCoord.y = pushBuffer.textureCoords.y + (TEX_COORDS[gl_VertexIndex].y * pushBuffer.textureCoords.w);
+    newPos.x = VERTICES[gl_VertexIndex].x * push.texturePos.z;
+    newPos.y = VERTICES[gl_VertexIndex].y * push.texturePos.w;
+    gl_Position = ubo.viewproj[push.cameraIndex] * push.model * vec4(newPos, 1.0, 1.0);
+    fragTexCoord.x = push.texturePos.x + (TEX_COORDS[gl_VertexIndex].x * push.texturePos.z);
+    fragTexCoord.y = push.texturePos.y + (TEX_COORDS[gl_VertexIndex].y * push.texturePos.w);
     fragColour = vec4(1, 1, 1, 1);
 }

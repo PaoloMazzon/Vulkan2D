@@ -10,6 +10,15 @@
 extern "C" {
 #endif
 
+/// VK2D current version
+extern const uint32_t VK2D_VERSION_MAJOR;
+
+/// VK2D current version
+extern const uint32_t VK2D_VERSION_MINOR;
+
+/// VK2D current version
+extern const uint32_t VK2D_VERSION_PATCH;
+
 /// Tells vk2dPhysicalDeviceFind to use the best device it finds (basically just the first non-integrated it finds that meets criteria)
 extern const int32_t VK2D_DEVICE_BEST_FIT;
 

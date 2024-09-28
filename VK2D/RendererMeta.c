@@ -1075,7 +1075,7 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
 		for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
             gRenderer->descConCompute[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 0);
-            gRenderer->descConShaders[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 4);
+            gRenderer->descConShaders[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
         }
 
 		// And the one sampler set
@@ -1501,6 +1501,97 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
         vkCmdDraw(buf, 6, 1, 0, 0);
 }
 
+void _vk2dRendererDrawRawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTexture tex, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (vk2dStatusFatal())
+        return;
+    VkCommandBuffer buf = gRenderer->commandBuffer[gRenderer->scImageIndex];
+
+    // Account for various coordinate-based qualms
+    originX *= -xscale;
+    originY *= yscale;
+    //originX -= xInTex;
+    //originY -= yInTex;
+
+    // Push constants
+    VK2DShaderPushBuffer push = {0};
+    identityMatrix(push.model);
+    // Only do rotation matrices if a rotation is specified for optimization purposes
+    if (rot != 0) {
+        vec3 axis = {0, 0, 1};
+        vec3 origin = {-originX + x, originY + y, 0};
+        vec3 originTranslation = {originX, -originY, 0};
+        translateMatrix(push.model, origin);
+        rotateMatrix(push.model, axis, rot);
+        translateMatrix(push.model, originTranslation);
+    } else {
+        vec3 origin = {x, y, 0};
+        translateMatrix(push.model, origin);
+    }
+    // Only scale matrix if specified for optimization purposes
+    if (xscale != 1 || yscale != 1) {
+        vec3 scale = {xscale, yscale, 1};
+        scaleMatrix(push.model, scale);
+    }
+    push.colour[0] = gRenderer->colourBlend[0];
+    push.colour[1] = gRenderer->colourBlend[1];
+    push.colour[2] = gRenderer->colourBlend[2];
+    push.colour[3] = gRenderer->colourBlend[3];
+    push.cameraIndex = cam;
+    push.textureIndex = SDL_AtomicGet(&tex->descriptorIndex);
+    push.texturePos[0] = xInTex;
+    push.texturePos[1] = yInTex;
+    push.texturePos[2] = texWidth;
+    push.texturePos[3] = texHeight;
+
+    // Check if we actually need to bind things
+    uint64_t hash = _vk2dHashSets(sets, setCount);
+    if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
+        vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(pipe, gRenderer->blendMode));
+        gRenderer->prevPipe = vk2dPipelineGetPipe(pipe, gRenderer->blendMode);
+    }
+    if (gRenderer->prevSetHash != hash) {
+        vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe->layout, 0, setCount, sets, 0, VK_NULL_HANDLE);
+        gRenderer->prevSetHash = hash;
+    }
+
+    // Dynamic state that can't be optimized further and the draw call
+    cam = cam == VK2D_INVALID_CAMERA ? VK2D_DEFAULT_CAMERA : cam; // Account for invalid camera
+    VkRect2D scissor;
+    VkViewport viewport;
+    if (gRenderer->target == NULL) {
+        viewport.x = gRenderer->cameras[cam].spec.xOnScreen;
+        viewport.y = gRenderer->cameras[cam].spec.yOnScreen;
+        viewport.width = gRenderer->cameras[cam].spec.wOnScreen;
+        viewport.height = gRenderer->cameras[cam].spec.hOnScreen;
+        viewport.minDepth = 0;
+        viewport.maxDepth = 1;
+        scissor.extent.width = gRenderer->cameras[cam].spec.wOnScreen;
+        scissor.extent.height = gRenderer->cameras[cam].spec.hOnScreen;
+        scissor.offset.x = gRenderer->cameras[cam].spec.xOnScreen;
+        scissor.offset.y = gRenderer->cameras[cam].spec.yOnScreen;
+    } else {
+        viewport.x = 0;
+        viewport.y = 0;
+        viewport.width = gRenderer->target->img->width;
+        viewport.height = gRenderer->target->img->height;
+        viewport.minDepth = 0;
+        viewport.maxDepth = 1;
+        scissor.extent.width = gRenderer->target->img->width;
+        scissor.extent.height = gRenderer->target->img->height;
+        scissor.offset.x = 0;
+        scissor.offset.y = 0;
+    }
+    vkCmdSetViewport(buf, 0, 1, &viewport);
+    vkCmdSetScissor(buf, 0, 1, &scissor);
+    if (gRenderer->limits.maxLineWidth != 1)
+        vkCmdSetLineWidth(buf, lineWidth);
+    else
+        vkCmdSetLineWidth(buf, 1);
+    vkCmdPushConstants(buf, pipe->layout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(VK2DShaderPushBuffer), &push);
+    vkCmdDraw(buf, 6, 1, 0, 0);
+}
+
 void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, vec4 colour, vec2 lightSource, VK2DCameraIndex cam) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
@@ -1712,7 +1803,7 @@ void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel mod
 }
 
 // This is the upper level internal draw function that draws to each camera and not just with a scissor/viewport
-void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DTexture tex, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
+void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
@@ -1725,6 +1816,24 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
             if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
                 sets[0] = gRenderer->uboDescriptorSets[gRenderer->currentFrame];
                 _vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
+            }
+        }
+    }
+}
+
+void _vk2dRendererDrawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTexture tex, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (vk2dStatusFatal())
+        return;
+    if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
+        sets[0] = gRenderer->targetUBOSet;
+        _vk2dRendererDrawRawShader(sets, setCount, tex, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, VK2D_INVALID_CAMERA);
+    } else {
+        // Only render to 2D cameras
+        for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {
+            if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL && gRenderer->cameras[i].spec.type == VK2D_CAMERA_TYPE_DEFAULT && (i == gRenderer->cameraLocked || gRenderer->cameraLocked == VK2D_INVALID_CAMERA)) {
+                sets[0] = gRenderer->uboDescriptorSets[gRenderer->currentFrame];
+                _vk2dRendererDrawRawShader(sets, setCount, tex, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, i);
             }
         }
     }

@@ -4,6 +4,12 @@
 #include <vulkan/vulkan.h>
 #include "VK2D/Structs.h"
 
+const uint32_t VK2D_VERSION_MAJOR = 0;
+
+const uint32_t VK2D_VERSION_MINOR = 8;
+
+const uint32_t VK2D_VERSION_PATCH = 0;
+
 const int32_t VK2D_DEVICE_BEST_FIT = -1;
 
 const VkApplicationInfo VK2D_DEFAULT_CONFIG = {

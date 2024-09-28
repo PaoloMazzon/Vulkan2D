@@ -201,12 +201,14 @@ struct VK2DUniformBufferObject {
 	mat4 viewproj[VK2D_MAX_CAMERAS]; ///< View and projection matrix multiplied together
 } ;
 
+/// \brief Push buffer for user shaders
 struct VK2DShaderPushBuffer {
-    int32_t cameraIndex;
-    uint32_t textureIndex;
-    vec4 texturePos;
-    vec4 colour;
-    mat4 model;
+    int32_t cameraIndex;   ///< Index of the camera in use
+    uint32_t textureIndex; ///< Index of the texture that was passed to the shader
+    vec2 _padding;         ///< For vec4 alignment
+    vec4 texturePos;       ///< UV coordinates (unnormalized)
+    vec4 colour;           ///< Colour mod of the renderer when called
+    mat4 model;            ///< Model matrix
 };
 
 /// \brief Buffer passed per-model via push constants

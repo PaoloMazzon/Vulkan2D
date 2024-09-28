@@ -70,7 +70,7 @@ int main(int argc, const char *argv[]) {
 	VK2DModel modelVikingRoom = vk2dModelLoad("assets/viking_room.obj", texVikingRoom);
 	VK2DTexture texCaveguyUV = vk2dTextureLoad("assets/caveguyuv.png");
 	VK2DModel modelCaveguy = vk2dModelLoad("assets/caveguy.obj", texCaveguyUV);
-	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 4);
+	VK2DShader shader = vk2dShaderLoad("assets/test.vert.spv", "assets/test.frag.spv", 4);
 	handleVK2DStatus();
 
 	// Delta and fps

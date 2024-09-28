@@ -21,7 +21,7 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 	VkPipelineVertexInputStateCreateInfo textureVertexInfo = _vk2dGetTextureVertexInputState();
 
-	VkDescriptorSetLayout layout[] = {renderer->dslBufferVP, renderer->dslSampler, renderer->dslTexture, renderer->dslBufferUser};
+	VkDescriptorSetLayout layout[] = {renderer->dslBufferVP, renderer->dslSampler, renderer->dslTextureArray, renderer->dslBufferUser};
 	uint32_t layoutCount;
 	if (shader->uniformSize != 0) {
 		layoutCount = 4;

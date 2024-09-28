@@ -179,7 +179,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
         SDL_version version;
         SDL_GetVersion(&version);
         snprintf((void*)gHostMachineBuffer, gHostMachineBufferSize,
-                 "%s, SDL %i.%i.%i\nHost: %i cores, %0.2fgb RAM\nDevice: %s, Vulkan %i.%i.%i\n",
+                 "%s, SDL %i.%i.%i\nHost: %i cores, %0.2fgb RAM\nDevice: %s, Vulkan %i.%i.%i, Vulkan2D %i.%i.%i\n",
                  SDL_GetPlatform(),
                  version.major,
                  version.minor,
@@ -189,7 +189,10 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
                  props.deviceName,
                  VK_VERSION_MAJOR(props.apiVersion),
                  VK_VERSION_MINOR(props.apiVersion),
-                 VK_VERSION_PATCH(props.apiVersion)
+                 VK_VERSION_PATCH(props.apiVersion),
+                 VK2D_VERSION_MAJOR,
+                 VK2D_VERSION_MINOR,
+                 VK2D_VERSION_PATCH
         );
 
         vk2dValidationWriteHeader();
@@ -772,7 +775,7 @@ void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, floa
                 setCount = 4;
             }
 
-            _vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1,
+            _vk2dRendererDrawShader(sets, setCount, tex, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1,
                               xInTex,
                               yInTex, texWidth, texHeight);
         } else {
