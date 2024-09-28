@@ -1537,7 +1537,7 @@ void _vk2dRendererDrawRawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTe
     push.colour[1] = gRenderer->colourBlend[1];
     push.colour[2] = gRenderer->colourBlend[2];
     push.colour[3] = gRenderer->colourBlend[3];
-    push.cameraIndex = cam;
+    push.cameraIndex = cam == VK2D_INVALID_CAMERA ? 0 : cam;
     push.textureIndex = SDL_AtomicGet(&tex->descriptorIndex);
     push.texturePos[0] = xInTex;
     push.texturePos[1] = yInTex;
@@ -1608,7 +1608,7 @@ void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shad
     push.colour[1] = colour[1];
     push.colour[2] = colour[2];
     push.colour[3] = colour[3];
-    push.cameraIndex = cam;
+    push.cameraIndex = cam == VK2D_INVALID_CAMERA ? 0 : cam;
     memcpy(push.model, objInfo->model, sizeof(mat4));
     // Check if we actually need to bind things
     if (gRenderer->prevPipe != vk2dPipelineGetPipe(pipe, gRenderer->blendMode)) {
@@ -1809,7 +1809,7 @@ void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon pol
         return;
     if (gRenderer->target != VK2D_TARGET_SCREEN && !gRenderer->enableTextureCameraUBO) {
         sets[0] = gRenderer->targetUBOSet;
-        _vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, VK2D_INVALID_CAMERA);
+        _vk2dRendererDrawRaw(sets, setCount, poly, pipe, x, y, xscale, yscale, rot, originX, originY, lineWidth, xInTex, yInTex, texWidth, texHeight, 0);
     } else {
         // Only render to 2D cameras
         for (int i = 0; i < VK2D_MAX_CAMERAS; i++) {

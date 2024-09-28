@@ -622,6 +622,7 @@ void vk2dRendererGetColourMod(vec4 dst) {
 }
 
 void vk2dRendererSetBlendMode(VK2DBlendMode blendMode) {
+    vk2dRendererFlushSpriteBatch();
 	if (vk2dRendererGetPointer() != NULL)
 		gRenderer->blendMode = blendMode;
 }

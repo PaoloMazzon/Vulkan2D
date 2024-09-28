@@ -6,7 +6,7 @@ layout(push_constant) uniform PushBuffer {
     vec2 lightSource; // Where the light is
     vec2 _alignment; // ignore
     vec4 colour; // Colour of the shadows
-    uint cameraIndex;
+    int cameraIndex;
 } pushBuffer;
 
 layout(location = 0) out vec4 outColor;

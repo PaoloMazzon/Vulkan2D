@@ -434,6 +434,8 @@ float vk2dRandom(float min, float max);
 /// to load your resources. If `vk2dRendererGetLimits().supportsMultiThreadLoading` is false
 /// this function will still load all of the specified assets, but it will be done on the main
 /// thread instead which will be blocking.
+///
+/// \warning This is currently unsupported until it is re-implemented in a more cross-platform manner
 void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count);
 
 /// \brief Waits until all of the assets provided to vk2dAssetsLoad have been loaded
