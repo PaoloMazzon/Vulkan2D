@@ -111,6 +111,8 @@ VK2DTexture vk2dTextureFrom(void *data, int size) {
 	VK2DTexture tex = _vk2dTextureFromInternal(data, size, true);
 	if (tex == NULL)
         vk2dLog("Failed to load texture from data of size %i.", size);
+	else
+        _vk2dTextureAddToTextureArray(tex);
 	return tex;
 }
 

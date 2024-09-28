@@ -77,12 +77,11 @@ int main(int argc, const char *argv[]) {
 		SDL_PumpEvents();
 
 		// All rendering must happen after this
-		vk2dRendererStartFrame(VK2D_BLACK);
+		vk2dRendererStartFrame(clear);
 
 		// Clear the virtual target and start rendering to it
 		vk2dRendererSetTarget(texTarget);
-		vk2dRendererSetColourMod(clear);
-		vk2dRendererClear();
+		vk2dRendererEmpty();
 		vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
 
 		// Either draw loading screen or the demo
