@@ -90,6 +90,9 @@ VK2DPipeline vk2dPipelineCreate(VK2DLogicalDevice dev, VkRenderPass renderPass, 
         } else if (type == VK2D_PIPELINE_TYPE_INSTANCING) {
             range.size = sizeof(VK2DInstancedPushBuffer);
             range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+        } else if (type == VK2D_PIPELINE_TYPE_USER_SHADER) {
+            range.size = sizeof(VK2DShaderPushBuffer);
+            range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
         }
 		VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo;
 		pipelineLayoutCreateInfo = vk2dInitPipelineLayoutCreateInfo(setLayouts, layoutCount, 1, &range);

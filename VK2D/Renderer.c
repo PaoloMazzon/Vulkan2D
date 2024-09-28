@@ -406,16 +406,8 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
                     _vk2dCameraUpdateUBO(&gRenderer->workingUBO, &gRenderer->cameras[i].spec, i);
 			_vk2dRendererFlushUBOBuffers();
 
-			// Reset shader desc cons
-			for (int i = 0; i < gRenderer->shaderListSize; i++) {
-                if (gRenderer->customShaders[i] != NULL && gRenderer->customShaders[i]->uniformSize != 0) {
-                    gRenderer->customShaders[i]->currentDescCon += 1;
-                    if (gRenderer->customShaders[i]->currentDescCon >= VK2D_MAX_FRAMES_IN_FLIGHT) {
-                        gRenderer->customShaders[i]->currentDescCon = 0;
-                    }
-                    vk2dDescConReset(gRenderer->customShaders[i]->descCons[gRenderer->customShaders[i]->currentDescCon]);
-                }
-            }
+			// Desc cons
+			vk2dDescConReset(gRenderer->descConShaders[gRenderer->currentFrame]);
 			vk2dDescConReset(gRenderer->descConCompute[gRenderer->currentFrame]);
 
 			// Setup render pass
@@ -754,39 +746,39 @@ void vk2dRendererDrawLine(float x1, float y1, float x2, float y2) {
 }
 
 void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight) {
-	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
-		if (shader != NULL) {
+    if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        if (shader != NULL) {
             _vk2dRendererFlushBatchIfNeeded(shader->pipe);
 
-			VkDescriptorSet sets[4];
-			sets[1] = gRenderer->samplerSet;
-			sets[2] = tex->img->set;
+            VkDescriptorSet sets[4];
+            sets[1] = gRenderer->samplerSet;
+            sets[2] = gRenderer->texArrayDescriptorSet;
 
-			// Create the data uniform
-			uint32_t setCount = 3;
-			if (shader->uniformSize != 0) {
-				sets[3] = vk2dDescConGetSet(shader->descCons[shader->currentDescCon]);
-				VkBuffer buffer;
-				VkDeviceSize offset;
-				vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], data, shader->uniformSize, &buffer, &offset);
-				VkDescriptorBufferInfo bufferInfo = {buffer,offset,shader->uniformSize};
-				VkWriteDescriptorSet write = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
-				write.pBufferInfo = &bufferInfo;
-				write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				write.dstBinding = 3;
-				write.dstSet = sets[3];
-				write.descriptorCount = 1;
-				vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
-				setCount = 4;
-			}
+            // Create the data uniform
+            uint32_t setCount = 3;
+            if (shader->uniformSize != 0) {
+                sets[3] = vk2dDescConGetSet(gRenderer->descConShaders[gRenderer->currentFrame]);
+                VkBuffer buffer;
+                VkDeviceSize offset;
+                vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], data, shader->uniformSize, &buffer, &offset);
+                VkDescriptorBufferInfo bufferInfo = {buffer,offset,shader->uniformSize};
+                VkWriteDescriptorSet write = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
+                write.pBufferInfo = &bufferInfo;
+                write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+                write.dstBinding = 3;
+                write.dstSet = sets[3];
+                write.descriptorCount = 1;
+                vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
+                setCount = 4;
+            }
 
-			_vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1,
-							  xInTex,
-							  yInTex, texWidth, texHeight);
-		} else {
+            _vk2dRendererDraw(sets, setCount, NULL, shader->pipe, x, y, xscale, yscale, rot, originX, originY, 1,
+                              xInTex,
+                              yInTex, texWidth, texHeight);
+        } else {
             vk2dRaise(VK2D_STATUS_BAD_ASSET, "Shader does not exist.");
-		}
-	}
+        }
+    }
 }
 
 void vk2dRendererAddBatch(VK2DDrawCommand *commands, uint32_t count) {

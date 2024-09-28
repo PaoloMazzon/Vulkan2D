@@ -42,7 +42,7 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
 			&textureVertexInfo,
 			true,
 			renderer->config.msaa,
-			false);
+            VK2D_PIPELINE_TYPE_USER_SHADER);
 }
 
 VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize) {
@@ -83,13 +83,6 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
         out->spvFragSize = fragmentShaderBufferSize;
         out->uniformSize = uniformBufferSize;
         out->dev = dev;
-        out->currentDescCon = 0;
-
-        if (uniformBufferSize != 0) {
-            for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
-                out->descCons[i] = vk2dDescConCreate(dev, renderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
-            }
-        }
 
         if (!gRenderer->limits.supportsMultiThreadLoading || SDL_LockMutex(dev->shaderMutex) == 0) {
             _vk2dRendererAddShader(out);
@@ -144,13 +137,6 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 			out->spvFragSize = fragFileSize;
 			out->uniformSize = uniformBufferSize;
 			out->dev = dev;
-			out->currentDescCon = 0;
-
-			if (uniformBufferSize != 0) {
-				for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && uniformBufferSize > 0; i++) {
-					out->descCons[i] = vk2dDescConCreate(dev, renderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
-				}
-			}
 
             if (!gRenderer->limits.supportsMultiThreadLoading || SDL_LockMutex(dev->shaderMutex) == 0) {
                 _vk2dRendererAddShader(out);
@@ -176,9 +162,6 @@ void vk2dShaderFree(VK2DShader shader) {
 		_vk2dRendererRemoveShader(shader);
 	if (shader != NULL) {
 		vk2dPipelineFree(shader->pipe);
-
-		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT && shader->uniformSize != 0; i++)
-			vk2dDescConFree(shader->descCons[i]);
 		free(shader->spvVert);
 		free(shader->spvFrag);
 	}

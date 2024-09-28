@@ -103,11 +103,12 @@ typedef enum {
 
 /// \brief Types of graphics pipelines
 typedef enum {
-	VK2D_PIPELINE_TYPE_DEFAULT = 0,    ///< Default 2D pipelines
-	VK2D_PIPELINE_TYPE_3D = 1,         ///< 3D pipelines
-	VK2D_PIPELINE_TYPE_INSTANCING = 2, ///< Pipelines for instancing
-	VK2D_PIPELINE_TYPE_SHADOWS = 3,    ///< Pipeline for shadows
-	VK2D_PIPELINE_TYPE_MAX = 4,        ///< Max number of pipeline types
+	VK2D_PIPELINE_TYPE_DEFAULT = 0,     ///< Default 2D pipelines
+	VK2D_PIPELINE_TYPE_3D = 1,          ///< 3D pipelines
+	VK2D_PIPELINE_TYPE_INSTANCING = 2,  ///< Pipelines for instancing
+	VK2D_PIPELINE_TYPE_SHADOWS = 3,     ///< Pipeline for shadows
+	VK2D_PIPELINE_TYPE_USER_SHADER = 4, ///< Pipeline for user shaders
+	VK2D_PIPELINE_TYPE_MAX = 5,         ///< Max number of pipeline types
 } VK2DPipelineType;
 
 /// \brief Return codes through the renderer
@@ -199,6 +200,14 @@ struct VK2DVertex3D {
 struct VK2DUniformBufferObject {
 	mat4 viewproj[VK2D_MAX_CAMERAS]; ///< View and projection matrix multiplied together
 } ;
+
+struct VK2DShaderPushBuffer {
+    int32_t cameraIndex;
+    uint32_t textureIndex;
+    vec4 texturePos;
+    vec4 colour;
+    mat4 model;
+};
 
 /// \brief Buffer passed per-model via push constants
 struct VK2DPushBuffer {
@@ -373,6 +382,7 @@ VK2D_USER_STRUCT(VK2DUniformBufferObject)
 VK2D_USER_STRUCT(VK2DPushBuffer)
 VK2D_USER_STRUCT(VK2D3DPushBuffer)
 VK2D_USER_STRUCT(VK2DShadowsPushBuffer)
+VK2D_USER_STRUCT(VK2DShaderPushBuffer)
 VK2D_USER_STRUCT(VK2DConfiguration)
 VK2D_USER_STRUCT(VK2DStartupOptions)
 VK2D_USER_STRUCT(VK2DRendererConfig)

@@ -1053,8 +1053,6 @@ void _vk2dRendererCreateSpriteBatching() {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     gRenderer->drawCommands = malloc(sizeof(struct VK2DDrawCommand) * gRenderer->limits.maxInstancedDraws);
     gRenderer->drawCommandCount = 0;
-    gRenderer->drawInstancesList = malloc(sizeof(struct VK2DDrawInstance) * gRenderer->limits.maxInstancedDraws);
-    gRenderer->drawInstanceListCount = 0;
 
     if (gRenderer->drawCommands == NULL) {
         vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate sprite batch of count %i.", gRenderer->limits.maxInstancedDraws);
@@ -1064,7 +1062,6 @@ void _vk2dRendererCreateSpriteBatching() {
 void _vk2dRendererDestroySpriteBatching() {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     free(gRenderer->drawCommands);
-    free(gRenderer->drawInstancesList);
 }
 
 void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
@@ -1076,8 +1073,10 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		gRenderer->descConSamplersOff = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2, VK2D_NO_LOCATION);
 		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
 		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
-		for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
-		    gRenderer->descConCompute[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 0);
+		for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+            gRenderer->descConCompute[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 0);
+            gRenderer->descConShaders[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 4);
+        }
 
 		// And the one sampler set
 		VkDescriptorPoolSize sizes = {VK_DESCRIPTOR_TYPE_SAMPLER, 4};
@@ -1152,8 +1151,10 @@ void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
 		vk2dDescConFree(gRenderer->descConSamplersOff);
 		vk2dDescConFree(gRenderer->descConVP);
 		vk2dDescConFree(gRenderer->descConUser);
-        for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
-		    vk2dDescConFree(gRenderer->descConCompute[i]);
+        for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+            vk2dDescConFree(gRenderer->descConCompute[i]);
+            vk2dDescConFree(gRenderer->descConShaders[i]);
+        }
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->samplerPool, VK_NULL_HANDLE);
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->texArrayPool, VK_NULL_HANDLE);
         free(gRenderer->textureArray);
@@ -1711,7 +1712,7 @@ void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel mod
 }
 
 // This is the upper level internal draw function that draws to each camera and not just with a scissor/viewport
-void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
+void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DTexture tex, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;

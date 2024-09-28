@@ -137,15 +137,13 @@ struct VK2DPolygon_t {
 /// (push constants, vertex attributes, and uniforms) in addition to a user-defined uniform
 /// buffer if one is specified.
 struct VK2DShader_t {
-	uint8_t *spvVert;        ///< Vertex shader in SPIR-V
-	uint32_t spvVertSize;    ///< Size of the vertex shader (in bytes)
-	uint8_t *spvFrag;        ///< Fragment shader in SPIR-V
-	uint32_t spvFragSize;    ///< Size of the fragment shader (in bytes)
-	VK2DPipeline pipe;       ///< Pipeline associated with this shader
-	uint32_t uniformSize;    ///< Uniform buffer size in bytes
-	VK2DLogicalDevice dev;   ///< Device this belongs to
-	VK2DDescCon descCons[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor sets for the uniform buffers
-	int currentDescCon;      ///< Points to the current desc con since for this frame since we have 1 per image in flight
+	uint8_t *spvVert;     ///< Vertex shader in SPIR-V
+	uint32_t spvVertSize; ///< Size of the vertex shader (in bytes)
+	uint8_t *spvFrag;     ///< Fragment shader in SPIR-V
+	uint32_t spvFragSize; ///< Size of the fragment shader (in bytes)
+	VK2DPipeline pipe;    ///< Pipeline associated with this shader
+	uint32_t uniformSize; ///< Uniform buffer size in bytes
+	VK2DLogicalDevice dev;///< Device this belongs to
 };
 
 /// \brief Simple wrapper that groups image things together
@@ -278,6 +276,7 @@ struct VK2DRenderer_t {
 	VK2DDescCon descConVP;                    ///< Descriptor controller for view projection buffers
 	VK2DDescCon descConUser;                  ///< Descriptor controller for user buffers
 	VK2DDescCon descConCompute[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor controller for sprite batch compute buffer
+	VK2DDescCon descConShaders[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor controller for user shaders
 	VkDescriptorPool samplerPool;             ///< Sampler pool for 1 sampler
 	VkDescriptorPool texArrayPool;            ///< Tex array pool
 	VkDescriptorSet texArrayDescriptorSet;    ///< Tex array set
@@ -329,13 +328,8 @@ struct VK2DRenderer_t {
 	// Sprite batching
     VK2DDrawCommand *drawCommands;       ///< User-side draw commands
     int drawCommandCount;                ///< Number of draw commands
-    VK2DDrawInstance *drawInstancesList; ///< TODO: Remove this once we have compute shader
-    int drawInstanceListCount;           ///< TODO: Remove this once we have compute shader
     int32_t currentBatchPipelineID;      ///< Pipeline id for the current batch
     VK2DPipeline currentBatchPipeline;   ///< Pipeline for the current batch
-    /*VK2DSpriteBatch *spriteBatches;      ///< Sprite batches that will be processed at the end of the frame
-    int32_t spriteBatchCount;            ///< Number of sprite batches this frame
-    uint32_t spriteBatchListSize;*/        ///< Size of the sprite batch list
 };
 
 #ifdef __cplusplus
