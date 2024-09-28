@@ -811,7 +811,6 @@ void _vk2dRendererCreatePipelines() {
 	    return;
 
 	// Texture pipeline
-    VkDescriptorSetLayout layout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTexture};
     VkDescriptorSetLayout instancedLayout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTextureArray};
 
 	// Polygon pipelines
@@ -856,7 +855,7 @@ void _vk2dRendererCreatePipelines() {
 			shaderModelVertSize,
 			shaderModelFrag,
 			shaderModelFragSize,
-			layout,
+            instancedLayout,
 			3,
 			&modelVertexInfo,
 			true,
@@ -871,7 +870,7 @@ void _vk2dRendererCreatePipelines() {
 			shaderModelVertSize,
 			shaderModelFrag,
 			shaderModelFragSize,
-			layout,
+            instancedLayout,
 			3,
 			&modelVertexInfo,
 			false,
@@ -903,7 +902,7 @@ void _vk2dRendererCreatePipelines() {
             shaderShadowsVertSize,
             shaderShadowsFrag,
             shaderShadowsFragSize,
-            layout,
+            instancedLayout,
             1,
             &shadowsVertexInfo,
             true,
@@ -1038,19 +1037,6 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.w = gRenderer->surfaceWidth;
 	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.h = gRenderer->surfaceHeight;
 
-	VK2DCameraSpec unitCam = {
-			VK2D_CAMERA_TYPE_DEFAULT,
-			0,
-			0,
-			1,
-			1,
-			1,
-	};
-	VK2DUniformBufferObject unitUBO = {0};
-	_vk2dCameraUpdateUBO(&unitUBO, &unitCam, 0);
-	gRenderer->unitUBO = vk2dBufferLoad(gRenderer->ld, sizeof(VK2DUniformBufferObject), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, &unitUBO, true);
-	gRenderer->unitUBOSet = vk2dDescConGetBufferSet(gRenderer->descConVP, gRenderer->unitUBO);
-
 	if (!vk2dStatusFatal())
         vk2dLog("UBO initialized...");
 }
@@ -1061,7 +1047,6 @@ void _vk2dRendererDestroyUniformBuffers() {
 	for (i = 0; i < VK2D_MAX_CAMERAS; i++)
 		if (vk2dCameraGetState(i) == VK2D_CAMERA_STATE_NORMAL || vk2dCameraGetState(i) == VK2D_CAMERA_STATE_DISABLED)
 			vk2dCameraSetState(i, VK2D_CAMERA_STATE_RESET);
-	vk2dBufferFree(gRenderer->unitUBO);
 }
 
 void _vk2dRendererCreateSpriteBatching() {
@@ -1457,6 +1442,7 @@ void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon 
     push.colourMod[1] = gRenderer->colourBlend[1];
     push.colourMod[2] = gRenderer->colourBlend[2];
     push.colourMod[3] = gRenderer->colourBlend[3];
+    push.cameraIndex = cam;
 
     // Check if we actually need to bind things
     uint64_t hash = _vk2dHashSets(sets, setCount);

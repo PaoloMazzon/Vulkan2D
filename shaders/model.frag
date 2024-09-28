@@ -14,7 +14,7 @@ layout(push_constant) uniform PushBuffer {
     mat4 model;
     vec4 colourMod;
     uint textureIndex;
-    uint cameraIndex;
+    int cameraIndex;
 } pushBuffer;
 
 void main() {

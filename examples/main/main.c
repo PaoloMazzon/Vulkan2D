@@ -34,10 +34,9 @@ int main(int argc, const char *argv[]) {
 	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
 	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	VK2DStartupOptions options = {
-	        .quitOnError = false,
+	        .quitOnError = true,
 	        .errorFile = "vk2derror.txt",
 	        .enableDebug = true,
-	        .loadCustomShaders = false,
 	        .stdoutLogging = true,
 	        .vramPageSize = 0
 	};
@@ -71,7 +70,7 @@ int main(int argc, const char *argv[]) {
 	VK2DModel modelVikingRoom = vk2dModelLoad("assets/viking_room.obj", texVikingRoom);
 	VK2DTexture texCaveguyUV = vk2dTextureLoad("assets/caveguyuv.png");
 	VK2DModel modelCaveguy = vk2dModelLoad("assets/caveguy.obj", texCaveguyUV);
-	VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 4);
+	//VK2DShader shader = vk2dShaderLoad("assets/tex.vert.spv", "assets/tex.frag.spv", 4);
 	handleVK2DStatus();
 
 	// Delta and fps
@@ -179,9 +178,9 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererDrawGeometry((void*)SAMPLE_RECTANGLE, SAMPLE_RECTANGLE_VERTICES, 400, 400, false, 3, 1, 1, 0, 0, 0);
 		vk2dDrawTexture(testTexture, 0, 0);
 		shaderFloat += delta * 5;
-		vk2dRendererDrawShader(shader, &shaderFloat, testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);
+		//vk2dRendererDrawShader(shader, &shaderFloat, testTexture, 64, 64, 4 + 3 * xScale, 4 + 3 * yScale, rot, 8, 8, 0, 0, 16, 16);
 		shaderFloat += delta * 5;
-		vk2dRendererDrawShader(shader, &shaderFloat, testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale, (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
+		//vk2dRendererDrawShader(shader, &shaderFloat, testTexture, 250, 170, 6 + 3 * xScale, 6 + 3 * yScale, (rot * 0.9) - (VK2D_PI / 2), 8, 8, 0, 0, 16, 16);
 
 		// Draw 3D portions
 		vk2dRendererLockCameras(camera3D);
@@ -199,7 +198,7 @@ int main(int argc, const char *argv[]) {
 
 	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
-	vk2dShaderFree(shader);
+	//vk2dShaderFree(shader);
 	vk2dModelFree(modelVikingRoom);
 	vk2dTextureFree(texVikingRoom);
 	vk2dModelFree(modelCaveguy);

@@ -204,7 +204,7 @@ struct VK2DUniformBufferObject {
 struct VK2DPushBuffer {
 	mat4 model;           ///< Model matrix
 	vec4 colourMod;       ///< Current colour modifier
-	uint32_t cameraIndex; ///< Index of the camera
+	int32_t cameraIndex; ///< Index of the camera
 };
 
 /// \brief Push buffer used for 3D models

@@ -4,7 +4,7 @@
 #extension GL_EXT_nonuniform_qualifier : enable
 
 layout(push_constant) uniform PushBuffer {
-    uint cameraIndex;
+    int cameraIndex;
 } push;
 
 layout(set = 0, binding = 0) uniform UniformBufferObject {

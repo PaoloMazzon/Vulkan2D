@@ -682,7 +682,7 @@ void vk2dRendererClear() {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
         vk2dRendererFlushSpriteBatch();
 
-		VkDescriptorSet set = gRenderer->unitUBOSet;
+		VkDescriptorSet set = gRenderer->uboDescriptorSets[gRenderer->currentFrame];
 		_vk2dRendererDrawRaw(&set, 1, gRenderer->unitSquare, gRenderer->primFillPipe, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0,
 							 0, VK2D_INVALID_CAMERA);
 	}
@@ -893,7 +893,7 @@ void vk2dRendererDrawModel(VK2DModel model, float x, float y, float z, float xsc
 
 			VkDescriptorSet sets[3];
 			sets[1] = gRenderer->modelSamplerSet;
-			sets[2] = model->tex->img->set;
+			sets[2] = gRenderer->texArrayDescriptorSet;
 			_vk2dRendererDraw3D(sets, 3, model, gRenderer->modelPipe, x, y, z, xscale, yscale, zscale, rot, axis, originX,
 								originY, originZ, 1);
 		} else {

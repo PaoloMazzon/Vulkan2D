@@ -8,7 +8,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
 layout(push_constant) uniform PushBuffer {
     mat4 model;
     vec4 colourMod;
-    uint cameraIndex;
+    int cameraIndex;
 } pushBuffer;
 
 layout(location = 0) in vec3 inPosition;
@@ -20,7 +20,15 @@ out gl_PerVertex {
     vec4 gl_Position;
 };
 
+const mat4 UNIT_VIEW = {
+    { 2.0, 0.0, 0.0, 0.0 },
+    { 0.0, 2.0, 0.0, 0.0 },
+    { 0.0, 0.0, 0.10101, 0.0 },
+    { -1.0, -1.0, 0.191919, 1.0 }
+};
+
 void main() {
-    gl_Position = ubo.viewproj[pushBuffer.cameraIndex] * pushBuffer.model * vec4(inPosition, 1.0);
+    mat4 camera = pushBuffer.cameraIndex == -1 ? UNIT_VIEW : ubo.viewproj[pushBuffer.cameraIndex];
+    gl_Position = camera * pushBuffer.model * vec4(inPosition, 1.0);
     fragColor = inColor;
 }
