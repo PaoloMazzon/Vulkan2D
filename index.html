@@ -169,19 +169,17 @@ Example</h1>
 </div><!-- fragment --><p>If you don't want VK2D to crash on errors you may specify that in the struct <code><a class="el" href="structVK2DStartupOptions.html" title="Startup options that dictate some basic VK2D stuff.">VK2DStartupOptions</a></code> passed to <code>vk2dRendererInit</code> and check for errors yourself with <code>vk2dStatus</code>, <code>vk2dStatusMessage</code>, and <code>vk2dStatusFatal</code>. Any VK2D function can raise fatal errors but unless you pass bad pointers to VK2D functions, they will not crash if there is a fatal error and will instead simply do nothing.</p>
 <h1><a class="anchor" id="autotoc_md18"></a>
 Running the Examples</h1>
-<p>All examples are tested to work on Windows and Ubuntu. The <code>CMakeLists.txt</code> at the root directory will generate build systems for each example. Be sure to compile the test shader before running the <code>examples/main/</code> example with: </p><pre class="fragment">glslc assets/test.frag -o assets/tex.frag.spv
-glslc assets/test.vert -o assets/tex.vert.spv
+<p>All examples are tested to work on Windows and Ubuntu. The <code>CMakeLists.txt</code> at the root directory will generate build systems for each example. Be sure to compile the test shader before running the <code>examples/main/</code> example with: </p><pre class="fragment">glslc assets/test.frag -o assets/test.frag.spv
+glslc assets/test.vert -o assets/test.vert.spv
 </pre><p> If you don't trust binary blobs you may also compile the binary shader blobs with the command </p><pre class="fragment">genblobs.py colour.vert colour.frag instanced.vert instanced.frag model.vert model.frag shadows.vert shadows.frag spritebatch.comp
 </pre><p> run from the <code>shaders/</code> folder (requires Python).</p>
 <h1><a class="anchor" id="autotoc_md19"></a>
 Roadmap</h1>
 <ul>
-<li>Sprite batching</li>
-<li>Built-in imgui support</li>
-<li>Better multi-threaded loading support</li>
-<li>Soft shadows</li>
-<li>More flexibility with shader uniforms</li>
-<li>3D shaders </li>
+<li>Asynchronous loading</li>
+<li>Ability to disable 3D resources</li>
+<li>GPU readback</li>
+<li>Soft shadows </li>
 </ul>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
