@@ -19,16 +19,8 @@ extern "C" {
 /// \warning uniformBufferSize must be a multiple of 4
 ///
 /// Check the shaders shaders/tex.vert and shaders/tex.frag for information on how
-/// the shaders should be laid out. Additionally, if you provide a uniformBufferSize other
-/// than 0, you must specify
-///
-///     layout(set = 3, binding = 3) uniform UserData {
-///         float myval; // examples, you may pass whatever here.
-///         vec3 mycolour;
-///         // your data here...
-///     } userData;
-///
-/// At the top of both shaders.
+/// the shaders should be set up. You may choose to not include a uniform buffer if
+/// you specify a uniform buffer size of 0.
 VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize);
 
 /// \brief Creates a shader you can use to render textures from an in-memory buffer
@@ -43,16 +35,8 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 /// \warning uniformBufferSize must be a multiple of 4
 ///
 /// Check the shaders shaders/tex.vert and shaders/tex.frag for information on how
-/// the shaders should be laid out. Additionally, if you provide a uniformBufferSize other
-/// than 0, you must specify
-///
-///     layout(set = 3, binding = 3) uniform UserData {
-///         float myval; // examples, you may pass whatever here.
-///         vec3 mycolour;
-///         // your data here...
-///     } userData;
-///
-/// At the top of both shaders.
+/// the shaders should be set up. You may choose to not include a uniform buffer if
+/// you specify a uniform buffer size of 0.
 VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize);
 
 /// \brief Frees a shader from memory

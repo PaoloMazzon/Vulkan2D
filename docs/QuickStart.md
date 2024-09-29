@@ -183,12 +183,99 @@ You may provide your own SPIR-V compiled shaders to render textures with. For a 
 Shaders may be loaded with `vk2dShaderLoad` and `vk2dShaderFrom`, and if you specify a buffer size other than 0 you
 must provide `vk2dRendererDrawShader` with a data buffer of at least that size. For some specifics,
 
- + Your shaders must have the same inputs and outputs as the shader in `shaders/tex.frag`/`shaders/tex.vert`
+ + Your shaders must have the same inputs and outputs as the shader in `assets/test.frag`/`assets/test.vert`
  + Shader buffer size must be a multiple of 4
  + To specify a uniform buffer, you must specify the size when you create the shader and use
 
+The fragment shader should have the following information before the main entry point:
+
 ```glsl
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_EXT_nonuniform_qualifier : enable
+
+// VK2D provided variables
+layout(push_constant) uniform PushBuffer {
+    int cameraIndex;
+    uint textureIndex;
+    vec4 texturePos;
+    vec4 colour;
+    mat4 model;
+} push;
+
+layout(set = 0, binding = 0) uniform UniformBufferObject {
+    mat4 viewproj[10];
+} ubo;
+
+layout(set = 1, binding = 1) uniform sampler texSampler;
+layout(set = 2, binding = 2) uniform texture2D tex[];
+
+// Input from the vertex shader
+layout(location = 1) in vec2 fragTexCoord;
+layout(location = 2) in vec4 fragColour;
+
+// Output of the fragment shader
+layout(location = 0) out vec4 outColor;
+
+// Optional user-provided uniform buffer
 layout(set = 3, binding = 3) uniform UserData {
-    // your data here
+    float colour;
 } userData;
+
+void main() {
+    // your code here
+}
+```
+
+And for the vertex shader:
+
+```glsl
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+// Required for VK2D
+const vec2 VERTICES[] = {
+    vec2(0.0f, 0.0f),
+    vec2(1.0f, 0.0f),
+    vec2(1.0f, 1.0f),
+    vec2(1.0f, 1.0f),
+    vec2(0.0f, 1.0f),
+    vec2(0.0f, 0.0f),
+};
+
+const vec2 TEX_COORDS[] = {
+    vec2(0.0f, 0.0f),
+    vec2(1.0f, 0.0f),
+    vec2(1.0f, 1.0f),
+    vec2(1.0f, 1.0f),
+    vec2(0.0f, 1.0f),
+    vec2(0.0f, 0.0f),
+};
+
+layout(push_constant) uniform PushBuffer {
+    int cameraIndex;
+    uint textureIndex;
+    vec4 texturePos;
+    vec4 colour;
+    mat4 model;
+} push;
+
+layout(set = 0, binding = 0) uniform UniformBufferObject {
+    mat4 viewproj[10];
+} ubo;
+
+// Output to the fragment shader
+layout(location = 0) out vec4 gl_Position;
+layout(location = 1) out vec2 fragTexCoord;
+layout(location = 2) out vec4 fragColour;
+
+// Optional user-provided uniform buffer
+layout(set = 3, binding = 3) uniform UserData {
+    float colour;
+} userData;
+
+void main() {
+    // your code here
+}
 ```
