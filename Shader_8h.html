@@ -223,12 +223,7 @@ Functions</h2></td></tr>
 uniformBufferSize must be less than the <code>maxShaderBufferSize</code> field of <code>vk2dRendererGetLimits</code> </dd>
 <dd>
 uniformBufferSize must be a multiple of 4</dd></dl>
-<p>Check the shaders shaders/tex.vert and shaders/tex.frag for information on how the shaders should be laid out. Additionally, if you provide a uniformBufferSize other than 0, you must specify </p><pre class="fragment">layout(set = 3, binding = 3) uniform UserData {
-    float myval; // examples, you may pass whatever here.
-    vec3 mycolour;
-    // your data here...
-} userData;
-</pre><p> At the top of both shaders. </p>
+<p>Check the shaders shaders/tex.vert and shaders/tex.frag for information on how the shaders should be set up. You may choose to not include a uniform buffer if you specify a uniform buffer size of 0. </p>
 
 </div>
 </div>
@@ -279,12 +274,7 @@ uniformBufferSize must be a multiple of 4</dd></dl>
 uniformBufferSize must be less than the <code>maxShaderBufferSize</code> field of <code>vk2dRendererGetLimits</code> </dd>
 <dd>
 uniformBufferSize must be a multiple of 4</dd></dl>
-<p>Check the shaders shaders/tex.vert and shaders/tex.frag for information on how the shaders should be laid out. Additionally, if you provide a uniformBufferSize other than 0, you must specify </p><pre class="fragment">layout(set = 3, binding = 3) uniform UserData {
-    float myval; // examples, you may pass whatever here.
-    vec3 mycolour;
-    // your data here...
-} userData;
-</pre><p> At the top of both shaders. </p>
+<p>Check the shaders shaders/tex.vert and shaders/tex.frag for information on how the shaders should be set up. You may choose to not include a uniform buffer if you specify a uniform buffer size of 0. </p>
 
 </div>
 </div>

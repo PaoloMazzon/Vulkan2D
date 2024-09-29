@@ -189,13 +189,95 @@ Shaders</h1>
 <p>You may provide your own SPIR-V compiled shaders to render textures with. For a detailed example check <code>examples/main</code>.</p>
 <p>Shaders may be loaded with <code>vk2dShaderLoad</code> and <code>vk2dShaderFrom</code>, and if you specify a buffer size other than 0 you must provide <code>vk2dRendererDrawShader</code> with a data buffer of at least that size. For some specifics,</p>
 <ul>
-<li>Your shaders must have the same inputs and outputs as the shader in <code>shaders/tex.frag</code>/<code>shaders/tex.vert</code></li>
+<li>Your shaders must have the same inputs and outputs as the shader in <code>assets/test.frag</code>/<code>assets/test.vert</code></li>
 <li>Shader buffer size must be a multiple of 4</li>
 <li>To specify a uniform buffer, you must specify the size when you create the shader and use</li>
 </ul>
-<div class="fragment"><div class="line">layout(set = 3, binding = 3) uniform UserData {</div>
-<div class="line">    // your data here</div>
+<p>The fragment shader should have the following information before the main entry point:</p>
+<div class="fragment"><div class="line">#version 450</div>
+<div class="line">#extension GL_ARB_separate_shader_objects : enable</div>
+<div class="line">#extension GL_EXT_scalar_block_layout : enable</div>
+<div class="line">#extension GL_EXT_nonuniform_qualifier : enable</div>
+<div class="line"> </div>
+<div class="line">// VK2D provided variables</div>
+<div class="line">layout(push_constant) uniform PushBuffer {</div>
+<div class="line">    int cameraIndex;</div>
+<div class="line">    uint textureIndex;</div>
+<div class="line">    vec4 texturePos;</div>
+<div class="line">    vec4 colour;</div>
+<div class="line">    mat4 model;</div>
+<div class="line">} push;</div>
+<div class="line"> </div>
+<div class="line">layout(set = 0, binding = 0) uniform UniformBufferObject {</div>
+<div class="line">    mat4 viewproj[10];</div>
+<div class="line">} ubo;</div>
+<div class="line"> </div>
+<div class="line">layout(set = 1, binding = 1) uniform sampler texSampler;</div>
+<div class="line">layout(set = 2, binding = 2) uniform texture2D tex[];</div>
+<div class="line"> </div>
+<div class="line">// Input from the vertex shader</div>
+<div class="line">layout(location = 1) in vec2 fragTexCoord;</div>
+<div class="line">layout(location = 2) in vec4 fragColour;</div>
+<div class="line"> </div>
+<div class="line">// Output of the fragment shader</div>
+<div class="line">layout(location = 0) out vec4 outColor;</div>
+<div class="line"> </div>
+<div class="line">// Optional user-provided uniform buffer</div>
+<div class="line">layout(set = 3, binding = 3) uniform UserData {</div>
+<div class="line">    float colour;</div>
 <div class="line">} userData;</div>
+<div class="line"> </div>
+<div class="line">void main() {</div>
+<div class="line">    // your code here</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>And for the vertex shader:</p>
+<div class="fragment"><div class="line">#version 450</div>
+<div class="line">#extension GL_ARB_separate_shader_objects : enable</div>
+<div class="line"> </div>
+<div class="line">// Required for VK2D</div>
+<div class="line">const vec2 VERTICES[] = {</div>
+<div class="line">    vec2(0.0f, 0.0f),</div>
+<div class="line">    vec2(1.0f, 0.0f),</div>
+<div class="line">    vec2(1.0f, 1.0f),</div>
+<div class="line">    vec2(1.0f, 1.0f),</div>
+<div class="line">    vec2(0.0f, 1.0f),</div>
+<div class="line">    vec2(0.0f, 0.0f),</div>
+<div class="line">};</div>
+<div class="line"> </div>
+<div class="line">const vec2 TEX_COORDS[] = {</div>
+<div class="line">    vec2(0.0f, 0.0f),</div>
+<div class="line">    vec2(1.0f, 0.0f),</div>
+<div class="line">    vec2(1.0f, 1.0f),</div>
+<div class="line">    vec2(1.0f, 1.0f),</div>
+<div class="line">    vec2(0.0f, 1.0f),</div>
+<div class="line">    vec2(0.0f, 0.0f),</div>
+<div class="line">};</div>
+<div class="line"> </div>
+<div class="line">layout(push_constant) uniform PushBuffer {</div>
+<div class="line">    int cameraIndex;</div>
+<div class="line">    uint textureIndex;</div>
+<div class="line">    vec4 texturePos;</div>
+<div class="line">    vec4 colour;</div>
+<div class="line">    mat4 model;</div>
+<div class="line">} push;</div>
+<div class="line"> </div>
+<div class="line">layout(set = 0, binding = 0) uniform UniformBufferObject {</div>
+<div class="line">    mat4 viewproj[10];</div>
+<div class="line">} ubo;</div>
+<div class="line"> </div>
+<div class="line">// Output to the fragment shader</div>
+<div class="line">layout(location = 0) out vec4 gl_Position;</div>
+<div class="line">layout(location = 1) out vec2 fragTexCoord;</div>
+<div class="line">layout(location = 2) out vec4 fragColour;</div>
+<div class="line"> </div>
+<div class="line">// Optional user-provided uniform buffer</div>
+<div class="line">layout(set = 3, binding = 3) uniform UserData {</div>
+<div class="line">    float colour;</div>
+<div class="line">} userData;</div>
+<div class="line"> </div>
+<div class="line">void main() {</div>
+<div class="line">    // your code here</div>
+<div class="line">}</div>
 </div><!-- fragment --> </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
