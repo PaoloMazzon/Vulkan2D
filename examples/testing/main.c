@@ -53,37 +53,21 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame(clear);
 
-		const float scale = 5;
-        const float originX = vk2dTextureWidth(texCaveguy) * 0.5 * scale;
-        const float originY = vk2dTextureHeight(texCaveguy) * 0.5 * scale;
+        for (int i = 0; i < 100000; i++) {
+            const float caveguyX = vk2dRandom(-16, WINDOW_WIDTH);
+            const float caveguyY = vk2dRandom(-16, WINDOW_HEIGHT);
+            const float caveguyScaleX = vk2dRandom(0.1, 2);
+            const float caveguyScaleY = vk2dRandom(0.1, 2);
+            const float caveguyRotation = vk2dRandom(0, VK2D_PI * 2);
+            const float caveguyOriginX = 8;
+            const float caveguyOriginY = 8;
 
-        const float caveguyX = (windowWidth / 2) + (cos(time * 2) * 100) - originX;
-        const float caveguyY = (windowHeight / 2) + (sin(time * 2) * 100) - originY;
-        const float caveguyScaleX = 3;
-        const float caveguyScaleY = 3;
-        const float caveguyRotation = time;
-        const float caveguyOriginX = 8;
-        const float caveguyOriginY = 8;
-
-        vk2dRendererSetColourMod(VK2D_BLACK);
-        vk2dDrawTextureExt(
-                texCaveguy,
-                caveguyX, caveguyY,
-                caveguyScaleX, caveguyScaleY,
-                0, 0, 0);
-        vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
-
-        vk2dRendererDrawRectangleOutline(
-                caveguyX, caveguyY,
-                vk2dTextureWidth(texCaveguy) * caveguyScaleX, vk2dTextureHeight(texCaveguy) * caveguyScaleY,
-                caveguyRotation, caveguyOriginX, caveguyOriginY,
-                2);
-
-        vk2dDrawTextureExt(
-                texCaveguy,
-                caveguyX, caveguyY,
-                caveguyScaleX, caveguyScaleY,
-                caveguyRotation, caveguyOriginX, caveguyOriginY);
+            vk2dDrawTextureExt(
+                    texCaveguy,
+                    caveguyX, caveguyY,
+                    caveguyScaleX, caveguyScaleY,
+                    caveguyRotation, caveguyOriginX, caveguyOriginY);
+        }
 
 		debugRenderOverlay();
 		vk2dRendererFlushSpriteBatch();

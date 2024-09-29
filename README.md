@@ -19,14 +19,13 @@ a much older version of it. Check out the [quick-start](docs/QuickStart.md) guid
 Features
 ========
 
- + Simple and intuitive API built on top of SDL
- + Draw shapes/textures/3D models/arbitrary polygons to the screen or other textures
- + Fast, built with Vulkan 1.1 and doesn't require any device features (but it can make use of some)
+ + Simple, fast, and intuitive API built on top of SDL
+ + Draw shapes/textures/3D models/arbitrary polygons to the screen or to other textures
+ + Fast, built with Vulkan 1.2 and doesn't require any device features (but it can make use of some)
  + Simple and fully-featured cameras, allowing for multiple concurrent cameras
  + Powerful and very simple shader interface
  + Simple access to the Vulkan implementation through `VK2D/VulkanInterface.h`
  + Hardware-accelerated 2D light and shadows
- + Easily load multiple resources in the background while your application gets prepared
 
 Documentation
 =============
