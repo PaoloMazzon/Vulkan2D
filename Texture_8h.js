@@ -3,6 +3,7 @@ var Texture_8h =
     [ "vk2dTextureCreate", "Texture_8h.html#a7ed4b227a5d37e8898efe88bbf3a05ea", null ],
     [ "vk2dTextureFree", "Texture_8h.html#a0ba8c615ffe2208f0efaab0b1eae29aa", null ],
     [ "vk2dTextureFrom", "Texture_8h.html#a80f32fe9f9c50e91dd998d5c7c2e463c", null ],
+    [ "vk2dTextureGetID", "Texture_8h.html#a9724025064d391b843f9ae85be542818", null ],
     [ "vk2dTextureGetImage", "Texture_8h.html#a5bf04f5aa96861d411b32ecfea303418", null ],
     [ "vk2dTextureHeight", "Texture_8h.html#ae59aec48b12a0f634a85fbeb20e30de3", null ],
     [ "vk2dTextureIsTarget", "Texture_8h.html#ac93cba12fad384e36a89611dd8dcd339", null ],

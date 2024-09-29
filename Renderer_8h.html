@@ -280,9 +280,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Rend
 <tr class="memitem:a9e4fca4f18ae2cb94b02ac568c4becb6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a9e4fca4f18ae2cb94b02ac568c4becb6">vk2dRendererDrawTexture</a> (VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight)</td></tr>
 <tr class="memdesc:a9e4fca4f18ae2cb94b02ac568c4becb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Renders a texture.  <a href="Renderer_8h.html#a9e4fca4f18ae2cb94b02ac568c4becb6">More...</a><br /></td></tr>
 <tr class="separator:a9e4fca4f18ae2cb94b02ac568c4becb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8c11397076de9c8b2d7712719e14109"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#ae8c11397076de9c8b2d7712719e14109">vk2dRendererDrawInstanced</a> (VK2DTexture tex, <a class="el" href="structVK2DDrawInstance.html">VK2DDrawInstance</a> *instances, uint32_t count)</td></tr>
-<tr class="memdesc:ae8c11397076de9c8b2d7712719e14109"><td class="mdescLeft">&#160;</td><td class="mdescRight">Draws a texture many number of times using instanced data.  <a href="Renderer_8h.html#ae8c11397076de9c8b2d7712719e14109">More...</a><br /></td></tr>
-<tr class="separator:ae8c11397076de9c8b2d7712719e14109"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a34c95b015705169d5a5b06b1c4611e3a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a34c95b015705169d5a5b06b1c4611e3a">vk2dRendererAddBatch</a> (<a class="el" href="structVK2DDrawCommand.html">VK2DDrawCommand</a> *commands, uint32_t count)</td></tr>
+<tr class="memdesc:a34c95b015705169d5a5b06b1c4611e3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a user-provided draw batch to the current draw batch, flushing if necessary.  <a href="Renderer_8h.html#a34c95b015705169d5a5b06b1c4611e3a">More...</a><br /></td></tr>
+<tr class="separator:a34c95b015705169d5a5b06b1c4611e3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d28f090908340d2402ac0485aa92839"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a5d28f090908340d2402ac0485aa92839">vk2dRendererDrawShader</a> (VK2DShader shader, void *data, VK2DTexture tex, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float xInTex, float yInTex, float texWidth, float texHeight)</td></tr>
 <tr class="memdesc:a5d28f090908340d2402ac0485aa92839"><td class="mdescLeft">&#160;</td><td class="mdescRight">Renders a texture.  <a href="Renderer_8h.html#a5d28f090908340d2402ac0485aa92839">More...</a><br /></td></tr>
 <tr class="separator:a5d28f090908340d2402ac0485aa92839"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -310,15 +310,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Rend
 <tr class="memitem:aee3e036fb150542075841732f0403459"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#aee3e036fb150542075841732f0403459">vk2dColourRGBA</a> (<a class="el" href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a> dst, uint8_t r, uint8_t g, uint8_t b, uint8_t a)</td></tr>
 <tr class="memdesc:aee3e036fb150542075841732f0403459"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a RGBA colour into a vec4 normalized colour.  <a href="Renderer_8h.html#aee3e036fb150542075841732f0403459">More...</a><br /></td></tr>
 <tr class="separator:aee3e036fb150542075841732f0403459"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae64d979bebe3632caa07e58526da77ab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#ae64d979bebe3632caa07e58526da77ab">vk2dInstanceSet</a> (<a class="el" href="structVK2DDrawInstance.html">VK2DDrawInstance</a> *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin, float xInTex, float yInTex, float wInTex, float hInTex, <a class="el" href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a> colour)</td></tr>
-<tr class="memdesc:ae64d979bebe3632caa07e58526da77ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up an instance's data in full - this is quite heavy and only intended for initialization.  <a href="Renderer_8h.html#ae64d979bebe3632caa07e58526da77ab">More...</a><br /></td></tr>
-<tr class="separator:ae64d979bebe3632caa07e58526da77ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a398fdee3268427d1945533893aaff7a7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a398fdee3268427d1945533893aaff7a7">vk2dInstanceSetFast</a> (<a class="el" href="structVK2DDrawInstance.html">VK2DDrawInstance</a> *instance, float x, float y, float xInTex, float yInTex, float wInTex, float hInTex, <a class="el" href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a> colour)</td></tr>
-<tr class="memdesc:a398fdee3268427d1945533893aaff7a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up an instance's data without the computationally expensive pieces.  <a href="Renderer_8h.html#a398fdee3268427d1945533893aaff7a7">More...</a><br /></td></tr>
-<tr class="separator:a398fdee3268427d1945533893aaff7a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a451610e6a41015e2add86fd3b0f46f44"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a451610e6a41015e2add86fd3b0f46f44">vk2dInstanceUpdate</a> (<a class="el" href="structVK2DDrawInstance.html">VK2DDrawInstance</a> *instance, float x, float y, float xScale, float yScale, float rot, float xOrigin, float yOrigin)</td></tr>
-<tr class="memdesc:a451610e6a41015e2add86fd3b0f46f44"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates an instance's positional data.  <a href="Renderer_8h.html#a451610e6a41015e2add86fd3b0f46f44">More...</a><br /></td></tr>
-<tr class="separator:a451610e6a41015e2add86fd3b0f46f44"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac2dbbb092ec4d043410f97203fd1f595"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#ac2dbbb092ec4d043410f97203fd1f595">vk2dRendererFlushSpriteBatch</a> ()</td></tr>
+<tr class="memdesc:ac2dbbb092ec4d043410f97203fd1f595"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forces the renderer to flush the current sprite batch The renderer automatically does this in a few conditions but you can force it to flush if you need to for whatever reason.  <a href="Renderer_8h.html#ac2dbbb092ec4d043410f97203fd1f595">More...</a><br /></td></tr>
+<tr class="separator:ac2dbbb092ec4d043410f97203fd1f595"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c717b271a6b7df431a729a5b7e14721"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a8c717b271a6b7df431a729a5b7e14721">vk2dRandom</a> (float min, float max)</td></tr>
 <tr class="memdesc:a8c717b271a6b7df431a729a5b7e14721"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a random number between min and max, thread safe.  <a href="Renderer_8h.html#a8c717b271a6b7df431a729a5b7e14721">More...</a><br /></td></tr>
 <tr class="separator:a8c717b271a6b7df431a729a5b7e14721"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -373,7 +367,44 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Rend
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The main renderer that handles all rendering. </p>
-<dl class="section author"><dt>Author</dt><dd>Paolo Mazzon </dd></dl>
+<dl class="section author"><dt>Author</dt><dd>Paolo Mazzon</dd></dl>
+<p>Below is a brief technical breakdown of the renderer.</p>
+<p>The first thing VK2D does is initialize the swapchain and its corresponding resources. Of note, there are</p>
+<ul>
+<li>Three maximum frames in flight (not a direct resource but relevant to everything)</li>
+<li>Three render passes - one to start the frame, one for writing to a texture, and one to swap back to after texture writes</li>
+<li>A descriptor buffer per frame in flight</li>
+<li>A framebuffer per swapchain image</li>
+<li>Several <code>DescriptorController</code>s for different resources</li>
+<li>Many pipelines, particularly one graphics pipeline for each supported blend mode per shader</li>
+<li>A depth buffer per swapchain image</li>
+</ul>
+<p>Additionally, every time the window is resized (or really for any reason, that's just the most common) most of those resources are recreated, which is why on older hardware changing window size could take up to a few seconds.</p>
+<p>The user may then load/create their textures/models/etc, this is mostly boring the only noteworthy point is that all textures' descriptors are stored in a global descriptor array, meaning every shader has access to every texture currently loaded at once without the need for more descriptor sets. This is useful for instancing and sprite batching, not to mention user convenience.</p>
+<p>Once the user is ready to start rendering they use vk2dRendererStartFrame which does a lot of things</p>
+<ul>
+<li>If there is vsync, wait till the swapchain hands us an image, otherwise wait till the frame in flight is ready (don't worry about this)</li>
+<li>Reset and begin recording the three command buffers - copy, compute, and draw</li>
+<li>Begin the renderpass on the draw buffer, and bind the sprite-batching compute shader on the compute buffer</li>
+<li>Clear the spritebatch information to prepare for this frame</li>
+</ul>
+<p>Then the user may record draw commands. Some draw commands like drawing shapes/models are simple and just record a vkCmdDraw to the draw buffer, but sprite-batching and switching render targets is more complex.</p>
+<p>Switching render pass involves a few steps:</p>
+<ul>
+<li>End the render pass</li>
+<li>Put a pipeline barrier to put the image into either shader-read-optimal mode or color-attachment mode</li>
+<li>Start a new render pass depending on if the target is now a texture or the swapchain</li>
+</ul>
+<p>Also, briefly, of note is the DescriptorBuffer. The DescriptorBuffer is responsible for most VRAM memory management during the frame. VK2D gives the current frame's DescriptorBuffer random shader/vertex data and it puts it in VRAM pages, their size specified at the start of the program via vramPageSize. At the end of each frame it copies all data it was given from RAM to VRAM and inserts a pipeline barrier on the copy buffer to block compute until it finishes copying. Just know that any data that is not known ahead of time is put into this, ie, sprite batch input/output, vk2dRendererDrawGeometry, shader uniforms, view matrices, ...</p>
+<p>More interestingly, sprite batching happens automatically and consists of a list in the renderer that keeps track of the current batch and any sort of texture drawing. When the current batch reaches the batch limit (as determined by the vram page size), a camera is changed, pipelines are swapped, or some other things, the current batch is flushed. When a batch is flushed, the batch is pushed to VRAM through the current descriptor buffer, space on the descriptor buffer is reserved for the compute shader output, then the compute shader to process the batch's model matrices is dispatched on the compute buffer. A draw command is also queued on the draw buffer using the compute shader's output as vertex input data for the instances.</p>
+<p>At the end of the frame:</p>
+<ul>
+<li>A pipeline barrier is inserted at the end of the copy buffer to block compute until copy is done</li>
+<li>A pipeline barrier is inserted at the end of the compute buffer to block vertex input until compute is done</li>
+<li>The command buffers are ended and submitted</li>
+<li>The swapchain is presented</li>
+</ul>
+<p>This is still not super detailed, but its a good starting point to understanding whats going on. </p>
 </div><h2 class="groupheader">Function Documentation</h2>
 <a id="ae5bb48e354826ee519ecef3e341acdac"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae5bb48e354826ee519ecef3e341acdac">&#9670;&nbsp;</a></span>vk2dAssetsFree()</h2>
@@ -451,7 +482,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Rend
 You may not call this again until vk2dAssetsWait is called </dd>
 <dd>
 If <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.supportsMultiThreadLoading is false this will perform the asset load on the main thread (and be blocking)</dd></dl>
-<p>This function will load each asset in the assets list in another thread in the background so you may do other things to prepare your application. In essence its a non-blocking way to load your resources. If <code><a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.supportsMultiThreadLoading</code> is false this function will still load all of the specified assets, but it will be done on the main thread instead which will be blocking. </p>
+<p>This function will load each asset in the assets list in another thread in the background so you may do other things to prepare your application. In essence its a non-blocking way to load your resources. If <code><a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.supportsMultiThreadLoading</code> is false this function will still load all of the specified assets, but it will be done on the main thread instead which will be blocking.</p>
+<dl class="section warning"><dt>Warning</dt><dd>This is currently unsupported until it is re-implemented in a more cross-platform manner </dd></dl>
 
 </div>
 </div>
@@ -1046,278 +1078,6 @@ If <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title
 
 </div>
 </div>
-<a id="ae64d979bebe3632caa07e58526da77ab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae64d979bebe3632caa07e58526da77ab">&#9670;&nbsp;</a></span>vk2dInstanceSet()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void vk2dInstanceSet </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structVK2DDrawInstance.html">VK2DDrawInstance</a> *&#160;</td>
-          <td class="paramname"><em>instance</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>xScale</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>yScale</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>rot</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>xOrigin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>yOrigin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>xInTex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>yInTex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>wInTex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>hInTex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a>&#160;</td>
-          <td class="paramname"><em>colour</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets up an instance's data in full - this is quite heavy and only intended for initialization. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">instance</td><td>Pointer to the instance data to set up </td></tr>
-    <tr><td class="paramname">x</td><td>X position of this instance </td></tr>
-    <tr><td class="paramname">y</td><td>Y position of this instance </td></tr>
-    <tr><td class="paramname">xScale</td><td>X scale of the instance </td></tr>
-    <tr><td class="paramname">yScale</td><td>Y scale of the instance </td></tr>
-    <tr><td class="paramname">rot</td><td>Rotation of the instance </td></tr>
-    <tr><td class="paramname">xOrigin</td><td>X origin of the instance </td></tr>
-    <tr><td class="paramname">yOrigin</td><td>Y origin of the instance </td></tr>
-    <tr><td class="paramname">xInTex</td><td>X position in the texture to begin rendering from for this instance </td></tr>
-    <tr><td class="paramname">yInTex</td><td>Y position in the texture to begin rendering from for this instance </td></tr>
-    <tr><td class="paramname">wInTex</td><td>Width of the texture to draw for this instance </td></tr>
-    <tr><td class="paramname">hInTex</td><td>Height of the texture to draw for this instance </td></tr>
-    <tr><td class="paramname">colour</td><td>Colour mod for this instance </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a398fdee3268427d1945533893aaff7a7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a398fdee3268427d1945533893aaff7a7">&#9670;&nbsp;</a></span>vk2dInstanceSetFast()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void vk2dInstanceSetFast </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structVK2DDrawInstance.html">VK2DDrawInstance</a> *&#160;</td>
-          <td class="paramname"><em>instance</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>xInTex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>yInTex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>wInTex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>hInTex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a>&#160;</td>
-          <td class="paramname"><em>colour</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets up an instance's data without the computationally expensive pieces. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">instance</td><td>Pointer to the instance data to set up </td></tr>
-    <tr><td class="paramname">x</td><td>X position of this instance </td></tr>
-    <tr><td class="paramname">y</td><td>Y position of this instance </td></tr>
-    <tr><td class="paramname">xInTex</td><td>X position in the texture to begin rendering from for this instance </td></tr>
-    <tr><td class="paramname">yInTex</td><td>Y position in the texture to begin rendering from for this instance </td></tr>
-    <tr><td class="paramname">wInTex</td><td>Width of the texture to draw for this instance </td></tr>
-    <tr><td class="paramname">hInTex</td><td>Height of the texture to draw for this instance </td></tr>
-    <tr><td class="paramname">colour</td><td>Colour mod for this instance </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
-<a id="a451610e6a41015e2add86fd3b0f46f44"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a451610e6a41015e2add86fd3b0f46f44">&#9670;&nbsp;</a></span>vk2dInstanceUpdate()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void vk2dInstanceUpdate </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="structVK2DDrawInstance.html">VK2DDrawInstance</a> *&#160;</td>
-          <td class="paramname"><em>instance</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>x</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>y</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>xScale</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>yScale</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>rot</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>xOrigin</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">float&#160;</td>
-          <td class="paramname"><em>yOrigin</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Updates an instance's positional data. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">instance</td><td>Pointer to the instance data to set up </td></tr>
-    <tr><td class="paramname">x</td><td>X position of this instance </td></tr>
-    <tr><td class="paramname">y</td><td>Y position of this instance </td></tr>
-    <tr><td class="paramname">xScale</td><td>X scale of the instance </td></tr>
-    <tr><td class="paramname">yScale</td><td>Y scale of the instance </td></tr>
-    <tr><td class="paramname">rot</td><td>Rotation of the instance </td></tr>
-    <tr><td class="paramname">xOrigin</td><td>X origin of the instance </td></tr>
-    <tr><td class="paramname">yOrigin</td><td>Y origin of the instance </td></tr>
-  </table>
-  </dd>
-</dl>
-
-</div>
-</div>
 <a id="a8c717b271a6b7df431a729a5b7e14721"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8c717b271a6b7df431a729a5b7e14721">&#9670;&nbsp;</a></span>vk2dRandom()</h2>
 
@@ -1354,6 +1114,44 @@ If <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a random number between min and max</dd></dl>
 <p>This function is thread safe and decently random. It is however not secure and only intended for testing/games. The renderer automatically initializes the seed to system time. </p>
+
+</div>
+</div>
+<a id="a34c95b015705169d5a5b06b1c4611e3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a34c95b015705169d5a5b06b1c4611e3a">&#9670;&nbsp;</a></span>vk2dRendererAddBatch()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vk2dRendererAddBatch </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structVK2DDrawCommand.html">VK2DDrawCommand</a> *&#160;</td>
+          <td class="paramname"><em>commands</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>count</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds a user-provided draw batch to the current draw batch, flushing if necessary. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">commands</td><td>Array of draw commands </td></tr>
+    <tr><td class="paramname">count</td><td>Number of draw commands in the array</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Allows users to maintain their own sprite-batches, possibly across threads or to not have to dance around VK2D's automatic flushing. That said, this function is not thread-safe, you may build your draw command list on any thread you like but this function must be called from the same thread VK2D was created on. </p>
 
 </div>
 </div>
@@ -1551,52 +1349,6 @@ If <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title
 </dl>
 <dl class="section warning"><dt>Warning</dt><dd>If filled is true the polygon must be triangulated.</dd></dl>
 <p>This function works by putting the geometry into a vram page before drawing, which means its limited by <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.maxGeometryVertices. </p>
-
-</div>
-</div>
-<a id="ae8c11397076de9c8b2d7712719e14109"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae8c11397076de9c8b2d7712719e14109">&#9670;&nbsp;</a></span>vk2dRendererDrawInstanced()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void vk2dRendererDrawInstanced </td>
-          <td>(</td>
-          <td class="paramtype">VK2DTexture&#160;</td>
-          <td class="paramname"><em>tex</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="structVK2DDrawInstance.html">VK2DDrawInstance</a> *&#160;</td>
-          <td class="paramname"><em>instances</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>count</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Draws a texture many number of times using instanced data. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">tex</td><td>Texture to draw </td></tr>
-    <tr><td class="paramname">instances</td><td>Array of <code><a class="el" href="structVK2DDrawInstance.html" title="Represents the data you need for each element in an instanced draw.">VK2DDrawInstance</a></code>s that will be used as what would be parameters to vk2dRendererDrawTexture (the data is copied) </td></tr>
-    <tr><td class="paramname">count</td><td>Number of elements in the instances array </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section warning"><dt>Warning</dt><dd>If <code>count</code> is greater than the <code>maxInstancedDraws</code> field of vk2dRendererGetLimits, <code>count</code> will instead be taken as <code>maxInstancedDraws</code></dd></dl>
-<p>This function is intended to be used to draw a large amount of a single texture at once with less overhead than there would be by calling vk2dRendererDrawTexture <code>count</code> number of times. Use the <code>VK2DInstance*</code> function to control things like rotation/scaling but rotation and scaling are more computationally expensive so its best to avoid it when possible especially when processing thousands of instances. </p>
 
 </div>
 </div>
@@ -2414,6 +2166,34 @@ The wireframe may not look as you expect because models are triangulated </dd></
 
 </div>
 </div>
+<a id="ac2dbbb092ec4d043410f97203fd1f595"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2dbbb092ec4d043410f97203fd1f595">&#9670;&nbsp;</a></span>vk2dRendererFlushSpriteBatch()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vk2dRendererFlushSpriteBatch </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Forces the renderer to flush the current sprite batch The renderer automatically does this in a few conditions but you can force it to flush if you need to for whatever reason. </p>
+<p>The renderer automatically flushes under these circumstances:</p>
+<ul>
+<li>The current pipeline is switched (user goes from drawing textures to 3D models or shapes, blend mode is switched, ...)</li>
+<li><a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.maxInstancedDraws is reached in the current batch</li>
+<li>Render target changes</li>
+<li>End of the frame</li>
+<li>Camera lock is changed</li>
+<li>A camera is enabled/disabled </li>
+</ul>
+
+</div>
+</div>
 <a id="a1bf070c677381d33864ef7b2edebc522"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1bf070c677381d33864ef7b2edebc522">&#9670;&nbsp;</a></span>vk2dRendererGetAverageFrameTime()</h2>
 
@@ -2628,7 +2408,7 @@ The wireframe may not look as you expect because models are triangulated </dd></
 <p>GPUs are not guaranteed to support certain screen modes and msaa levels (integrated gpus often don't support triple buffering, 32x msaa is not terribly common), so if you request something that isn't supported, the next best thing is used in its place.</p>
 <p><a class="el" href="structVK2DStartupOptions.html" title="Startup options that dictate some basic VK2D stuff.">VK2DStartupOptions</a> lets you control how some meta things in the renderer, such as whether or not to enable stdout logging or enable the Vulkan validation layers. Leave this null for options that would generally be fine for most things.</p>
 <p>The following are default values for <a class="el" href="structVK2DStartupOptions.html" title="Startup options that dictate some basic VK2D stuff.">VK2DStartupOptions</a> if none are provided:</p>
-<p><code>enableDebug</code> defaults to <code>false</code> <code>stdoutLogging</code> defaults to <code>true</code> <code>quitOnError</code> defaults to <code>true</code> <code>errorFile</code> defaults to <code>"vk2derror.txt"</code> <code>loadCustomShaders</code> defaults to <code>false</code> <code>vramPageSize</code> defaults to <code>256 * 1000</code>, setting this to 0 also uses <code>256 * 1000</code> </p>
+<p><code>enableDebug</code> defaults to <code>false</code> <code>stdoutLogging</code> defaults to <code>true</code> <code>quitOnError</code> defaults to <code>true</code> <code>errorFile</code> defaults to <code>"vk2derror.txt"</code> <code>loadCustomShaders</code> defaults to <code>false</code> <code>vramPageSize</code> defaults to <code>256 * 1000</code>, setting this to 0 also uses <code>256 * 1000</code> <code>maxTextures</code> defaults to 10000, setting this to 0 also uses 10000. </p>
 
 </div>
 </div>

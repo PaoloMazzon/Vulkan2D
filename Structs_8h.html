@@ -141,6 +141,9 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DUniformBufferObject.html">VK2DUniformBufferObject</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The VP buffer.  <a href="structVK2DUniformBufferObject.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DShaderPushBuffer.html">VK2DShaderPushBuffer</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push buffer for user shaders.  <a href="structVK2DShaderPushBuffer.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DPushBuffer.html">VK2DPushBuffer</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Buffer passed per-model via push constants.  <a href="structVK2DPushBuffer.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -168,6 +171,15 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DDrawInstance.html">VK2DDrawInstance</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the data you need for each element in an instanced draw.  <a href="structVK2DDrawInstance.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DDrawCommand.html">VK2DDrawCommand</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a user's draw command which will later be processed into an instance.  <a href="structVK2DDrawCommand.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DInstancedPushBuffer.html">VK2DInstancedPushBuffer</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A push buffer for an instanced draw.  <a href="structVK2DInstancedPushBuffer.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DComputePushBuffer.html">VK2DComputePushBuffer</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push buffer for the sprite batch compute shader.  <a href="structVK2DComputePushBuffer.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DShadowObjectInfo.html">VK2DShadowObjectInfo</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Info for the shadow environment to keep track of.  <a href="structVK2DShadowObjectInfo.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -177,6 +189,10 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
+<tr class="memitem:a3317728c9ae4cfb360bbdc5547c815c2"><td class="memItemLeft" align="right" valign="top"><a id="a3317728c9ae4cfb360bbdc5547c815c2"></a>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Structs_8h.html#a3317728c9ae4cfb360bbdc5547c815c2">VK2D_MAX_CAMERAS</a>&#160;&#160;&#160;10</td></tr>
+<tr class="memdesc:a3317728c9ae4cfb360bbdc5547c815c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum number of cameras that can exist, enabled or disabled, at once - this is here instead of constants to avoid circular dependencies. <br /></td></tr>
+<tr class="separator:a3317728c9ae4cfb360bbdc5547c815c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb305798bdc8348d9f7988e1f59634b9"><td class="memItemLeft" align="right" valign="top"><a id="adb305798bdc8348d9f7988e1f59634b9"></a>
 #define&#160;</td><td class="memItemRight" valign="bottom"><b>VK2D_OPAQUE_POINTER</b>(type)&#160;&#160;&#160;typedef struct type##_t *type;</td></tr>
 <tr class="separator:adb305798bdc8348d9f7988e1f59634b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -287,7 +303,8 @@ Enumerations</h2></td></tr>
 , <a class="el" href="Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baafd48897310362652f83d56ef74c1da66">VK2D_PIPELINE_TYPE_INSTANCING</a> = 2
 , <a class="el" href="Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baaec7cfbeb08b508a9ef85bd25f5b2621a">VK2D_PIPELINE_TYPE_SHADOWS</a> = 3
 , <br />
-&#160;&#160;<a class="el" href="Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baa93bde6e0e0bbcc12c49b6b64efd506d4">VK2D_PIPELINE_TYPE_MAX</a> = 4
+&#160;&#160;<a class="el" href="Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baab2c3ab0dc4ce490862edbf2d9bc27db4">VK2D_PIPELINE_TYPE_USER_SHADER</a> = 4
+, <a class="el" href="Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baa93bde6e0e0bbcc12c49b6b64efd506d4">VK2D_PIPELINE_TYPE_MAX</a> = 5
 <br />
  }</td></tr>
 <tr class="memdesc:abdb27fac5a8eacca7074d29fcdd422ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Types of graphics pipelines.  <a href="Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422ba">More...</a><br /></td></tr>
@@ -556,6 +573,8 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="abdb27fac5a8eacca7074d29fcdd422baafd48897310362652f83d56ef74c1da66"></a>VK2D_PIPELINE_TYPE_INSTANCING&#160;</td><td class="fielddoc"><p>Pipelines for instancing. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="abdb27fac5a8eacca7074d29fcdd422baaec7cfbeb08b508a9ef85bd25f5b2621a"></a>VK2D_PIPELINE_TYPE_SHADOWS&#160;</td><td class="fielddoc"><p>Pipeline for shadows. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="abdb27fac5a8eacca7074d29fcdd422baab2c3ab0dc4ce490862edbf2d9bc27db4"></a>VK2D_PIPELINE_TYPE_USER_SHADER&#160;</td><td class="fielddoc"><p>Pipeline for user shaders. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="abdb27fac5a8eacca7074d29fcdd422baa93bde6e0e0bbcc12c49b6b64efd506d4"></a>VK2D_PIPELINE_TYPE_MAX&#160;</td><td class="fielddoc"><p>Max number of pipeline types. </p>
 </td></tr>

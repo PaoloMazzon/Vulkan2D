@@ -3,6 +3,7 @@ var Structs_8h =
     [ "VK2DVertexColour", "structVK2DVertexColour.html", "structVK2DVertexColour" ],
     [ "VK2DVertex3D", "structVK2DVertex3D.html", "structVK2DVertex3D" ],
     [ "VK2DUniformBufferObject", "structVK2DUniformBufferObject.html", "structVK2DUniformBufferObject" ],
+    [ "VK2DShaderPushBuffer", "structVK2DShaderPushBuffer.html", "structVK2DShaderPushBuffer" ],
     [ "VK2DPushBuffer", "structVK2DPushBuffer.html", "structVK2DPushBuffer" ],
     [ "VK2D3DPushBuffer", "structVK2D3DPushBuffer.html", "structVK2D3DPushBuffer" ],
     [ "VK2DShadowsPushBuffer", "structVK2DShadowsPushBuffer.html", "structVK2DShadowsPushBuffer" ],
@@ -12,8 +13,12 @@ var Structs_8h =
     [ "VK2DCameraSpec", "structVK2DCameraSpec.html", "structVK2DCameraSpec" ],
     [ "VK2DRendererLimits", "structVK2DRendererLimits.html", "structVK2DRendererLimits" ],
     [ "VK2DDrawInstance", "structVK2DDrawInstance.html", "structVK2DDrawInstance" ],
+    [ "VK2DDrawCommand", "structVK2DDrawCommand.html", "structVK2DDrawCommand" ],
+    [ "VK2DInstancedPushBuffer", "structVK2DInstancedPushBuffer.html", "structVK2DInstancedPushBuffer" ],
+    [ "VK2DComputePushBuffer", "structVK2DComputePushBuffer.html", "structVK2DComputePushBuffer" ],
     [ "VK2DShadowObjectInfo", "structVK2DShadowObjectInfo.html", "structVK2DShadowObjectInfo" ],
     [ "VK2DAssetLoad", "structVK2DAssetLoad.html", "structVK2DAssetLoad" ],
+    [ "VK2D_MAX_CAMERAS", "Structs_8h.html#a3317728c9ae4cfb360bbdc5547c815c2", null ],
     [ "VK2D_OPAQUE_POINTER", "Structs_8h.html#adb305798bdc8348d9f7988e1f59634b9", null ],
     [ "VK2D_USER_STRUCT", "Structs_8h.html#a0a5dc776ff9ede3c2416a8f555b6e675", null ],
     [ "mat4", "Structs_8h.html#ab6e436b53a47afd9c980d7de503b9090", null ],
@@ -72,6 +77,7 @@ var Structs_8h =
       [ "VK2D_PIPELINE_TYPE_3D", "Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baa25693d2e000e6cfe3a05abe6ef7a9d75", null ],
       [ "VK2D_PIPELINE_TYPE_INSTANCING", "Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baafd48897310362652f83d56ef74c1da66", null ],
       [ "VK2D_PIPELINE_TYPE_SHADOWS", "Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baaec7cfbeb08b508a9ef85bd25f5b2621a", null ],
+      [ "VK2D_PIPELINE_TYPE_USER_SHADER", "Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baab2c3ab0dc4ce490862edbf2d9bc27db4", null ],
       [ "VK2D_PIPELINE_TYPE_MAX", "Structs_8h.html#abdb27fac5a8eacca7074d29fcdd422baa93bde6e0e0bbcc12c49b6b64efd506d4", null ]
     ] ],
     [ "VK2DResult", "Structs_8h.html#ab348e0269ab2d86be36a8f2524b042f7", [

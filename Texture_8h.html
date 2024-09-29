@@ -131,7 +131,7 @@ Functions</h2></td></tr>
 <tr class="memdesc:a80f32fe9f9c50e91dd998d5c7c2e463c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as vk2dTextureLoad but it uses a byte buffer instead of pulling from a file.  <a href="Texture_8h.html#a80f32fe9f9c50e91dd998d5c7c2e463c">More...</a><br /></td></tr>
 <tr class="separator:a80f32fe9f9c50e91dd998d5c7c2e463c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7ed4b227a5d37e8898efe88bbf3a05ea"><td class="memItemLeft" align="right" valign="top">VK2DTexture&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Texture_8h.html#a7ed4b227a5d37e8898efe88bbf3a05ea">vk2dTextureCreate</a> (float w, float h)</td></tr>
-<tr class="memdesc:a7ed4b227a5d37e8898efe88bbf3a05ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a texture meant as a drawing target.  <a href="Texture_8h.html#a7ed4b227a5d37e8898efe88bbf3a05ea">More...</a><br /></td></tr>
+<tr class="memdesc:a7ed4b227a5d37e8898efe88bbf3a05ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a texture meant as a drawing target - see <code>vk2dRendererSetTarget</code>  <a href="Texture_8h.html#a7ed4b227a5d37e8898efe88bbf3a05ea">More...</a><br /></td></tr>
 <tr class="separator:a7ed4b227a5d37e8898efe88bbf3a05ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac90ad1dee629b1e9509ddc0159dccfc0"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Texture_8h.html#ac90ad1dee629b1e9509ddc0159dccfc0">vk2dTextureWidth</a> (VK2DTexture tex)</td></tr>
 <tr class="memdesc:ac90ad1dee629b1e9509ddc0159dccfc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the width in pixels of a texture.  <a href="Texture_8h.html#ac90ad1dee629b1e9509ddc0159dccfc0">More...</a><br /></td></tr>
@@ -145,6 +145,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a5bf04f5aa96861d411b32ecfea303418"><td class="memItemLeft" align="right" valign="top">VK2DImage&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Texture_8h.html#a5bf04f5aa96861d411b32ecfea303418">vk2dTextureGetImage</a> (VK2DTexture tex)</td></tr>
 <tr class="memdesc:a5bf04f5aa96861d411b32ecfea303418"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a texture's internal image.  <a href="Texture_8h.html#a5bf04f5aa96861d411b32ecfea303418">More...</a><br /></td></tr>
 <tr class="separator:a5bf04f5aa96861d411b32ecfea303418"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9724025064d391b843f9ae85be542818"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Texture_8h.html#a9724025064d391b843f9ae85be542818">vk2dTextureGetID</a> (VK2DTexture tex)</td></tr>
+<tr class="memdesc:a9724025064d391b843f9ae85be542818"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a unique ID for this texture.  <a href="Texture_8h.html#a9724025064d391b843f9ae85be542818">More...</a><br /></td></tr>
+<tr class="separator:a9724025064d391b843f9ae85be542818"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ba8c615ffe2208f0efaab0b1eae29aa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Texture_8h.html#a0ba8c615ffe2208f0efaab0b1eae29aa">vk2dTextureFree</a> (VK2DTexture tex)</td></tr>
 <tr class="memdesc:a0ba8c615ffe2208f0efaab0b1eae29aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees a texture from memory.  <a href="Texture_8h.html#a0ba8c615ffe2208f0efaab0b1eae29aa">More...</a><br /></td></tr>
 <tr class="separator:a0ba8c615ffe2208f0efaab0b1eae29aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,7 +182,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Creates a texture meant as a drawing target. </p>
+<p>Creates a texture meant as a drawing target - see <code>vk2dRendererSetTarget</code> </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">w</td><td>Width of the texture </td></tr>
@@ -188,6 +191,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a new texture or NULL if it failed </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>If you do not completely fill the created texture (ie, with something like <code>vk2dRendererEmpty</code> or <code>vk2dRendererClear</code>) before you draw this texture it <em><b>will</b></em> cause crashes on certain hardware. </dd></dl>
 
 </div>
 </div>
@@ -253,6 +257,34 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a new texture or NULL if it failed </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Textures created with this function are NOT valid render targets </dd></dl>
+
+</div>
+</div>
+<a id="a9724025064d391b843f9ae85be542818"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9724025064d391b843f9ae85be542818">&#9670;&nbsp;</a></span>vk2dTextureGetID()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t vk2dTextureGetID </td>
+          <td>(</td>
+          <td class="paramtype">VK2DTexture&#160;</td>
+          <td class="paramname"><em>tex</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns a unique ID for this texture. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tex</td><td>Texture to get the id of </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns a unique uint32_t ID for this texture, used for sprite batching/user shaders</dd></dl>
+<p>This function is thread-safe. </p>
 
 </div>
 </div>
