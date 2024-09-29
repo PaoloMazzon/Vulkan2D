@@ -52,15 +52,6 @@ static void _vk2dTextureAddToTextureArray(VK2DTexture tex) {
     }
 }
 
-static void _vk2dTextureCreateDescriptor(VK2DTexture tex, VK2DRenderer renderer, bool mainThread) {
-	if (tex->img->set == NULL) {
-		if (mainThread)
-			tex->img->set = vk2dDescConGetSamplerSet(renderer->descConSamplers, tex);
-		else
-			tex->img->set = vk2dDescConGetSamplerSet(renderer->descConSamplersOff, tex);
-	}
-}
-
 VK2DTexture _vk2dTextureLoadFromImageInternal(VK2DImage image, bool mainThread) {
 	VK2DTexture out = calloc(1, sizeof(struct VK2DTexture_t));
 	VK2DRenderer renderer = vk2dRendererGetPointer();
@@ -69,7 +60,7 @@ VK2DTexture _vk2dTextureLoadFromImageInternal(VK2DImage image, bool mainThread) 
 
 	if (out != NULL) {
 		out->img = image;
-		_vk2dTextureCreateDescriptor(out, renderer, mainThread);
+		_vk2dTextureAddToTextureArray(out);
 	} else {
         vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate texture.");
 	}
@@ -189,7 +180,6 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 		out->uboSet = vk2dDescConGetBufferSet(renderer->descConVP, out->ubo);
 
 		_vk2dRendererAddTarget(out);
-		_vk2dTextureCreateDescriptor(out, renderer, true);
 		_vk2dTextureAddToTextureArray(out);
 	} else {
 		vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate texture.");

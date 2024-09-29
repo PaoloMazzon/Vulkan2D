@@ -276,7 +276,9 @@ void vk2dRendererDrawTexture(VK2DTexture tex, float x, float y, float xscale, fl
 /// \param count Number of draw commands in the array
 ///
 /// Allows users to maintain their own sprite-batches, possibly across threads or to not have
-/// to dance around VK2D's automatic flushing.
+/// to dance around VK2D's automatic flushing. That said, this function is not thread-safe,
+/// you may build your draw command list on any thread you like but this function must be
+/// called from the same thread VK2D was created on.
 void vk2dRendererAddBatch(VK2DDrawCommand *commands, uint32_t count);
 
 /// \brief Renders a texture

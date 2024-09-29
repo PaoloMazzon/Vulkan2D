@@ -33,19 +33,28 @@ layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 
 mat4 translationMatrix(vec2 delta) {
     return mat4(
-    vec4(1.0, 0.0, 0.0, 0.0),
-    vec4(0.0, 1.0, 0.0, 0.0),
-    vec4(0.0, 0.0, 1.0, 0.0),
-    vec4(delta, 0.0, 1.0)
+        vec4(1.0, 0.0, 0.0, 0.0),
+        vec4(0.0, 1.0, 0.0, 0.0),
+        vec4(0.0, 0.0, 1.0, 0.0),
+        vec4(delta, 0.0, 1.0)
     );
 }
 
 mat4 scalingMatrix(vec2 scale) {
     return mat4(
-    vec4(scale.x, 0.0, 0.0, 0.0),
-    vec4(0.0, scale.y, 0.0, 0.0),
-    vec4(0.0, 0.0, 1.0, 0.0),
-    vec4(0.0, 0.0, 0.0, 1.0)
+        vec4(scale.x, 0.0, 0.0, 0.0),
+        vec4(0.0, scale.y, 0.0, 0.0),
+        vec4(0.0, 0.0, 1.0, 0.0),
+        vec4(0.0, 0.0, 0.0, 1.0)
+    );
+}
+
+mat4 zrotationMatrix(float theta) {
+    return mat4(
+        vec4(cos(theta), -sin(theta), 0.0, 0.0),
+        vec4(sin(theta), cos(theta), 0.0, 0.0),
+        vec4(0.0, 0.0, 1.0, 0.0),
+        vec4(0.0, 0.0, 0.0, 1.0)
     );
 }
 
@@ -53,13 +62,21 @@ void main() {
     uint gID = gl_GlobalInvocationID.x;
 
     if (gID < ubo.drawCount) {
+        DrawCommand draw = drawCommandsIn.draws[gID];
+        mat4 model = mat4(1.0);
+        draw.origin.x *= -draw.scale.x;
+        draw.origin.y *= draw.scale.y;
+        vec2 origin = {-draw.origin.x + draw.pos.x, draw.origin.y + draw.pos.y};
+        vec2 originTranslation = {draw.origin.x, -draw.origin.y};
+
         // Assemble the model matrix
-        mat4 translation = translationMatrix(drawCommandsIn.draws[gID].pos);
-        mat4 scaling = scalingMatrix(drawCommandsIn.draws[gID].scale);
-        // TODO: Scaling and rotation matrices
+        model *= translationMatrix(origin);
+        model *= zrotationMatrix(-draw.rotation);
+        model *= translationMatrix(originTranslation);
+        model *= scalingMatrix(draw.scale);
 
         // Copy data over
-        drawInstancesOut.draws[gID].model = mat4(1.0) * translation * scaling;
+        drawInstancesOut.draws[gID].model = model;
 
         drawInstancesOut.draws[gID].texturePos = drawCommandsIn.draws[gID].texturePos;
         drawInstancesOut.draws[gID].colour = drawCommandsIn.draws[gID].colour;

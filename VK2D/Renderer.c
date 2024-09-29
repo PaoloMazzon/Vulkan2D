@@ -715,14 +715,14 @@ VK2DRendererLimits vk2dRendererGetLimits() {
 void vk2dRendererDrawRectangle(float x, float y, float w, float h, float r, float ox, float oy) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
         vk2dRendererFlushSpriteBatch();
-		vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox / w, oy / h);
+		vk2dRendererDrawPolygon(gRenderer->unitSquare, x, y, true, 1, w, h, r, ox / (w / 3), oy / (h / 3));
 	}
 }
 
 void vk2dRendererDrawRectangleOutline(float x, float y, float w, float h, float r, float ox, float oy, float lineWidth) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
         vk2dRendererFlushSpriteBatch();
-		vk2dRendererDrawPolygon(gRenderer->unitSquareOutline, x, y, false, lineWidth, w, h, r, ox / w, oy / h);
+		vk2dRendererDrawPolygon(gRenderer->unitSquareOutline, x, y, false, lineWidth, w, h, r, ox / (w / 3), oy / (h / 3));
 	}
 }
 

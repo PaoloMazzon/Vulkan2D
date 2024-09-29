@@ -51,7 +51,7 @@ Drawing in VK2D is done through the renderer, the draw functions at the time of 
  + `vk2dRendererDrawPolygon` - Draws a polygon
  + `vk2dRendererDrawGeometry` - Draws a list of vertices without the need for a `VK2DPolygon`
  + `vk2dRendererDrawModel` - Draws a 3D model
- + `vk2dRendererDrawInstanced` - Draws many textures at once with very little overhead but limited feature set
+ + `vk2dRendererAddBatch` - Queues many `vk2dRendererDrawTexture`s at once, useful for multi-threading or just more control
 
 They all also have some macros to make them a little less cumbersome to use. Check the documentation for
 more details on each one, as only some of the FAQ stuff will be covered here.
@@ -98,16 +98,27 @@ texture. This is useful when you want to render a lot of something once, then ju
 of rendering a lot of it every frame. Some common pitfalls to avoid here are:
 
  + Textures are stored in VRAM, and you have limited amounts of it
- + Switching render targets is often heavy on the graphics card
  + Textures must be drawn to completely before rendering them, usually you may simply use `vk2dRendererEmpty`
- after setting the render target to a texture
- + You may only render textures created this way when they are not the current render target
+ after setting the render target to a texture - failure to do so ***will*** cause crashes on certain hardware
+ without warning
+ + You may only render textures created this way when they are not the current render target (switch back to
+ `VK2D_TARGET_SCREEN` before drawing a target texture)
 
 Additionally, texture targets have a coordinate space identical to that of the screen by default - the origin
 is the top-left and the y-axis goes down. You may use `vk2dRendererSetTextureCamera` to use user-defined cameras
 on texture targets instead of their default texture space. This still has the side effect of ignoring the cameras'
 `xOnScreen`, `yOnScreen`, `wOnScreen`, and `hOnScreen` parameters because the viewport will simply be set to the
 texture's dimensions.
+
+### Sprite Batching
+Strongly related to drawing textures is sprite-batching. As of right now, only textures are batched automatically,
+meaning drawing textures is heavily hardware-accelerated to be as fast as possible since that's probably what 90%
+of your drawing will be in a game. To better make use of this feature, try to keep as much texture drawing together
+as possible, since everytime you use a draw command other than `vk2dRendererDrawTexture` the current batch is flushed.
+Alternatively, you may just build your own list of `VK2DDrawCommand`s and submit them with `vk2dRendererAddBatch`
+as to give yourself complete control over when your sprite batch is submitted. This, however, is a very minor optimization
+and in general even blatantly disregarding this feature will still result in good performance as most of the heavy
+lifting will be done on the GPU all the same. 
 
 ## Polygons
 VK2D provides a few drawing primitives, but if you want more detailed shapes, you may load your own with

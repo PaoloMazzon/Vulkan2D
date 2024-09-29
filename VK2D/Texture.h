@@ -28,10 +28,12 @@ VK2DTexture vk2dTextureLoad(const char *filename);
 /// \warning Textures created with this function are NOT valid render targets
 VK2DTexture vk2dTextureFrom(void *data, int size);
 
-/// \brief Creates a texture meant as a drawing target
+/// \brief Creates a texture meant as a drawing target - see `vk2dRendererSetTarget`
 /// \param w Width of the texture
 /// \param h Height of the texture
 /// \return Returns a new texture or NULL if it failed
+/// \warning If you do not completely fill the created texture (ie, with something like `vk2dRendererEmpty` or
+/// `vk2dRendererClear`) before you draw this texture it ***will*** cause crashes on certain hardware.
 VK2DTexture vk2dTextureCreate(float w, float h);
 
 /// \brief Gets the width in pixels of a texture
