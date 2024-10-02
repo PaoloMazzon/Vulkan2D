@@ -103,8 +103,8 @@ All examples are tested to work on Windows and Ubuntu. The `CMakeLists.txt` at t
 directory will generate build systems for each example. Be sure to compile the test 
 shader before running the `examples/main/` example with:
 
-    glslc assets/test.frag -o assets/tex.frag.spv
-    glslc assets/test.vert -o assets/tex.vert.spv
+    glslc assets/test.frag -o assets/test.frag.spv
+    glslc assets/test.vert -o assets/test.vert.spv
 
 If you don't trust binary blobs you may also compile the binary shader blobs with the command
 
@@ -115,9 +115,7 @@ run from the `shaders/` folder (requires Python).
 Roadmap
 =======
 
- + Sprite batching
- + Built-in imgui support
- + Better multi-threaded loading support
+ + Asynchronous loading
+ + Ability to disable 3D resources
+ + GPU readback
  + Soft shadows
- + More flexibility with shader uniforms
- + 3D shaders
