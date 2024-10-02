@@ -1014,7 +1014,7 @@ void vk2dRendererFlushSpriteBatch() {
         _vk2dRendererResetBoundPointers();
         vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(gRenderer->instancedPipe, gRenderer->blendMode));
         VkDescriptorSet sets[] = {
-            gRenderer->targetUBOSet,
+                gRenderer->target != NULL && !gRenderer->enableTextureCameraUBO ? gRenderer->targetUBOSet : gRenderer->uboDescriptorSets[gRenderer->currentFrame],
             gRenderer->samplerSet,
             gRenderer->texArrayDescriptorSet
         };
