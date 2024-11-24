@@ -159,7 +159,7 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
 
 		// Set up FBO
 		const int attachCount = renderer->config.msaa > 1 ? 3 : 2;
-		VkImageView attachments[attachCount];
+		VkImageView attachments[3];
 		if (renderer->config.msaa > 1) {
 			attachments[0] = out->sampledImg->view;
 			attachments[1] = out->depthBuffer->view;

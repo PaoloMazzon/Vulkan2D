@@ -535,7 +535,7 @@ void _vk2dRendererCreateRenderPass() {
 		attachCount = 2; // colour, depth
 	}
 	VkAttachmentReference resolveAttachment;
-	VkAttachmentDescription attachments[attachCount];
+	VkAttachmentDescription attachments[3];
 	memset(attachments, 0, sizeof(VkAttachmentDescription) * attachCount);
 	attachments[0].format = gRenderer->surfaceFormat.format;
 	attachments[0].samples = (VkSampleCountFlagBits)gRenderer->config.msaa;
@@ -566,7 +566,7 @@ void _vk2dRendererCreateRenderPass() {
 
 	// Set up subpass color attachment
 	const uint32_t colourAttachCount = 1;
-	VkAttachmentReference subpassColourAttachments0[colourAttachCount];
+	VkAttachmentReference subpassColourAttachments0[1];
 	uint32_t i;
 	for (i = 0; i < colourAttachCount; i++) {
 		subpassColourAttachments0[i].attachment = 0;
@@ -679,28 +679,28 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 
     // For texture samplers
 	const uint32_t layoutCount = 1;
-	VkDescriptorSetLayoutBinding descriptorSetLayoutBinding[layoutCount];
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBinding[1];
 	descriptorSetLayoutBinding[0] = vk2dInitDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBinding, layoutCount);
 	r1 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &descriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslSampler);
 
 	// For view projection buffers
 	const uint32_t shapeLayoutCount = 1;
-	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingShapes[shapeLayoutCount];
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingShapes[1];
 	descriptorSetLayoutBindingShapes[0] = vk2dInitDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo shapesDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingShapes, shapeLayoutCount);
 	r2 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &shapesDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferVP);
 
 	// For user-created shaders
 	const uint32_t userLayoutCount = 1;
-	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingUser[userLayoutCount];
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingUser[1];
 	descriptorSetLayoutBindingUser[0] = vk2dInitDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo userDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingUser, userLayoutCount);
 	r3 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &userDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferUser);
 
 	// For sampled textures
 	const uint32_t texLayoutCount = 1;
-	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingTex[texLayoutCount];
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingTex[1];
 	descriptorSetLayoutBindingTex[0] = vk2dInitDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1, VK_SHADER_STAGE_FRAGMENT_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo texDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingTex, texLayoutCount);
 	r4 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &texDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslTexture);
@@ -956,7 +956,7 @@ void _vk2dRendererCreateFrameBuffer() {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			// There is no 3rd attachment if msaa is disabled
 			const int attachCount = gRenderer->config.msaa > 1 ? 3 : 2;
-			VkImageView attachments[attachCount];
+			VkImageView attachments[3];
 			if (gRenderer->config.msaa > 1) {
 				attachments[0] = gRenderer->msaaImage->view;
 				attachments[1] = gRenderer->depthBuffer->view;
@@ -1318,7 +1318,7 @@ void _vk2dRendererRefreshTargets() {
 			// Framebuffer
 			vkDestroyFramebuffer(gRenderer->ld->dev, gRenderer->targets[i]->fbo, VK_NULL_HANDLE);
 			const int attachCount = gRenderer->config.msaa > 1 ? 3 : 2;
-			VkImageView attachments[attachCount];
+			VkImageView attachments[3];
 			if (gRenderer->config.msaa > 1) {
 				attachments[0] = gRenderer->targets[i]->sampledImg->view;
 				attachments[1] = gRenderer->targets[i]->depthBuffer->view;
