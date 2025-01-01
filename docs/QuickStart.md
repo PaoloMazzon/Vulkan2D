@@ -58,7 +58,7 @@ more details on each one, as only some of the FAQ stuff will be covered here.
 
 In VK2D, coordinates start at the top-left of the screen and go left-to-right.
 
-![image](./docs/screenspace.png)
+![image](./screenspace.png)
 
 In effect, something drawn with a y-value of 300 will be further down the display than something drawn with
 a y-value of 100. This means the y-axis is opposite to how you might be used to it in math - it will make
@@ -66,23 +66,23 @@ more sense when you start working with it. The x-axis is "normal" though.
 
 Rotation is always done with radians in VK2D and all rotation follow the same pattern:
 
-![image](./docs/rotations.png)
+![image](./rotations.png)
 
 All rotations start from what would be East on a compass and go clockwise. In addition, a texture/rectangle
 origin of 0/0 represents the top-left corner just like screen space. This means that if you were to take a
 texture such as
 
-![image](./docs/rotationexample1.png)
+![image](./rotationexample1.png)
 
 and rotate by half of pi, you would get
 
-![image](./docs/rotationexample2.png)
+![image](./rotationexample2.png)
 
 (It moved to the side.)
 
 If you were to set the origin to half of the texture's width and height, you would instead get
 
-![image](./docs/rotationexample3.png)
+![image](./rotationexample3.png)
 
 Notice how it rotated in place instead of moving to the side.
 
@@ -145,11 +145,11 @@ examples will be used.
 
 In the images below the black border represents what part of the game world the camera is viewing.
 
-![image](./docs/cameraexample-1.png)
+![image](./cameraexample-1.png)
 
 Cameras simply view a portion of the game world. You may do things like rotate the camera, zoom in, and move it.
 
-![image](./docs/cameraexample-2.png)
+![image](./cameraexample-2.png)
 
 The 4 fields, `xOnScreen`, `yOnScreen`, `wOnScreen`, and `hOnScreen` control the viewport for the camera. This means
 `xOnScreen` and `yOnScreen` controls the x and y position in the game window where the camera will be displayed from
@@ -157,7 +157,7 @@ and `wOnScreen` and `hOnScreen` controls the width and height of the camera in t
 `hOnScreen` are completely independent from the cameras `w` and `h` variables; you may have a camera with `w` and `h`
 much smaller than `wOnScreen` and `hOnScreen`, in fact the example in `examples/retrolook` does exactly that.
 
-![image](./docs/cameraexample-3.png)
+![image](./cameraexample-3.png)
 
 ## Models
 Models are a way of drawing 3D models, and they are loaded in similar fashion to Polygons. You may load a model from
