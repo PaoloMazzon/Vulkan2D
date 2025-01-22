@@ -65,9 +65,6 @@ extern const float VK2D_CIRCLE_VERTICES;
 /// Number representing an invalid camera
 extern VK2DCameraIndex VK2D_INVALID_CAMERA;
 
-/// Maximum number of frames to be processed at once
-#define VK2D_MAX_FRAMES_IN_FLIGHT 3
-
 /// The default camera created and updated by the renderer itself
 extern const VK2DCameraIndex VK2D_DEFAULT_CAMERA;
 
