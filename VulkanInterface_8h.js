@@ -1,6 +1,5 @@
 var VulkanInterface_8h =
 [
-    [ "VMA_VULKAN_VERSION", "VulkanInterface_8h.html#a1a2407c283893638cc039bb31fcd74b6", null ],
     [ "vk2dVulkanCopyDataIntoBuffer", "VulkanInterface_8h.html#aa0af9a70cceebf7900f7b6da9e187e30", null ],
     [ "vk2dVulkanGetDevice", "VulkanInterface_8h.html#a7e0e71525f2d8fbab84ce61574a7cd74", null ],
     [ "vk2dVulkanGetDrawBuffer", "VulkanInterface_8h.html#a44d1bbd8fd318df44ef2199ab8fd5f11", null ],

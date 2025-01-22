@@ -19,8 +19,6 @@ var Structs_8h =
     [ "VK2DShadowObjectInfo", "structVK2DShadowObjectInfo.html", "structVK2DShadowObjectInfo" ],
     [ "VK2DAssetLoad", "structVK2DAssetLoad.html", "structVK2DAssetLoad" ],
     [ "VK2D_MAX_CAMERAS", "Structs_8h.html#a3317728c9ae4cfb360bbdc5547c815c2", null ],
-    [ "VK2D_OPAQUE_POINTER", "Structs_8h.html#adb305798bdc8348d9f7988e1f59634b9", null ],
-    [ "VK2D_USER_STRUCT", "Structs_8h.html#a0a5dc776ff9ede3c2416a8f555b6e675", null ],
     [ "mat4", "Structs_8h.html#ab6e436b53a47afd9c980d7de503b9090", null ],
     [ "vec2", "Structs_8h.html#a5edc995c0f7248db90aa314c4e98af6a", null ],
     [ "vec3", "Structs_8h.html#aa12dddc6c5b49b59657f5b9262d3196c", null ],

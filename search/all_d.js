@@ -1,18 +1,8 @@
 var searchData=
 [
-  ['scale_51',['scale',['../structVK2DDrawCommand.html#adcd280bff7e2b8bacad867a0b2c2d948',1,'VK2DDrawCommand']]],
-  ['screenmode_52',['screenMode',['../structVK2DRendererConfig.html#ab33d5a72e2f4ea2507f66ee51647a004',1,'VK2DRendererConfig']]],
-  ['shader_53',['shader',['../structVK2DAssetLoad.html#af0c3ca10ddf4290a39403774c0a7f2c1',1,'VK2DAssetLoad']]],
-  ['shader_54',['Shader',['../structVK2DAssetLoad.html#aa21b2b3944436da5472d29c888302139',1,'VK2DAssetLoad']]],
-  ['shader_2eh_55',['Shader.h',['../Shader_8h.html',1,'']]],
-  ['shadowenvironment_2eh_56',['ShadowEnvironment.h',['../ShadowEnvironment_8h.html',1,'']]],
-  ['size_57',['size',['../structVK2DAssetLoad.html#a8760ef5c7ac27239ea37b3955678b284',1,'VK2DAssetLoad']]],
-  ['startingvertex_58',['startingVertex',['../structVK2DShadowObjectInfo.html#a699657d5f012ed7a8f58950936a3aa74',1,'VK2DShadowObjectInfo']]],
-  ['state_59',['state',['../structVK2DAssetLoad.html#acf9a82a6707724d5687db59aa63f5ec2',1,'VK2DAssetLoad']]],
-  ['stdoutlogging_60',['stdoutLogging',['../structVK2DStartupOptions.html#a128a9a226b575eea02b5cdcbd27e07b2',1,'VK2DStartupOptions']]],
-  ['structs_2eh_61',['Structs.h',['../Structs_8h.html',1,'']]],
-  ['supportsimmediate_62',['supportsImmediate',['../structVK2DRendererLimits.html#ab7bd11bf1608555b31295107bced5424',1,'VK2DRendererLimits']]],
-  ['supportsmultithreadloading_63',['supportsMultiThreadLoading',['../structVK2DRendererLimits.html#a11f696cc29caefba3fe45dd2d78b39dd',1,'VK2DRendererLimits']]],
-  ['supportstriplebuffering_64',['supportsTripleBuffering',['../structVK2DRendererLimits.html#a6cc201506563983ba16662b38e3747f0',1,'VK2DRendererLimits']]],
-  ['supportswireframe_65',['supportsWireframe',['../structVK2DRendererLimits.html#a8694d8132ed4aa533c02e2e134efdfcc',1,'VK2DRendererLimits']]]
+  ['renderer_2eh_0',['Renderer.h',['../Renderer_8h.html',1,'']]],
+  ['roadmap_1',['Roadmap',['../index.html#autotoc_md19',1,'']]],
+  ['rot_2',['rot',['../structVK2DCameraSpec.html#a26446dda888b405c7828303c3373d802',1,'VK2DCameraSpec']]],
+  ['rotation_3',['rotation',['../structVK2DDrawCommand.html#ab207aa17d35c5b74b98670981b431268',1,'VK2DDrawCommand']]],
+  ['running_20the_20examples_4',['Running the Examples',['../index.html#autotoc_md18',1,'']]]
 ];

@@ -1,9 +1,11 @@
 var searchData=
 [
-  ['filename_21',['filename',['../structVK2DAssetLoad.html#ae9c317951509423f7f6e2d27e197679b',1,'VK2DAssetLoad']]],
-  ['filtermode_22',['filterMode',['../structVK2DRendererConfig.html#a9b6ee9fd180aab43082d1f0bd601d43b',1,'VK2DRendererConfig']]],
-  ['fov_23',['fov',['../structVK2DCameraSpec.html#afe31ba994c395861cfb5870e89ea6981',1,'VK2DCameraSpec']]],
-  ['fragmentdata_24',['fragmentData',['../structVK2DAssetLoad.html#a0781cc05e7fec5ce6dbb746cd70cad27',1,'VK2DAssetLoad']]],
-  ['fragmentfilename_25',['fragmentFilename',['../structVK2DAssetLoad.html#a36c79ad129c3a65703c21ce8829a0939',1,'VK2DAssetLoad']]],
-  ['fragmentsize_26',['fragmentSize',['../structVK2DAssetLoad.html#affc2ac6e4f5b6ca5933007f0205cf189',1,'VK2DAssetLoad']]]
+  ['enabled_0',['enabled',['../structVK2DShadowObjectInfo.html#aabaf788cfde7759bf919014c5ed4221d',1,'VK2DShadowObjectInfo']]],
+  ['enabledebug_1',['enableDebug',['../structVK2DStartupOptions.html#a4b2083b2b36b8d616558fb61c7a9cd9b',1,'VK2DStartupOptions']]],
+  ['enginename_2',['engineName',['../structVK2DConfiguration.html#aa2f69ef6f88b36d6c15735b4fcf3412a',1,'VK2DConfiguration']]],
+  ['engineversion_3',['engineVersion',['../structVK2DConfiguration.html#a59fa61cba75980b381060e537d24c825',1,'VK2DConfiguration']]],
+  ['errorfile_4',['errorFile',['../structVK2DStartupOptions.html#ace5e52e6cdb475598cb34a5c891346e5',1,'VK2DStartupOptions']]],
+  ['example_5',['Example',['../index.html#autotoc_md17',1,'']]],
+  ['examples_6',['Running the Examples',['../index.html#autotoc_md18',1,'']]],
+  ['eyes_7',['eyes',['../structVK2DCameraSpec.html#aeee82648d9e7c7805bd6d759d54ea999',1,'VK2DCameraSpec']]]
 ];

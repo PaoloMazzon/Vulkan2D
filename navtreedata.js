@@ -32,22 +32,22 @@ var NAVTREE =
     [ "Example", "index.html#autotoc_md17", null ],
     [ "Running the Examples", "index.html#autotoc_md18", null ],
     [ "Roadmap", "index.html#autotoc_md19", null ],
-    [ "Cameras", "md_docs_Cameras.html", [
-      [ "Creating Cameras", "md_docs_Cameras.html#autotoc_md0", null ],
-      [ "Updating Cameras", "md_docs_Cameras.html#autotoc_md1", null ],
-      [ "The Default Camera", "md_docs_Cameras.html#autotoc_md2", null ],
-      [ "Locking Cameras", "md_docs_Cameras.html#autotoc_md3", null ]
+    [ "Cameras", "md_docs_2Cameras.html", [
+      [ "Creating Cameras", "md_docs_2Cameras.html#autotoc_md0", null ],
+      [ "Updating Cameras", "md_docs_2Cameras.html#autotoc_md1", null ],
+      [ "The Default Camera", "md_docs_2Cameras.html#autotoc_md2", null ],
+      [ "Locking Cameras", "md_docs_2Cameras.html#autotoc_md3", null ]
     ] ],
-    [ "Vulkan2D Quickstart", "md_docs_QuickStart.html", [
-      [ "The Basics", "md_docs_QuickStart.html#autotoc_md5", null ],
-      [ "Drawing", "md_docs_QuickStart.html#autotoc_md6", null ],
-      [ "Textures", "md_docs_QuickStart.html#autotoc_md7", [
-        [ "Sprite Batching", "md_docs_QuickStart.html#autotoc_md8", null ]
+    [ "Vulkan2D Quickstart", "md_docs_2QuickStart.html", [
+      [ "The Basics", "md_docs_2QuickStart.html#autotoc_md5", null ],
+      [ "Drawing", "md_docs_2QuickStart.html#autotoc_md6", null ],
+      [ "Textures", "md_docs_2QuickStart.html#autotoc_md7", [
+        [ "Sprite Batching", "md_docs_2QuickStart.html#autotoc_md8", null ]
       ] ],
-      [ "Polygons", "md_docs_QuickStart.html#autotoc_md9", null ],
-      [ "Cameras", "md_docs_QuickStart.html#autotoc_md10", null ],
-      [ "Models", "md_docs_QuickStart.html#autotoc_md11", null ],
-      [ "Shaders", "md_docs_QuickStart.html#autotoc_md12", null ]
+      [ "Polygons", "md_docs_2QuickStart.html#autotoc_md9", null ],
+      [ "Cameras", "md_docs_2QuickStart.html#autotoc_md10", null ],
+      [ "Models", "md_docs_2QuickStart.html#autotoc_md11", null ],
+      [ "Shaders", "md_docs_2QuickStart.html#autotoc_md12", null ]
     ] ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -74,7 +74,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "Camera_8h.html",
-"index.html"
+"index.html#autotoc_md15"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

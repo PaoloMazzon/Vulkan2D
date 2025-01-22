@@ -29,7 +29,7 @@ var Renderer_8h =
     [ "vk2dColourHex", "Renderer_8h.html#a178031ff753290cdfe596ab0e8df8704", null ],
     [ "vk2dColourInt", "Renderer_8h.html#abfcde7cb2ff128172d69feb2800db90a", null ],
     [ "vk2dColourRGBA", "Renderer_8h.html#aee3e036fb150542075841732f0403459", null ],
-    [ "vk2dHostInformation", "Renderer_8h.html#af0b39d04acd341f61960e3a38ae3a2f7", null ],
+    [ "vk2dHostInformation", "Renderer_8h.html#a655abf775b229be496568ac41d3ac965", null ],
     [ "vk2dRandom", "Renderer_8h.html#a8c717b271a6b7df431a729a5b7e14721", null ],
     [ "vk2dRendererAddBatch", "Renderer_8h.html#a34c95b015705169d5a5b06b1c4611e3a", null ],
     [ "vk2dRendererClear", "Renderer_8h.html#ab138a82f565f8911731436e49e717da2", null ],
@@ -72,5 +72,5 @@ var Renderer_8h =
     [ "vk2dSleep", "Renderer_8h.html#a58fd89a3f92e6edb6865ae4932d56a10", null ],
     [ "vk2dStatus", "Renderer_8h.html#ae6182d5644eaa0985ccbeccfc7849063", null ],
     [ "vk2dStatusFatal", "Renderer_8h.html#a4ce46cb99871a73f14142f38383b5a79", null ],
-    [ "vk2dStatusMessage", "Renderer_8h.html#ad199f09ce00cb06b878fe9dfded5be79", null ]
+    [ "vk2dStatusMessage", "Renderer_8h.html#a39852130e687257b620b4532346a91b6", null ]
 ];

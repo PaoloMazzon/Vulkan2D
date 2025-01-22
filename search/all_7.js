@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['lightsource_29',['lightSource',['../structVK2DShadowsPushBuffer.html#acb031a9801b83bbab96aff0c644c5048',1,'VK2DShadowsPushBuffer']]],
-  ['load_30',['Load',['../structVK2DAssetLoad.html#a01d9b0b98a6b918c1096d932d7cd63bd',1,'VK2DAssetLoad']]]
+  ['h_0',['h',['../structVK2DCameraSpec.html#a8f539d9ec5da01199aa4765e181d96ae',1,'VK2DCameraSpec']]],
+  ['honscreen_1',['hOnScreen',['../structVK2DCameraSpec.html#a0467278e94cfeaaadb9f5d8ba35a2e90',1,'VK2DCameraSpec']]]
 ];

@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['y_313',['y',['../structVK2DCameraSpec.html#a168de3bf3faf8b47517c321c20270f80',1,'VK2DCameraSpec']]],
-  ['yonscreen_314',['yOnScreen',['../structVK2DCameraSpec.html#a0b0357a9bd2cda0f969fa44dfb8783e5',1,'VK2DCameraSpec']]]
+  ['x_0',['x',['../structVK2DCameraSpec.html#aef32d663678105743c7d8985efb2f591',1,'VK2DCameraSpec']]],
+  ['xonscreen_1',['xOnScreen',['../structVK2DCameraSpec.html#a062484c25a8a4847537d743906451011',1,'VK2DCameraSpec']]]
 ];

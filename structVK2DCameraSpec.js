@@ -5,7 +5,6 @@ var structVK2DCameraSpec =
     [ "fov", "structVK2DCameraSpec.html#afe31ba994c395861cfb5870e89ea6981", null ],
     [ "h", "structVK2DCameraSpec.html#a8f539d9ec5da01199aa4765e181d96ae", null ],
     [ "hOnScreen", "structVK2DCameraSpec.html#a0467278e94cfeaaadb9f5d8ba35a2e90", null ],
-    [ "Perspective", "structVK2DCameraSpec.html#a8473d0913820cd9e9ee549bbfac9909b", null ],
     [ "rot", "structVK2DCameraSpec.html#a26446dda888b405c7828303c3373d802", null ],
     [ "type", "structVK2DCameraSpec.html#a1d888de4cc61a7450c5d1c6fbab268e5", null ],
     [ "up", "structVK2DCameraSpec.html#a04f9abd0591c6e6c941eb29283fb26e5", null ],
