@@ -271,13 +271,15 @@ struct VK2DRenderer_t {
 	VkDescriptorSetLayout dslTexture;         ///< Descriptor set layout for the textures
 	VkDescriptorSetLayout dslTextureArray;    ///< Descriptor set layout for texture array
 	VkDescriptorSetLayout dslSpriteBatch;     ///< DSL for compute sprite batch pipeline
+    VkDescriptorSetLayout dslBufferSBO;       ///< Vertex shader for instanced pipe SBO
 	VK2DDescCon descConSamplers;              ///< Descriptor controller for samplers
 	VK2DDescCon descConSamplersOff;           ///< Descriptor controller for samplers off thread
 	VK2DDescCon descConVP;                    ///< Descriptor controller for view projection buffers
 	VK2DDescCon descConUser;                  ///< Descriptor controller for user buffers
 	VK2DDescCon descConCompute[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor controller for sprite batch compute buffer
-	VK2DDescCon descConShaders[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor controller for user shaders
-	VkDescriptorPool samplerPool;             ///< Sampler pool for 1 sampler
+    VK2DDescCon descConShaders[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Descriptor controller for user shaders
+    VK2DDescCon descConSBO[VK2D_MAX_FRAMES_IN_FLIGHT];     ///< Descriptor controller for sprite batch vertex shader SBO
+    VkDescriptorPool samplerPool;             ///< Sampler pool for 1 sampler
 	VkDescriptorPool texArrayPool;            ///< Tex array pool
 	VkDescriptorSet texArrayDescriptorSet;    ///< Tex array set
 	VkDescriptorSet samplerSet;               ///< Sampler for all textures

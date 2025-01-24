@@ -3,6 +3,13 @@
 #extension GL_EXT_scalar_block_layout : enable
 #extension GL_EXT_nonuniform_qualifier : enable
 
+struct DrawInstance {
+    vec4 texturePos;
+    vec4 colour;
+    uint textureIndex;
+    mat4 model;
+};
+
 layout(push_constant) uniform PushBuffer {
     int cameraIndex;
 } push;
@@ -11,10 +18,9 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
     mat4 cameras[10];
 } ubo;
 
-layout(location = 0) in vec4 instanceTexturePos;
-layout(location = 1) in vec4 instanceColour;
-layout(location = 2) in uint instanceTextureIndex;
-layout(location = 3) in mat4 instanceModel;
+layout(set = 3, binding = 3) readonly buffer ObjectBuffer{
+    DrawInstance objects[];
+} objectBuffer;
 
 layout(location = 1) out vec2 fragTexCoord;
 layout(location = 2) out vec4 fragColour;
@@ -44,11 +50,13 @@ out gl_PerVertex {
 
 void main() {
     vec2 newPos;
-    newPos.x = vertices[gl_VertexIndex].x * instanceTexturePos.z;
-    newPos.y = vertices[gl_VertexIndex].y * instanceTexturePos.w;
-    gl_Position = ubo.cameras[push.cameraIndex] * instanceModel * vec4(newPos, 1.0, 1.0);
-    fragTexCoord.x = instanceTexturePos.x + (texCoords[gl_VertexIndex].x * instanceTexturePos.z);
-    fragTexCoord.y = instanceTexturePos.y + (texCoords[gl_VertexIndex].y * instanceTexturePos.w);
-    fragColour = instanceColour;
-    textureIndex = instanceTextureIndex;
+    int instance = gl_VertexIndex / 6;
+    int vertexIndex = gl_VertexIndex % 6;
+    newPos.x = vertices[vertexIndex].x * objectBuffer.objects[instance].texturePos.z;
+    newPos.y = vertices[vertexIndex].y * objectBuffer.objects[instance].texturePos.w;
+    gl_Position = ubo.cameras[push.cameraIndex] * objectBuffer.objects[instance].model * vec4(newPos, 1.0, 1.0);
+    fragTexCoord.x = objectBuffer.objects[instance].texturePos.x + (texCoords[vertexIndex].x * objectBuffer.objects[instance].texturePos.z);
+    fragTexCoord.y = objectBuffer.objects[instance].texturePos.y + (texCoords[vertexIndex].y * objectBuffer.objects[instance].texturePos.w);
+    fragColour = objectBuffer.objects[instance].colour;
+    textureIndex = objectBuffer.objects[instance].textureIndex;
 }

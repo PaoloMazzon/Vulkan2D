@@ -411,9 +411,10 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 
 			// Desc cons
 			vk2dDescConReset(gRenderer->descConShaders[gRenderer->currentFrame]);
-			vk2dDescConReset(gRenderer->descConCompute[gRenderer->currentFrame]);
+            vk2dDescConReset(gRenderer->descConCompute[gRenderer->currentFrame]);
+            vk2dDescConReset(gRenderer->descConSBO[gRenderer->currentFrame]);
 
-			// Setup render pass
+            // Setup render pass
 			VkRect2D rect = {0};
 			rect.extent.width = gRenderer->surfaceWidth;
 			rect.extent.height = gRenderer->surfaceHeight;
@@ -948,7 +949,7 @@ static void _vk2dRendererFlushPerCamera(VkCommandBuffer buf, int cameraIndex) {
     vkCmdSetViewport(buf, 0, 1, &viewport);
     vkCmdSetScissor(buf, 0, 1, &scissor);
     vkCmdPushConstants(buf, gRenderer->currentBatchPipeline->layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(struct VK2DInstancedPushBuffer), &push);
-    vkCmdDraw(buf, 6, gRenderer->drawCommandCount, 0, 0);
+    vkCmdDraw(buf, 6 * gRenderer->drawCommandCount, 1, 0, 0);
 }
 
 void vk2dRendererFlushSpriteBatch() {
@@ -977,9 +978,10 @@ void vk2dRendererFlushSpriteBatch() {
                 &drawInstancesOffset
         );
 
-        // Create descriptor set
+        // Create descriptor sets
         const uint32_t drawCount = gRenderer->drawCommandCount;
         VkDescriptorSet descriptorSet = vk2dDescConGetSet(gRenderer->descConCompute[gRenderer->currentFrame]);
+        VkDescriptorSet vertexShaderSBOSet = vk2dDescConGetSet(gRenderer->descConSBO[gRenderer->currentFrame]);
         VkDescriptorBufferInfo bufferInfos[2] = {
                 {
                         .buffer = drawCommands,
@@ -992,15 +994,24 @@ void vk2dRendererFlushSpriteBatch() {
                         .range = drawCount * sizeof(struct VK2DDrawInstance)
                 }
         };
-        VkWriteDescriptorSet write = {
-                .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = descriptorSet,
-                .dstBinding = 0,
-                .descriptorCount = 2,
-                .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-                .pBufferInfo = bufferInfos
+        VkWriteDescriptorSet writes[] = {{
+                    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                    .dstSet = descriptorSet,
+                    .dstBinding = 0,
+                    .descriptorCount = 2,
+                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                    .pBufferInfo = bufferInfos
+            },
+            {
+                    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                    .dstSet = vertexShaderSBOSet,
+                    .dstBinding = 3,
+                    .descriptorCount = 1,
+                    .descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+                    .pBufferInfo = &bufferInfos[1]
+            }
         };
-        vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
+        vkUpdateDescriptorSets(gRenderer->ld->dev, 2, writes, 0, VK_NULL_HANDLE);
 
         // Queue compute dispatches to the compute command buffer, synchronization will be recorded at the end of the frame
         VkCommandBuffer computeBuf = gRenderer->computeCommandBuffer[gRenderer->scImageIndex];
@@ -1014,13 +1025,13 @@ void vk2dRendererFlushSpriteBatch() {
         _vk2dRendererResetBoundPointers();
         vkCmdBindPipeline(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, vk2dPipelineGetPipe(gRenderer->instancedPipe, gRenderer->blendMode));
         VkDescriptorSet sets[] = {
-                gRenderer->target != NULL && !gRenderer->enableTextureCameraUBO ? gRenderer->targetUBOSet : gRenderer->uboDescriptorSets[gRenderer->currentFrame],
+            gRenderer->target != NULL && !gRenderer->enableTextureCameraUBO ? gRenderer->targetUBOSet : gRenderer->uboDescriptorSets[gRenderer->currentFrame],
             gRenderer->samplerSet,
-            gRenderer->texArrayDescriptorSet
+            gRenderer->texArrayDescriptorSet,
+            vertexShaderSBOSet
         };
         // These things are the same across every camera, so they are only bound once
-        vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->instancedPipe->layout, 0, 3, sets, 0, VK_NULL_HANDLE);
-        vkCmdBindVertexBuffers(buf, 0, 1, &drawInstances, &drawInstancesOffset);
+        vkCmdBindDescriptorSets(buf, VK_PIPELINE_BIND_POINT_GRAPHICS, gRenderer->instancedPipe->layout, 0, 4, sets, 0, VK_NULL_HANDLE);
         vkCmdSetLineWidth(buf, 1);
 
         // Draw once per camera

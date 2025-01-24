@@ -58,6 +58,7 @@ VkPipelineVertexInputStateCreateInfo _vk2dGetInstanceVertexInputState() {
 		init = true;
 	}
 
+    return vk2dInitPipelineVertexInputStateCreateInfo(VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 0);;
 	return pipelineVertexInputStateCreateInfo;
 }
 

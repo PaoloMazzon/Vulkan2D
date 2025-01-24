@@ -675,7 +675,7 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
-    VkResult r1, r2, r3, r4, r5, r6;
+    VkResult r1, r2, r3, r4, r5, r6, r7;
 
     // For texture samplers
 	const uint32_t layoutCount = 1;
@@ -754,9 +754,15 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
     };
     r6 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &dslComputeCreateInfo, VK_NULL_HANDLE, &gRenderer->dslSpriteBatch);
 
+    // For instanced vertex shader sbo shaders
+    const uint32_t sboLayoutCount = 1;
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBindingSBO[1];
+    descriptorSetLayoutBindingSBO[0] = vk2dInitDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
+    VkDescriptorSetLayoutCreateInfo sboDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingSBO, sboLayoutCount);
+    r7 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &sboDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferSBO);
 
-	if (r1 != VK_SUCCESS || r2 != VK_SUCCESS || r3 != VK_SUCCESS || r4 != VK_SUCCESS || r5 != VK_SUCCESS || r6 != VK_SUCCESS) {
-	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create descriptor set layouts %i/%i/%i/%i/%i/%i.", r1, r2, r3, r4, r5, r6);
+	if (r1 != VK_SUCCESS || r2 != VK_SUCCESS || r3 != VK_SUCCESS || r4 != VK_SUCCESS || r5 != VK_SUCCESS || r6 != VK_SUCCESS || r7 != VK_SUCCESS) {
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create descriptor set layouts %i/%i/%i/%i/%i/%i/%i.", r1, r2, r3, r4, r5, r6, r7);
 	    return;
 	}
 
@@ -771,6 +777,7 @@ void _vk2dRendererDestroyDescriptorSetLayout() {
     vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslTexture, VK_NULL_HANDLE);
     vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslTextureArray, VK_NULL_HANDLE);
     vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslSpriteBatch, VK_NULL_HANDLE);
+    vkDestroyDescriptorSetLayout(gRenderer->ld->dev, gRenderer->dslBufferSBO, VK_NULL_HANDLE);
 }
 
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
@@ -811,7 +818,7 @@ void _vk2dRendererCreatePipelines() {
 	    return;
 
 	// Texture pipeline
-    VkDescriptorSetLayout instancedLayout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTextureArray};
+    VkDescriptorSetLayout instancedLayout[] = {gRenderer->dslBufferVP, gRenderer->dslSampler, gRenderer->dslTextureArray, gRenderer->dslBufferSBO};
 
 	// Polygon pipelines
 	gRenderer->primFillPipe = vk2dPipelineCreate(
@@ -886,7 +893,7 @@ void _vk2dRendererCreatePipelines() {
 			shaderInstancedFrag,
 			shaderInstancedFragSize,
 			instancedLayout,
-			3,
+			4,
 			&instanceVertexInfo,
 			true,
 			gRenderer->config.msaa,
@@ -1076,6 +1083,7 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
             gRenderer->descConCompute[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 0);
             gRenderer->descConShaders[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
+            gRenderer->descConSBO[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferSBO, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 3);
         }
 
 		// And the one sampler set
@@ -1154,6 +1162,7 @@ void _vk2dRendererDestroyDescriptorPool(bool preserveDescCons) {
         for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
             vk2dDescConFree(gRenderer->descConCompute[i]);
             vk2dDescConFree(gRenderer->descConShaders[i]);
+            vk2dDescConFree(gRenderer->descConSBO[i]);
         }
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->samplerPool, VK_NULL_HANDLE);
         vkDestroyDescriptorPool(gRenderer->ld->dev, gRenderer->texArrayPool, VK_NULL_HANDLE);
