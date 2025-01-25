@@ -788,7 +788,9 @@ void vk2dRendererDrawShader(VK2DShader shader, void *data, VK2DTexture tex, floa
 
 void vk2dRendererAddBatch(VK2DDrawCommand *commands, uint32_t count) {
 	if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
+        const VK2DPipeline pipe = gRenderer->instancedPipe;
         for (int i = 0; i < count; i++) {
+            _vk2dRendererFlushBatchIfNeeded(pipe);
             _vk2dRendererAddDrawCommand(&commands[i]);
         }
 	}

@@ -54,7 +54,7 @@ def compile_shaders(shaders):
 	out_map = {}
 	glslc = find_glslc()
 	for filename in shaders:
-		call([glslc, "-O", filename])
+		call([glslc, "-g", filename])
 		out_map[filename] = load_file_as_binary("a.spv")
 	remove("a.spv")
 	return out_map

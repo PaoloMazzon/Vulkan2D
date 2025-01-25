@@ -38,7 +38,6 @@ int main(int argc, const char *argv[]) {
 	        .errorFile = "vk2derror.txt",
 	        .enableDebug = true,
 	        .stdoutLogging = true,
-	        .vramPageSize = 0
 	};
 	vk2dRendererInit(window, config, &options);
 	handleVK2DStatus();

@@ -29,6 +29,7 @@ int main(int argc, const char *argv[]) {
 	        .quitOnError = true,
 	        .enableDebug = false,
 	        .stdoutLogging = true,
+	        .vramPageSize = sizeof(VK2DDrawInstance) * 2000010,
 	};
 	vk2dRendererInit(window, config, &options);
     debugInit(window);
@@ -38,6 +39,24 @@ int main(int argc, const char *argv[]) {
 
 	// Delta and fps
 	const double startTime = SDL_GetPerformanceCounter();
+	VK2DDrawCommand *commands = calloc(100000, sizeof(VK2DDrawCommand));
+
+    for (int i = 0; i < 100000; i++) {
+        commands[i].pos[0] = 400 + sinf(i) * i * 0.5;//vk2dRandom(-16, WINDOW_WIDTH);
+        commands[i].pos[1] = 300 + cosf(i) * i * 0.5;//vk2dRandom(-16, WINDOW_HEIGHT);
+        commands[i].scale[0] = 1;//vk2dRandom(0.1, 2);
+        commands[i].scale[1] = 1;//vk2dRandom(0.1, 2);
+        commands[i].rotation = 0;//vk2dRandom(0, VK2D_PI * 2);
+        commands[i].origin[0] = 8;
+        commands[i].origin[1] = 8;
+        commands[i].colour[0] = 1;
+        commands[i].colour[1] = 1;
+        commands[i].colour[2] = 1;
+        commands[i].colour[3] = 1;
+        commands[i].textureIndex = vk2dTextureGetID(texCaveguy);
+        commands[i].texturePos[2] = 16;
+        commands[i].texturePos[3] = 16;
+    }
 
 	while (!quit && !vk2dStatusFatal()) {
 		const double time = (double)(SDL_GetPerformanceCounter() - startTime) / (double)SDL_GetPerformanceFrequency();
@@ -53,24 +72,10 @@ int main(int argc, const char *argv[]) {
 
 		vk2dRendererStartFrame(clear);
 
-        for (int i = 0; i < 100000; i++) {
-            const float caveguyX = vk2dRandom(-16, WINDOW_WIDTH);
-            const float caveguyY = vk2dRandom(-16, WINDOW_HEIGHT);
-            const float caveguyScaleX = vk2dRandom(0.1, 2);
-            const float caveguyScaleY = vk2dRandom(0.1, 2);
-            const float caveguyRotation = vk2dRandom(0, VK2D_PI * 2);
-            const float caveguyOriginX = 8;
-            const float caveguyOriginY = 8;
-
-            vk2dDrawTextureExt(
-                    texCaveguy,
-                    caveguyX, caveguyY,
-                    caveguyScaleX, caveguyScaleY,
-                    caveguyRotation, caveguyOriginX, caveguyOriginY);
-        }
+        vk2dRendererAddBatch(commands, 8192);
+        //vk2dRendererFlushSpriteBatch();
 
 		debugRenderOverlay();
-		vk2dRendererFlushSpriteBatch();
 
 		vk2dRendererEndFrame();
 	}
