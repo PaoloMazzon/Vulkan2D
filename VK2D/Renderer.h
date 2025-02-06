@@ -124,6 +124,20 @@ VK2DRendererConfig vk2dRendererGetConfig();
 /// Changes take effect generally at the end of the frame.
 void vk2dRendererSetConfig(VK2DRendererConfig config);
 
+/// \brief Returns the amount of VRAM currently in use and free
+/// \param inUse Pointer to a float that will be provided with the total amount of VRAM in use, in MiB
+/// \param total Pointer to a float that will be provided with the total amount of VRAM on the system, in MiB
+///
+/// \warning If vk2dRendererGetLimits().supportsVRAMUsage is false, these numbers are (far) less accurate.
+/// \warning These are estimates even if vk2dRendererGetLimits().supportsVRAMUsage is true.
+/// Do not assume that you will be able to allocate memory up to total without issue.
+///
+/// This is mostly for debug purposes. If vk2dRendererGetLimits().supportsVRAMUsage is false, this number is
+/// significantly less accurate. This number also may not be exactly as you expect because, for example, if you
+/// loaded a couple images and shader and expected them to only total to ~50MiB, it may show as more because
+/// this number may be including Vulkan objects that also live in VRAM like pipelines or render passes.
+void vk2dRendererGetVRAMUsage(float *inUse, float *total);
+
 /// \brief Forces the renderer to rebuild itself (VK2D does this automatically)
 ///
 /// This is automatically done when Vulkan detects the window is no longer suitable,
@@ -181,7 +195,7 @@ void vk2dRendererGetColourMod(vec4 dst);
 /// may draw your game to a texture.
 void vk2dRendererSetTextureCamera(bool useCameraOnTextures);
 
-/// \brief Gets the average amount of time frames are taking to process from the start of vk2dRendererStartFrame to the end of vk2dRendererEndFrame
+/// \brief Gets the average amount of time frames are taking to process from the end of vk2dRendererEndFrame to the end of the next vk2dRendererEndFrame
 /// \return Returns average frame time over a course of a second in ms (1000 / vk2dRendererGetAverageFrameTime() will give FPS)
 double vk2dRendererGetAverageFrameTime();
 

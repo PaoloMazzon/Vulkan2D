@@ -207,7 +207,8 @@ struct VK2DRenderer_t {
 	VK2DLogicalDevice ld;        ///< Logical device
 	VkInstance vk;               ///< Core vulkan instance
 	VkDebugReportCallbackEXT dr; ///< Debug information
-	VmaAllocator vma;
+	VmaAllocator vma;            ///< VMA instance
+	VmaBudget *vmaBudgets;       ///< List of blank VMA budgets to be used later, list size if number of heaps on device
 
 	// User-end things
 	VK2DRendererConfig config;            ///< User config

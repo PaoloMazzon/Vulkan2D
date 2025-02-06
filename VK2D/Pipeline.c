@@ -154,8 +154,6 @@ VK2DPipeline vk2dPipelineCreateCompute(VK2DLogicalDevice dev, uint32_t pushBuffe
         return NULL;
 
     VK2DPipeline pipe = calloc(1, sizeof(struct VK2DPipeline_t));
-    VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    uint32_t i;
 
     if (pipe != NULL) {
         pipe->dev = dev;

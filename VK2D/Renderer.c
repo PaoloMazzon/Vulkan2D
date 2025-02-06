@@ -33,20 +33,6 @@ SDL_atomic_t gRNG;
 static const char *gHostMachineBuffer[4096];
 static int gHostMachineBufferSize = 4096;
 
-static const char* DEBUG_EXTENSIONS[] = {
-		VK_EXT_DEBUG_REPORT_EXTENSION_NAME
-};
-static const char* DEBUG_LAYERS[] = {
-		"VK_LAYER_KHRONOS_validation"
-};
-static const int DEBUG_LAYER_COUNT = 1;
-static const int DEBUG_EXTENSION_COUNT = 1;
-
-static const char* BASE_EXTENSIONS[] = {0};
-static const char* BASE_LAYERS[] = {0};
-static const int BASE_LAYER_COUNT = 0;
-static const int BASE_EXTENSION_COUNT = 0;
-
 static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
     .enableDebug = false,
     .stdoutLogging = true,
@@ -61,8 +47,8 @@ static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
 VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options) {
 	gRenderer = calloc(1, sizeof(struct VK2DRenderer_t));
 	VK2DResult errorCode = VK2D_SUCCESS;
-	uint32_t totalExtensionCount, i, sdlExtensions;
-	const char** totalExtensions;
+	uint32_t i, sdlExtensionsCount;
+	const char** sdlExtensions;
 
     // Find the startup options
     VK2DStartupOptions userOptions;
@@ -104,57 +90,80 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
             return VK2D_ERROR;
         }
 
-        vk2dLog("Available layers: ");
-        for (i = 0; i < systemLayerCount; i++)
-            vk2dLog("  - %s", systemLayers[i].layerName);
-        vk2dLog("");
-        free(systemLayers);
+        // Find if specific extensions are available
+        uint32_t instanceExtensionCount = 0;
+        VkExtensionProperties *instanceExtensions = VK_NULL_HANDLE;
+        vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &instanceExtensionCount, VK_NULL_HANDLE);
+        instanceExtensions = malloc(instanceExtensionCount * sizeof(VkExtensionProperties));
+        vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &instanceExtensionCount, instanceExtensions);
+        for (i = 0; i < instanceExtensionCount; i++) {
+            if (strcmp(instanceExtensions[i].extensionName, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0)
+                gRenderer->limits.supportsVRAMUsage = true;
+        }
+        free(instanceExtensions);
+
+        // Create extension/layer lists
+        const char *extensions[10] = {0};
+        const char *layers[10] = {0};
+        int extensionCount = 0;
+        int layerCount = 0;
+
+        if (userOptions.enableDebug) {
+            extensions[extensionCount++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
+            layers[layerCount++] = "VK_LAYER_KHRONOS_validation";
+        }
+        if (gRenderer->limits.supportsVRAMUsage) {
+            extensions[extensionCount++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
+        }
 
         // Find number of total number of extensions
-        SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, VK_NULL_HANDLE);
-        if (userOptions.enableDebug) {
-            totalExtensionCount = sdlExtensions + DEBUG_EXTENSION_COUNT;
-        } else {
-            totalExtensionCount = sdlExtensions + BASE_EXTENSION_COUNT;
-        }
-        totalExtensions = malloc(totalExtensionCount * sizeof(char*));
+        SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensionsCount, VK_NULL_HANDLE);
+        sdlExtensions = malloc(sizeof(char*) * sdlExtensionsCount);
 
 		// Copy user options
 		gRenderer->options = userOptions;
 
 		// Load extensions
-		if (!SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensions, totalExtensions)) {
+		if (!SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensionsCount, sdlExtensions)) {
             free(gRenderer);
             gRenderer = NULL;
             vk2dRaise(VK2D_STATUS_SDL_ERROR | VK2D_STATUS_VULKAN_ERROR, "Failed to get extensions, SDL error %s.", SDL_GetError());
             return VK2D_ERROR;
         }
 
-		if (userOptions.enableDebug) {
-			for (i = sdlExtensions; i < totalExtensionCount; i++) totalExtensions[i] = DEBUG_EXTENSIONS[i - sdlExtensions];
-		} else {
-			for (i = sdlExtensions; i < totalExtensionCount; i++) totalExtensions[i] = BASE_EXTENSIONS[i - sdlExtensions];
-		}
+        // Append SDL extensions to extension list
+        for (i = 0; i < sdlExtensionsCount; i++) {
+            extensions[extensionCount++] = sdlExtensions[i];
+        }
 
 		// Log all used extensions
-        vk2dLog("Vulkan Enabled Extensions: ");
-		for (i = 0; i < totalExtensionCount; i++)
-            vk2dLog(" - %s", totalExtensions[i]);
+        vk2dLog("Vulkan Enabled Instance Extensions: ");
+		for (i = 0; i < extensionCount; i++)
+            vk2dLog(" - %s", extensions[i]);
         vk2dLog(""); // Newline
+
+        // List all used layers
+        vk2dLog("Vulkan Enabled Instance Layers: ");
+        for (i = 0; i < layerCount; i++)
+            vk2dLog("  - %s", layers[i]);
+        vk2dLog("");
+        free(systemLayers);
 
 		// Create instance, physical, and logical device
 		VkInstanceCreateInfo instanceCreateInfo;
-		if (userOptions.enableDebug) {
-			instanceCreateInfo = vk2dInitInstanceCreateInfo((void *) &VK2D_DEFAULT_CONFIG, DEBUG_LAYERS,
-																				 DEBUG_LAYER_COUNT, totalExtensions,
-																				 totalExtensionCount);
-		} else {
-			instanceCreateInfo = vk2dInitInstanceCreateInfo((void *) &VK2D_DEFAULT_CONFIG, BASE_LAYERS,
-																				 BASE_LAYER_COUNT, totalExtensions,
-																				 totalExtensionCount);
-		}
+        instanceCreateInfo = vk2dInitInstanceCreateInfo(
+                (void *) &VK2D_DEFAULT_CONFIG,
+                layers,
+                layerCount,
+                extensions,
+                extensionCount
+        );
 		result = vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
-		if (result != VK_SUCCESS) {
+
+		// Free sdl extension list
+        free(sdlExtensions);
+
+        if (result != VK_SUCCESS) {
 		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create Vulkan instance, Vulkan error %i.", result);
 		    free(gRenderer);
 		    gRenderer = NULL;
@@ -212,12 +221,16 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		allocatorCreateInfo.physicalDevice = gRenderer->pd->dev;
 		allocatorCreateInfo.instance = gRenderer->vk;
 		allocatorCreateInfo.vulkanApiVersion = VK_MAKE_VERSION(1, 1, 0);
+		allocatorCreateInfo.flags = gRenderer->limits.supportsVRAMUsage ? VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT : 0;
 		result = vmaCreateAllocator(&allocatorCreateInfo, &gRenderer->vma);
         if (result != VK_SUCCESS) {
             vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "\nFailed to initialize VMA, Vulkan error %i.", result);
             vk2dRendererQuit();
             return VK2D_ERROR;
         }
+
+        // Create budget list
+        gRenderer->vmaBudgets = malloc(gRenderer->pd->mem.memoryHeapCount * sizeof(VmaBudget));
 
 		// Initialize subsystems
 		_vk2dRendererCreateDebug();
@@ -289,6 +302,7 @@ void vk2dRendererQuit() {
 		// Destroy core bits
 		vk2dLogicalDeviceFree(gRenderer->ld);
 		vk2dPhysicalDeviceFree(gRenderer->pd);
+		free(gRenderer->vmaBudgets);
 
         vk2dLog("VK2D has been uninitialized.");
 		vk2dValidationEnd();
@@ -333,6 +347,19 @@ void vk2dRendererSetConfig(VK2DRendererConfig config) {
 	}
 }
 
+void vk2dRendererGetVRAMUsage(float *inUse, float *total) {
+    *inUse = 0;
+    *total = 0;
+    vmaGetHeapBudgets(gRenderer->vma, gRenderer->vmaBudgets);
+    for (int i = 0; i < gRenderer->pd->mem.memoryHeapCount; i++) {
+        if ((gRenderer->pd->mem.memoryHeaps[i].flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) == 0) continue;
+        *total += gRenderer->vmaBudgets[i].budget;
+        *inUse += gRenderer->vmaBudgets[i].usage;
+    }
+    *total /= 1048576;
+    *inUse /= 1048576;
+}
+
 void vk2dRendererStartFrame(const vec4 clearColour) {
 	if (vk2dRendererGetPointer() != NULL) {
 		if (!gRenderer->procedStartFrame) {
@@ -370,6 +397,9 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 
 			// Reset currently bound items
 			_vk2dRendererResetBoundPointers();
+
+			// Update VMA's frame
+            vmaSetCurrentFrameIndex(gRenderer->vma, gRenderer->currentFrame);
 
 			// Reset current render targets
 			gRenderer->targetFrameBuffer = gRenderer->framebuffers[gRenderer->scImageIndex];

@@ -17,6 +17,21 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice_t));
 	uint32_t queueFamily = graphicsDevice == true ? dev->QueueFamily.graphicsFamily : dev->QueueFamily.computeFamily;
 
+	// Find any optional extensions
+	uint32_t extensionCount = 0;
+	VkExtensionProperties *props = VK_NULL_HANDLE;
+	vkEnumerateDeviceExtensionProperties(dev->dev, VK_NULL_HANDLE, &extensionCount, VK_NULL_HANDLE);
+	props = malloc(extensionCount * sizeof(struct VkExtensionProperties));
+    vkEnumerateDeviceExtensionProperties(dev->dev, VK_NULL_HANDLE, &extensionCount, props);
+    const bool instanceExtensionSupported = gRenderer->limits.supportsVRAMUsage;
+    gRenderer->limits.supportsVRAMUsage = false;
+	for (int i = 0; i < extensionCount; i++) {
+	    if (strcmp(props[i].extensionName, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME) == 0 && instanceExtensionSupported)
+	        gRenderer->limits.supportsVRAMUsage = true;
+	}
+    free(props);
+
+	// Find limits
 	if (ldev != NULL) {
 		// Assemble the required features
 		VkPhysicalDeviceFeatures feats = {0};
@@ -54,12 +69,31 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
                 .descriptorBindingSampledImageUpdateAfterBind = VK_TRUE
 		};
 
+		// Basic device create info
 		float priority[] = {1, 1};
 		VkDeviceQueueCreateInfo queueCreateInfo = vk2dInitDeviceQueueCreateInfo(queueFamily, priority);
 		queueCreateInfo.queueCount = gRenderer->limits.supportsMultiThreadLoading ? 2 : 1;
 		VkDeviceQueueCreateInfo queues[] = {queueCreateInfo};
 		VkDeviceCreateInfo deviceCreateInfo = vk2dInitDeviceCreateInfo(queues, 1, &feats, debug);
         deviceCreateInfo.pNext = &indexingFeatures;
+
+        // Device layers and extensions
+        const char *deviceExtensions[10] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+        int deviceExtensionCount = 1;
+        const char *deviceLayers[10] = {0};
+        int deviceLayerCount = 0;
+        if (debug) {
+            deviceLayers[deviceLayerCount++] = "VK_LAYER_LUNARG_standard_validation";
+        }
+        if (gRenderer->limits.supportsVRAMUsage) {
+            deviceExtensions[deviceExtensionCount++] = VK_EXT_MEMORY_BUDGET_EXTENSION_NAME;
+        }
+        deviceCreateInfo.enabledExtensionCount = deviceExtensionCount;
+        deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
+        deviceCreateInfo.enabledLayerCount = deviceLayerCount;
+        deviceCreateInfo.ppEnabledLayerNames = deviceLayers;
+
+        // Create device
 		VkResult result = vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev);
 		if (result != VK_SUCCESS) {
 		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create logical device, Vulkan error %i.", result);

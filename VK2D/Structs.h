@@ -305,6 +305,7 @@ struct VK2DRendererLimits {
 	uint64_t maxShaderBufferSize;    ///< Maximum size of a shader's uniform buffer in bytes, if you attempt to create a shader with a uniform buffer size greater than this value NULL will be returned
 	uint64_t maxGeometryVertices;    ///< Maximum vertices that can be used in one vk2dRendererDrawGeometryCall, if you use more vertices than this nothing will happen.
 	bool supportsMultiThreadLoading; ///< Whether or not the host supports loading assets in another thread, if attempt to load assets in another thread and this is false, assets will be loaded on the main thread instead
+	bool supportsVRAMUsage;          ///< Whether or not the host supports accurate VRAM usage, if this is false VMA will provide a less accurate estimate
 };
 
 /// \brief Represents the data you need for each element in an instanced draw

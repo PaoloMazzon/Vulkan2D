@@ -58,7 +58,6 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
 		return NULL;
 	}
 
-	int i;
 	VK2DRenderer renderer = vk2dRendererGetPointer();
 
 	if (renderer == NULL)
@@ -115,7 +114,6 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
     }
 
 	uint32_t vertFileSize, fragFileSize, i;
-	VK2DRenderer renderer = vk2dRendererGetPointer();
 
     uint8_t *vertFile = _vk2dLoadFile(vertexShader, &vertFileSize);
     if (vertFile == NULL)

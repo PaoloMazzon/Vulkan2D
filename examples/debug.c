@@ -27,13 +27,15 @@ void debugRenderFont(float x, float y, const char *text) {
 
 void debugRenderOverlay() {
 	vk2dRendererLockCameras(VK2D_DEFAULT_CAMERA);
-	char title[50];
+	char title[100];
 	VK2DRendererConfig conf = vk2dRendererGetConfig();
-	sprintf(title, "Vulkan2D [%0.2fms] [%0.2ffps] %ix MSAA", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime(), conf.msaa);
+	float inUse, total;
+	vk2dRendererGetVRAMUsage(&inUse, &total);
+	sprintf(title, "Vulkan2D [%0.2fms] [%0.2ffps] %ix MSAA\nVRAM: %0.2fMiB/%0.2fGiB", vk2dRendererGetAverageFrameTime(), 1000 / vk2dRendererGetAverageFrameTime(), conf.msaa, inUse, total / 1024);
 	vk2dRendererSetColourMod(VK2D_BLACK);
 	int w, h;
 	SDL_GetWindowSize(gWindow, &w, &h);
-	vk2dDrawRectangle(0, 0, (float)w, 17*2);
+	vk2dDrawRectangle(0, 0, (float)w, 17*2*2);
 	vk2dRendererSetColourMod(VK2D_DEFAULT_COLOUR_MOD);
 	debugRenderFont(0, 0, title);
 	vk2dRendererUnlockCameras();
