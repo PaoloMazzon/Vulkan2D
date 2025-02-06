@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"index.html#autotoc_md14":[1],
 "index.html#autotoc_md15":[2],
 "index.html#autotoc_md16":[3],
 "index.html#autotoc_md17":[4],
@@ -97,10 +98,11 @@ var NAVTREEINDEX1 =
 "structVK2DRendererLimits.html#a11f696cc29caefba3fe45dd2d78b39dd":[9,0,10,6],
 "structVK2DRendererLimits.html#a2b7e0cd58bc015b01ed5156b30be1fae":[9,0,10,1],
 "structVK2DRendererLimits.html#a6cc201506563983ba16662b38e3747f0":[9,0,10,7],
-"structVK2DRendererLimits.html#a8694d8132ed4aa533c02e2e134efdfcc":[9,0,10,8],
+"structVK2DRendererLimits.html#a8694d8132ed4aa533c02e2e134efdfcc":[9,0,10,9],
 "structVK2DRendererLimits.html#a97d87bbee90d6012d444007611fda335":[9,0,10,3],
 "structVK2DRendererLimits.html#ab7bd11bf1608555b31295107bced5424":[9,0,10,5],
 "structVK2DRendererLimits.html#acb8071dd27aa2378f65671d2b0c18db5":[9,0,10,2],
+"structVK2DRendererLimits.html#acc8621032b0993e7f5fcbe81890ef289":[9,0,10,8],
 "structVK2DRendererLimits.html#ad75f11fa32dd8f188aef2273777af59a":[9,0,10,4],
 "structVK2DShaderPushBuffer.html":[9,0,11],
 "structVK2DShaderPushBuffer.html#a05e8dd506439441ea152c0f2098a48bc":[9,0,11,2],

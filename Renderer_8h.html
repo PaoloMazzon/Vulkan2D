@@ -217,6 +217,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>vk2dRendererQuit</b> 
 <tr class="memitem:ab34d140dc2f8827eca8ce0159d226372" id="r_ab34d140dc2f8827eca8ce0159d226372"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#ab34d140dc2f8827eca8ce0159d226372">vk2dRendererSetConfig</a> (<a class="el" href="structVK2DRendererConfig.html">VK2DRendererConfig</a> config)</td></tr>
 <tr class="memdesc:ab34d140dc2f8827eca8ce0159d226372"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the renderer with a new configuration.  <br /></td></tr>
 <tr class="separator:ab34d140dc2f8827eca8ce0159d226372"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf3e046a2be4e814c17b502d17e10c36" id="r_adf3e046a2be4e814c17b502d17e10c36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#adf3e046a2be4e814c17b502d17e10c36">vk2dRendererGetVRAMUsage</a> (float *inUse, float *total)</td></tr>
+<tr class="memdesc:adf3e046a2be4e814c17b502d17e10c36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the amount of VRAM currently in use and free.  <br /></td></tr>
+<tr class="separator:adf3e046a2be4e814c17b502d17e10c36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a72ed2a4b6ddec99dd3254883c654f63b" id="r_a72ed2a4b6ddec99dd3254883c654f63b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a72ed2a4b6ddec99dd3254883c654f63b">vk2dRendererResetSwapchain</a> ()</td></tr>
 <tr class="memdesc:a72ed2a4b6ddec99dd3254883c654f63b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forces the renderer to rebuild itself (VK2D does this automatically)  <br /></td></tr>
 <tr class="separator:a72ed2a4b6ddec99dd3254883c654f63b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -248,7 +251,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>vk2dRendererQuit</b> 
 <tr class="memdesc:ab1641f1b36467772250750fdd71fb3da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allows you to enable or disable the use of the renderer's camera when drawing to textures.  <br /></td></tr>
 <tr class="separator:ab1641f1b36467772250750fdd71fb3da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1bf070c677381d33864ef7b2edebc522" id="r_a1bf070c677381d33864ef7b2edebc522"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a1bf070c677381d33864ef7b2edebc522">vk2dRendererGetAverageFrameTime</a> ()</td></tr>
-<tr class="memdesc:a1bf070c677381d33864ef7b2edebc522"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the average amount of time frames are taking to process from the start of vk2dRendererStartFrame to the end of vk2dRendererEndFrame.  <br /></td></tr>
+<tr class="memdesc:a1bf070c677381d33864ef7b2edebc522"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the average amount of time frames are taking to process from the end of vk2dRendererEndFrame to the end of the next vk2dRendererEndFrame.  <br /></td></tr>
 <tr class="separator:a1bf070c677381d33864ef7b2edebc522"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada3fb570fa0f0465b2be02e0dbd3fb59" id="r_ada3fb570fa0f0465b2be02e0dbd3fb59"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#ada3fb570fa0f0465b2be02e0dbd3fb59">vk2dRendererSetCamera</a> (<a class="el" href="structVK2DCameraSpec.html">VK2DCameraSpec</a> camera)</td></tr>
 <tr class="memdesc:ada3fb570fa0f0465b2be02e0dbd3fb59"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the current camera settings.  <br /></td></tr>
@@ -2221,8 +2224,8 @@ The wireframe may not look as you expect because models are triangulated </dd></
       </table>
 </div><div class="memdoc">
 
-<p>Gets the average amount of time frames are taking to process from the start of vk2dRendererStartFrame to the end of vk2dRendererEndFrame. </p>
-<dl class="section return"><dt>Returns</dt><dd>Returns average frame time over a course of a second in ms (1000 / <a class="el" href="Renderer_8h.html#a1bf070c677381d33864ef7b2edebc522" title="Gets the average amount of time frames are taking to process from the start of vk2dRendererStartFrame...">vk2dRendererGetAverageFrameTime()</a> will give FPS) </dd></dl>
+<p>Gets the average amount of time frames are taking to process from the end of vk2dRendererEndFrame to the end of the next vk2dRendererEndFrame. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns average frame time over a course of a second in ms (1000 / <a class="el" href="Renderer_8h.html#a1bf070c677381d33864ef7b2edebc522" title="Gets the average amount of time frames are taking to process from the end of vk2dRendererEndFrame to ...">vk2dRendererGetAverageFrameTime()</a> will give FPS) </dd></dl>
 
 </div>
 </div>
@@ -2372,6 +2375,47 @@ The wireframe may not look as you expect because models are triangulated </dd></
 <p>Gets the internal renderer's pointer. </p>
 <dl class="section return"><dt>Returns</dt><dd>Returns the internal VK2DRenderer pointer (can be NULL) </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Probably don't use this. </dd></dl>
+
+</div>
+</div>
+<a id="adf3e046a2be4e814c17b502d17e10c36" name="adf3e046a2be4e814c17b502d17e10c36"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf3e046a2be4e814c17b502d17e10c36">&#9670;&#160;</a></span>vk2dRendererGetVRAMUsage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vk2dRendererGetVRAMUsage </td>
+          <td>(</td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>inUse</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float *&#160;</td>
+          <td class="paramname"><em>total</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the amount of VRAM currently in use and free. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inUse</td><td>Pointer to a float that will be provided with the total amount of VRAM in use, in MiB </td></tr>
+    <tr><td class="paramname">total</td><td>Pointer to a float that will be provided with the total amount of VRAM on the system, in MiB</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section warning"><dt>Warning</dt><dd>If <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.supportsVRAMUsage is false, these numbers are (far) less accurate. </dd>
+<dd>
+These are estimates even if <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.supportsVRAMUsage is true. Do not assume that you will be able to allocate memory up to total without issue.</dd></dl>
+<p>This is mostly for debug purposes. If <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.supportsVRAMUsage is false, this number is significantly less accurate. This number also may not be exactly as you expect because, for example, if you loaded a couple images and shader and expected them to only total to ~50MiB, it may show as more because this number may be including Vulkan objects that also live in VRAM like pipelines or render passes. </p>
 
 </div>
 </div>

@@ -10,5 +10,6 @@ var searchData=
   ['supportsimmediate_7',['supportsImmediate',['../structVK2DRendererLimits.html#ab7bd11bf1608555b31295107bced5424',1,'VK2DRendererLimits']]],
   ['supportsmultithreadloading_8',['supportsMultiThreadLoading',['../structVK2DRendererLimits.html#a11f696cc29caefba3fe45dd2d78b39dd',1,'VK2DRendererLimits']]],
   ['supportstriplebuffering_9',['supportsTripleBuffering',['../structVK2DRendererLimits.html#a6cc201506563983ba16662b38e3747f0',1,'VK2DRendererLimits']]],
-  ['supportswireframe_10',['supportsWireframe',['../structVK2DRendererLimits.html#a8694d8132ed4aa533c02e2e134efdfcc',1,'VK2DRendererLimits']]]
+  ['supportsvramusage_10',['supportsVRAMUsage',['../structVK2DRendererLimits.html#acc8621032b0993e7f5fcbe81890ef289',1,'VK2DRendererLimits']]],
+  ['supportswireframe_11',['supportsWireframe',['../structVK2DRendererLimits.html#a8694d8132ed4aa533c02e2e134efdfcc',1,'VK2DRendererLimits']]]
 ];
