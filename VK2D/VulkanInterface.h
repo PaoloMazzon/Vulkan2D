@@ -22,7 +22,23 @@ void vk2dVulkanSubmitSingleUseBuffer(VkCommandBuffer buffer);
 /// \return Returns a command buffer in the recording state
 /// \warning This is only valid until the next time another VK2D function is called
 /// \warning The draw buffer is guaranteed to be in a render pass but there is no guarantee on which one
+/// \note Each frame contains three command buffers: Copy, compute and draw. Their execution starts in that order
+/// with automatic barriers on important resources.
 VkCommandBuffer vk2dVulkanGetDrawBuffer();
+
+/// \brief Returns the command buffer being used for compute commands. You may use this buffer for whatever.
+/// \return Returns a command buffer in the recording state
+/// \warning This is only valid until the next time another VK2D function is called
+/// \note Each frame contains three command buffers: Copy, compute and draw. Their execution starts in that order
+/// with automatic barriers on important resources.
+VkCommandBuffer vk2dVulkanGetComputeBuffer();
+
+/// \brief Returns the command buffer being used for copy commands
+/// \return Returns a command buffer in the recording state
+/// \warning This is only valid until the next time another VK2D function is called
+/// \note Each frame contains three command buffers: Copy, compute and draw. Their execution starts in that order
+/// with automatic barriers on important resources.
+VkCommandBuffer vk2dVulkanGetCopyBuffer();
 
 /// \brief Copies arbitrary data into a device-local buffer that can then be accessed from command buffers
 /// \param data Data to copy to the gpu

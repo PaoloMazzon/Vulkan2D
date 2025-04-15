@@ -51,7 +51,7 @@ extern const vec4 VK2D_DEFAULT_COLOUR_MOD;
 extern const float VK2D_CIRCLE_VERTICES;
 
 /// Maximum number of frames to be processed at once - You generally want this and VK2D_DEVICE_COMMAND_POOLS to be the same
-#define VK2D_MAX_FRAMES_IN_FLIGHT 3
+#define VK2D_MAX_FRAMES_IN_FLIGHT 2
 
 /// First 33 digits of pi
 #define VK2D_PI 3.14159265358979323846264338327950

@@ -23,6 +23,18 @@ VkCommandBuffer vk2dVulkanGetDrawBuffer() {
 	return gRenderer->commandBuffer[gRenderer->scImageIndex];
 }
 
+VkCommandBuffer vk2dVulkanGetComputeBuffer() {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	_vk2dRendererResetBoundPointers();
+	return gRenderer->computeCommandBuffer[gRenderer->scImageIndex];
+}
+
+VkCommandBuffer vk2dVulkanGetCopyBuffer() {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	_vk2dRendererResetBoundPointers();
+	return gRenderer->dbCommandBuffer[gRenderer->scImageIndex];
+}
+
 void vk2dVulkanCopyDataIntoBuffer(void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *bufferOffset) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vk2dDescriptorBufferCopyData(gRenderer->descriptorBuffers[gRenderer->currentFrame], data, size, outBuffer, bufferOffset);
