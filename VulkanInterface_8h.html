@@ -140,6 +140,12 @@ Functions</h2></td></tr>
 <tr class="memitem:a44d1bbd8fd318df44ef2199ab8fd5f11" id="r_a44d1bbd8fd318df44ef2199ab8fd5f11"><td class="memItemLeft" align="right" valign="top">VkCommandBuffer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="VulkanInterface_8h.html#a44d1bbd8fd318df44ef2199ab8fd5f11">vk2dVulkanGetDrawBuffer</a> ()</td></tr>
 <tr class="memdesc:a44d1bbd8fd318df44ef2199ab8fd5f11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the command buffer being used to draw the active frame.  <br /></td></tr>
 <tr class="separator:a44d1bbd8fd318df44ef2199ab8fd5f11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab41b8f33654c027bd9a4546c98f81365" id="r_ab41b8f33654c027bd9a4546c98f81365"><td class="memItemLeft" align="right" valign="top">VkCommandBuffer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="VulkanInterface_8h.html#ab41b8f33654c027bd9a4546c98f81365">vk2dVulkanGetComputeBuffer</a> ()</td></tr>
+<tr class="memdesc:ab41b8f33654c027bd9a4546c98f81365"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the command buffer being used for compute commands. You may use this buffer for whatever.  <br /></td></tr>
+<tr class="separator:ab41b8f33654c027bd9a4546c98f81365"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8c05abdd96ac32fb20431fcf7ba2ecc" id="r_ab8c05abdd96ac32fb20431fcf7ba2ecc"><td class="memItemLeft" align="right" valign="top">VkCommandBuffer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="VulkanInterface_8h.html#ab8c05abdd96ac32fb20431fcf7ba2ecc">vk2dVulkanGetCopyBuffer</a> ()</td></tr>
+<tr class="memdesc:ab8c05abdd96ac32fb20431fcf7ba2ecc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the command buffer being used for copy commands.  <br /></td></tr>
+<tr class="separator:ab8c05abdd96ac32fb20431fcf7ba2ecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0af9a70cceebf7900f7b6da9e187e30" id="r_aa0af9a70cceebf7900f7b6da9e187e30"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="VulkanInterface_8h.html#aa0af9a70cceebf7900f7b6da9e187e30">vk2dVulkanCopyDataIntoBuffer</a> (void *data, VkDeviceSize size, VkBuffer *outBuffer, VkDeviceSize *bufferOffset)</td></tr>
 <tr class="memdesc:aa0af9a70cceebf7900f7b6da9e187e30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copies arbitrary data into a device-local buffer that can then be accessed from command buffers.  <br /></td></tr>
 <tr class="separator:aa0af9a70cceebf7900f7b6da9e187e30"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -231,6 +237,50 @@ Data copied into a buffer like this is only valid for a single frame; you must u
 
 </div>
 </div>
+<a id="ab41b8f33654c027bd9a4546c98f81365" name="ab41b8f33654c027bd9a4546c98f81365"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab41b8f33654c027bd9a4546c98f81365">&#9670;&#160;</a></span>vk2dVulkanGetComputeBuffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">VkCommandBuffer vk2dVulkanGetComputeBuffer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the command buffer being used for compute commands. You may use this buffer for whatever. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns a command buffer in the recording state </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This is only valid until the next time another VK2D function is called </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Each frame contains three command buffers: Copy, compute and draw. Their execution starts in that order with automatic barriers on important resources. </dd></dl>
+
+</div>
+</div>
+<a id="ab8c05abdd96ac32fb20431fcf7ba2ecc" name="ab8c05abdd96ac32fb20431fcf7ba2ecc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab8c05abdd96ac32fb20431fcf7ba2ecc">&#9670;&#160;</a></span>vk2dVulkanGetCopyBuffer()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">VkCommandBuffer vk2dVulkanGetCopyBuffer </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the command buffer being used for copy commands. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns a command buffer in the recording state </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>This is only valid until the next time another VK2D function is called </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Each frame contains three command buffers: Copy, compute and draw. Their execution starts in that order with automatic barriers on important resources. </dd></dl>
+
+</div>
+</div>
 <a id="a7e0e71525f2d8fbab84ce61574a7cd74" name="a7e0e71525f2d8fbab84ce61574a7cd74"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7e0e71525f2d8fbab84ce61574a7cd74">&#9670;&#160;</a></span>vk2dVulkanGetDevice()</h2>
 
@@ -271,6 +321,7 @@ Data copied into a buffer like this is only valid for a single frame; you must u
 <dl class="section warning"><dt>Warning</dt><dd>This is only valid until the next time another VK2D function is called </dd>
 <dd>
 The draw buffer is guaranteed to be in a render pass but there is no guarantee on which one </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Each frame contains three command buffers: Copy, compute and draw. Their execution starts in that order with automatic barriers on important resources. </dd></dl>
 
 </div>
 </div>

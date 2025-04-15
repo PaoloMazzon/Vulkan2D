@@ -1,6 +1,8 @@
 var VulkanInterface_8h =
 [
     [ "vk2dVulkanCopyDataIntoBuffer", "VulkanInterface_8h.html#aa0af9a70cceebf7900f7b6da9e187e30", null ],
+    [ "vk2dVulkanGetComputeBuffer", "VulkanInterface_8h.html#ab41b8f33654c027bd9a4546c98f81365", null ],
+    [ "vk2dVulkanGetCopyBuffer", "VulkanInterface_8h.html#ab8c05abdd96ac32fb20431fcf7ba2ecc", null ],
     [ "vk2dVulkanGetDevice", "VulkanInterface_8h.html#a7e0e71525f2d8fbab84ce61574a7cd74", null ],
     [ "vk2dVulkanGetDrawBuffer", "VulkanInterface_8h.html#a44d1bbd8fd318df44ef2199ab8fd5f11", null ],
     [ "vk2dVulkanGetFrame", "VulkanInterface_8h.html#a413652e296d7d7ee5d6a4444c0364881", null ],

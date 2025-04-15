@@ -74,7 +74,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "Camera_8h.html",
-"index.html#autotoc_md14"
+"index.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
