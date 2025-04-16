@@ -1,10 +1,11 @@
 #define SDL_MAIN_HANDLED
-#include <SDL2/SDL_vulkan.h>
+#include <SDL3/SDL_vulkan.h>
 #include <stdbool.h>
 #include "VK2D/VK2D.h"
 #include "VK2D/Validation.h"
 #include <stdio.h>
 #include <time.h>
+#include <math.h>
 #include "../debug.c"
 
 /************************ Constants ************************/
@@ -22,7 +23,8 @@ void handleVK2DStatus() {
 
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
-	SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    SDL_Init(SDL_INIT_EVENTS);
+	SDL_Window *window = SDL_CreateWindow("VK2D", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 	SDL_Event e;
 	bool quit = false;
 	int keyboardSize;
@@ -31,14 +33,18 @@ int main(int argc, const char *argv[]) {
 		return -1;
 
 	// Initialize vk2d
-	VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
-	vec4 clear = {0.0, 0.5, 1.0, 1.0};
+	VK2DRendererConfig config = {
+	        .msaa = VK2D_MSAA_32X,
+	        .screenMode = VK2D_SCREEN_MODE_IMMEDIATE,
+	        .filterMode = VK2D_FILTER_TYPE_NEAREST
+	};
 	VK2DStartupOptions options = {
 	        .quitOnError = true,
 	        .errorFile = "vk2derror.txt",
 	        .enableDebug = true,
 	        .stdoutLogging = true,
 	};
+	vec4 clear = {0.0, 0.5, 1.0, 1.0};
 	vk2dRendererInit(window, config, &options);
 	handleVK2DStatus();
 
@@ -93,7 +99,7 @@ int main(int argc, const char *argv[]) {
 		lastTime = SDL_GetPerformanceCounter();
 
 		while (SDL_PollEvent(&e)) {
-			if (e.type == SDL_QUIT) {
+			if (e.type == SDL_EVENT_QUIT) {
 				quit = true;
 			}
 		}
@@ -116,11 +122,11 @@ int main(int argc, const char *argv[]) {
 		yScale = sin(scaleRot) * 0.25;
 
 		// 3D camera movements
-		int mmx, mmy;
+		float mmx, mmy;
 		int button = SDL_GetMouseState(&mmx, &mmy);
 		float mx = mmx;
 		float my = mmy;
-		if (button & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+		if (button & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
 			xyrot -= (mx - prevMX) * delta * 3;
 			zrot += (my - prevMY) * delta * 3;
 		}
@@ -151,7 +157,7 @@ int main(int argc, const char *argv[]) {
 		cam3D.Perspective.centre[0] = cam3D.Perspective.eyes[0] + sin(xyrot);
 		cam3D.Perspective.centre[1] = cam3D.Perspective.eyes[1] + cos(xyrot);
 		cam3D.Perspective.centre[2] = cam3D.Perspective.eyes[2] + tan(zrot);
-		cam3D.Perspective.fov = (button & SDL_BUTTON(SDL_BUTTON_RIGHT)) ? VK2D_PI * 0.1 : VK2D_PI * 0.3;
+		cam3D.Perspective.fov = (button & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) ? VK2D_PI * 0.1 : VK2D_PI * 0.3;
 		cam3D.wOnScreen = windowWidth;
 		cam3D.hOnScreen = windowHeight;
 		cam3D.w = windowWidth / 4;

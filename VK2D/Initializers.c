@@ -2,7 +2,7 @@
 /// \author Paolo Mazzon
 #include "VK2D/Initializers.h"
 #include "VK2D/Structs.h"
-#include <SDL2/SDL_vulkan.h>
+#include <SDL3/SDL_vulkan.h>
 
 static const char* DEBUG_EXTENSIONS[] = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME

@@ -119,10 +119,10 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 			ldev->loadListMutex = SDL_CreateMutex();
 			ldev->shaderMutex = SDL_CreateMutex();
 
-			SDL_AtomicSet(&ldev->loadListSize, 0);
-			SDL_AtomicSet(&ldev->quitThread, 0);
-			SDL_AtomicSet(&ldev->loads, 0);
-			SDL_AtomicSet(&ldev->doneLoading, 1);
+			SDL_SetAtomicInt(&ldev->loadListSize, 0);
+			SDL_SetAtomicInt(&ldev->quitThread, 0);
+			SDL_SetAtomicInt(&ldev->loads, 0);
+			SDL_SetAtomicInt(&ldev->doneLoading, 1);
 			gDeviceFromMainThread = ldev;
 			ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", NULL);
 
@@ -147,7 +147,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (dev != NULL) {
-		SDL_AtomicSet(&dev->quitThread, 1);
+		SDL_SetAtomicInt(&dev->quitThread, 1);
 		int status;
 		if (gRenderer->limits.supportsMultiThreadLoading) {
 			SDL_WaitThread(dev->workerThread, &status);

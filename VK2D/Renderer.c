@@ -1,8 +1,10 @@
 /// \file Renderer.c
 /// \author Paolo Mazzon
 #include <vulkan/vulkan.h>
-#include <SDL2/SDL_vulkan.h>
+#include <SDL3/SDL_vulkan.h>
 #include <time.h>
+#include <stdio.h>
+#include <math.h>
 
 #include "VK2D/RendererMeta.h"
 #include "VK2D/Renderer.h"
@@ -29,7 +31,7 @@ unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
 
 // For everything
 VK2DRenderer gRenderer = NULL;
-SDL_atomic_t gRNG;
+SDL_AtomicInt gRNG;
 static const char *gHostMachineBuffer[4096];
 static int gHostMachineBufferSize = 4096;
 
@@ -117,14 +119,13 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
         }
 
         // Find number of total number of extensions
-        SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensionsCount, VK_NULL_HANDLE);
-        sdlExtensions = malloc(sizeof(char*) * sdlExtensionsCount);
+        sdlExtensions = (void*)SDL_Vulkan_GetInstanceExtensions(&sdlExtensionsCount);
 
 		// Copy user options
 		gRenderer->options = userOptions;
 
 		// Load extensions
-		if (!SDL_Vulkan_GetInstanceExtensions(window, &sdlExtensionsCount, sdlExtensions)) {
+		if (!sdlExtensions) {
             free(gRenderer);
             gRenderer = NULL;
             vk2dRaise(VK2D_STATUS_SDL_ERROR | VK2D_STATUS_VULKAN_ERROR, "Failed to get extensions, SDL error %s.", SDL_GetError());
@@ -160,9 +161,6 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
         );
 		result = vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
 
-		// Free sdl extension list
-        free(sdlExtensions);
-
         if (result != VK_SUCCESS) {
 		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create Vulkan instance, Vulkan error %i.", result);
 		    free(gRenderer);
@@ -185,15 +183,13 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
         // Make the host machine string
         VkPhysicalDeviceProperties props;
         vkGetPhysicalDeviceProperties(gRenderer->pd->dev, &props);
-        SDL_version version;
-        SDL_GetVersion(&version);
         snprintf((void*)gHostMachineBuffer, gHostMachineBufferSize,
-                 "%s, SDL %i.%i.%i\nHost: %i cores, %0.2fgb RAM\nDevice: %s, Vulkan %i.%i.%i, Vulkan2D %i.%i.%i\n",
+                 "%s, SDL %i.%i.%i\nHost: %i logical cores, %0.2fgb RAM\nDevice: %s, Vulkan %i.%i.%i, Vulkan2D %i.%i.%i\n",
                  SDL_GetPlatform(),
-                 version.major,
-                 version.minor,
-                 version.patch,
-                 SDL_GetCPUCount(),
+                 SDL_MAJOR_VERSION,
+                 SDL_MINOR_VERSION,
+                 SDL_MICRO_VERSION,
+                 SDL_GetNumLogicalCPUCores(),
                  (float)SDL_GetSystemRAM() / 1024.0f,
                  props.deviceName,
                  VK_VERSION_MAJOR(props.apiVersion),
@@ -265,7 +261,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		gRenderer->viewport.maxDepth = 1;
 
 		// Initialize the random seed
-		SDL_AtomicSet(&gRNG, time(0));
+		SDL_SetAtomicInt(&gRNG, time(0));
 	} else {
 		errorCode = VK2D_ERROR;
 		vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate renderer struct.");
@@ -1138,12 +1134,12 @@ void vk2dColourRGBA(vec4 dst, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 }
 
 float vk2dRandom(float min, float max) {
-	uint32_t r = SDL_AtomicGet(&gRNG);
+	uint32_t r = SDL_GetAtomicInt(&gRNG);
 	const int64_t a = 1103515245;
 	const int64_t c = 12345;
 	const int64_t m = 2147483648;
 	r = (a * r + c) % m;
-	SDL_AtomicSet(&gRNG, r);
+	SDL_SetAtomicInt(&gRNG, r);
 	const int64_t resolution = 5000;
 	float n = (float)(r % (resolution + 1));
 	return min + ((max - min) * (n / (float)resolution));

@@ -83,7 +83,7 @@ VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSiz
         out->uniformSize = uniformBufferSize;
         out->dev = dev;
 
-        if (!gRenderer->limits.supportsMultiThreadLoading || SDL_LockMutex(dev->shaderMutex) == 0) {
+        if (!gRenderer->limits.supportsMultiThreadLoading || SDL_TryLockMutex(dev->shaderMutex)) {
             _vk2dRendererAddShader(out);
             _vk2dShaderBuildPipe(out);
             if (gRenderer->limits.supportsMultiThreadLoading)
@@ -136,7 +136,7 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 			out->uniformSize = uniformBufferSize;
 			out->dev = dev;
 
-            if (!gRenderer->limits.supportsMultiThreadLoading || SDL_LockMutex(dev->shaderMutex) == 0) {
+            if (!gRenderer->limits.supportsMultiThreadLoading || SDL_TryLockMutex(dev->shaderMutex)) {
                 _vk2dRendererAddShader(out);
                 _vk2dShaderBuildPipe(out);
                 if (gRenderer->limits.supportsMultiThreadLoading)

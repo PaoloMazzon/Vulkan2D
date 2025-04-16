@@ -8,18 +8,17 @@
 
 Vulkan2D
 ========
-[Vulkan2D](https://github.com/PaoloMazzon/Vulkan2D) is a 2D renderer using Vulkan and SDL2 primarily for C games. VK2D aims for an extremely
-simple API, requiring no Vulkan experience to use. [Astro](https://github.com/PaoloMazzon/Astro)
-and more recently [Sea of Clouds](https://devplo.itch.io/sea-of-clouds) internally use Vulkan2D for
-rendering. My other projects [Bedlam](https://github.com/PaoloMazzon/Bedlam), 
-[Spacelink](https://github.com/PaoloMazzon/Spacelink), and
-[Peace & Liberty](https://github.com/PaoloMazzon/PeacenLiberty) also used Vulkan2D, although
-a much older version of it. Check out the [quick-start](docs/QuickStart.md) guide.
+[Vulkan2D](https://github.com/PaoloMazzon/Vulkan2D) is a 2D renderer using Vulkan and SDL3 primarily for C games. VK2D 
+aims for an extremely simple API, requiring no Vulkan experience to use. [Astro](https://github.com/PaoloMazzon/Astro) 
+and more recently [Sea of Clouds](https://devplo.itch.io/sea-of-clouds) internally use Vulkan2D for rendering. My other 
+projects [Bedlam](https://github.com/PaoloMazzon/Bedlam), [Spacelink](https://github.com/PaoloMazzon/Spacelink), and 
+[Peace & Liberty](https://github.com/PaoloMazzon/PeacenLiberty) also used Vulkan2D, although a much older version of it.
+Check out the [quick-start](docs/QuickStart.md) guide.
 
 Features
 ========
 
- + Simple, fast, and intuitive API built on top of SDL
+ + Simple, fast, and intuitive API built on top of SDL3
  + Draw shapes/textures/3D models/arbitrary polygons to the screen or to other textures
  + Fast, built with Vulkan 1.2 and doesn't require any device features (but it can make use of some)
  + Simple and fully-featured cameras, allowing for multiple concurrent cameras
@@ -33,23 +32,27 @@ Check out the [documentation website](https://paolomazzon.github.io/Vulkan2D/ind
 
 Usage
 =====
-There are two parts to building it with your project: you must build VK2D and also VMA since
-VK2D needs VMA to function. You'll likely need to do something like this in CMake:
+Using VK2D is fairly simple, make sure you include all the C source files and include `Vulkan2D/` (and access the files
+via `VK2D/VK2D.h`). You also need to build VMA & SDL3 with it, check one of the CMake files in `examples/` for a detailed
+example. You will end up having something like the following:
 
-```cmake
-set(VMA_FILES VK2D/VulkanMemoryAllocator/src/vk_mem_alloc.h VK2D/VulkanMemoryAllocator/src/VmaUsage.cpp)
-file(GLOB VK2D_FILES VK2D/VK2D/*.c)
-...
-include_directories(... Vulkan2D/ VulkanMemoryAllocator/src/)
-add_executable(... ${VK2D_FILES} ${VMA_FILES})
-```
+    find_package(Vulkan)
+    # ...
+    file(GLOB C_FILES Vulkan2D/VK2D/*.c)
+    set(VMA_FILES Vulkan2D/VulkanMemoryAllocator/src/VmaUsage.cpp)
+    # ...
+    include_directories(Vulkan2D/ ...)
+    add_executable(${PROJECT_NAME} main.c ${VMA_FILES} ${C_FILES})
 
-Vulkan2D also requires the following external dependencies:
+Vulkan2D requires the following external dependencies:
 
-    SDL2, 2.0.6+
+    SDL3, 3.2.0+
     Vulkan 1.2+
     C11 + C standard library
     C++17 (VMA uses C++17)
+
+Vulkan2D uses SDL3 under the hood for many things, but earlier versions used SDL2 if for whatever reason you are unable
+to upgrade to SDL3. Vulkan2D only requires you to init `SDL_INIT_EVENTS`.
 
 Example
 =======
@@ -59,9 +62,14 @@ that and check for errors on your own. The following example uses default settin
 is an error in VK2D, it will print the status to `vk2derror.txt` and quit. 
 
 ```c
-SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
+SDL_Init(SDL_INIT_EVENTS);
+SDL_Window *window = SDL_CreateWindow("VK2D", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
 SDL_Event e;
-VK2DRendererConfig config = {VK2D_MSAA_32X, VK2D_SCREEN_MODE_TRIPLE_BUFFER, VK2D_FILTER_TYPE_NEAREST};
+VK2DRendererConfig config = {
+    .msaa = VK2D_MSAA_32X, 
+    .screenMode = VK2D_SCREEN_MODE_IMMEDIATE, 
+    .filterMode = VK2D_FILTER_TYPE_NEAREST
+};
 vk2dRendererInit(window, config, NULL);
 vec4 clearColour;
 vk2dColourHex(clearColour, "#59d9d7");
@@ -71,7 +79,7 @@ bool stopRunning = false;
 
 while (!stopRunning) {
     while (SDL_PollEvent(&e)) {
-        if (e.type == SDL_QUIT) {
+        if (e.type == SDL_EVENT_QUIT) {
             stopRunning = true;
         }
     }
@@ -89,6 +97,7 @@ vk2dRendererWait();
 
 vk2dRendererQuit();
 SDL_DestroyWindow(window);
+SDL_Quit();
 ```
 
 If you don't want VK2D to crash on errors you may specify that in the struct `VK2DStartupOptions` passed to

@@ -1,7 +1,7 @@
 /// \file RendererMeta.c
 /// \author Paolo Mazzon
 #include <vulkan/vulkan.h>
-#include <SDL2/SDL_vulkan.h>
+#include <SDL3/SDL_vulkan.h>
 
 #include "VK2D/RendererMeta.h"
 #include "VK2D/Validation.h"
@@ -311,7 +311,7 @@ void _vk2dRendererGetSurfaceSize() {
 	} else {
         if (gRenderer->surfaceCapabilities.currentExtent.width == UINT32_MAX ||
             gRenderer->surfaceCapabilities.currentExtent.height == UINT32_MAX) {
-            SDL_Vulkan_GetDrawableSize(gRenderer->window, (void *) &gRenderer->surfaceWidth,
+            SDL_GetWindowSizeInPixels(gRenderer->window, (void *) &gRenderer->surfaceWidth,
                                        (void *) &gRenderer->surfaceHeight);
         } else {
             gRenderer->surfaceWidth = gRenderer->surfaceCapabilities.currentExtent.width;
@@ -324,7 +324,7 @@ void _vk2dRendererCreateWindowSurface() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer != NULL) {
         // Create the surface then load up surface relevant values
-        if (SDL_Vulkan_CreateSurface(gRenderer->window, gRenderer->vk, &gRenderer->surface)) {
+        if (SDL_Vulkan_CreateSurface(gRenderer->window, gRenderer->vk, VK_NULL_HANDLE, &gRenderer->surface)) {
             VkResult result = vkGetPhysicalDeviceSurfacePresentModesKHR(gRenderer->pd->dev, gRenderer->surface, &gRenderer->presentModeCount, VK_NULL_HANDLE);
             if (result != VK_SUCCESS) {
                 vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get present modes, Vulkan error %i.", result);
@@ -1547,7 +1547,7 @@ void _vk2dRendererDrawRawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTe
     push.colour[2] = gRenderer->colourBlend[2];
     push.colour[3] = gRenderer->colourBlend[3];
     push.cameraIndex = cam == VK2D_INVALID_CAMERA ? 0 : cam;
-    push.textureIndex = SDL_AtomicGet(&tex->descriptorIndex);
+    push.textureIndex = SDL_GetAtomicInt(&tex->descriptorIndex);
     push.texturePos[0] = xInTex;
     push.texturePos[1] = yInTex;
     push.texturePos[2] = texWidth;
@@ -1743,7 +1743,7 @@ void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel 
 	push.colourMod[2] = gRenderer->colourBlend[2];
 	push.colourMod[3] = gRenderer->colourBlend[3];
 	push.cameraIndex = cam;
-	push.textureIndex = SDL_AtomicGet(&model->tex->descriptorIndex);
+	push.textureIndex = SDL_GetAtomicInt(&model->tex->descriptorIndex);
 
 	// Check if we actually need to bind things
 	uint64_t hash = _vk2dHashSets(sets, setCount);

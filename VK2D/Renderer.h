@@ -65,7 +65,7 @@
 /// This is still not super detailed, but its a good starting point to understanding whats going on.
 #pragma once
 #include "VK2D/Structs.h"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #ifdef __cplusplus
 extern "C" {

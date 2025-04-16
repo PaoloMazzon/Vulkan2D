@@ -31,7 +31,7 @@ static void _vk2dTextureAddToTextureArray(VK2DTexture tex) {
     if (spot == -1) {
         vk2dRaise(VK2D_STATUS_BAD_ASSET, "Ran out of space for more textures.");
     } else {
-        SDL_AtomicSet(&tex->descriptorIndex, spot);
+        SDL_SetAtomicInt(&tex->descriptorIndex, spot);
         gRenderer->textureArray[spot].active = true;
 
         // Write the descriptor set
@@ -217,13 +217,13 @@ void vk2dTextureFree(VK2DTexture tex) {
 			vk2dImageFree(tex->img);
 		}
         VK2DRenderer renderer = vk2dRendererGetPointer();
-		int val = SDL_AtomicGet(&tex->descriptorIndex);
+		int val = SDL_GetAtomicInt(&tex->descriptorIndex);
 		renderer->textureArray[val].active = false;
 		free(tex);
 	}
 }
 
 uint32_t vk2dTextureGetID(VK2DTexture tex) {
-    uint32_t val = SDL_AtomicGet(&tex->descriptorIndex);
+    uint32_t val = SDL_GetAtomicInt(&tex->descriptorIndex);
     return val;
 }

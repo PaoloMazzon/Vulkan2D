@@ -6,7 +6,7 @@
 #include "Constants.h"
 #include "VK2D/Camera.h"
 #include <vulkan/vulkan.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #define VMA_VULKAN_VERSION 1002000
 #include <VulkanMemoryAllocator/src/VmaUsage.h>
 
@@ -28,20 +28,20 @@ struct VK2DPhysicalDevice_t {
 
 /// \brief Logical device that is essentially a wrapper of VkDevice
 struct VK2DLogicalDevice_t {
-	VkDevice dev;              ///< Logical device
-	VkQueue queue;             ///< Queue for command buffers
-	VkQueue loadQueue;         ///< Queue for off-thread loading
-	VK2DPhysicalDevice pd;     ///< Physical device this came from
-	VkCommandPool pool;        ///< Command pools to cycle through
-	VkCommandPool loadPool;    ///< Command pool for off-thread loading
-	SDL_atomic_t loadListSize; ///< Size of the asset load list
-	VK2DAssetLoad *loadList;   ///< Assets that need to be loaded
-	SDL_mutex *loadListMutex;  ///< Mutex for asset load list synchronization
-	SDL_Thread *workerThread;  ///< Thread that loads assets
-	SDL_atomic_t quitThread;   ///< How to tell the thread to quit
-	SDL_atomic_t loads;        ///< Number of loads waiting in the list
-	SDL_atomic_t doneLoading;  ///< To know when loading is complete
-	SDL_mutex *shaderMutex;    ///< Mutex for creating shaders
+	VkDevice dev;               ///< Logical device
+	VkQueue queue;              ///< Queue for command buffers
+	VkQueue loadQueue;          ///< Queue for off-thread loading
+	VK2DPhysicalDevice pd;      ///< Physical device this came from
+	VkCommandPool pool;         ///< Command pools to cycle through
+	VkCommandPool loadPool;     ///< Command pool for off-thread loading
+	SDL_AtomicInt loadListSize; ///< Size of the asset load list
+	VK2DAssetLoad *loadList;    ///< Assets that need to be loaded
+	SDL_Mutex *loadListMutex;   ///< Mutex for asset load list synchronization
+	SDL_Thread *workerThread;   ///< Thread that loads assets
+	SDL_AtomicInt quitThread;   ///< How to tell the thread to quit
+	SDL_AtomicInt loads;        ///< Number of loads waiting in the list
+	SDL_AtomicInt doneLoading;  ///< To know when loading is complete
+    SDL_Mutex *shaderMutex;     ///< Mutex for creating shaders
 };
 
 /// \brief An internal representation of a camera (the user deals with VK2DCameraIndex, the renderer uses this struct)
@@ -163,14 +163,14 @@ struct VK2DImage_t {
 /// set the render target to a texture not created with vk2dTextureCreate, you can expect
 /// a segfault.
 struct VK2DTexture_t {
-	VK2DImage img;                ///< Internal image
-	VK2DImage depthBuffer;        ///< For 3D rendering when its a target
-	VK2DImage sampledImg;         ///< Image for MSAA
-	VkFramebuffer fbo;            ///< Framebuffer of this texture so it can be drawn to
-	VK2DBuffer ubo;               ///< UBO that will be used when drawing to this texture
-	VkDescriptorSet uboSet;       ///< Set for the UBO
-	bool imgHandled;              ///< Whether or not to free the image with the texture (if it was loaded with vk2dTextureLoad)
-	SDL_atomic_t descriptorIndex; ///< Index in the descriptor array of this texture
+	VK2DImage img;                 ///< Internal image
+	VK2DImage depthBuffer;         ///< For 3D rendering when its a target
+	VK2DImage sampledImg;          ///< Image for MSAA
+	VkFramebuffer fbo;             ///< Framebuffer of this texture so it can be drawn to
+	VK2DBuffer ubo;                ///< UBO that will be used when drawing to this texture
+	VkDescriptorSet uboSet;        ///< Set for the UBO
+	bool imgHandled;               ///< Whether or not to free the image with the texture (if it was loaded with vk2dTextureLoad)
+	SDL_AtomicInt descriptorIndex; ///< Index in the descriptor array of this texture
 };
 
 /// \brief A 3D model

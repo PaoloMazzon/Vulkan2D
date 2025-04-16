@@ -3,7 +3,7 @@
 /// \brief Information needed to use hardware-accelerated shadows
 #pragma once
 #include "VK2D/Structs.h"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #ifdef __cplusplus
 extern "C" {

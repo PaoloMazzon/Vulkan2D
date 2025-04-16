@@ -1,5 +1,5 @@
 #define SDL_MAIN_HANDLED
-#include <SDL2/SDL_vulkan.h>
+#include <SDL3/SDL_vulkan.h>
 #include <stdbool.h>
 #include "VK2D/VK2D.h"
 #include "../debug.c"
@@ -89,7 +89,8 @@ const int POLYGON_COUNT = 6;
 
 int main(int argc, const char *argv[]) {
     // Basic SDL setup
-    SDL_Window *window = SDL_CreateWindow("VK2D", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
+    SDL_Init(SDL_INIT_EVENTS);
+    SDL_Window *window = SDL_CreateWindow("VK2D", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
     SDL_Event e;
     bool quit = false;
     int keyboardSize;
@@ -182,7 +183,7 @@ int main(int argc, const char *argv[]) {
 
     while (!quit) {
         while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
+            if (e.type == SDL_EVENT_QUIT) {
                 quit = true;
             }
         }

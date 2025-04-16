@@ -9,7 +9,7 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Opaque.h"
 
-static SDL_mutex *gLogMutex = NULL;
+static SDL_Mutex *gLogMutex = NULL;
 
 // Global log buffer
 static const int32_t gLogBufferSize = 4096;
