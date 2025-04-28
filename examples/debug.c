@@ -3,6 +3,8 @@
 /// \brief This is meant to be included once in each example project for the overlay
 #include <VK2D/VK2D.h>
 
+#include <stdio.h>
+
 static VK2DTexture gDebugFont = NULL;
 static SDL_Window *gWindow;
 

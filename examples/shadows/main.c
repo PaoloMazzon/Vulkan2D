@@ -134,7 +134,7 @@ static inline double pointDistance(Point2D p1, Point2D p2) {
     return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2));
 }
 
-bool getPointIntersection(Point2D *out, vec2 *poly, int count, Point2D player, Point2D mouse) {
+bool getPointIntersection(Point2D *out, const vec2 *poly, int count, Point2D player, Point2D mouse) {
     Point2D closest = {0};
     bool started = false;
     for (int i = 0; i < count; i++) {
@@ -291,6 +291,14 @@ void buildVertexList(vec2 *vertices, int count, Point2D pivot) {
     free(angles);
 }
 
+static void assertLoadedTexture(VK2DTexture texture, const char *name)
+{
+    if (texture == NULL) {
+        printf("Failed to load texture \"%s\".\n", name);
+        exit(-1);
+    }
+}
+
 int main(int argc, const char *argv[]) {
     // Basic SDL setup
     SDL_Init(SDL_INIT_EVENTS);
@@ -298,7 +306,7 @@ int main(int argc, const char *argv[]) {
     SDL_Event e;
     bool quit = false;
     int keyboardSize;
-    const uint8_t *keyboard = SDL_GetKeyboardState(&keyboardSize);
+    const bool *keyboard = SDL_GetKeyboardState(&keyboardSize);
     if (window == NULL)
         return -1;
 
@@ -324,6 +332,9 @@ int main(int argc, const char *argv[]) {
     VK2DTexture lightOrbTex = vk2dTextureLoad("assets/light.png");
     VK2DTexture shadowsTex = vk2dTextureCreate(400, 300);
     VK2DTexture lightTex = vk2dTextureCreate(400, 300);
+
+    assertLoadedTexture(playerTex, "assets/caveguy.png");
+    assertLoadedTexture(lightOrbTex, "assets/light.png");
 
     VK2DCameraSpec cam = {VK2D_CAMERA_TYPE_DEFAULT, 0, 0, WINDOW_WIDTH * 0.5f, WINDOW_HEIGHT * 0.5f, 1, 0};
     VK2DCameraIndex testCamera = vk2dCameraCreate(cam);
@@ -399,7 +410,7 @@ int main(int argc, const char *argv[]) {
         cam.w = (float)windowWidth / 2;
         cam.h = (float)windowHeight / 2;
         vk2dCameraUpdate(testCamera, cam);
-        int mx, my;
+        float mx, my;
         SDL_GetMouseState(&mx, &my);
         mouseX = (double)mx * 0.5;
         mouseY = (double)my * 0.5;
