@@ -23,7 +23,7 @@ VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DVertexColour *vertexData, uint32_t ver
 /// \warning Convex polygons only, the triangulation method will likely fail for concave polygons
 /// \warning Must have at least 3 vertices
 /// \warning While you may use polygons created from this function with vk2dDrawPolygonOutline, it may not look like you expect and for that reason you may want vk2dPolygonCreateOutline for polygons you want to draw outlined
-VK2DPolygon vk2dPolygonCreate(vec2 *vertices, uint32_t vertexCount);
+VK2DPolygon vk2dPolygonCreate(const vec2 *vertices, uint32_t vertexCount);
 
 /// \brief Creates a polygon made to be rendered as an outline (does not triangulate input)
 /// \param vertices List of x/y positions for the polygons vertices

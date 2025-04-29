@@ -41,7 +41,7 @@ VK2DPolygon vk2dPolygonShapeCreateRaw(VK2DVertexColour *vertexData, uint32_t ver
    *    c. Add the vertex before the current one in the polygon to the final list
    *  3. Push the final vertex list off to vk2dPolygonShapeCreateRaw
 */
-VK2DPolygon vk2dPolygonCreate(vec2 *vertices, uint32_t vertexCount) {
+VK2DPolygon vk2dPolygonCreate(const vec2 *vertices, uint32_t vertexCount) {
 	uint32_t finalVertexCount = (vertexCount - 2) * 3;
 	VK2DVertexColour *colourVertices = malloc(sizeof(VK2DVertexColour) * finalVertexCount);
 	uint32_t i;
