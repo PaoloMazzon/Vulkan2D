@@ -18,6 +18,7 @@
 #include "VK2D/Util.h"
 #include "VK2D/DescriptorBuffer.h"
 #include "VK2D/Opaque.h"
+#include "VK2D/Logger.h"
 
 // For debugging
 PFN_vkCreateDebugReportCallbackEXT fvkCreateDebugReportCallbackEXT;
@@ -349,7 +350,7 @@ void _vk2dRendererCreateWindowSurface() {
             }
         } else {
         	const char *error = SDL_GetError();
-        	if (error != NULL) fprintf(stderr, "SDL error: %s\n", error);
+        	if (error != NULL) vk2dLoggerLogf(VK2D_LOG_SEVERITY_ERROR, "SDL error: %s\n", error);
             vk2dRaise(VK2D_STATUS_VULKAN_ERROR | VK2D_STATUS_SDL_ERROR, "Failed to create surface, SDL error: %s.", SDL_GetError());
         }
 	}
