@@ -151,6 +151,15 @@ typedef enum {
 	VK2D_ASSET_TYPE_NONE = 2,    ///< This slot is empty
 } VK2DAssetState;
 
+typedef enum {
+	VK2D_LOG_SEVERITY_DEBUG = 0,
+	VK2D_LOG_SEVERITY_INFO = 1,
+	VK2D_LOG_SEVERITY_WARN = 2,
+	VK2D_LOG_SEVERITY_ERROR = 3,
+	VK2D_LOG_SEVERITY_FATAL = 4,
+	VK2D_LOG_SEVERITY_UNKNOWN = 5,
+} VK2DLogSeverity;
+
 // VK2D pointers
 VK2D_OPAQUE_POINTER(VK2DRenderer)
 VK2D_OPAQUE_POINTER(VK2DImage)
@@ -165,6 +174,7 @@ VK2D_OPAQUE_POINTER(VK2DShader)
 VK2D_OPAQUE_POINTER(VK2DModel)
 VK2D_OPAQUE_POINTER(VK2DDescriptorBuffer)
 VK2D_OPAQUE_POINTER(VK2DShadowEnvironment)
+VK2D_OPAQUE_POINTER(VK2DLogger)
 
 /// \brief 2D vector of floats
 typedef float vec2[2];
@@ -199,7 +209,7 @@ struct VK2DVertex3D {
 /// \brief The VP buffer
 struct VK2DUniformBufferObject {
 	mat4 viewproj[VK2D_MAX_CAMERAS]; ///< View and projection matrix multiplied together
-} ;
+};
 
 /// \brief Push buffer for user shaders
 struct VK2DShaderPushBuffer {
@@ -378,6 +388,10 @@ struct VK2DAssetLoad {
 		VK2DTexture *texture; ///< Pointer to where the output object will be placed
 	} Output; ///< How the user will receive the loaded asset
 };
+
+typedef void (*VK2DLoggerLogFn)(void *, VK2DLogSeverity, const char *);
+typedef void (*VK2DLoggerDestroyFn)(void *);
+
 
 VK2D_USER_STRUCT(VK2DVertexColour)
 VK2D_USER_STRUCT(VK2DVertex3D)
