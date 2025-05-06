@@ -16,7 +16,7 @@
 #define COERCE_SEVERITY(SEVERITY)                                              \
 	do {                                                                   \
 		(SEVERITY) = coerceSeverity(SEVERITY);                         \
-		if (!shouldLog(SEVERITY)) return;                             \
+		if (!shouldLog(SEVERITY)) return;                              \
 	} while (0)
 
 typedef struct VK2DDefaultLogger {

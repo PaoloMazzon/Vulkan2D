@@ -1,6 +1,6 @@
 /// \file Initializers.h
 /// \author cmburn
-/// \brief Initializes Vulkan structs
+/// \brief Logging callbacks
 
 #pragma once
 
