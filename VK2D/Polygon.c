@@ -71,7 +71,7 @@ VK2DPolygon vk2dPolygonCreate(const vec2 *vertices, uint32_t vertexCount) {
 	return out;
 }
 
-VK2DPolygon vk2dPolygonCreateOutline(vec2 *vertices, uint32_t vertexCount) {
+VK2DPolygon vk2dPolygonCreateOutline(const vec2 *vertices, uint32_t vertexCount) {
 	uint32_t i;
 	VK2DVertexColour defVert = {{0, 0, 0}, {1, 1, 1, 1}};
 	VK2DPolygon out = NULL;

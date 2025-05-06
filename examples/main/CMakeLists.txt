@@ -20,6 +20,6 @@ endif()
 # We don't build a library because this engine is intended to have its source
 # dropped into a host project (in this case JamEngine) and this whole cmake file
 # is just for testing purposes.
-include_directories(../../ ${SDL3_INCLUDE} ${Vulkan_INCLUDE_DIRS})
+include_directories(../../ ${SDL3_INCLUDE} ${Vulkan_INCLUDE_DIRS} ../../VulkanMemoryAllocator/include)
 add_executable(${PROJECT_NAME} main.c ${VMA_FILES} ${C_FILES} ${H_FILES})
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 ${REQUIRED_EXTRA_LIBS} ${Vulkan_LIBRARIES})

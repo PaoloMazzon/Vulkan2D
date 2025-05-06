@@ -94,7 +94,7 @@ int main(int argc, const char *argv[]) {
     SDL_Event e;
     bool quit = false;
     int keyboardSize;
-    const uint8_t *keyboard = SDL_GetKeyboardState(&keyboardSize);
+    const bool *keyboard = SDL_GetKeyboardState(&keyboardSize);
     if (window == NULL)
         return -1;
 
@@ -195,7 +195,7 @@ int main(int argc, const char *argv[]) {
         cam.w = (float)windowWidth / 2;
         cam.h = (float)windowHeight / 2;
         vk2dCameraUpdate(testCamera, cam);
-        int mx, my;
+        float mx, my;
         SDL_GetMouseState(&mx, &my);
         mouseX = (double)mx * 0.5;
         mouseY = (double)my * 0.5;

@@ -31,7 +31,7 @@ VK2DPolygon vk2dPolygonCreate(const vec2 *vertices, uint32_t vertexCount);
 /// \return Returns either the new polygon or NULL if it failed
 /// \warning It is not possible to draw a polygon made with this function with vk2dRendererDrawPolygon unless its a triangle
 /// \warning This function will crash on < 1 vertex
-VK2DPolygon vk2dPolygonCreateOutline(vec2 *vertices, uint32_t vertexCount);
+VK2DPolygon vk2dPolygonCreateOutline(const vec2 *vertices, uint32_t vertexCount);
 
 /// \brief Frees a polygon from memory
 /// \param polygon Polygon to free
