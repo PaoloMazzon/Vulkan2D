@@ -28,7 +28,7 @@ void vk2dValidationBegin(const char *errorFile, bool quitOnError) {
 	if (errorFile != NULL) {
 		FILE *file = fopen(errorFile, "a");
 		if (file != NULL) {
-			_vk2dDefaultLoggerSetErrorOutput(file);
+			vk2dDefaultLoggerSetErrorOutput(file);
 			gErrorFile = file;
 		}
 	}

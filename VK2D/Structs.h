@@ -152,12 +152,12 @@ typedef enum {
 } VK2DAssetState;
 
 typedef enum {
-	VK2D_LOG_SEVERITY_DEBUG = 0,
-	VK2D_LOG_SEVERITY_INFO = 1,
-	VK2D_LOG_SEVERITY_WARN = 2,
-	VK2D_LOG_SEVERITY_ERROR = 3,
-	VK2D_LOG_SEVERITY_FATAL = 4,
-	VK2D_LOG_SEVERITY_UNKNOWN = 5,
+	VK2D_LOG_SEVERITY_DEBUG = 0,   ///< Debug message
+	VK2D_LOG_SEVERITY_INFO = 1,    ///< Standard log message
+	VK2D_LOG_SEVERITY_WARN = 2,    ///< Warning
+	VK2D_LOG_SEVERITY_ERROR = 3,   ///< Error
+	VK2D_LOG_SEVERITY_FATAL = 4,   ///< Unrecoverable error. The logger will abort after printing
+	VK2D_LOG_SEVERITY_UNKNOWN = 5, ///< Unknown severity, will be printed on all
 } VK2DLogSeverity;
 
 // VK2D pointers
@@ -174,7 +174,6 @@ VK2D_OPAQUE_POINTER(VK2DShader)
 VK2D_OPAQUE_POINTER(VK2DModel)
 VK2D_OPAQUE_POINTER(VK2DDescriptorBuffer)
 VK2D_OPAQUE_POINTER(VK2DShadowEnvironment)
-VK2D_OPAQUE_POINTER(VK2DLogger)
 
 /// \brief 2D vector of floats
 typedef float vec2[2];
@@ -391,7 +390,14 @@ struct VK2DAssetLoad {
 
 typedef void (*VK2DLoggerLogFn)(void *, VK2DLogSeverity, const char *);
 typedef void (*VK2DLoggerDestroyFn)(void *);
+typedef VK2DLogSeverity (*VK2DLoggerSeverityFn)(void *);
 
+struct VK2DLogger {
+	VK2DLoggerLogFn log;             ///< Callback to log the message
+	VK2DLoggerDestroyFn destroy;     ///< Callback called on destruction of logger
+	VK2DLoggerSeverityFn severityFn; ///< Callback to get minimum severity of logger
+	void *context;                   ///< User supplied context
+};
 
 VK2D_USER_STRUCT(VK2DVertexColour)
 VK2D_USER_STRUCT(VK2DVertex3D)
@@ -411,6 +417,7 @@ VK2D_USER_STRUCT(VK2DAssetLoad)
 VK2D_USER_STRUCT(VK2DShadowObjectInfo)
 VK2D_USER_STRUCT(VK2DInstancedPushBuffer)
 VK2D_USER_STRUCT(VK2DComputePushBuffer)
+VK2D_USER_STRUCT(VK2DLogger)
 
 #ifdef __cplusplus
 }

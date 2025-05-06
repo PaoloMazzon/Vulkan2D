@@ -200,12 +200,6 @@ typedef struct VK2DTextureDescriptorInfo_t {
     bool active;
 } VK2DTextureDescriptorInfo;
 
-struct VK2DLogger_t {
-	VK2DLoggerLogFn log;         ///< Callback to log the message
-	VK2DLoggerDestroyFn destroy; ///< Callback called on destruction of logger
-	void *context;               ///< User supplied context
-};
-
 /// \brief Core rendering data, don't modify values unless you know what you're doing
 struct VK2DRenderer_t {
 	// Devices/core functionality (these have short names because they're constantly referenced)
