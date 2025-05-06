@@ -25,7 +25,7 @@ int main(int argc, const char *argv[]) {
 	SDL_Event e;
 	bool quit = false;
 	int keyboardSize;
-	const uint8_t *keyboard = SDL_GetKeyboardState(&keyboardSize);
+	const bool *keyboard = SDL_GetKeyboardState(&keyboardSize);
 	if (window == NULL)
 		return -1;
 
@@ -80,7 +80,7 @@ int main(int argc, const char *argv[]) {
 
 		// Move cameras
 		float mx, my;
-		int button = SDL_GetMouseState(&mx, &my);
+		unsigned int button = SDL_GetMouseState(&mx, &my);
 		float x = mx;
 		float y = my;
 		if (button & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {

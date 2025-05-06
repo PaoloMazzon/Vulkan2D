@@ -43,6 +43,14 @@ void vk2dValidationEnd() {
 	if (gErrorFile != NULL) fclose(gErrorFile);
 }
 
+static int32_t stringLength(const char *str, int32_t size) {
+	int32_t len = 0;
+	for (int32_t i = 0; str[i] != 0 && i < size; i++) {
+		len++;
+	}
+	return len;
+}
+
 void vk2dValidationWriteHeader() {
 	time_t t = time(NULL);
 	vk2dLoggerLog(VK2D_LOG_SEVERITY_INFO, "------START------");
@@ -53,10 +61,18 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
     // Ignore double raises on "renderer not intialized"
     if (result == VK2D_STATUS_RENDERER_NOT_INITIALIZED && (gStatus & VK2D_STATUS_RENDERER_NOT_INITIALIZED) != 0)
         return;
+    if (gResetLog) {
+	    gResetLog = false;
+    	gStatus = 0;
+    	gLogBuffer[0] = 0;
+    }
     const VK2DLogSeverity severity = (gQuitOnError && vk2dStatusFatal()) ?
     	VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
     va_list ap;
     va_start(ap, fmt);
+	int32_t start = stringLength(gLogBuffer, gLogBufferSize);
+	int32_t length = gLogBufferSize - start;
+	vsnprintf(gLogBuffer + start, length, fmt, ap);
     vk2dLoggerLogv(severity, fmt, ap);
     va_end(ap);
 }
@@ -68,6 +84,11 @@ VK2DStatus vk2dStatus() {
 
 bool vk2dStatusFatal() {
     return (gStatus & ~(VK2D_STATUS_NONE | VK2D_STATUS_SDL_ERROR | VK2D_STATUS_FILE_NOT_FOUND | VK2D_STATUS_BAD_ASSET | VK2D_STATUS_TOO_MANY_CAMERAS)) !=  0;
+}
+
+const char *vk2dStatusMessage() {
+	gResetLog = true;
+	return gLogBuffer;
 }
 
 void vk2dLog(const char* fmt, ...) {
