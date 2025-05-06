@@ -348,6 +348,8 @@ void _vk2dRendererCreateWindowSurface() {
                 vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate %i present modes.", gRenderer->presentModeCount);
             }
         } else {
+        	const char *error = SDL_GetError();
+        	if (error != NULL) fprintf(stderr, "SDL error: %s\n", error);
             vk2dRaise(VK2D_STATUS_VULKAN_ERROR | VK2D_STATUS_SDL_ERROR, "Failed to create surface, SDL error: %s.", SDL_GetError());
         }
 	}
