@@ -2,6 +2,7 @@ var dir_5293e3c8817f2402deac72fa75b76dc7 =
 [
     [ "Camera.h", "Camera_8h.html", "Camera_8h" ],
     [ "DescriptorControl.h", "DescriptorControl_8h.html", "DescriptorControl_8h" ],
+    [ "Logger.h", "Logger_8h_source.html", null ],
     [ "Model.h", "Model_8h.html", "Model_8h" ],
     [ "Polygon.h", "Polygon_8h.html", "Polygon_8h" ],
     [ "Renderer.h", "Renderer_8h.html", "Renderer_8h" ],

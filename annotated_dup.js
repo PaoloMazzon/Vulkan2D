@@ -8,6 +8,7 @@ var annotated_dup =
     [ "VK2DDrawCommand", "structVK2DDrawCommand.html", "structVK2DDrawCommand" ],
     [ "VK2DDrawInstance", "structVK2DDrawInstance.html", "structVK2DDrawInstance" ],
     [ "VK2DInstancedPushBuffer", "structVK2DInstancedPushBuffer.html", "structVK2DInstancedPushBuffer" ],
+    [ "VK2DLogger", "structVK2DLogger.html", "structVK2DLogger" ],
     [ "VK2DPushBuffer", "structVK2DPushBuffer.html", "structVK2DPushBuffer" ],
     [ "VK2DRendererConfig", "structVK2DRendererConfig.html", "structVK2DRendererConfig" ],
     [ "VK2DRendererLimits", "structVK2DRendererLimits.html", "structVK2DRendererLimits" ],

@@ -18,6 +18,7 @@ var Structs_8h =
     [ "VK2DComputePushBuffer", "structVK2DComputePushBuffer.html", "structVK2DComputePushBuffer" ],
     [ "VK2DShadowObjectInfo", "structVK2DShadowObjectInfo.html", "structVK2DShadowObjectInfo" ],
     [ "VK2DAssetLoad", "structVK2DAssetLoad.html", "structVK2DAssetLoad" ],
+    [ "VK2DLogger", "structVK2DLogger.html", "structVK2DLogger" ],
     [ "VK2D_MAX_CAMERAS", "Structs_8h.html#a3317728c9ae4cfb360bbdc5547c815c2", null ],
     [ "mat4", "Structs_8h.html#ab6e436b53a47afd9c980d7de503b9090", null ],
     [ "vec2", "Structs_8h.html#a5edc995c0f7248db90aa314c4e98af6a", null ],
@@ -61,6 +62,14 @@ var Structs_8h =
     [ "VK2DFilterType", "Structs_8h.html#a281994ae2e0e24cd27f4678ec0def3fd", [
       [ "VK2D_FILTER_TYPE_LINEAR", "Structs_8h.html#a281994ae2e0e24cd27f4678ec0def3fda84fbc4e26528e39b106378dbeba59910", null ],
       [ "VK2D_FILTER_TYPE_NEAREST", "Structs_8h.html#a281994ae2e0e24cd27f4678ec0def3fda05149beef54dd6b6b81e34f06dda6738", null ]
+    ] ],
+    [ "VK2DLogSeverity", "Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4", [
+      [ "VK2D_LOG_SEVERITY_DEBUG", "Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4a56983255f75e609df0dd5482e6b2c923", null ],
+      [ "VK2D_LOG_SEVERITY_INFO", "Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4a8ef439f03287a7d59cb9218578614db9", null ],
+      [ "VK2D_LOG_SEVERITY_WARN", "Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4a1d5e4bab626c314e0c1b5833d64d27be", null ],
+      [ "VK2D_LOG_SEVERITY_ERROR", "Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4aacb18d3a95e92d46a69ddda334462712", null ],
+      [ "VK2D_LOG_SEVERITY_FATAL", "Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4a24984fb9e1d48360255f34d5f5d4a699", null ],
+      [ "VK2D_LOG_SEVERITY_UNKNOWN", "Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4a79de164fc67110598842a1d1435ce3f7", null ]
     ] ],
     [ "VK2DMSAA", "Structs_8h.html#a919fd931caf982dcbafbb990822c1080", [
       [ "VK2D_MSAA_1X", "Structs_8h.html#a919fd931caf982dcbafbb990822c1080a6a48f989515a9f6c263c88551b18ba06", null ],

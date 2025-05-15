@@ -32,7 +32,7 @@ var searchData=
   ['vk2dmodelfrom_29',['vk2dModelFrom',['../Model_8h.html#a9910e616e7d9eb4333026346cc291889',1,'Model.h']]],
   ['vk2dmodelload_30',['vk2dModelLoad',['../Model_8h.html#ae2f20393781eec2011936b9c64d78591',1,'Model.h']]],
   ['vk2dpolygoncreate_31',['vk2dPolygonCreate',['../Polygon_8h.html#a134123a3c12c721e5b3e93d6aebadc1c',1,'Polygon.h']]],
-  ['vk2dpolygoncreateoutline_32',['vk2dPolygonCreateOutline',['../Polygon_8h.html#a15cc87fb1801836f6ea255ed830490f4',1,'Polygon.h']]],
+  ['vk2dpolygoncreateoutline_32',['vk2dPolygonCreateOutline',['../Polygon_8h.html#a4921fa04f5e32b00196582a1bb4eeecc',1,'Polygon.h']]],
   ['vk2dpolygonfree_33',['vk2dPolygonFree',['../Polygon_8h.html#a1d57bcc86214c300e46f653abe3d04a3',1,'Polygon.h']]],
   ['vk2dpolygonshapecreateraw_34',['vk2dPolygonShapeCreateRaw',['../Polygon_8h.html#a45c6634abf96554bd78fa2aadf8f2a4c',1,'Polygon.h']]],
   ['vk2drandom_35',['vk2dRandom',['../Renderer_8h.html#a8c717b271a6b7df431a729a5b7e14721',1,'Renderer.h']]],
