@@ -151,6 +151,15 @@ typedef enum {
 	VK2D_ASSET_TYPE_NONE = 2,    ///< This slot is empty
 } VK2DAssetState;
 
+typedef enum {
+	VK2D_LOG_SEVERITY_DEBUG = 0,   ///< Debug message
+	VK2D_LOG_SEVERITY_INFO = 1,    ///< Standard log message
+	VK2D_LOG_SEVERITY_WARN = 2,    ///< Warning
+	VK2D_LOG_SEVERITY_ERROR = 3,   ///< Error
+	VK2D_LOG_SEVERITY_FATAL = 4,   ///< Unrecoverable error. The logger will abort after printing
+	VK2D_LOG_SEVERITY_UNKNOWN = 5, ///< Unknown severity, will be printed on all
+} VK2DLogSeverity;
+
 // VK2D pointers
 VK2D_OPAQUE_POINTER(VK2DRenderer)
 VK2D_OPAQUE_POINTER(VK2DImage)
@@ -199,7 +208,7 @@ struct VK2DVertex3D {
 /// \brief The VP buffer
 struct VK2DUniformBufferObject {
 	mat4 viewproj[VK2D_MAX_CAMERAS]; ///< View and projection matrix multiplied together
-} ;
+};
 
 /// \brief Push buffer for user shaders
 struct VK2DShaderPushBuffer {
@@ -379,6 +388,17 @@ struct VK2DAssetLoad {
 	} Output; ///< How the user will receive the loaded asset
 };
 
+typedef void (*VK2DLoggerLogFn)(void *, VK2DLogSeverity, const char *);
+typedef void (*VK2DLoggerDestroyFn)(void *);
+typedef VK2DLogSeverity (*VK2DLoggerSeverityFn)(void *);
+
+struct VK2DLogger {
+	VK2DLoggerLogFn log;             ///< Callback to log the message
+	VK2DLoggerDestroyFn destroy;     ///< Callback called on destruction of logger
+	VK2DLoggerSeverityFn severityFn; ///< Callback to get minimum severity of logger
+	void *context;                   ///< User supplied context
+};
+
 VK2D_USER_STRUCT(VK2DVertexColour)
 VK2D_USER_STRUCT(VK2DVertex3D)
 VK2D_USER_STRUCT(VK2DUniformBufferObject)
@@ -397,6 +417,7 @@ VK2D_USER_STRUCT(VK2DAssetLoad)
 VK2D_USER_STRUCT(VK2DShadowObjectInfo)
 VK2D_USER_STRUCT(VK2DInstancedPushBuffer)
 VK2D_USER_STRUCT(VK2DComputePushBuffer)
+VK2D_USER_STRUCT(VK2DLogger)
 
 #ifdef __cplusplus
 }

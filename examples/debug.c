@@ -4,6 +4,7 @@
 #include <VK2D/VK2D.h>
 
 #include <stdio.h>
+#include <math.h>
 
 static VK2DTexture gDebugFont = NULL;
 static SDL_Window *gWindow;
