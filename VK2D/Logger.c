@@ -135,7 +135,7 @@ writeTimeString(char *buf)
     SDL_DateTime dt;
     assert(SDL_GetCurrentTime(&time));
     assert(SDL_TimeToDateTime(time, &dt, true));
-    snprintf(buf, MAX_TIME_STRING_SIZE, "%s %s %i %02d:%02d:%02d %i", WEEK_DAYS[dt.day_of_week], MONTHS[dt.month], dt.day, dt.hour, dt.minute, dt.second, dt.year);
+    snprintf(buf, MAX_TIME_STRING_SIZE, "%s %s %i %02d:%02d:%02d %i", WEEK_DAYS[dt.day_of_week], MONTHS[dt.month - 1], dt.day, dt.hour, dt.minute, dt.second, dt.year);
 }
 
 static void
