@@ -125,21 +125,17 @@ shouldLog(const VK2DLogSeverity severity)
 	return severity >= current;
 }
 
+const char *WEEK_DAYS[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+const char *MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
 static void
 writeTimeString(char *buf)
 {
-	time_t t = time(NULL);
-	struct tm tm;
-	errno_t err;
-#ifdef _UCRT
-	err = localtime_s(&tm, &t);
-#else
-	struct tm *t_ptr = localtime_s(&t, &buf);
-	err = errno();
-#endif
-	assert(err == 0);
-	err = asctime_s(buf, MAX_TIME_STRING_SIZE, &tm);
-	assert(err == 0);
+    SDL_Time time;
+    SDL_DateTime dt;
+    assert(SDL_GetCurrentTime(&time));
+    assert(SDL_TimeToDateTime(time, &dt, true));
+    snprintf(buf, MAX_TIME_STRING_SIZE, "%s %s %i %02d:%02d:%02d %i", WEEK_DAYS[dt.day_of_week], MONTHS[dt.month], dt.day, dt.hour, dt.minute, dt.second, dt.year);
 }
 
 static void
