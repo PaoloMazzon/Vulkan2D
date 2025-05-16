@@ -120,31 +120,41 @@ shouldLog(const VK2DLogSeverity severity)
 	    || severity == VK2D_LOG_SEVERITY_FATAL)
 		return true;
 	SDL_LockMutex(gLoggerMutex);
+	if (gLogger->severityFn == NULL) return true;
 	const VK2DLogSeverity current = gLogger->severityFn(gLogger->context);
 	SDL_UnlockMutex(gLoggerMutex);
 	return severity >= current;
 }
 
-const char *WEEK_DAYS[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-const char *MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
 static void
 writeTimeString(char *buf)
 {
-    SDL_Time time;
-    SDL_DateTime dt;
-    assert(SDL_GetCurrentTime(&time));
-    assert(SDL_TimeToDateTime(time, &dt, true));
-    snprintf(buf, MAX_TIME_STRING_SIZE, "%s %s %i %02d:%02d:%02d %i", WEEK_DAYS[dt.day_of_week], MONTHS[dt.month - 1], dt.day, dt.hour, dt.minute, dt.second, dt.year);
+	static const char *WEEK_DAYS[]
+	    = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+	static const char *MONTHS[] = { "Jan", "Feb", "Mar", "Apr", "May",
+		"Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+	SDL_Time time;
+	SDL_DateTime dt;
+
+	if (!SDL_GetCurrentTime(&time)
+	    && !SDL_TimeToDateTime(time, &dt, true)) {
+		memset(buf, '-', MAX_TIME_STRING_SIZE);
+		return;
+	}
+	snprintf(buf, MAX_TIME_STRING_SIZE, "%s %s %i %02d:%02d:%02d %i",
+	    WEEK_DAYS[dt.day_of_week], MONTHS[dt.month - 1], dt.day, dt.hour,
+	    dt.minute, dt.second, dt.year);
 }
 
 static void
 destroyLogger(const bool lock)
 {
 	if (lock) SDL_LockMutex(gLoggerMutex);
-	if (gLogger == NULL) return;
-	if (gLogger->destroy != NULL) gLogger->destroy(gLogger->context);
-	gLogger = NULL;
+	if (gLogger != NULL) {
+		if (gLogger->destroy != NULL)
+			gLogger->destroy(gLogger->context);
+		gLogger = NULL;
+	}
 	if (lock) SDL_UnlockMutex(gLoggerMutex);
 }
 
@@ -200,11 +210,11 @@ vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap)
 	if (len + 1 > bufLen) {
 		bufLen = len + 1;
 		buf = calloc(bufLen, sizeof(char));
-	}
-	if (buf == NULL) {
-		vk2dRaise(VK2D_STATUS_OUT_OF_RAM,
-		    "Failed to allocate memory for error message");
-		return;
+		if (buf == NULL) {
+			vk2dRaise(VK2D_STATUS_OUT_OF_RAM,
+			    "Failed to allocate memory for error message");
+			return;
+		}
 	}
 	vsnprintf(buf, len + 1, fmt, ap);
 	vk2dLoggerLog(severity, buf);

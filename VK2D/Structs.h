@@ -388,15 +388,38 @@ struct VK2DAssetLoad {
 	} Output; ///< How the user will receive the loaded asset
 };
 
-typedef void (*VK2DLoggerLogFn)(void *, VK2DLogSeverity, const char *);
-typedef void (*VK2DLoggerDestroyFn)(void *);
-typedef VK2DLogSeverity (*VK2DLoggerSeverityFn)(void *);
 
+/// \brief Callback function for logging
+/// \param context User supplied context
+/// \param severity Severity of the log message. If value supplied is not within
+///                 the range of the enum, it will be coerced to
+///                 VK2D_LOG_SEVERITY_UNKNOWN
+/// \param message Message to log
+typedef void (*VK2DLoggerLogFn)(void *context, VK2DLogSeverity severity, const char *message);
+
+/// \brief Callback function for destroying the logger
+/// \param context User supplied context
+typedef void (*VK2DLoggerDestroyFn)(void *context);
+
+/// \brief Retrieves the log severity from the user context.
+/// \param context User supplied context.
+typedef VK2DLogSeverity (*VK2DLoggerSeverityFn)(void *context);
+
+/// \brief Contains logging callbacks and context
 struct VK2DLogger {
-	VK2DLoggerLogFn log;             ///< Callback to log the message
-	VK2DLoggerDestroyFn destroy;     ///< Callback called on destruction of logger
-	VK2DLoggerSeverityFn severityFn; ///< Callback to get minimum severity of logger
-	void *context;                   ///< User supplied context
+	/// \brief Callback to log the message.
+	/// \note Must not be NULL! This will kill the program.
+	VK2DLoggerLogFn log;
+	/// \brief Callback called on destruction of logger.
+	/// \note May be NULL, in which case no destructor is called.
+	VK2DLoggerDestroyFn destroy;
+	/// \brief Callback to get minimum severity of logger.
+	/// \note May be NULL, in which case all messages will be logged,
+	///       regardless of severity.
+	VK2DLoggerSeverityFn severityFn;
+	/// \brief User supplied context, passed to log() when called.
+	/// \note May be NULL, this is a convenience pointer for the user.
+	void *context;
 };
 
 VK2D_USER_STRUCT(VK2DVertexColour)
