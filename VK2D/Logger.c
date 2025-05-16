@@ -52,6 +52,9 @@ usingDefaultLogger()
 	return gLogger == (VK2DLogger *)&gDefaultLogger;
 }
 
+// We use arrays in some places for severity data, this should be called on any
+// user-supplied severity level to make sure we don't have an out of bounds
+// issue.
 static VK2DLogSeverity
 coerceSeverity(const VK2DLogSeverity severity)
 {
@@ -103,7 +106,7 @@ defaultLogOutput(const VK2DDefaultLogger *log, const VK2DLogSeverity severity)
 	}
 }
 
-VK2DLogSeverity
+static VK2DLogSeverity
 defaultSeverity(void *ptr)
 {
 	const VK2DDefaultLogger *log = ptr;
@@ -181,16 +184,16 @@ defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
 }
 
 void
-vk2dSetLogger(VK2DLogger *log)
+vk2dSetLogger(VK2DLogger *logger)
 {
 	SDL_LockMutex(gLoggerMutex);
 	destroyLogger(false);
-	gLogger = log;
+	gLogger = logger;
 	SDL_UnlockMutex(gLoggerMutex);
 }
 
 void
-vk2dLoggerLogf(VK2DLogSeverity severity, const char *fmt, ...)
+vk2dLoggerLogf(const VK2DLogSeverity severity, const char *fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -204,7 +207,7 @@ vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap)
 	COERCE_SEVERITY(severity);
 	// avoid allocation if possible
 	char msgBuf[128];
-	size_t len = vsnprintf(NULL, 0, fmt, ap);
+	const size_t len = vsnprintf(NULL, 0, fmt, ap);
 	size_t bufLen = sizeof(msgBuf) / sizeof(char);
 	char *buf = msgBuf;
 	if (len + 1 > bufLen) {
@@ -225,7 +228,12 @@ void
 vk2dLoggerLog(const VK2DLogSeverity severity, const char *msg)
 {
 	gLogger->log(gLogger->context, severity, msg);
+	assert(severity != VK2D_LOG_SEVERITY_FATAL);
+#ifdef NDEBUG
+	if (severity == VK2D_LOG_SEVERITY_FATAL) abort();
+#endif
 }
+
 void
 vk2dLoggerDestroy()
 {
@@ -261,6 +269,7 @@ vk2dDefaultLoggerSetErrorOutput(FILE *out)
 	gDefaultLogger.errorOutput = out;
 	SDL_UnlockMutex(gDefaultLogger.mutex);
 }
+
 void
 vk2dDefaultLoggerSetSeverity(const VK2DLogSeverity severity)
 {

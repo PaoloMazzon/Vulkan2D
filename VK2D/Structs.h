@@ -152,12 +152,22 @@ typedef enum {
 } VK2DAssetState;
 
 typedef enum {
-	VK2D_LOG_SEVERITY_DEBUG = 0,   ///< Debug message
-	VK2D_LOG_SEVERITY_INFO = 1,    ///< Standard log message
-	VK2D_LOG_SEVERITY_WARN = 2,    ///< Warning
-	VK2D_LOG_SEVERITY_ERROR = 3,   ///< Error
-	VK2D_LOG_SEVERITY_FATAL = 4,   ///< Unrecoverable error. The logger will abort after printing
-	VK2D_LOG_SEVERITY_UNKNOWN = 5, ///< Unknown severity, will be printed on all
+	/// \brief Debug message
+	VK2D_LOG_SEVERITY_DEBUG = 0,
+	/// \brief Standard log message
+	VK2D_LOG_SEVERITY_INFO = 1,
+	/// \brief Warning
+	VK2D_LOG_SEVERITY_WARN = 2,
+	/// \brief Error, recoverable
+	VK2D_LOG_SEVERITY_ERROR = 3,
+	/// \brief Fatal error, system is in an invalid, unrecoverable state
+	/// \note The supplied logger is expected to abort here, abort() will
+	///       be called if the supplied logger does not abort.
+	VK2D_LOG_SEVERITY_FATAL = 4,
+	/// \brief Unknown severity level.
+	/// \note This will get printed on all error outputs, regardless of
+	///       severity.
+	VK2D_LOG_SEVERITY_UNKNOWN = 5,
 } VK2DLogSeverity;
 
 // VK2D pointers
@@ -406,9 +416,10 @@ typedef void (*VK2DLoggerDestroyFn)(void *context);
 typedef VK2DLogSeverity (*VK2DLoggerSeverityFn)(void *context);
 
 /// \brief Contains logging callbacks and context
+/// \note
 struct VK2DLogger {
 	/// \brief Callback to log the message.
-	/// \note Must not be NULL! This will kill the program.
+	/// \note MUST NOT BE NULL! This will kill the program.
 	VK2DLoggerLogFn log;
 	/// \brief Callback called on destruction of logger.
 	/// \note May be NULL, in which case no destructor is called.
