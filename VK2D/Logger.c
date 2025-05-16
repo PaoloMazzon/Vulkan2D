@@ -179,7 +179,7 @@ defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
 	writeTimeString(timeString);
 	// asctime() adds an extra \n at the end
 	timeString[MAX_TIME_STRING_SIZE - 2] = '\0';
-	fprintf(out, "[%s]%s[%s] %s\n", timeString, padding, label, msg);
+	fprintf(out, "[%s] [%s]%s %s\n", timeString, label, padding, msg);
 	fflush(out);
 	if (severity == VK2D_LOG_SEVERITY_FATAL) abort();
 }
