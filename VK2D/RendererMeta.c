@@ -405,7 +405,7 @@ void _vk2dRendererCreateSwapchain() {
                             break;
                         }
                     }
-                    vk2dLog("Swapchain (%i images) initialized...", swapchainCreateInfoKHR.minImageCount);
+                    vk2dLogInfo("Swapchain (%i images) initialized...", swapchainCreateInfoKHR.minImageCount);
                 } else {
                     vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to acquire swapchain images, Vulkan error %i.", result);
                 }
@@ -455,7 +455,7 @@ void _vk2dRendererCreateDepthBuffer() {
 	if (selectedFormat != VK_FORMAT_MAX_ENUM) {
 		gRenderer->depthBufferFormat = selectedFormat;
 		gRenderer->depthBuffer = vk2dImageCreate(gRenderer->ld, gRenderer->surfaceWidth, gRenderer->surfaceHeight, gRenderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, (VkSampleCountFlagBits)gRenderer->config.msaa);
-        vk2dLog("Depth buffer initialized...");
+        vk2dLogInfo("Depth buffer initialized...");
 	} else {
         vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to acquire depth format.");
 	}
@@ -481,9 +481,9 @@ void _vk2dRendererCreateColourResources() {
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 				(VkSampleCountFlagBits) gRenderer->config.msaa);
-        vk2dLog("MSAA %ix enabled...", gRenderer->config.msaa);
+        vk2dLogInfo("MSAA %ix enabled...", gRenderer->config.msaa);
 	} else {
-        vk2dLog("MSAA disabled...");
+        vk2dLogInfo("MSAA disabled...");
 	}
 }
 
@@ -514,7 +514,7 @@ void _vk2dRendererCreateDescriptorBuffers() {
 	gRenderer->limits.maxInstancedDraws = maxDrawCommands < maxDrawInstances ? maxDrawCommands : maxDrawInstances;
 	gRenderer->limits.maxInstancedDraws--;
 
-    vk2dLog("Descriptor buffers created...");
+    vk2dLogInfo("Descriptor buffers created...");
 }
 
 void _vk2dRendererDestroyDescriptorBuffers() {
@@ -664,7 +664,7 @@ void _vk2dRendererCreateRenderPass() {
         return;
     }
 
-    vk2dLog("Render pass initialized...");
+    vk2dLogInfo("Render pass initialized...");
 }
 
 void _vk2dRendererDestroyRenderPass() {
@@ -769,7 +769,7 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 	    return;
 	}
 
-    vk2dLog("Descriptor set layout initialized...");
+    vk2dLogInfo("Descriptor set layout initialized...");
 }
 
 void _vk2dRendererDestroyDescriptorSetLayout() {
@@ -938,7 +938,7 @@ void _vk2dRendererCreatePipelines() {
 
     // In case something somewhere failed
     if (!vk2dStatusFatal())
-        vk2dLog("Pipelines initialized...");
+        vk2dLogInfo("Pipelines initialized...");
 }
 
 void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
@@ -979,7 +979,7 @@ void _vk2dRendererCreateFrameBuffer() {
 			VkFramebufferCreateInfo framebufferCreateInfo = vk2dInitFramebufferCreateInfo(gRenderer->renderPass, gRenderer->surfaceWidth, gRenderer->surfaceHeight, attachments, attachCount);
 			VkResult result = vkCreateFramebuffer(gRenderer->ld->dev, &framebufferCreateInfo, VK_NULL_HANDLE, &gRenderer->framebuffers[i]);
 			if (result == VK_SUCCESS) {
-                vk2dLog("Framebuffer[%i] ready...", i);
+                vk2dLogInfo("Framebuffer[%i] ready...", i);
             } else {
                 if (result == VK_ERROR_OUT_OF_HOST_MEMORY) {
                     vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to create framebuffer, out of memory.");
@@ -991,7 +991,7 @@ void _vk2dRendererCreateFrameBuffer() {
                 break;
 			}
 		}
-        vk2dLog("Framebuffers initialized...");
+        vk2dLogInfo("Framebuffers initialized...");
 	} else {
 	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate framebuffer list.");
 	}
@@ -1048,7 +1048,7 @@ void _vk2dRendererCreateUniformBuffers(bool newCamera) {
 	gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec.h = gRenderer->surfaceHeight;
 
 	if (!vk2dStatusFatal())
-        vk2dLog("UBO initialized...");
+        vk2dLogInfo("UBO initialized...");
 }
 
 void _vk2dRendererDestroyUniformBuffers() {
@@ -1101,7 +1101,7 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
             if (result != VK_SUCCESS || result2 != VK_SUCCESS)
                 vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to allocate descriptor set, Vulkan error %i/%i.", result, result2);
             else
-                vk2dLog("Descriptor controllers initialized...");
+                vk2dLogInfo("Descriptor controllers initialized...");
 		} else {
 		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to allocate descriptor pool, Vulkan error %i.", result);
 		}
@@ -1151,7 +1151,7 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
         for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
             gRenderer->uboDescriptorSets[i] = vk2dDescConGetSet(gRenderer->descConVP);
 	} else {
-        vk2dLog("Descriptor controllers preserved...");
+        vk2dLogInfo("Descriptor controllers preserved...");
 	}
 }
 
@@ -1212,7 +1212,7 @@ void _vk2dRendererCreateSynchronization() {
 	}
 
 	if (!vk2dStatusFatal())
-        vk2dLog("Synchronization initialized...");
+        vk2dLogInfo("Synchronization initialized...");
 }
 
 void _vk2dRendererDestroySynchronization() {
@@ -1259,7 +1259,7 @@ void _vk2dRendererCreateSampler() {
 	vkUpdateDescriptorSets(gRenderer->ld->dev, 1, &write, 0, VK_NULL_HANDLE);
 
 	if (r1 == VK_SUCCESS && r2 == VK_SUCCESS)
-        vk2dLog("Created texture sampler...");
+        vk2dLogInfo("Created texture sampler...");
 	else
 	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create sampler descriptor sets, Vulkan error %i/%i.", r1, r2);
 }
@@ -1289,7 +1289,7 @@ void _vk2dRendererCreateUnits() {
 	gRenderer->unitCircleOutline = vk2dPolygonCreateOutline(circleVertices, VK2D_CIRCLE_VERTICES);
 	gRenderer->unitLine = vk2dPolygonCreateOutline((void*)LINE_VERTICES, LINE_VERTEX_COUNT);
     if (!vk2dStatusFatal())
-        vk2dLog("Created unit polygons...");
+        vk2dLogInfo("Created unit polygons...");
 }
 
 void _vk2dRendererDestroyUnits() {
@@ -1350,7 +1350,7 @@ void _vk2dRendererRefreshTargets() {
 		}
 	}
 	if (!vk2dStatusFatal())
-        vk2dLog("Refreshed %i render targets...", targetsRefreshed);
+        vk2dLogInfo("Refreshed %i render targets...", targetsRefreshed);
 }
 
 void _vk2dRendererDestroyTargetsList() {
@@ -1395,7 +1395,7 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererDestroyColourResources();
 	_vk2dRendererDestroySwapchain();
 
-    vk2dLog("Destroyed swapchain assets...");
+    vk2dLogInfo("Destroyed swapchain assets...");
 
 	// Swap out configs in case they were changed
 	gRenderer->config = gRenderer->newConfig;
@@ -1415,7 +1415,7 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateSynchronization();
 
 	if (!vk2dStatusFatal())
-        vk2dLog("Recreated swapchain assets...");
+        vk2dLogInfo("Recreated swapchain assets...");
 }
 
 

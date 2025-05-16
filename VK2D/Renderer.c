@@ -21,6 +21,7 @@
 #include "VK2D/DescriptorControl.h"
 #include "VK2D/Opaque.h"
 #include "VK2D/Pipeline.h"
+#include "VK2D/Logger.h"
 
 /******************************* Forward declarations *******************************/
 
@@ -138,16 +139,16 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
         }
 
 		// Log all used extensions
-        vk2dLog("Vulkan Enabled Instance Extensions: ");
+        vk2dLogInfo("Vulkan Enabled Instance Extensions: ");
 		for (i = 0; i < extensionCount; i++)
-            vk2dLog(" - %s", extensions[i]);
-        vk2dLog(""); // Newline
+            vk2dLogInfo(" - %s", extensions[i]);
+        vk2dLogInfo(""); // Newline
 
         // List all used layers
-        vk2dLog("Vulkan Enabled Instance Layers: ");
+        vk2dLogInfo("Vulkan Enabled Instance Layers: ");
         for (i = 0; i < layerCount; i++)
-            vk2dLog("  - %s", layers[i]);
-        vk2dLog("");
+            vk2dLogInfo("  - %s", layers[i]);
+        vk2dLogInfo("");
         free(systemLayers);
 
 		// Create instance, physical, and logical device
@@ -300,7 +301,7 @@ void vk2dRendererQuit() {
 		vk2dPhysicalDeviceFree(gRenderer->pd);
 		free(gRenderer->vmaBudgets);
 
-        vk2dLog("VK2D has been uninitialized.");
+        vk2dLogInfo("VK2D has been uninitialized.");
 		vk2dValidationEnd();
 		free(gRenderer);
 		gRenderer = NULL;
@@ -576,7 +577,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 
 			// Dont let the user bind textures that are not targets
 			if (target != VK2D_TARGET_SCREEN && !vk2dTextureIsTarget(target)) {
-                vk2dLog("Texture cannot be used as a target.");
+                vk2dLogInfo("Texture cannot be used as a target.");
 				return;
 			}
 

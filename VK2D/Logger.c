@@ -140,10 +140,11 @@ writeTimeString(char *buf)
 	SDL_DateTime dt;
 
 	if (!SDL_GetCurrentTime(&time)
-	    && !SDL_TimeToDateTime(time, &dt, true)) {
+	    || !SDL_TimeToDateTime(time, &dt, true)) {
 		memset(buf, '-', MAX_TIME_STRING_SIZE);
 		return;
 	}
+
 	snprintf(buf, MAX_TIME_STRING_SIZE, "%s %s %i %02d:%02d:%02d %i",
 	    WEEK_DAYS[dt.day_of_week], MONTHS[dt.month - 1], dt.day, dt.hour,
 	    dt.minute, dt.second, dt.year);
@@ -277,3 +278,23 @@ vk2dDefaultLoggerSetSeverity(const VK2DLogSeverity severity)
 	gDefaultLogger.severity = severity;
 	SDL_UnlockMutex(gDefaultLogger.mutex);
 }
+
+#define LOG_WRAP_FN(NAME, SEVERITY)                                            \
+	void vk2dLog##NAME##v(const char *fmt, va_list ap)                     \
+	{                                                                      \
+		vk2dLoggerLogv(VK2D_LOG_SEVERITY_##SEVERITY, fmt, ap);         \
+	}                                                                      \
+                                                                               \
+	void vk2dLog##NAME(const char *fmt, ...)                               \
+	{                                                                      \
+		va_list ap;                                                    \
+		va_start(ap, fmt);                                             \
+		vk2dLoggerLogv(VK2D_LOG_SEVERITY_##SEVERITY, fmt, ap);         \
+		va_end(ap);                                                    \
+	}
+
+LOG_WRAP_FN(Debug, DEBUG)
+LOG_WRAP_FN(Info, INFO)
+LOG_WRAP_FN(Warn, WARN)
+LOG_WRAP_FN(Error, ERROR)
+LOG_WRAP_FN(Fatal, FATAL)
