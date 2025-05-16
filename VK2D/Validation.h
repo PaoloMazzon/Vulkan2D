@@ -10,9 +10,6 @@
 extern "C" {
 #endif
 
-/// \brief Prints a log message if VKRE_VERBOSE_STDOUT is enabled
-void vk2dLog(const char* fmt, ...);
-
 /// \brief Raises a status problem of some sort
 void vk2dRaise(VK2DStatus result, const char* fmt, ...);
 

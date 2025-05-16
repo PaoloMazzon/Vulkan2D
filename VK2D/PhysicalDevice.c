@@ -6,6 +6,7 @@
 #include "VK2D/Constants.h"
 #include "VK2D/Opaque.h"
 #include "VK2D/Renderer.h"
+#include "VK2D/Logger.h"
 #include <stdio.h>
 #include <malloc.h>
 
@@ -135,7 +136,7 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 
 		// Check if we found one and print if it was discrete (dedicated) or otherwise
 		if (choice != VK_NULL_HANDLE) {
-            vk2dLog(foundPrimary ? "Found discrete device %s [Vulkan %i.%i.%i]"
+            vk2dLogInfo(foundPrimary ? "Found discrete device %s [Vulkan %i.%i.%i]"
                                  : "Found integrated device %s [Vulkan %i.%i.%i]",
                     choiceProps.deviceName, VK_VERSION_MAJOR(choiceProps.apiVersion),
                     VK_VERSION_MINOR(choiceProps.apiVersion), VK_VERSION_PATCH(choiceProps.apiVersion));

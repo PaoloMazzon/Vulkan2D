@@ -91,13 +91,6 @@ const char *vk2dStatusMessage() {
 	return gLogBuffer;
 }
 
-void vk2dLog(const char* fmt, ...) {
-	va_list ap;
-	va_start(ap, fmt);
-	vk2dLoggerLogv(VK2D_LOG_SEVERITY_INFO, fmt, ap);
-	va_end(ap);
-}
-
 VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	char firstHalf[1000];

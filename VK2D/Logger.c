@@ -52,6 +52,9 @@ usingDefaultLogger()
 	return gLogger == (VK2DLogger *)&gDefaultLogger;
 }
 
+// We use arrays in some places for severity data, this should be called on any
+// user-supplied severity level to make sure we don't have an out of bounds
+// issue.
 static VK2DLogSeverity
 coerceSeverity(const VK2DLogSeverity severity)
 {
@@ -103,7 +106,7 @@ defaultLogOutput(const VK2DDefaultLogger *log, const VK2DLogSeverity severity)
 	}
 }
 
-VK2DLogSeverity
+static VK2DLogSeverity
 defaultSeverity(void *ptr)
 {
 	const VK2DDefaultLogger *log = ptr;
@@ -120,31 +123,42 @@ shouldLog(const VK2DLogSeverity severity)
 	    || severity == VK2D_LOG_SEVERITY_FATAL)
 		return true;
 	SDL_LockMutex(gLoggerMutex);
+	if (gLogger->severityFn == NULL) return true;
 	const VK2DLogSeverity current = gLogger->severityFn(gLogger->context);
 	SDL_UnlockMutex(gLoggerMutex);
 	return severity >= current;
 }
 
-const char *WEEK_DAYS[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
-const char *MONTHS[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
 static void
 writeTimeString(char *buf)
 {
-    SDL_Time time;
-    SDL_DateTime dt;
-    assert(SDL_GetCurrentTime(&time));
-    assert(SDL_TimeToDateTime(time, &dt, true));
-    snprintf(buf, MAX_TIME_STRING_SIZE, "%s %s %i %02d:%02d:%02d %i", WEEK_DAYS[dt.day_of_week], MONTHS[dt.month - 1], dt.day, dt.hour, dt.minute, dt.second, dt.year);
+	static const char *WEEK_DAYS[]
+	    = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+	static const char *MONTHS[] = { "Jan", "Feb", "Mar", "Apr", "May",
+		"Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+	SDL_Time time;
+	SDL_DateTime dt;
+
+	if (!SDL_GetCurrentTime(&time)
+	    || !SDL_TimeToDateTime(time, &dt, true)) {
+		memset(buf, '-', MAX_TIME_STRING_SIZE);
+		return;
+	}
+
+	snprintf(buf, MAX_TIME_STRING_SIZE, "%s %s %i %02d:%02d:%02d %i",
+	    WEEK_DAYS[dt.day_of_week], MONTHS[dt.month - 1], dt.day, dt.hour,
+	    dt.minute, dt.second, dt.year);
 }
 
 static void
 destroyLogger(const bool lock)
 {
 	if (lock) SDL_LockMutex(gLoggerMutex);
-	if (gLogger == NULL) return;
-	if (gLogger->destroy != NULL) gLogger->destroy(gLogger->context);
-	gLogger = NULL;
+	if (gLogger != NULL) {
+		if (gLogger->destroy != NULL)
+			gLogger->destroy(gLogger->context);
+		gLogger = NULL;
+	}
 	if (lock) SDL_UnlockMutex(gLoggerMutex);
 }
 
@@ -165,22 +179,22 @@ defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
 	writeTimeString(timeString);
 	// asctime() adds an extra \n at the end
 	timeString[MAX_TIME_STRING_SIZE - 2] = '\0';
-	fprintf(out, "[%s]%s[%s] %s\n", timeString, padding, label, msg);
+	fprintf(out, "[%s] [%s]%s %s\n", timeString, label, padding, msg);
 	fflush(out);
 	if (severity == VK2D_LOG_SEVERITY_FATAL) abort();
 }
 
 void
-vk2dSetLogger(VK2DLogger *log)
+vk2dSetLogger(VK2DLogger *logger)
 {
 	SDL_LockMutex(gLoggerMutex);
 	destroyLogger(false);
-	gLogger = log;
+	gLogger = logger;
 	SDL_UnlockMutex(gLoggerMutex);
 }
 
 void
-vk2dLoggerLogf(VK2DLogSeverity severity, const char *fmt, ...)
+vk2dLoggerLogf(const VK2DLogSeverity severity, const char *fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -194,17 +208,17 @@ vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap)
 	COERCE_SEVERITY(severity);
 	// avoid allocation if possible
 	char msgBuf[128];
-	size_t len = vsnprintf(NULL, 0, fmt, ap);
+	const size_t len = vsnprintf(NULL, 0, fmt, ap);
 	size_t bufLen = sizeof(msgBuf) / sizeof(char);
 	char *buf = msgBuf;
 	if (len + 1 > bufLen) {
 		bufLen = len + 1;
 		buf = calloc(bufLen, sizeof(char));
-	}
-	if (buf == NULL) {
-		vk2dRaise(VK2D_STATUS_OUT_OF_RAM,
-		    "Failed to allocate memory for error message");
-		return;
+		if (buf == NULL) {
+			vk2dRaise(VK2D_STATUS_OUT_OF_RAM,
+			    "Failed to allocate memory for error message");
+			return;
+		}
 	}
 	vsnprintf(buf, len + 1, fmt, ap);
 	vk2dLoggerLog(severity, buf);
@@ -215,7 +229,12 @@ void
 vk2dLoggerLog(const VK2DLogSeverity severity, const char *msg)
 {
 	gLogger->log(gLogger->context, severity, msg);
+	assert(severity != VK2D_LOG_SEVERITY_FATAL);
+#ifdef NDEBUG
+	if (severity == VK2D_LOG_SEVERITY_FATAL) abort();
+#endif
 }
+
 void
 vk2dLoggerDestroy()
 {
@@ -251,6 +270,7 @@ vk2dDefaultLoggerSetErrorOutput(FILE *out)
 	gDefaultLogger.errorOutput = out;
 	SDL_UnlockMutex(gDefaultLogger.mutex);
 }
+
 void
 vk2dDefaultLoggerSetSeverity(const VK2DLogSeverity severity)
 {
@@ -258,3 +278,23 @@ vk2dDefaultLoggerSetSeverity(const VK2DLogSeverity severity)
 	gDefaultLogger.severity = severity;
 	SDL_UnlockMutex(gDefaultLogger.mutex);
 }
+
+#define LOG_WRAP_FN(NAME, SEVERITY)                                            \
+	void vk2dLog##NAME##v(const char *fmt, va_list ap)                     \
+	{                                                                      \
+		vk2dLoggerLogv(VK2D_LOG_SEVERITY_##SEVERITY, fmt, ap);         \
+	}                                                                      \
+                                                                               \
+	void vk2dLog##NAME(const char *fmt, ...)                               \
+	{                                                                      \
+		va_list ap;                                                    \
+		va_start(ap, fmt);                                             \
+		vk2dLoggerLogv(VK2D_LOG_SEVERITY_##SEVERITY, fmt, ap);         \
+		va_end(ap);                                                    \
+	}
+
+LOG_WRAP_FN(Debug, DEBUG)
+LOG_WRAP_FN(Info, INFO)
+LOG_WRAP_FN(Warn, WARN)
+LOG_WRAP_FN(Error, ERROR)
+LOG_WRAP_FN(Fatal, FATAL)

@@ -7,12 +7,13 @@
 #include "VK2D/Opaque.h"
 #include "VK2D/Util.h"
 #include "VK2D/Renderer.h"
+#include "VK2D/Logger.h"
 #include <malloc.h>
 
 VK2DLogicalDevice gDeviceFromMainThread;
 
 VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAllFeatures, bool graphicsDevice, bool debug, VK2DRendererLimits *limits) {
-    vk2dLog("Creating queues...");
+    vk2dLogInfo("Creating queues...");
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VK2DLogicalDevice ldev = malloc(sizeof(struct VK2DLogicalDevice_t));
 	uint32_t queueFamily = graphicsDevice == true ? dev->QueueFamily.graphicsFamily : dev->QueueFamily.computeFamily;
@@ -114,7 +115,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
         }
 
 		if (gRenderer->limits.supportsMultiThreadLoading) {
-            vk2dLog("Creating worker thread...");
+            vk2dLogInfo("Creating worker thread...");
 			ldev->loadList = NULL;
 			ldev->loadListMutex = SDL_CreateMutex();
 			ldev->shaderMutex = SDL_CreateMutex();

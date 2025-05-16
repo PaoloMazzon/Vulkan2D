@@ -32,3 +32,40 @@ void vk2dDefaultLoggerSetErrorOutput(FILE *out);
 
 /// \brief Sets the minimum severity level for logging in the default logger.
 void vk2dDefaultLoggerSetSeverity(VK2DLogSeverity severity);
+
+/// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_DEBUG severity
+void vk2dLogDebug(const char *fmt, ...);
+
+/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_DEBUG
+///        severity
+void vk2dLogDebugv(const char *fmt, va_list ap);
+
+/// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_INFO severity
+void vk2dLogInfo(const char* fmt, ...);
+
+/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_INFO severity
+void vk2dLogInfov(const char* fmt, va_list ap);
+
+/// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_WARN severity
+void vk2dLogWarn(const char* fmt, ...);
+
+/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_WARN severity
+void vk2dLogWarnv(const char* fmt, va_list ap);
+
+/// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_ERROR severity
+void vk2dLogError(const char* fmt, ...);
+
+/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_ERROR severity
+void vk2dLogErrorv(const char* fmt, va_list ap);
+
+/// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_FATAL severity
+void vk2dLogFatal(const char* fmt, ...);
+
+/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_FATAL severity
+void vk2dLogFatalv(const char* fmt, va_list ap);
+
+/// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_UNKNOWN
+void vk2dLogUnknown(const char* fmt, ...);
+
+/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_UNKNOWN
+void vk2dLogUnknownv(const char* fmt, va_list ap);

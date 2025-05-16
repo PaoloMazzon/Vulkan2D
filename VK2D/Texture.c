@@ -1,18 +1,20 @@
 /// \file Texture.c
 /// \author Paolo Mazzon
+#include <malloc.h>
 #include "VK2D/Texture.h"
+#include "VK2D/Buffer.h"
+#include "VK2D/DescriptorControl.h"
 #include "VK2D/Image.h"
 #include "VK2D/Initializers.h"
 #include "VK2D/LogicalDevice.h"
-#include "VK2D/Validation.h"
+#include "VK2D/Opaque.h"
 #include "VK2D/Polygon.h"
 #include "VK2D/Renderer.h"
-#include "VK2D/Buffer.h"
-#include "VK2D/DescriptorControl.h"
-#include "VK2D/stb_image.h"
-#include "VK2D/Opaque.h"
 #include "VK2D/Util.h"
-#include <malloc.h>
+#include "VK2D/Validation.h"
+#include "VK2D/stb_image.h"
+
+#include "Logger.h"
 
 static void _vk2dTextureAddToTextureArray(VK2DTexture tex) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
@@ -101,7 +103,7 @@ VK2DTexture _vk2dTextureFromInternal(void *data, int size, bool mainThread) {
 VK2DTexture vk2dTextureFrom(void *data, int size) {
 	VK2DTexture tex = _vk2dTextureFromInternal(data, size, true);
 	if (tex == NULL)
-        vk2dLog("Failed to load texture from data of size %i.", size);
+        vk2dLogInfo("Failed to load texture from data of size %i.", size);
 	else
         _vk2dTextureAddToTextureArray(tex);
 	return tex;
@@ -115,6 +117,8 @@ VK2DTexture vk2dTextureLoad(const char *filename) {
         tex = _vk2dTextureFromInternal(data, size, true);
         _vk2dTextureAddToTextureArray(tex);
         free(data);
+    } else {
+
     }
 	return tex;
 }
