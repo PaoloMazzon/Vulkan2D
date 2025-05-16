@@ -98,26 +98,99 @@ $(document).ready(function(){initNavTree('structVK2DLogger.html',''); initResiza
   <div class="headertitle"><div class="title">VK2DLogger Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Contains logging callbacks and context.  
+ <a href="structVK2DLogger.html#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="Structs_8h_source.html">Structs.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Data Fields</h2></td></tr>
-<tr class="memitem:a618469c92db195ef01a626fee1fc9222" id="r_a618469c92db195ef01a626fee1fc9222"><td class="memItemLeft" align="right" valign="top"><a id="a618469c92db195ef01a626fee1fc9222" name="a618469c92db195ef01a626fee1fc9222"></a>
-VK2DLoggerLogFn&#160;</td><td class="memItemRight" valign="bottom"><b>log</b></td></tr>
-<tr class="memdesc:a618469c92db195ef01a626fee1fc9222"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback to log the message. <br /></td></tr>
+<tr class="memitem:a618469c92db195ef01a626fee1fc9222" id="r_a618469c92db195ef01a626fee1fc9222"><td class="memItemLeft" align="right" valign="top"><a class="el" href="Structs_8h.html#aef58556ece397e65a106064038f7cc7a">VK2DLoggerLogFn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DLogger.html#a618469c92db195ef01a626fee1fc9222">log</a></td></tr>
+<tr class="memdesc:a618469c92db195ef01a626fee1fc9222"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback to log the message.  <br /></td></tr>
 <tr class="separator:a618469c92db195ef01a626fee1fc9222"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23e30de6e30f61747f0a8600d3ce4733" id="r_a23e30de6e30f61747f0a8600d3ce4733"><td class="memItemLeft" align="right" valign="top"><a id="a23e30de6e30f61747f0a8600d3ce4733" name="a23e30de6e30f61747f0a8600d3ce4733"></a>
-VK2DLoggerDestroyFn&#160;</td><td class="memItemRight" valign="bottom"><b>destroy</b></td></tr>
-<tr class="memdesc:a23e30de6e30f61747f0a8600d3ce4733"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback called on destruction of logger. <br /></td></tr>
+<tr class="memitem:a23e30de6e30f61747f0a8600d3ce4733" id="r_a23e30de6e30f61747f0a8600d3ce4733"><td class="memItemLeft" align="right" valign="top"><a class="el" href="Structs_8h.html#a9853e96353fb0ac7e009eb3ea1920feb">VK2DLoggerDestroyFn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DLogger.html#a23e30de6e30f61747f0a8600d3ce4733">destroy</a></td></tr>
+<tr class="memdesc:a23e30de6e30f61747f0a8600d3ce4733"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback called on destruction of logger.  <br /></td></tr>
 <tr class="separator:a23e30de6e30f61747f0a8600d3ce4733"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab11436cf0c1f594ddc709c2ab70bad6e" id="r_ab11436cf0c1f594ddc709c2ab70bad6e"><td class="memItemLeft" align="right" valign="top"><a id="ab11436cf0c1f594ddc709c2ab70bad6e" name="ab11436cf0c1f594ddc709c2ab70bad6e"></a>
-VK2DLoggerSeverityFn&#160;</td><td class="memItemRight" valign="bottom"><b>severityFn</b></td></tr>
-<tr class="memdesc:ab11436cf0c1f594ddc709c2ab70bad6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback to get minimum severity of logger. <br /></td></tr>
+<tr class="memitem:ab11436cf0c1f594ddc709c2ab70bad6e" id="r_ab11436cf0c1f594ddc709c2ab70bad6e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="Structs_8h.html#aa8fa7c66d8f44ec1b749bcf7362f0fc4">VK2DLoggerSeverityFn</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DLogger.html#ab11436cf0c1f594ddc709c2ab70bad6e">severityFn</a></td></tr>
+<tr class="memdesc:ab11436cf0c1f594ddc709c2ab70bad6e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback to get minimum severity of logger.  <br /></td></tr>
 <tr class="separator:ab11436cf0c1f594ddc709c2ab70bad6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2835f4ee8f991b92a04aa578786f1d35" id="r_a2835f4ee8f991b92a04aa578786f1d35"><td class="memItemLeft" align="right" valign="top"><a id="a2835f4ee8f991b92a04aa578786f1d35" name="a2835f4ee8f991b92a04aa578786f1d35"></a>
-void *&#160;</td><td class="memItemRight" valign="bottom"><b>context</b></td></tr>
-<tr class="memdesc:a2835f4ee8f991b92a04aa578786f1d35"><td class="mdescLeft">&#160;</td><td class="mdescRight">User supplied context. <br /></td></tr>
+<tr class="memitem:a2835f4ee8f991b92a04aa578786f1d35" id="r_a2835f4ee8f991b92a04aa578786f1d35"><td class="memItemLeft" align="right" valign="top">void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DLogger.html#a2835f4ee8f991b92a04aa578786f1d35">context</a></td></tr>
+<tr class="memdesc:a2835f4ee8f991b92a04aa578786f1d35"><td class="mdescLeft">&#160;</td><td class="mdescRight">User supplied context, passed to <a class="el" href="structVK2DLogger.html#a618469c92db195ef01a626fee1fc9222" title="Callback to log the message.">log()</a> when called.  <br /></td></tr>
 <tr class="separator:a2835f4ee8f991b92a04aa578786f1d35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Contains logging callbacks and context. </p>
+<dl class="section note"><dt>Note</dt><dd></dd></dl>
+</div><h2 class="groupheader">Field Documentation</h2>
+<a id="a2835f4ee8f991b92a04aa578786f1d35" name="a2835f4ee8f991b92a04aa578786f1d35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2835f4ee8f991b92a04aa578786f1d35">&#9670;&#160;</a></span>context</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void* VK2DLogger::context</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>User supplied context, passed to <a class="el" href="structVK2DLogger.html#a618469c92db195ef01a626fee1fc9222" title="Callback to log the message.">log()</a> when called. </p>
+<dl class="section note"><dt>Note</dt><dd>May be NULL, this is a convenience pointer for the user. </dd></dl>
+
+</div>
+</div>
+<a id="a23e30de6e30f61747f0a8600d3ce4733" name="a23e30de6e30f61747f0a8600d3ce4733"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23e30de6e30f61747f0a8600d3ce4733">&#9670;&#160;</a></span>destroy</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="Structs_8h.html#a9853e96353fb0ac7e009eb3ea1920feb">VK2DLoggerDestroyFn</a> VK2DLogger::destroy</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback called on destruction of logger. </p>
+<dl class="section note"><dt>Note</dt><dd>May be NULL, in which case no destructor is called. </dd></dl>
+
+</div>
+</div>
+<a id="a618469c92db195ef01a626fee1fc9222" name="a618469c92db195ef01a626fee1fc9222"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a618469c92db195ef01a626fee1fc9222">&#9670;&#160;</a></span>log</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="Structs_8h.html#aef58556ece397e65a106064038f7cc7a">VK2DLoggerLogFn</a> VK2DLogger::log</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback to log the message. </p>
+<dl class="section note"><dt>Note</dt><dd>MUST NOT BE NULL! This will kill the program. </dd></dl>
+
+</div>
+</div>
+<a id="ab11436cf0c1f594ddc709c2ab70bad6e" name="ab11436cf0c1f594ddc709c2ab70bad6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab11436cf0c1f594ddc709c2ab70bad6e">&#9670;&#160;</a></span>severityFn</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="Structs_8h.html#aa8fa7c66d8f44ec1b749bcf7362f0fc4">VK2DLoggerSeverityFn</a> VK2DLogger::severityFn</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback to get minimum severity of logger. </p>
+<dl class="section note"><dt>Note</dt><dd>May be NULL, in which case all messages will be logged, regardless of severity. </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
 <li>VK2D/<a class="el" href="Structs_8h_source.html">Structs.h</a></li>
 </ul>

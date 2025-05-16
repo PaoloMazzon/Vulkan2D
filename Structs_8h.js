@@ -25,6 +25,9 @@ var Structs_8h =
     [ "vec3", "Structs_8h.html#aa12dddc6c5b49b59657f5b9262d3196c", null ],
     [ "vec4", "Structs_8h.html#afc55c9af3f7597c47e740938df257ec4", null ],
     [ "VK2DCameraIndex", "Structs_8h.html#a747c5f3b133f2eed2bf9af7db88e7ef8", null ],
+    [ "VK2DLoggerDestroyFn", "Structs_8h.html#a9853e96353fb0ac7e009eb3ea1920feb", null ],
+    [ "VK2DLoggerLogFn", "Structs_8h.html#aef58556ece397e65a106064038f7cc7a", null ],
+    [ "VK2DLoggerSeverityFn", "Structs_8h.html#aa8fa7c66d8f44ec1b749bcf7362f0fc4", null ],
     [ "VK2DShadowObject", "Structs_8h.html#a8ffbfdec6f53d2124b712034f709f38e", null ],
     [ "VK2DAssetState", "Structs_8h.html#abfa0ce9fbea96848b0a9b9b2eaadae8e", [
       [ "VK2D_ASSET_TYPE_ASSET", "Structs_8h.html#abfa0ce9fbea96848b0a9b9b2eaadae8ea71281d36a64592c41dd47001aef35dde", null ],

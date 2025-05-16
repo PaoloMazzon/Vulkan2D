@@ -214,6 +214,7 @@ Data Structures</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Information needed to queue an asset loading off-thread.  <a href="structVK2DAssetLoad.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structVK2DLogger.html">VK2DLogger</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contains logging callbacks and context.  <a href="structVK2DLogger.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
@@ -255,15 +256,15 @@ typedef int32_t&#160;</td><td class="memItemRight" valign="bottom"><b>VK2DShadow
 typedef int32_t&#160;</td><td class="memItemRight" valign="bottom"><b>VK2DCameraIndex</b></td></tr>
 <tr class="memdesc:a747c5f3b133f2eed2bf9af7db88e7ef8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type used for referencing cameras. <br /></td></tr>
 <tr class="separator:a747c5f3b133f2eed2bf9af7db88e7ef8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a462f173f6f2ece32dea37452f668fe75" id="r_a462f173f6f2ece32dea37452f668fe75"><td class="memItemLeft" align="right" valign="top"><a id="a462f173f6f2ece32dea37452f668fe75" name="a462f173f6f2ece32dea37452f668fe75"></a>
-typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><b>VK2DLoggerLogFn</b>) (void *, <a class="el" href="Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4">VK2DLogSeverity</a>, const char *)</td></tr>
-<tr class="separator:a462f173f6f2ece32dea37452f668fe75"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a40412371a623de531694d98be4e96add" id="r_a40412371a623de531694d98be4e96add"><td class="memItemLeft" align="right" valign="top"><a id="a40412371a623de531694d98be4e96add" name="a40412371a623de531694d98be4e96add"></a>
-typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><b>VK2DLoggerDestroyFn</b>) (void *)</td></tr>
-<tr class="separator:a40412371a623de531694d98be4e96add"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac466aa2265f181a2ab87ba09b0d9f71b" id="r_ac466aa2265f181a2ab87ba09b0d9f71b"><td class="memItemLeft" align="right" valign="top"><a id="ac466aa2265f181a2ab87ba09b0d9f71b" name="ac466aa2265f181a2ab87ba09b0d9f71b"></a>
-typedef <a class="el" href="Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4">VK2DLogSeverity</a>(*&#160;</td><td class="memItemRight" valign="bottom"><b>VK2DLoggerSeverityFn</b>) (void *)</td></tr>
-<tr class="separator:ac466aa2265f181a2ab87ba09b0d9f71b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aef58556ece397e65a106064038f7cc7a" id="r_aef58556ece397e65a106064038f7cc7a"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Structs_8h.html#aef58556ece397e65a106064038f7cc7a">VK2DLoggerLogFn</a>) (void *context, <a class="el" href="Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4">VK2DLogSeverity</a> severity, const char *message)</td></tr>
+<tr class="memdesc:aef58556ece397e65a106064038f7cc7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for logging.  <br /></td></tr>
+<tr class="separator:aef58556ece397e65a106064038f7cc7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9853e96353fb0ac7e009eb3ea1920feb" id="r_a9853e96353fb0ac7e009eb3ea1920feb"><td class="memItemLeft" align="right" valign="top">typedef void(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Structs_8h.html#a9853e96353fb0ac7e009eb3ea1920feb">VK2DLoggerDestroyFn</a>) (void *context)</td></tr>
+<tr class="memdesc:a9853e96353fb0ac7e009eb3ea1920feb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for destroying the logger.  <br /></td></tr>
+<tr class="separator:a9853e96353fb0ac7e009eb3ea1920feb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8fa7c66d8f44ec1b749bcf7362f0fc4" id="r_aa8fa7c66d8f44ec1b749bcf7362f0fc4"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4">VK2DLogSeverity</a>(*&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Structs_8h.html#aa8fa7c66d8f44ec1b749bcf7362f0fc4">VK2DLoggerSeverityFn</a>) (void *context)</td></tr>
+<tr class="memdesc:aa8fa7c66d8f44ec1b749bcf7362f0fc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the log severity from the user context.  <br /></td></tr>
+<tr class="separator:aa8fa7c66d8f44ec1b749bcf7362f0fc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
 Enumerations</h2></td></tr>
@@ -405,7 +406,76 @@ Enumerations</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Forward declares struct typedefs. </p>
 <dl class="section author"><dt>Author</dt><dd>Paolo Mazzon </dd></dl>
-</div><h2 class="groupheader">Enumeration Type Documentation</h2>
+</div><h2 class="groupheader">Typedef Documentation</h2>
+<a id="a9853e96353fb0ac7e009eb3ea1920feb" name="a9853e96353fb0ac7e009eb3ea1920feb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9853e96353fb0ac7e009eb3ea1920feb">&#9670;&#160;</a></span>VK2DLoggerDestroyFn</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef void(* VK2DLoggerDestroyFn) (void *context)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback function for destroying the logger. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">context</td><td>User supplied context </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aef58556ece397e65a106064038f7cc7a" name="aef58556ece397e65a106064038f7cc7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aef58556ece397e65a106064038f7cc7a">&#9670;&#160;</a></span>VK2DLoggerLogFn</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef void(* VK2DLoggerLogFn) (void *context, <a class="el" href="Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4">VK2DLogSeverity</a> severity, const char *message)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Callback function for logging. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">context</td><td>User supplied context </td></tr>
+    <tr><td class="paramname">severity</td><td>Severity of the log message. If value supplied is not within the range of the enum, it will be coerced to VK2D_LOG_SEVERITY_UNKNOWN </td></tr>
+    <tr><td class="paramname">message</td><td>Message to log </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="aa8fa7c66d8f44ec1b749bcf7362f0fc4" name="aa8fa7c66d8f44ec1b749bcf7362f0fc4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa8fa7c66d8f44ec1b749bcf7362f0fc4">&#9670;&#160;</a></span>VK2DLoggerSeverityFn</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="Structs_8h.html#abb2dfa0c79a49c8c673e006624c79dc4">VK2DLogSeverity</a>(* VK2DLoggerSeverityFn) (void *context)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Retrieves the log severity from the user context. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">context</td><td>User supplied context. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
 <a id="abfa0ce9fbea96848b0a9b9b2eaadae8e" name="abfa0ce9fbea96848b0a9b9b2eaadae8e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abfa0ce9fbea96848b0a9b9b2eaadae8e">&#9670;&#160;</a></span>VK2DAssetState</h2>
 
@@ -588,11 +658,13 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="abb2dfa0c79a49c8c673e006624c79dc4a1d5e4bab626c314e0c1b5833d64d27be" name="abb2dfa0c79a49c8c673e006624c79dc4a1d5e4bab626c314e0c1b5833d64d27be"></a>VK2D_LOG_SEVERITY_WARN&#160;</td><td class="fielddoc"><p>Warning. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="abb2dfa0c79a49c8c673e006624c79dc4aacb18d3a95e92d46a69ddda334462712" name="abb2dfa0c79a49c8c673e006624c79dc4aacb18d3a95e92d46a69ddda334462712"></a>VK2D_LOG_SEVERITY_ERROR&#160;</td><td class="fielddoc"><p>Error. </p>
+<tr><td class="fieldname"><a id="abb2dfa0c79a49c8c673e006624c79dc4aacb18d3a95e92d46a69ddda334462712" name="abb2dfa0c79a49c8c673e006624c79dc4aacb18d3a95e92d46a69ddda334462712"></a>VK2D_LOG_SEVERITY_ERROR&#160;</td><td class="fielddoc"><p>Error, recoverable. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="abb2dfa0c79a49c8c673e006624c79dc4a24984fb9e1d48360255f34d5f5d4a699" name="abb2dfa0c79a49c8c673e006624c79dc4a24984fb9e1d48360255f34d5f5d4a699"></a>VK2D_LOG_SEVERITY_FATAL&#160;</td><td class="fielddoc"><p>Unrecoverable error. The logger will abort after printing. </p>
+<tr><td class="fieldname"><a id="abb2dfa0c79a49c8c673e006624c79dc4a24984fb9e1d48360255f34d5f5d4a699" name="abb2dfa0c79a49c8c673e006624c79dc4a24984fb9e1d48360255f34d5f5d4a699"></a>VK2D_LOG_SEVERITY_FATAL&#160;</td><td class="fielddoc"><p>Fatal error, system is in an invalid, unrecoverable state. </p>
+<dl class="section note"><dt>Note</dt><dd>The supplied logger is expected to abort here, abort() will be called if the supplied logger does not abort. </dd></dl>
 </td></tr>
-<tr><td class="fieldname"><a id="abb2dfa0c79a49c8c673e006624c79dc4a79de164fc67110598842a1d1435ce3f7" name="abb2dfa0c79a49c8c673e006624c79dc4a79de164fc67110598842a1d1435ce3f7"></a>VK2D_LOG_SEVERITY_UNKNOWN&#160;</td><td class="fielddoc"><p>Unknown severity, will be printed on all. </p>
+<tr><td class="fieldname"><a id="abb2dfa0c79a49c8c673e006624c79dc4a79de164fc67110598842a1d1435ce3f7" name="abb2dfa0c79a49c8c673e006624c79dc4a79de164fc67110598842a1d1435ce3f7"></a>VK2D_LOG_SEVERITY_UNKNOWN&#160;</td><td class="fielddoc"><p>Unknown severity level. </p>
+<dl class="section note"><dt>Note</dt><dd>This will get printed on all error outputs, regardless of severity. </dd></dl>
 </td></tr>
 </table>
 
