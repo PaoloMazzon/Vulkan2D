@@ -1360,11 +1360,42 @@ void _vk2dRendererDestroyTargetsList() {
 }
 
 void _vk2dRendererInitNuklear() {
-	// TODO: This
+	static const size_t MAX_VERTEX_BUFFER = 512 * 1024;
+	static const size_t MAX_ELEMENT_BUFFER = 128 * 1024;
+	VK2DRenderer vk2d = vk2dRendererGetPointer();
+	VkDevice device = vk2d->ld->dev;
+	VkPhysicalDevice physical_device = vk2d->pd->dev;
+	const uint32_t graphics_queue_family_index
+		= vk2d->pd->QueueFamily.graphicsFamily;
+	VkImageView *image_views = vk2d->swapchainImageViews;
+	const uint32_t image_views_len = vk2d->swapchainImageCount;
+	static const int COLOR_FORMAT = VK_FORMAT_B8G8R8A8_SRGB;
+	static const int INIT_STATE = NK_SDL_DEFAULT;
+	struct nk_context *ctx = nk_sdl_init(vk2d->window, device,
+		physical_device, graphics_queue_family_index, image_views,
+		image_views_len, COLOR_FORMAT, INIT_STATE, MAX_VERTEX_BUFFER,
+		MAX_ELEMENT_BUFFER);
+	vk2d->gui = malloc(sizeof(*vk2d->gui));
+	vk2d->gui->fonts = NULL;
+	vk2d->gui->fontsCount = 0;
+	vk2d->gui->context = ctx;
+	struct nk_font_atlas *atlas;
+	nk_sdl_font_stash_begin(&atlas);
+	nk_sdl_font_stash_end(vk2d->ld->queue);
 }
 
 void _vk2dRendererQuitNuklear() {
-	// TODO: This
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	nk_sdl_shutdown();
+	assert(gRenderer->gui != NULL);
+	struct VK2DFontHandle *tmp, *font;
+	HASH_ITER(hh, gRenderer->gui->fonts, font, tmp) {
+		HASH_DEL(gRenderer->gui->fonts, font);
+		free(font->name);
+		free(font);
+	}
+	free(gRenderer->gui->fonts);
+	free(gRenderer->gui);
 }
 
 // If the window is resized or minimized or whatever
@@ -1393,7 +1424,6 @@ void _vk2dRendererResetSwapchain() {
     }
 
 	// Free swapchain
-	_vk2dRendererQuitNuklear();
 	_vk2dRendererDestroySynchronization();
 	_vk2dRendererDestroySampler();
 	_vk2dRendererDestroyDescriptorPool(true);
@@ -1423,7 +1453,6 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateSampler();
 	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
-    _vk2dRendererInitNuklear();
 
 	if (!vk2dStatusFatal())
         vk2dLogInfo("Recreated swapchain assets...");

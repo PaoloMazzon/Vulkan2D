@@ -184,6 +184,7 @@ VK2D_OPAQUE_POINTER(VK2DShader)
 VK2D_OPAQUE_POINTER(VK2DModel)
 VK2D_OPAQUE_POINTER(VK2DDescriptorBuffer)
 VK2D_OPAQUE_POINTER(VK2DShadowEnvironment)
+VK2D_OPAQUE_POINTER(VK2DGui)
 
 /// \brief 2D vector of floats
 typedef float vec2[2];
@@ -431,6 +432,20 @@ struct VK2DLogger {
 	/// \brief User supplied context, passed to log() when called.
 	/// \note May be NULL, this is a convenience pointer for the user.
 	void *context;
+};
+
+struct VK2DFont {
+	union {
+		struct {
+			void *data;
+			size_t size;
+		};
+		const char *filename;
+	};
+	struct nk_font_config *config;
+	const char *name;
+	float height;
+	bool inMemory;
 };
 
 VK2D_USER_STRUCT(VK2DVertexColour)

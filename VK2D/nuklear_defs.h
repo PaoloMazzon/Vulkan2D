@@ -20,10 +20,8 @@
 
 #if __STDC_VERSION__ >= 202311L || defined(__cplusplus)
 #define NK_STATIC_ASSERT(...) static_assert(__VA_ARGS__)
-#define NK_ALIGNOF(type) alignof(type)
 #elif __STDC_VERSION__ >= 201112L
 #define NK_STATIC_ASSERT(...) _Static_assert(__VA_ARGS__)
-#define NK_ALIGNOF(type) _Alignof(type)
 #endif
 #define NK_ASSERT(expr) assert(expr)
 #define NK_MEMSET(ptr, val, size) memset(ptr, val, size)

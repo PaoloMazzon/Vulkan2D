@@ -4,7 +4,21 @@
 
 #pragma once
 
+// need noreturn to suppress warnings
+
+#if defined(__GNUC__) || defined(__clang__)
+#define VK2D_NORETURN __attribute__((__noreturn__))
+#elif defined(_MSC_VER)
+#define VK2D_NORETURN __declspec(noreturn)
+#elif defined(__cplusplus) && __cplusplus >= 201103L
+#define VK2D_NORETURN [[noreturn]]
+#else
+#define VK2D_NORETURN
+#endif
+
 #include "VK2D/Structs.h"
+
+
 
 /// \brief Initializes the global values for logging
 void vk2dLoggerInit();
@@ -25,10 +39,10 @@ void vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap);
 void vk2dLoggerLog(VK2DLogSeverity severity, const char *msg);
 
 /// \brief Sets the standard output for the default global logger
-void vk2dDefaultLoggerSetStandardOutput(FILE *out);
+void vk2dDefaultLoggerAddStandardOutput(FILE *out);
 
 /// \brief Sets the error output for the default global logger
-void vk2dDefaultLoggerSetErrorOutput(FILE *out);
+void vk2dDefaultLoggerAddErrorOutput(FILE *out);
 
 /// \brief Sets the minimum severity level for logging in the default logger.
 void vk2dDefaultLoggerSetSeverity(VK2DLogSeverity severity);
@@ -58,11 +72,13 @@ void vk2dLogError(const char* fmt, ...);
 /// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_ERROR severity
 void vk2dLogErrorv(const char* fmt, va_list ap);
 
+
+
 /// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_FATAL severity
-void vk2dLogFatal(const char* fmt, ...);
+VK2D_NORETURN void vk2dLogFatal(const char* fmt, ...);
 
 /// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_FATAL severity
-void vk2dLogFatalv(const char* fmt, va_list ap);
+VK2D_NORETURN void vk2dLogFatalv(const char* fmt, va_list ap);
 
 /// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_UNKNOWN
 void vk2dLogUnknown(const char* fmt, ...);

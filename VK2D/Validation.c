@@ -28,7 +28,7 @@ void vk2dValidationBegin(const char *errorFile, bool quitOnError) {
 	if (errorFile != NULL) {
 		FILE *file = fopen(errorFile, "a");
 		if (file != NULL) {
-			vk2dDefaultLoggerSetErrorOutput(file);
+			vk2dDefaultLoggerAddErrorOutput(file);
 			gErrorFile = file;
 		}
 	}
@@ -100,9 +100,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, V
 	    ? VK2D_LOG_SEVERITY_FATAL
 	    : VK2D_LOG_SEVERITY_ERROR
 	    : VK2D_LOG_SEVERITY_INFO;
-	snprintf(firstHalf, 999, "%s", layerPrefix);
-	vk2dLoggerLog(severity, firstHalf);
-	vk2dLoggerLog(severity, message);
+	// const VK2DLogSeverity severity = VK2D_LOG_SEVERITY_INFO;
+	vk2dLoggerLogf(severity, "%s: %s", layerPrefix, message);
 	if (gRenderer->options.quitOnError)
 		if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
 			abort();

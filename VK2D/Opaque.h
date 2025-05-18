@@ -5,6 +5,7 @@
 #include "VK2D/Structs.h"
 #include "Constants.h"
 #include "VK2D/Camera.h"
+#include "VK2D/uthash.h"
 #include <vulkan/vulkan.h>
 #include <SDL3/SDL.h>
 #define VMA_VULKAN_VERSION 1002000
@@ -13,6 +14,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct nk_context;
 
 /// \brief Groups up a couple things related to VkPhysicalDevice
 struct VK2DPhysicalDevice_t {
@@ -200,6 +203,19 @@ typedef struct VK2DTextureDescriptorInfo_t {
     bool active;
 } VK2DTextureDescriptorInfo;
 
+struct VK2DFontHandle {
+	UT_hash_handle hh;
+	char *name;
+	struct nk_font *font;
+};
+
+struct VK2DGui_t {
+	struct VK2DFontHandle *fonts;
+	size_t fontsCount;
+	struct nk_context *context;
+	bool fontsLoaded; // ok if no fonts loaded, but we need to make the font atlas regardless
+};
+
 /// \brief Core rendering data, don't modify values unless you know what you're doing
 struct VK2DRenderer_t {
 	// Devices/core functionality (these have short names because they're constantly referenced)
@@ -329,10 +345,13 @@ struct VK2DRenderer_t {
 	double frameTimeAverage; ///< Average amount of time frames are taking over a second (in ms)
 
 	// Sprite batching
-    VK2DDrawCommand *drawCommands;       ///< User-side draw commands
-    int drawCommandCount;                ///< Number of draw commands
-    int32_t currentBatchPipelineID;      ///< Pipeline id for the current batch
-    VK2DPipeline currentBatchPipeline;   ///< Pipeline for the current batch
+	VK2DDrawCommand *drawCommands;       ///< User-side draw commands
+	int drawCommandCount;                ///< Number of draw commands
+	int32_t currentBatchPipelineID;      ///< Pipeline id for the current batch
+	VK2DPipeline currentBatchPipeline;   ///< Pipeline for the current batch
+
+	// GUI (Nuklear)
+	VK2DGui gui; ///< GUI context
 };
 
 #ifdef __cplusplus

@@ -22,8 +22,10 @@
 typedef struct VK2DDefaultLogger {
 	VK2DLogger log;
 	SDL_Mutex *mutex;
-	FILE *errorOutput;
-	FILE *standardOutput;
+	FILE **errorOutput;
+	size_t errorOutputCount;
+	FILE **standardOutput;
+	size_t standardOutputCount;
 	VK2DLogSeverity severity;
 } VK2DDefaultLogger;
 
@@ -94,15 +96,17 @@ severityLabel(const VK2DLogSeverity severity, size_t *length)
 	return LABELS[severity];
 }
 
-static FILE *
-defaultLogOutput(const VK2DDefaultLogger *log, const VK2DLogSeverity severity)
+static FILE **
+defaultLogOutput(const VK2DDefaultLogger *log, const VK2DLogSeverity severity,
+    size_t *count)
 {
 	switch (severity) {
 	case VK2D_LOG_SEVERITY_WARN:
 	case VK2D_LOG_SEVERITY_ERROR: // fallthrough
 	case VK2D_LOG_SEVERITY_FATAL: // fallthrough
+		*count = log->errorOutputCount;
 		return log->errorOutput;
-	default: return log->standardOutput;
+	default: *count = log->standardOutputCount; return log->standardOutput;
 	}
 }
 
@@ -168,7 +172,8 @@ defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
 	const VK2DDefaultLogger *log = (VK2DDefaultLogger *)ptr;
 	assert(usingDefaultLogger());
 	COERCE_SEVERITY(severity);
-	FILE *out = defaultLogOutput(log, severity);
+	size_t count = 0;
+	FILE **out = defaultLogOutput(log, severity, &count);
 	size_t labelLength = 0;
 	const char *label = severityLabel(severity, &labelLength);
 	char padding[MAX_SEVERITY_LABEL_LENGTH + 1];
@@ -179,8 +184,13 @@ defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
 	writeTimeString(timeString);
 	// asctime() adds an extra \n at the end
 	timeString[MAX_TIME_STRING_SIZE - 2] = '\0';
-	fprintf(out, "[%s] [%s]%s %s\n", timeString, label, padding, msg);
-	fflush(out);
+	for (size_t i = 0; i < count; i++) {
+		FILE *outFile = out[i];
+		if (outFile == NULL) continue;
+		fprintf(outFile, "[%s] [%s]%s %s\n", timeString, label, padding,
+		    msg);
+		fflush(outFile);
+	}
 	if (severity == VK2D_LOG_SEVERITY_FATAL) abort();
 }
 
@@ -235,11 +245,28 @@ vk2dLoggerLog(const VK2DLogSeverity severity, const char *msg)
 #endif
 }
 
+static void
+closeOutput(FILE **outputs, size_t count)
+{
+	if (outputs == NULL) return;
+	for (size_t i = 0; i < count; i++) {
+		FILE *fh = outputs[i];
+		if (fh != stderr && fh != stdout) fclose(fh);
+	}
+	free(outputs);
+}
+
 void
 vk2dLoggerDestroy()
 {
 	destroyLogger(true);
 	SDL_DestroyMutex(gLoggerMutex);
+	SDL_LockMutex(gDefaultLogger.mutex);
+	closeOutput(gDefaultLogger.errorOutput,
+	    gDefaultLogger.errorOutputCount);
+	closeOutput(gDefaultLogger.standardOutput,
+	    gDefaultLogger.standardOutputCount);
+	SDL_UnlockMutex(gDefaultLogger.mutex);
 	SDL_DestroyMutex(gDefaultLogger.mutex);
 }
 
@@ -247,8 +274,12 @@ void
 vk2dLoggerInit()
 {
 	if (gInitialized) return;
-	gDefaultLogger.errorOutput = stderr;
-	gDefaultLogger.standardOutput = stdout;
+	gDefaultLogger.errorOutput = malloc(sizeof(FILE *));
+	gDefaultLogger.errorOutputCount = 1;
+	gDefaultLogger.errorOutput[0] = stderr;
+	gDefaultLogger.standardOutput = malloc(sizeof(FILE *));
+	gDefaultLogger.standardOutputCount = 1;
+	gDefaultLogger.standardOutput[0] = stdout;
 	gDefaultLogger.mutex = SDL_CreateMutex();
 	gLoggerMutex = SDL_CreateMutex();
 	gLogger = (VK2DLogger *)&gDefaultLogger;
@@ -256,19 +287,37 @@ vk2dLoggerInit()
 }
 
 void
-vk2dDefaultLoggerSetStandardOutput(FILE *out)
+addOutput(FILE ***output, size_t *count, SDL_Mutex *mutex, FILE *value)
 {
-	SDL_LockMutex(gDefaultLogger.mutex);
-	gDefaultLogger.standardOutput = out;
-	SDL_UnlockMutex(gDefaultLogger.mutex);
+	SDL_LockMutex(mutex);
+	if (*output == NULL) {
+		*output = malloc(sizeof(FILE *));
+		(*output)[0] = value;
+		*count = 1;
+	} else {
+		FILE **newOutput
+		    = realloc(*output, sizeof(FILE *) * (*count + 1));
+		if (newOutput == NULL)
+			vk2dLogFatal("Failed to allocate memory for outputs");
+		newOutput[*count] = value;
+		*output = newOutput;
+		(*count)++;
+	}
+	SDL_UnlockMutex(mutex);
 }
 
 void
-vk2dDefaultLoggerSetErrorOutput(FILE *out)
+vk2dDefaultLoggerAddStandardOutput(FILE *out)
 {
-	SDL_LockMutex(gDefaultLogger.mutex);
-	gDefaultLogger.errorOutput = out;
-	SDL_UnlockMutex(gDefaultLogger.mutex);
+	addOutput(&gDefaultLogger.standardOutput,
+	    &gDefaultLogger.standardOutputCount, gDefaultLogger.mutex, out);
+}
+
+void
+vk2dDefaultLoggerAddErrorOutput(FILE *out)
+{
+	addOutput(&gDefaultLogger.errorOutput, &gDefaultLogger.errorOutputCount,
+	    gDefaultLogger.mutex, out);
 }
 
 void
@@ -297,4 +346,20 @@ LOG_WRAP_FN(Debug, DEBUG)
 LOG_WRAP_FN(Info, INFO)
 LOG_WRAP_FN(Warn, WARN)
 LOG_WRAP_FN(Error, ERROR)
-LOG_WRAP_FN(Fatal, FATAL)
+
+void
+vk2dLogFatalv(const char *fmt, va_list ap)
+{
+	vk2dLoggerLogv(VK2D_LOG_SEVERITY_FATAL, fmt, ap);
+	abort();
+}
+
+void
+vk2dLogFatal(const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	vk2dLoggerLogv(VK2D_LOG_SEVERITY_FATAL, fmt, ap);
+	va_end(ap);
+	abort();
+}
