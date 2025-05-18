@@ -6,9 +6,9 @@
 #include <SDL3/SDL_vulkan.h>
 #include "../debug.c"
 #include "VK2D/Gui.h"
-#include "VK2D/VK2D.h"
+#include "VK2D/Logger.h"
 #include "VK2D/Structs.h"
-#include "VK2D/Validation.h"
+#include "VK2D/VK2D.h"
 
 /************************ Constants ************************/
 
@@ -47,61 +47,48 @@ main(int argc, const char *argv[])
 			.name = "Spleen 32x64",
 			.height = 12,
 			.inMemory = false,
-		}
+		},
 	};
 	vk2dGuiLoadFonts(fonts, 1);
 
-	// Load Some test assets
-	VK2DTexture texCaveguy = vk2dTextureLoad("assets/caveguy.png");
-
 	// Delta and fps
-	const double startTime = SDL_GetPerformanceCounter();
-	VK2DDrawCommand *commands = calloc(100000, sizeof(VK2DDrawCommand));
-
-	for (int i = 0; i < 100000; i++) {
-		commands[i].pos[0]
-		    = 400 + sinf(i) * i * 0.5; // vk2dRandom(-16, WINDOW_WIDTH);
-		commands[i].pos[1] = 300
-		    + cosf(i) * i * 0.5;  // vk2dRandom(-16, WINDOW_HEIGHT);
-		commands[i].scale[0] = 1; // vk2dRandom(0.1, 2);
-		commands[i].scale[1] = 1; // vk2dRandom(0.1, 2);
-		commands[i].rotation = 0; // vk2dRandom(0, VK2D_PI * 2);
-		commands[i].origin[0] = 8;
-		commands[i].origin[1] = 8;
-		commands[i].colour[0] = 1;
-		commands[i].colour[1] = 1;
-		commands[i].colour[2] = 1;
-		commands[i].colour[3] = 1;
-		commands[i].textureIndex = vk2dTextureGetID(texCaveguy);
-		commands[i].texturePos[2] = 16;
-		commands[i].texturePos[3] = 16;
-	}
-
 	while (!quit && !vk2dStatusFatal()) {
-		const double time
-		    = (double)(SDL_GetPerformanceCounter() - startTime)
-		    / (double)SDL_GetPerformanceFrequency();
+		// const double time
+		//     = (double)(SDL_GetPerformanceCounter() - startTime)
+		//     / (double)SDL_GetPerformanceFrequency();
 
+
+		vk2dGuiStartInput();
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_EVENT_QUIT) { quit = true; }
+			nk_sdl_handle_event(&e);
 		}
+		vk2dGuiEndInput();
 		SDL_PumpEvents();
 		int windowWidth, windowHeight;
 		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
 		vk2dRendererStartFrame(clear);
 
-		vk2dRendererAddBatch(commands, 8192);
 		// vk2dRendererFlushSpriteBatch();
 
-		debugRenderOverlay();
+		if (vk2dGuiStart()) {
+			struct nk_context *ctx = vk2dGuiContext();
+			nk_layout_row_static(ctx, 30, 80, 1);
+			if (nk_button_label(ctx, "button"))
+				fprintf(stdout, "button pressed\n");
+		}
+		vk2dGuiEnd();
 
+		debugRenderOverlay();
+		if (!vk2dGuiRender()) {
+			vk2dLogFatal("Failed to render GUI");
+		}
 		vk2dRendererEndFrame();
 	}
 
 	// vk2dRendererWait must be called before freeing things
 	vk2dRendererWait();
-	vk2dTextureFree(texCaveguy);
 	debugCleanup();
 	vk2dRendererQuit();
 	SDL_DestroyWindow(window);

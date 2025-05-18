@@ -310,8 +310,10 @@ void vk2dRendererQuit() {
 	}
 }
 
-const char *vk2dHostInformation() {
-    return (void*)gHostMachineBuffer;
+const char *
+vk2dHostInformation()
+{
+	return (void *)gHostMachineBuffer;
 }
 
 void vk2dRendererWait() {
