@@ -246,6 +246,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
 		_vk2dRendererCreateUnits();
 		_vk2dRendererCreateSynchronization();
 		_vk2dRendererCreateSpriteBatching();
+        _vk2dRendererInitNuklear();
 
 		// Quit if something failed
         if (vk2dStatusFatal()) {
@@ -277,6 +278,7 @@ void vk2dRendererQuit() {
 		    vkQueueWaitIdle(gRenderer->ld->queue);
 
 		// Destroy subsystems
+        _vk2dRendererQuitNuklear();
         _vk2dRendererDestroySpriteBatching();
 		_vk2dRendererDestroySynchronization();
 		_vk2dRendererDestroyTargetsList();

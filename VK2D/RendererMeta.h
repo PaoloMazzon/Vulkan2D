@@ -59,6 +59,8 @@ void _vk2dRendererCreateColourResources();
 void _vk2dRendererDestroyColourResources();
 void _vk2dRendererCreateRenderPass();
 void _vk2dRendererDestroyRenderPass();
+void _vk2dRendererInitNuklear();
+void _vk2dRendererQuitNuklear();
 void _vk2dRendererCreateDescriptorSetLayouts();
 void _vk2dRendererDestroyDescriptorSetLayout();
 void _vk2dRendererCreatePipelines();

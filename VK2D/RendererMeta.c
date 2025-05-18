@@ -19,6 +19,7 @@
 #include "VK2D/DescriptorBuffer.h"
 #include "VK2D/Opaque.h"
 #include "VK2D/Logger.h"
+#include "VK2D/nuklear_defs.h"
 
 // For debugging
 PFN_vkCreateDebugReportCallbackEXT fvkCreateDebugReportCallbackEXT;
@@ -1358,6 +1359,14 @@ void _vk2dRendererDestroyTargetsList() {
 	free(gRenderer->targets);
 }
 
+void _vk2dRendererInitNuklear() {
+	// TODO: This
+}
+
+void _vk2dRendererQuitNuklear() {
+	// TODO: This
+}
+
 // If the window is resized or minimized or whatever
 void _vk2dRendererResetSwapchain() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
@@ -1384,6 +1393,7 @@ void _vk2dRendererResetSwapchain() {
     }
 
 	// Free swapchain
+	_vk2dRendererQuitNuklear();
 	_vk2dRendererDestroySynchronization();
 	_vk2dRendererDestroySampler();
 	_vk2dRendererDestroyDescriptorPool(true);
@@ -1413,6 +1423,7 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateSampler();
 	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
+    _vk2dRendererInitNuklear();
 
 	if (!vk2dStatusFatal())
         vk2dLogInfo("Recreated swapchain assets...");

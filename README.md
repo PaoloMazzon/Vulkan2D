@@ -126,5 +126,6 @@ Roadmap
 
  + Asynchronous loading
  + Ability to disable 3D resources
+ + Better pipelines/shader support
  + GPU readback
  + Soft shadows
