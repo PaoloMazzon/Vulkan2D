@@ -105,6 +105,7 @@ int main(int argc, const char *argv[]) {
 			if (e.type == SDL_EVENT_QUIT) {
 				quit = true;
 			}
+			vk2dProcessEvent(&e);
 		}
 		SDL_PumpEvents();
 

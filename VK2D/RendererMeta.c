@@ -1388,8 +1388,10 @@ void _vk2dRendererInitNuklear() {
 	vk2d->gui->fonts = NULL;
 	vk2d->gui->fontsCount = 0;
 	vk2d->gui->context = ctx;
-	struct nk_font_atlas *atlas;
-	nk_sdl_font_stash_begin(&atlas);
+	int imgWidth, imgHeight;
+	nk_sdl_font_stash_begin(&vk2d->gui->atlas);
+	struct nk_font *fnt = nk_font_atlas_add_default(vk2d->gui->atlas, 16, NULL);
+	nk_font_atlas_bake(vk2d->gui->atlas, &imgWidth, &imgHeight, NK_FONT_ATLAS_RGBA32);
 	nk_sdl_font_stash_end(vk2d->ld->queue);
 
 	struct nk_allocator alloc = {
@@ -1397,13 +1399,15 @@ void _vk2dRendererInitNuklear() {
 	        .free = nkFree,
 	        .userdata = NULL
 	};
-	if (!nk_init(vk2d->gui->context, &alloc, NULL)) {
+	if (!nk_init(vk2d->gui->context, &alloc, &fnt->handle)) {
 	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to initialize Nuklear.");
 	}
+    vk2dLogInfo("Nuklear initialized...");
 }
 
 void _vk2dRendererQuitNuklear() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	nk_font_atlas_clear(gRenderer->gui->atlas);
 	nk_end(gRenderer->gui->context);
 	nk_sdl_shutdown();
 	assert(gRenderer->gui != NULL);
@@ -1415,6 +1419,7 @@ void _vk2dRendererQuitNuklear() {
 	}
 	free(gRenderer->gui->fonts);
 	free(gRenderer->gui);
+    vk2dLogInfo("Nuklear destroyed...");
 }
 
 // If the window is resized or minimized or whatever

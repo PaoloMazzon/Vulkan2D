@@ -682,6 +682,10 @@ void *vk2dGetNuklearCtx() {
         return gRenderer->gui->context;
 }
 
+void vk2dProcessEvent(SDL_Event *e) {
+    nk_sdl_handle_event(e);
+}
+
 void vk2dRendererSetCamera(VK2DCameraSpec camera) {
 	if (vk2dRendererGetPointer() != NULL) {
 		gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec = camera;

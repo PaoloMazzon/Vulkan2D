@@ -213,6 +213,7 @@ struct VK2DGui_t {
 	struct VK2DFontHandle *fonts;
 	size_t fontsCount;
 	struct nk_context *context;
+    struct nk_font_atlas *atlas;
 	bool fontsLoaded; // ok if no fonts loaded, but we need to make the font atlas regardless
 };
 

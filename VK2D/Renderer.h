@@ -179,6 +179,10 @@ VK2DBlendMode vk2dRendererGetBlendMode();
 /// \return Returns the handle to the Nuklear context
 void *vk2dGetNuklearCtx();
 
+/// \brief Handles SDL events that might pertain to VK2D
+/// \note As of right now, this is only required if you intend to use Nuklear integration.
+void vk2dProcessEvent(SDL_Event *e);
+
 /// \brief Sets the current colour modifier (Colour all pixels are blended with)
 /// \param mod Colour mod to make current
 void vk2dRendererSetColourMod(const vec4 mod);
