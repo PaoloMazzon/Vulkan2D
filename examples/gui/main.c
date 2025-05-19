@@ -5,9 +5,6 @@
 #include <time.h>
 #include <SDL3/SDL_vulkan.h>
 #include "../debug.c"
-#include "VK2D/Gui.h"
-#include "VK2D/Logger.h"
-#include "VK2D/Structs.h"
 #include "VK2D/VK2D.h"
 
 /************************ Constants ************************/
@@ -24,23 +21,25 @@ main(int argc, const char *argv[])
 	    WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
 	SDL_Event e;
 	bool quit = false;
-	int keyboardSize;
-	const bool *keyboard = SDL_GetKeyboardState(&keyboardSize);
 	if (window == NULL) return -1;
 
 	// Initialize vk2d
-	VK2DRendererConfig config = { VK2D_MSAA_1X, VK2D_SCREEN_MODE_IMMEDIATE,
-		VK2D_FILTER_TYPE_NEAREST };
 	vec4 clear = { 0.0, 0.5, 1.0, 1.0 };
+	VK2DRendererConfig config = {
+	    .msaa = VK2D_MSAA_1X,
+	    .screenMode = VK2D_SCREEN_MODE_IMMEDIATE,
+		.filterMode = VK2D_FILTER_TYPE_NEAREST
+	};
 	VK2DStartupOptions options = {
 		.quitOnError = true,
 		.enableDebug = false,
 		.stdoutLogging = true,
-		.vramPageSize = sizeof(VK2DDrawInstance) * 2000010,
+	    .enableNuklear = true,
 	};
 	vk2dRendererInit(window, config, &options);
+
 	debugInit(window);
-	static const struct VK2DFont fonts[] = {
+	static const struct VK2DGuiFont fonts[] = {
 		{
 			.filename = "assets/spleen.otf",
 			.config = NULL,
@@ -49,41 +48,47 @@ main(int argc, const char *argv[])
 			.inMemory = false,
 		},
 	};
-	vk2dGuiLoadFonts(fonts, 1);
+	//vk2dGuiLoadFonts(fonts, 1);
+	float value = 0;
+	int op = 0;
 
 	// Delta and fps
 	while (!quit && !vk2dStatusFatal()) {
-		// const double time
-		//     = (double)(SDL_GetPerformanceCounter() - startTime)
-		//     / (double)SDL_GetPerformanceFrequency();
-
-
 		vk2dGuiStartInput();
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_EVENT_QUIT) { quit = true; }
-			nk_sdl_handle_event(&e);
+			vk2dGuiProcessEvent(&e);
 		}
 		vk2dGuiEndInput();
-		SDL_PumpEvents();
-		int windowWidth, windowHeight;
-		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
 		vk2dRendererStartFrame(clear);
 
-		// vk2dRendererFlushSpriteBatch();
+        if (nk_begin(vk2dGuiContext(), "Show", nk_rect(50, 50, 220, 220),
+                     NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_CLOSABLE)) {
+            // fixed widget pixel width
+            nk_layout_row_static(vk2dGuiContext(), 30, 80, 1);
+            if (nk_button_label(vk2dGuiContext(), "button")) {
+                // event handling
+            }
 
-		if (vk2dGuiStart()) {
-			struct nk_context *ctx = vk2dGuiContext();
-			nk_layout_row_static(ctx, 30, 80, 1);
-			if (nk_button_label(ctx, "button"))
-				fprintf(stdout, "button pressed\n");
-		}
-		vk2dGuiEnd();
+            // fixed widget window ratio width
+            nk_layout_row_dynamic(vk2dGuiContext(), 30, 2);
+            if (nk_option_label(vk2dGuiContext(), "easy", op == 0)) op = 0;
+            if (nk_option_label(vk2dGuiContext(), "hard", op == 1)) op = 1;
+
+            // custom widget pixel width
+            nk_layout_row_begin(vk2dGuiContext(), NK_STATIC, 30, 2);
+            {
+                nk_layout_row_push(vk2dGuiContext(), 50);
+                nk_label(vk2dGuiContext(), "Volume:", NK_TEXT_LEFT);
+                nk_layout_row_push(vk2dGuiContext(), 110);
+                nk_slider_float(vk2dGuiContext(), 0, &value, 1.0f, 0.1f);
+            }
+            nk_layout_row_end(vk2dGuiContext());
+        }
+        nk_end(vk2dGuiContext());
 
 		debugRenderOverlay();
-		if (!vk2dGuiRender()) {
-			vk2dLogFatal("Failed to render GUI");
-		}
 		vk2dRendererEndFrame();
 	}
 

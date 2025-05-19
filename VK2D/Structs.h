@@ -271,13 +271,13 @@ struct VK2DStartupOptions {
 	bool quitOnError;       ///< Crash the program when an error occurs
 	const char *errorFile;  ///< The file to output errors to, or NULL to disable file output
 	uint32_t maxTextures;   ///< Max number of textures active at once
+	bool enableNuklear;     ///< Set to true for VK2D to initialize and render Nuklear
 
 	/// Determines the size of a video-memory page in bytes. This can cap the max uniform
 	/// buffer size for shaders, max instances in one instanced call, and max vertices in
 	/// a single geometry render. You may leave this as 0, in which case the renderer will
 	/// make it 256kb.
 	uint64_t vramPageSize;
-
 };
 
 /// \brief User configurable settings
@@ -434,18 +434,20 @@ struct VK2DLogger {
 	void *context;
 };
 
-struct VK2DFont {
+/// \brief Info needed to load a font for the gui system
+struct VK2DGuiFont {
 	union {
 		struct {
-			void *data;
-			size_t size;
+			void *data;  ///< Binary data of the font
+			size_t size; ///< Size of the binary data in bytes
 		};
-		const char *filename;
+		const char *filename; ///< Filename to the ttf
 	};
-	struct nk_font_config *config;
-	const char *name;
-	float height;
-	bool inMemory;
+	struct nk_font_config *config; ///< Nuklear font config
+	const char *name;              ///< Name of the font
+	float height;                  ///< Height of the font
+	bool inMemory;                 ///< Set to true if the data is provided
+	                               ///< instead of the filename
 };
 
 VK2D_USER_STRUCT(VK2DVertexColour)
@@ -467,6 +469,7 @@ VK2D_USER_STRUCT(VK2DShadowObjectInfo)
 VK2D_USER_STRUCT(VK2DInstancedPushBuffer)
 VK2D_USER_STRUCT(VK2DComputePushBuffer)
 VK2D_USER_STRUCT(VK2DLogger)
+VK2D_USER_STRUCT(VK2DGuiFont)
 
 #ifdef __cplusplus
 }

@@ -1372,63 +1372,67 @@ void _vk2dRendererInitNuklear() {
 	static const size_t MAX_VERTEX_BUFFER = 512 * 1024;
 	static const size_t MAX_ELEMENT_BUFFER = 128 * 1024;
 	VK2DRenderer vk2d = vk2dRendererGetPointer();
-	VkDevice device = vk2d->ld->dev;
-	VkPhysicalDevice physical_device = vk2d->pd->dev;
-	const uint32_t graphics_queue_family_index
-		= vk2d->pd->QueueFamily.graphicsFamily;
-	VkImageView *image_views = vk2d->swapchainImageViews;
-	const uint32_t image_views_len = vk2d->swapchainImageCount;
-	const int COLOR_FORMAT = vk2d->surfaceFormat.format;
-	static const int INIT_STATE = NK_SDL_DEFAULT;
-	struct nk_context *ctx = nk_sdl_init(vk2d->window, device,
-		physical_device, graphics_queue_family_index, image_views,
-		image_views_len, COLOR_FORMAT, INIT_STATE, MAX_VERTEX_BUFFER,
-		MAX_ELEMENT_BUFFER);
-	vk2d->gui = malloc(sizeof(*vk2d->gui));
-	vk2d->gui->fonts = NULL;
-	vk2d->gui->fontsCount = 0;
-	vk2d->gui->context = ctx;
-	int imgWidth, imgHeight;
-	nk_sdl_font_stash_begin(&vk2d->gui->atlas);
-	struct nk_font *fnt = nk_font_atlas_add_default(vk2d->gui->atlas, 16, NULL);
-	nk_font_atlas_bake(vk2d->gui->atlas, &imgWidth, &imgHeight, NK_FONT_ATLAS_RGBA32);
-	nk_sdl_font_stash_end(vk2d->ld->queue);
 
-	struct nk_allocator alloc = {
-	        .alloc = nkAlloc,
-	        .free = nkFree,
-	        .userdata = NULL
-	};
-	if (!nk_init(vk2d->gui->context, &alloc, &fnt->handle)) {
-	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to initialize Nuklear.");
+	if (vk2d->options.enableNuklear) {
+        VkDevice device = vk2d->ld->dev;
+        VkPhysicalDevice physical_device = vk2d->pd->dev;
+        const uint32_t graphics_queue_family_index
+                = vk2d->pd->QueueFamily.graphicsFamily;
+        VkImageView *image_views = vk2d->swapchainImageViews;
+        const uint32_t image_views_len = vk2d->swapchainImageCount;
+        const int COLOR_FORMAT = vk2d->surfaceFormat.format;
+        static const int INIT_STATE = NK_SDL_DEFAULT;
+        struct nk_context *ctx = nk_sdl_init(vk2d->window, device,
+                                             physical_device, graphics_queue_family_index, image_views,
+                                             image_views_len, COLOR_FORMAT, INIT_STATE, MAX_VERTEX_BUFFER,
+                                             MAX_ELEMENT_BUFFER);
+        vk2d->gui = malloc(sizeof(*vk2d->gui));
+        vk2d->gui->fonts = NULL;
+        vk2d->gui->fontsCount = 0;
+        vk2d->gui->context = ctx;
+        int imgWidth, imgHeight;
+
+        nk_sdl_font_stash_begin(&vk2d->gui->atlas);
+
+		struct nk_font *fnt = nk_font_atlas_add_default(vk2d->gui->atlas, 16, NULL);
+
+		nk_sdl_font_stash_end(vk2d->ld->queue);
+
+        nk_style_set_font(ctx, &fnt->handle);
+
+        vk2dLogInfo("Nuklear initialized...");
+    } else {
+        vk2dLogInfo("Nuklear not enabled...");
 	}
-    vk2dLogInfo("Nuklear initialized...");
 }
 
 void _vk2dRendererQuitNuklear() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	nk_font_atlas_clear(gRenderer->gui->atlas);
-	nk_sdl_shutdown();
-	assert(gRenderer->gui != NULL);
-	struct VK2DFontHandle *tmp, *font;
-	HASH_ITER(hh, gRenderer->gui->fonts, font, tmp) {
-		HASH_DEL(gRenderer->gui->fonts, font);
-		free(font->name);
-		free(font);
-	}
-	free(gRenderer->gui->fonts);
-	free(gRenderer->gui);
-    vk2dLogInfo("Nuklear destroyed...");
+	if (gRenderer->options.enableNuklear) {
+        nk_sdl_shutdown();
+        assert(gRenderer->gui != NULL);
+        struct VK2DFontHandle *tmp, *font;
+        HASH_ITER(hh, gRenderer->gui->fonts, font, tmp) {
+            HASH_DEL(gRenderer->gui->fonts, font);
+            free(font->name);
+            free(font);
+        }
+        free(gRenderer->gui->fonts);
+        free(gRenderer->gui);
+        vk2dLogInfo("Nuklear destroyed...}");
+    }
 }
 
 void _vk2dRendererResetNuklear() {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (vk2dStatusFatal())
-        return;
-    nk_sdl_resize(gRenderer->swapchainImageViews,
-                  gRenderer->swapchainImageCount,
-                  gRenderer->surfaceWidth,
-                  gRenderer->surfaceHeight);
+    if (gRenderer->options.enableNuklear) {
+        if (vk2dStatusFatal())
+            return;
+        nk_sdl_resize(gRenderer->swapchainImageViews,
+                      gRenderer->swapchainImageCount,
+                      gRenderer->surfaceWidth,
+                      gRenderer->surfaceHeight);
+    }
 }
 
 // If the window is resized or minimized or whatever

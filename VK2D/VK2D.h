@@ -11,3 +11,4 @@
 #include "VK2D/Model.h"
 #include "VK2D/Camera.h"
 #include "VK2D/ShadowEnvironment.h"
+#include "VK2D/Gui.h"

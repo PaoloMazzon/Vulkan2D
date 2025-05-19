@@ -534,16 +534,20 @@ VK2DResult vk2dRendererEndFrame() {
                 return VK2D_ERROR;
 			}
 
+			// Synchronization depends on if nuklear is enabled
+            VkSemaphore presentWaitSemaphores[1] = {gRenderer->renderFinishedSemaphores[gRenderer->currentFrame]};
+
             // Draw nuklear
-            VkSemaphore nkSemaphore = nk_sdl_render(
-                    gRenderer->ld->queue,
-                    gRenderer->scImageIndex,
-                    gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
-                    NK_ANTI_ALIASING_ON
-            );
+			if (gRenderer->options.enableNuklear) {
+				VkSemaphore nkSemaphore = nk_sdl_render(
+				    gRenderer->ld->queue, gRenderer->scImageIndex,
+				    gRenderer
+				        ->renderFinishedSemaphores[gRenderer->currentFrame],
+				    NK_ANTI_ALIASING_ON);
+                presentWaitSemaphores[0] = nkSemaphore;
+			}
 
 			// Final present info bit
-			VkSemaphore presentWaitSemaphores[] = {nkSemaphore};
 			VkPresentInfoKHR presentInfo = vk2dInitPresentInfoKHR(&gRenderer->swapchain, 1, &gRenderer->scImageIndex,
 																  &result,
 																  presentWaitSemaphores,
@@ -675,23 +679,6 @@ VK2DBlendMode vk2dRendererGetBlendMode() {
 	if (vk2dRendererGetPointer() != NULL)
 		return gRenderer->blendMode;
 	return VK2D_BLEND_MODE_NONE;
-}
-
-void *vk2dGetNuklearCtx() {
-    if (vk2dRendererGetPointer() != NULL)
-        return gRenderer->gui->context;
-}
-
-void vk2dBeginEvents() {
-    nk_input_begin(vk2dGetNuklearCtx());
-}
-
-void vk2dEndEvents() {
-    nk_input_end(vk2dGetNuklearCtx());
-}
-
-void vk2dProcessEvent(SDL_Event *e) {
-    nk_sdl_handle_event(e);
 }
 
 void vk2dRendererSetCamera(VK2DCameraSpec camera) {
