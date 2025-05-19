@@ -175,6 +175,10 @@ void vk2dRendererSetBlendMode(VK2DBlendMode blendMode);
 /// \return Returns the current blend mode
 VK2DBlendMode vk2dRendererGetBlendMode();
 
+/// \brief Returns the handle to the Nuklear context
+/// \return Returns the handle to the Nuklear context
+void *vk2dGetNuklearCtx();
+
 /// \brief Sets the current colour modifier (Colour all pixels are blended with)
 /// \param mod Colour mod to make current
 void vk2dRendererSetColourMod(const vec4 mod);

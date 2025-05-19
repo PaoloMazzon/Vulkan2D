@@ -1359,6 +1359,15 @@ void _vk2dRendererDestroyTargetsList() {
 	free(gRenderer->targets);
 }
 
+// For nuklear
+void *nkAlloc(nk_handle handle, void *old, nk_size size) {
+    return realloc(old, size);
+}
+
+void nkFree(nk_handle handle, void *old) {
+    free(old);
+}
+
 void _vk2dRendererInitNuklear() {
 	static const size_t MAX_VERTEX_BUFFER = 512 * 1024;
 	static const size_t MAX_ELEMENT_BUFFER = 128 * 1024;
@@ -1369,7 +1378,7 @@ void _vk2dRendererInitNuklear() {
 		= vk2d->pd->QueueFamily.graphicsFamily;
 	VkImageView *image_views = vk2d->swapchainImageViews;
 	const uint32_t image_views_len = vk2d->swapchainImageCount;
-	static const int COLOR_FORMAT = VK_FORMAT_B8G8R8A8_SRGB;
+	const int COLOR_FORMAT = vk2d->surfaceFormat.format;
 	static const int INIT_STATE = NK_SDL_DEFAULT;
 	struct nk_context *ctx = nk_sdl_init(vk2d->window, device,
 		physical_device, graphics_queue_family_index, image_views,
@@ -1382,10 +1391,20 @@ void _vk2dRendererInitNuklear() {
 	struct nk_font_atlas *atlas;
 	nk_sdl_font_stash_begin(&atlas);
 	nk_sdl_font_stash_end(vk2d->ld->queue);
+
+	struct nk_allocator alloc = {
+	        .alloc = nkAlloc,
+	        .free = nkFree,
+	        .userdata = NULL
+	};
+	if (!nk_init(vk2d->gui->context, &alloc, NULL)) {
+	    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to initialize Nuklear.");
+	}
 }
 
 void _vk2dRendererQuitNuklear() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	nk_end(gRenderer->gui->context);
 	nk_sdl_shutdown();
 	assert(gRenderer->gui != NULL);
 	struct VK2DFontHandle *tmp, *font;

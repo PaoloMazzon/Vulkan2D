@@ -516,12 +516,12 @@ nk_sdl_create_render_pass(struct nk_sdl_device *dev)
 	memset(&attachment, 0, sizeof(VkAttachmentDescription));
 	attachment.format = dev->color_format;
 	attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+	attachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;//VK_ATTACHMENT_LOAD_OP_CLEAR;
 	attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	attachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	attachment.initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 	memset(&color_reference, 0, sizeof(VkAttachmentReference));
 	color_reference.attachment = 0;
@@ -1478,7 +1478,7 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
 	};
 
 	VkCommandBufferBeginInfo begin_info;
-	VkClearValue clear_value = { { { 0.0f, 0.0f, 0.0f, 0.0f } } };
+	//VkClearValue clear_value = { { { 0.0f, 0.0f, 0.0f, 0.0f } } };
 	VkRenderPassBeginInfo render_pass_begin_nfo;
 	VkCommandBuffer command_buffer;
 	VkResult result;
@@ -1515,8 +1515,8 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
 	    = (uint32_t)sdl.display_width;
 	render_pass_begin_nfo.renderArea.extent.height
 	    = (uint32_t)sdl.display_height;
-	render_pass_begin_nfo.clearValueCount = 1;
-	render_pass_begin_nfo.pClearValues = &clear_value;
+	render_pass_begin_nfo.clearValueCount = 0;
+	//render_pass_begin_nfo.pClearValues = &clear_value;
 	render_pass_begin_nfo.framebuffer = dev->framebuffers[buffer_index];
 
 	command_buffer = dev->command_buffers[buffer_index];

@@ -22,6 +22,7 @@
 #include "VK2D/Opaque.h"
 #include "VK2D/Pipeline.h"
 #include "VK2D/Logger.h"
+#include "VK2D/nuklear_defs.h"
 
 /******************************* Forward declarations *******************************/
 
@@ -185,7 +186,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DS
         VkPhysicalDeviceProperties props;
         vkGetPhysicalDeviceProperties(gRenderer->pd->dev, &props);
         snprintf((void*)gHostMachineBuffer, gHostMachineBufferSize,
-                 "%s, SDL %i.%i.%i\nHost: %i logical cores, %0.2fgb RAM\nDevice: %s, Vulkan %i.%i.%i, Vulkan2D %i.%i.%i\n",
+                 "%s, SDL %i.%i.%i | Host: %i logical cores, %0.2fgb RAM | Device: %s, Vulkan %i.%i.%i, Vulkan2D %i.%i.%i",
                  SDL_GetPlatform(),
                  SDL_MAJOR_VERSION,
                  SDL_MINOR_VERSION,
@@ -523,6 +524,8 @@ VK2DResult vk2dRendererEndFrame() {
 			}
 			result = vkQueueSubmit(gRenderer->ld->queue, 1, &submitInfo,
 										 gRenderer->inFlightFences[gRenderer->currentFrame]);
+
+            // Error check queue
 			if (result < 0) {
 			    if (result == VK_ERROR_DEVICE_LOST)
 			        vk2dRaise(VK2D_STATUS_DEVICE_LOST, "Vulkan device lost.");
@@ -531,10 +534,19 @@ VK2DResult vk2dRendererEndFrame() {
                 return VK2D_ERROR;
 			}
 
+            // Draw nuklear
+            VkSemaphore nkSemaphore = nk_sdl_render(
+                    gRenderer->ld->queue,
+                    gRenderer->scImageIndex,
+                    gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
+                    NK_ANTI_ALIASING_ON
+            );
+
 			// Final present info bit
+			VkSemaphore presentWaitSemaphores[] = {nkSemaphore};
 			VkPresentInfoKHR presentInfo = vk2dInitPresentInfoKHR(&gRenderer->swapchain, 1, &gRenderer->scImageIndex,
 																  &result,
-																  &gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
+																  presentWaitSemaphores,
 																  1);
 			VkResult queueRes = vkQueuePresentKHR(gRenderer->ld->queue, &presentInfo);
 			if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || gRenderer->resetSwapchain ||
@@ -663,6 +675,11 @@ VK2DBlendMode vk2dRendererGetBlendMode() {
 	if (vk2dRendererGetPointer() != NULL)
 		return gRenderer->blendMode;
 	return VK2D_BLEND_MODE_NONE;
+}
+
+void *vk2dGetNuklearCtx() {
+    if (vk2dRendererGetPointer() != NULL)
+        return gRenderer->gui->context;
 }
 
 void vk2dRendererSetCamera(VK2DCameraSpec camera) {

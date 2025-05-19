@@ -191,7 +191,8 @@ defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
 		    msg);
 		fflush(outFile);
 	}
-	if (severity == VK2D_LOG_SEVERITY_FATAL) abort();
+	if (severity == VK2D_LOG_SEVERITY_FATAL)
+	    abort();
 }
 
 void

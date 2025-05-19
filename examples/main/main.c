@@ -7,6 +7,7 @@
 #include <time.h>
 #include <math.h>
 #include "../debug.c"
+#include "VK2D/nuklear_defs.h"
 
 /************************ Constants ************************/
 
@@ -93,6 +94,8 @@ int main(int argc, const char *argv[]) {
 	float prevMX = 0;
 	float prevMY = 0;
 	float shaderFloat = 0;
+	int op = 0;
+	float value = 0;
 
 	while (!quit && !vk2dStatusFatal()) {
 		delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
@@ -194,6 +197,31 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererDrawModel(modelCaveguy, 3, 0, -2, 1, 1, 1, -rot / 3, axis, 0, 0, 0);
 
 		debugRenderOverlay();
+
+        if (nk_begin(vk2dGetNuklearCtx(), "Show", nk_rect(50, 50, 220, 220),
+                     NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_CLOSABLE)) {
+            /* fixed widget pixel width */
+            nk_layout_row_static(vk2dGetNuklearCtx(), 30, 80, 1);
+            if (nk_button_label(vk2dGetNuklearCtx(), "button")) {
+                /* event handling */
+            }
+
+            /* fixed widget window ratio width */
+            nk_layout_row_dynamic(vk2dGetNuklearCtx(), 30, 2);
+            if (nk_option_label(vk2dGetNuklearCtx(), "easy", op == 0)) op = 0;
+            if (nk_option_label(vk2dGetNuklearCtx(), "hard", op == 1)) op = 1;
+
+            /* custom widget pixel width */
+            nk_layout_row_begin(vk2dGetNuklearCtx(), NK_STATIC, 30, 2);
+            {
+                nk_layout_row_push(vk2dGetNuklearCtx(), 50);
+                nk_label(vk2dGetNuklearCtx(), "Volume:", NK_TEXT_LEFT);
+                nk_layout_row_push(vk2dGetNuklearCtx(), 110);
+                nk_slider_float(vk2dGetNuklearCtx(), 0, &value, 1.0f, 0.1f);
+            }
+            nk_layout_row_end(vk2dGetNuklearCtx());
+        }
+        nk_end(vk2dGetNuklearCtx());
 
 		// End the frame
 		vk2dRendererEndFrame();
