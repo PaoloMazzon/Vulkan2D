@@ -682,6 +682,14 @@ void *vk2dGetNuklearCtx() {
         return gRenderer->gui->context;
 }
 
+void vk2dBeginEvents() {
+    nk_input_begin(vk2dGetNuklearCtx());
+}
+
+void vk2dEndEvents() {
+    nk_input_end(vk2dGetNuklearCtx());
+}
+
 void vk2dProcessEvent(SDL_Event *e) {
     nk_sdl_handle_event(e);
 }

@@ -179,6 +179,12 @@ VK2DBlendMode vk2dRendererGetBlendMode();
 /// \return Returns the handle to the Nuklear context
 void *vk2dGetNuklearCtx();
 
+/// \brief Call this at the beginning of your event loop
+void vk2dBeginEvents();
+
+/// \brief Call this at the end of your event loop
+void vk2dEndEvents();
+
 /// \brief Handles SDL events that might pertain to VK2D
 /// \note As of right now, this is only required if you intend to use Nuklear integration.
 void vk2dProcessEvent(SDL_Event *e);

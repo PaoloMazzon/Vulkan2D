@@ -101,12 +101,14 @@ int main(int argc, const char *argv[]) {
 		delta = ((double)SDL_GetPerformanceCounter() - lastTime) / (double)SDL_GetPerformanceFrequency();
 		lastTime = SDL_GetPerformanceCounter();
 
+		vk2dBeginEvents();
 		while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_EVENT_QUIT) {
 				quit = true;
 			}
 			vk2dProcessEvent(&e);
 		}
+		vk2dEndEvents();
 		SDL_PumpEvents();
 
 		// 2D camera movement
@@ -226,8 +228,6 @@ int main(int argc, const char *argv[]) {
 
 		// End the frame
 		vk2dRendererEndFrame();
-
-
 	}
 
 	// vk2dRendererWait must be called before freeing things

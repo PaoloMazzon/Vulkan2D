@@ -1408,7 +1408,6 @@ void _vk2dRendererInitNuklear() {
 void _vk2dRendererQuitNuklear() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	nk_font_atlas_clear(gRenderer->gui->atlas);
-	nk_end(gRenderer->gui->context);
 	nk_sdl_shutdown();
 	assert(gRenderer->gui != NULL);
 	struct VK2DFontHandle *tmp, *font;
@@ -1420,6 +1419,16 @@ void _vk2dRendererQuitNuklear() {
 	free(gRenderer->gui->fonts);
 	free(gRenderer->gui);
     vk2dLogInfo("Nuklear destroyed...");
+}
+
+void _vk2dRendererResetNuklear() {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    if (vk2dStatusFatal())
+        return;
+    nk_sdl_resize(gRenderer->swapchainImageViews,
+                  gRenderer->swapchainImageCount,
+                  gRenderer->surfaceWidth,
+                  gRenderer->surfaceHeight);
 }
 
 // If the window is resized or minimized or whatever
@@ -1477,6 +1486,7 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateSampler();
 	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
+	_vk2dRendererResetNuklear();
 
 	if (!vk2dStatusFatal())
         vk2dLogInfo("Recreated swapchain assets...");

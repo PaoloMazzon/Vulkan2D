@@ -32,7 +32,7 @@ NK_API void nk_sdl_font_stash_end(VkQueue graphics_queue);
 NK_API int nk_sdl_handle_event(SDL_Event *evt);
 NK_API VkSemaphore nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
         VkSemaphore wait_semaphore, enum nk_anti_aliasing AA);
-NK_API void nk_sdl_resize(uint32_t framebuffer_width,
+NK_API void nk_sdl_resize(VkImageView *imageViews, uint32_t imageViewCount, uint32_t framebuffer_width,
                           uint32_t framebuffer_height);
 NK_API void nk_sdl_device_destroy(void);
 NK_API void nk_sdl_device_create(VkDevice logical_device,
@@ -1206,13 +1206,15 @@ nk_sdl_destroy_render_resources(struct nk_sdl_device *dev)
 }
 
 NK_API void
-nk_sdl_resize(uint32_t framebuffer_width, uint32_t framebuffer_height)
+nk_sdl_resize(VkImageView *imageViews, uint32_t imageViewCount, uint32_t framebuffer_width, uint32_t framebuffer_height)
 {
 	struct nk_sdl_device *dev = &sdl.vulkan;
 
 	SDL_GetWindowSize(sdl.win, &sdl.width, &sdl.height);
 	sdl.display_width = framebuffer_width;
 	sdl.display_height = framebuffer_height;
+	dev->image_views = imageViews;
+    dev->image_views_len = imageViewCount;
 
 	nk_sdl_destroy_render_resources(dev);
 	nk_sdl_create_render_resources(dev, sdl.display_width,
