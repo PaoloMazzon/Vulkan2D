@@ -143,16 +143,16 @@ int main(int argc, const char *argv[]) {
         polygons[i] = vk2dPolygonCreate(POLYGONS[i], POLYGON_COUNTS[i]);
         polygonOutlines[i] = vk2dPolygonCreateOutline(POLYGONS[i], POLYGON_COUNTS[i]);
     }
-    VK2DShadowEnvironment shadows = vk2DShadowEnvironmentCreate();
+    VK2dShadowEnvironment shadows = vk2dShadowEnvironmentCreate();
 
     // Add light edges
-    VK2DShadowObject mouseShadowObject;
+    VK2dShadowObject mouseShadowObject;
     for (int i = 0; i < POLYGON_COUNT; i++) {
         if (i == MOUSE_POLYGON_INDEX)
             mouseShadowObject = vk2dShadowEnvironmentAddObject(shadows);
         for (int vertex = 0; vertex < POLYGON_COUNTS[i]; vertex++) {
             int prevIndex = vertex == 0 ? POLYGON_COUNTS[i] - 1 : vertex - 1;
-            vk2DShadowEnvironmentAddEdge(
+            vk2dShadowEnvironmentAddEdge(
                     shadows,
                     POLYGONS[i][prevIndex][0],
                     POLYGONS[i][prevIndex][1],
@@ -161,7 +161,7 @@ int main(int argc, const char *argv[]) {
             );
         }
     }
-    vk2DShadowEnvironmentFlushVBO(shadows);
+    vk2dShadowEnvironmentFlushVBO(shadows);
 
 
     // Camera
@@ -277,7 +277,7 @@ int main(int argc, const char *argv[]) {
     }
     vk2dTextureFree(lightTex);
     vk2dTextureFree(lightOrbTex);
-    vk2DShadowEnvironmentFree(shadows);
+    vk2dShadowEnvironmentFree(shadows);
     vk2dTextureFree(playerTex);
     vk2dRendererQuit();
     SDL_DestroyWindow(window);
