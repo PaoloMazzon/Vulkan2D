@@ -143,10 +143,10 @@ int main(int argc, const char *argv[]) {
         polygons[i] = vk2dPolygonCreate(POLYGONS[i], POLYGON_COUNTS[i]);
         polygonOutlines[i] = vk2dPolygonCreateOutline(POLYGONS[i], POLYGON_COUNTS[i]);
     }
-    VK2dShadowEnvironment shadows = vk2dShadowEnvironmentCreate();
+    VK2DShadowEnvironment shadows = vk2dShadowEnvironmentCreate();
 
     // Add light edges
-    VK2dShadowObject mouseShadowObject;
+    VK2DShadowObject mouseShadowObject;
     for (int i = 0; i < POLYGON_COUNT; i++) {
         if (i == MOUSE_POLYGON_INDEX)
             mouseShadowObject = vk2dShadowEnvironmentAddObject(shadows);
