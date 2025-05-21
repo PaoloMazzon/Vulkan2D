@@ -26,7 +26,7 @@ VK2DTexture vk2dTextureLoad(const char *filename);
 /// \param size Size in bytes of the data buffer
 /// \return Returns a new texture or NULL if it failed
 /// \warning Textures created with this function are NOT valid render targets
-VK2DTexture vk2dTextureFrom(void *data, int size);
+VK2DTexture vk2dTextureFrom(const void *data, int size);
 
 /// \brief Creates a texture meant as a drawing target - see `vk2dRendererSetTarget`
 /// \param w Width of the texture

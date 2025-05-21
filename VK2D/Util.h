@@ -40,7 +40,7 @@ unsigned char *_vk2dCopyBuffer(void *buffer, int size);
 int _vk2dWorkerThread(void *data);
 
 /// \brief The internal texture creation function
-VK2DTexture _vk2dTextureFromInternal(void *data, int size, bool mainThread);
+VK2DTexture _vk2dTextureFromInternal(const void *data, int size, bool mainThread);
 
 /// \brief The internal model creation function
 VK2DModel _vk2dModelFromInternal(const void *objFile, uint32_t objFileSize, VK2DTexture texture, bool mainThread);
