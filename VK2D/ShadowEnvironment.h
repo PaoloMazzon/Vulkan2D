@@ -11,11 +11,11 @@ extern "C" {
 
 /// \brief Creates a new shadow environment
 /// \return An empty shadow environment.
-VK2DShadowEnvironment vk2DShadowEnvironmentCreate();
+VK2DShadowEnvironment vk2dShadowEnvironmentCreate();
 
 /// \brief Frees a shadow environment
 /// \param shadowEnvironment Shadow environment to free
-void vk2DShadowEnvironmentFree(VK2DShadowEnvironment shadowEnvironment);
+void vk2dShadowEnvironmentFree(VK2DShadowEnvironment shadowEnvironment);
 
 /// \brief Adds a new object to a shadow environment
 /// \param shadowEnvironment Shadow environment
@@ -63,7 +63,7 @@ bool vk2dShadowEnvironmentObjectGetStatus(VK2DShadowEnvironment shadowEnvironmen
 /// You may call this from another thread so long as you do not call vk2DShadowEnvironmentFlushVBO
 /// at the same time (ie, set up all your edges in the other thread and
 /// once you know that thread is done adding edges call vk2DShadowEnvironmentFlushVBO).
-void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float x1, float y1, float x2, float y2);
+void vk2dShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float x1, float y1, float x2, float y2);
 
 /// \brief Removes all edges from the shadow environment's cache in case you want to change the edges
 /// \param shadowEnvironment Shadow environment to reset
@@ -73,7 +73,7 @@ void vk2dShadowEnvironmentResetEdges(VK2DShadowEnvironment shadowEnvironment);
 /// \brief Flushes the edges present in the environment to a VBO that can be drawn to screen
 /// \param shadowEnvironment Shadow environment to flush
 /// \warning This function has heavy overhead and should not be called every frame.
-void vk2DShadowEnvironmentFlushVBO(VK2DShadowEnvironment shadowEnvironment);
+void vk2dShadowEnvironmentFlushVBO(VK2DShadowEnvironment shadowEnvironment);
 
 #ifdef __cplusplus
 }

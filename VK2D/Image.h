@@ -37,7 +37,7 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename);
 /// \param h Height in pixels of the image
 /// \param mainThread Whether or not the image is created on the main thread
 /// \return Returns a new image or NULL if it failed
-VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, void *pixels, int w, int h, bool mainThread);
+VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, const void *pixels, int w, int h, bool mainThread);
 
 /// \brief Frees an image from memory
 /// \param img Image to free

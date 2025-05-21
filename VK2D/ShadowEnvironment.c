@@ -14,7 +14,7 @@ void scaleMatrix(float m[], float v[]);
 void translateMatrix(float m[], float v[]);
 void rotateMatrix(float m[], float w[], float r);
 
-VK2DShadowEnvironment vk2DShadowEnvironmentCreate() {
+VK2DShadowEnvironment vk2dShadowEnvironmentCreate() {
     VK2DShadowEnvironment se = malloc(sizeof(struct VK2DShadowEnvironment_t));
 
     if (se) {
@@ -33,7 +33,7 @@ VK2DShadowEnvironment vk2DShadowEnvironmentCreate() {
     return se;
 }
 
-void vk2DShadowEnvironmentFree(VK2DShadowEnvironment shadowEnvironment) {
+void vk2dShadowEnvironmentFree(VK2DShadowEnvironment shadowEnvironment) {
     if (shadowEnvironment != NULL) {
         free(shadowEnvironment->vertices);
         vk2dBufferFree(shadowEnvironment->vbo);
@@ -106,7 +106,7 @@ bool vk2dShadowEnvironmentObjectGetStatus(VK2DShadowEnvironment shadowEnvironmen
     return shadowEnvironment->objectInfos[object].enabled;
 }
 
-void vk2DShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float x1, float y1, float x2, float y2) {
+void vk2dShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float x1, float y1, float x2, float y2) {
     bool failedToExtendList = false;
 
     // Extend list
@@ -147,7 +147,7 @@ void vk2dShadowEnvironmentResetEdges(VK2DShadowEnvironment shadowEnvironment) {
     vk2dShadowEnvironmentAddObject(shadowEnvironment);
 }
 
-void vk2DShadowEnvironmentFlushVBO(VK2DShadowEnvironment shadowEnvironment) {
+void vk2dShadowEnvironmentFlushVBO(VK2DShadowEnvironment shadowEnvironment) {
     vk2dRendererWait();
     vk2dBufferFree(shadowEnvironment->vbo);
     shadowEnvironment->vboVertexSize = shadowEnvironment->verticesCount;

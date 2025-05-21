@@ -200,7 +200,7 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename) {
 	return out;
 }
 
-VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, void *pixels, int w, int h, bool mainThread) {
+VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, const void *pixels, int w, int h, bool mainThread) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	VK2DImage out = NULL;
 	VK2DBuffer stage;
