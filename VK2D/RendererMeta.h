@@ -97,7 +97,9 @@ void _vk2dRendererFlushBatchIfNeeded(VK2DPipeline pipe);
 
 void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam);
 void _vk2dRendererDrawRawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTexture tex, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam);
-void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, vec4 colour, vec2 lightSource, VK2DCameraIndex cam);
+void _vk2dRendererDrawRawShadows(VkDescriptorSet set,
+    VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object,
+    vec4 colour, vec2 lightSource, VK2DCameraIndex cam);
 void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count, VK2DCameraIndex cam);
 void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight);
 void _vk2dRendererDrawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTexture tex, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight);

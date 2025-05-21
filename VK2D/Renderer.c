@@ -919,7 +919,7 @@ void vk2dRendererDrawGeometry(VK2DVertexColour *vertices, int count, float x, fl
     }
 }
 
-void vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource) {
+void vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, const vec4 colour, vec2 lightSource) {
     if (vk2dRendererGetPointer() != NULL && !vk2dStatusFatal()) {
         vk2dRendererFlushSpriteBatch();
 

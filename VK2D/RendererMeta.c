@@ -1682,7 +1682,7 @@ void _vk2dRendererDrawRawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTe
     vkCmdDraw(buf, 6, 1, 0, 0);
 }
 
-void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, vec4 colour, vec2 lightSource, VK2DCameraIndex cam) {
+void _vk2dRendererDrawRawShadows(VkDescriptorSet set, VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object, const vec4 colour, vec2 lightSource, VK2DCameraIndex cam) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
@@ -1930,7 +1930,7 @@ void _vk2dRendererDrawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTextu
 }
 
 // This is the upper level internal draw function for shadows that draws to each camera and not just with a scissor/viewport
-void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource) {
+void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, const vec4 colour, vec2 lightSource) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
@@ -1939,7 +1939,8 @@ void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colo
         set = gRenderer->targetUBOSet;
         for (int so = 0; so < shadowEnvironment->objectCount; so++) {
             if (shadowEnvironment->objectInfos[so].enabled)
-                _vk2dRendererDrawRawShadows(set, shadowEnvironment, so, colour, lightSource, VK2D_INVALID_CAMERA);
+                _vk2dRendererDrawRawShadows(set, shadowEnvironment, so,
+			colour, lightSource, VK2D_INVALID_CAMERA);
         }
     } else {
         // Only render to 2D cameras
@@ -1949,7 +1950,8 @@ void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colo
                 // Iterate through each shadow object
                 for (int so = 0; so < shadowEnvironment->objectCount; so++) {
                     if (shadowEnvironment->objectInfos[so].enabled)
-                        _vk2dRendererDrawRawShadows(set, shadowEnvironment, so, colour, lightSource, i);
+                        _vk2dRendererDrawRawShadows(set, shadowEnvironment,
+				so, colour, lightSource, i);
                 }
             }
         }
