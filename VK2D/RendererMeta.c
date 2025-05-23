@@ -1419,7 +1419,7 @@ void _vk2dRendererQuitNuklear() {
         }
         free(gRenderer->gui->fonts);
         free(gRenderer->gui);
-        vk2dLogInfo("Nuklear destroyed...}");
+        vk2dLogInfo("Nuklear destroyed...");
     }
 }
 
