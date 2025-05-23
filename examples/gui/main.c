@@ -27,12 +27,12 @@ main(int argc, const char *argv[])
 	vec4 clear = { 0.0, 0.5, 1.0, 1.0 };
 	VK2DRendererConfig config = {
 	    .msaa = VK2D_MSAA_1X,
-	    .screenMode = VK2D_SCREEN_MODE_IMMEDIATE,
+	    .screenMode = VK2D_SCREEN_MODE_VSYNC,
 		.filterMode = VK2D_FILTER_TYPE_NEAREST
 	};
 	VK2DStartupOptions options = {
 		.quitOnError = true,
-		.enableDebug = false,
+		.enableDebug = true,
 		.stdoutLogging = true,
 	    .enableNuklear = true,
 	};
@@ -64,6 +64,56 @@ main(int argc, const char *argv[])
 		vk2dRendererStartFrame(clear);
 
         if (nk_begin(vk2dGuiContext(), "Show", nk_rect(50, 50, 220, 220),
+                     NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_CLOSABLE)) {
+            // fixed widget pixel width
+            nk_layout_row_static(vk2dGuiContext(), 30, 80, 1);
+            if (nk_button_label(vk2dGuiContext(), "button")) {
+                // event handling
+            }
+
+            // fixed widget window ratio width
+            nk_layout_row_dynamic(vk2dGuiContext(), 30, 2);
+            if (nk_option_label(vk2dGuiContext(), "easy", op == 0)) op = 0;
+            if (nk_option_label(vk2dGuiContext(), "hard", op == 1)) op = 1;
+
+            // custom widget pixel width
+            nk_layout_row_begin(vk2dGuiContext(), NK_STATIC, 30, 2);
+            {
+                nk_layout_row_push(vk2dGuiContext(), 50);
+                nk_label(vk2dGuiContext(), "Volume:", NK_TEXT_LEFT);
+                nk_layout_row_push(vk2dGuiContext(), 110);
+                nk_slider_float(vk2dGuiContext(), 0, &value, 1.0f, 0.1f);
+            }
+            nk_layout_row_end(vk2dGuiContext());
+        }
+        nk_end(vk2dGuiContext());
+
+        if (nk_begin(vk2dGuiContext(), "Thing", nk_rect(220 + 60, 50, 220, 220),
+                     NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_CLOSABLE)) {
+            // fixed widget pixel width
+            nk_layout_row_static(vk2dGuiContext(), 30, 80, 1);
+            if (nk_button_label(vk2dGuiContext(), "button")) {
+                // event handling
+            }
+
+            // fixed widget window ratio width
+            nk_layout_row_dynamic(vk2dGuiContext(), 30, 2);
+            if (nk_option_label(vk2dGuiContext(), "easy", op == 0)) op = 0;
+            if (nk_option_label(vk2dGuiContext(), "hard", op == 1)) op = 1;
+
+            // custom widget pixel width
+            nk_layout_row_begin(vk2dGuiContext(), NK_STATIC, 30, 2);
+            {
+                nk_layout_row_push(vk2dGuiContext(), 50);
+                nk_label(vk2dGuiContext(), "Volume:", NK_TEXT_LEFT);
+                nk_layout_row_push(vk2dGuiContext(), 110);
+                nk_slider_float(vk2dGuiContext(), 0, &value, 1.0f, 0.1f);
+            }
+            nk_layout_row_end(vk2dGuiContext());
+        }
+        nk_end(vk2dGuiContext());
+
+        if (nk_begin(vk2dGuiContext(), "Thing 2", nk_rect(50, 60 + 220, 220, 220),
                      NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_CLOSABLE)) {
             // fixed widget pixel width
             nk_layout_row_static(vk2dGuiContext(), 30, 80, 1);

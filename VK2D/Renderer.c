@@ -541,8 +541,7 @@ VK2DResult vk2dRendererEndFrame() {
 			if (gRenderer->options.enableNuklear) {
 				VkSemaphore nkSemaphore = nk_sdl_render(
 				    gRenderer->ld->queue, gRenderer->scImageIndex,
-				    gRenderer
-				        ->renderFinishedSemaphores[gRenderer->currentFrame],
+				    gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
 				    NK_ANTI_ALIASING_ON);
                 presentWaitSemaphores[0] = nkSemaphore;
 			}
