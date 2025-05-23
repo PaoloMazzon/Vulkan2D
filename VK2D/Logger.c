@@ -9,6 +9,7 @@
 #include "VK2D/Logger.h"
 #include "VK2D/Opaque.h"
 #include "VK2D/Validation.h"
+#include "VK2D/Renderer.h"
 
 #define MAX_SEVERITY_LABEL_LENGTH (sizeof("unknown") - 1)
 #define MAX_TIME_STRING_SIZE 26
@@ -165,6 +166,7 @@ destroyLogger(const bool lock)
 static void
 defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
 {
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	const VK2DDefaultLogger *log = (VK2DDefaultLogger *)ptr;
 	assert(usingDefaultLogger());
 	COERCE_SEVERITY(severity);
@@ -179,8 +181,10 @@ defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
 	writeTimeString(timeString);
 	// asctime() adds an extra \n at the end
 	timeString[MAX_TIME_STRING_SIZE - 2] = '\0';
-	fprintf(out, "[%s] [%s]%s %s\n", timeString, label, padding, msg);
-	fflush(out);
+	if (gRenderer->options.stdoutLogging) {
+        fprintf(out, "[%s] [%s]%s %s\n", timeString, label, padding, msg);
+        fflush(out);
+    }
 	if (severity == VK2D_LOG_SEVERITY_FATAL) abort();
 }
 
