@@ -34,7 +34,7 @@ bool _vk2dFileExists(const char *filename);
 unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
 
 /// \brief Copies a string
-unsigned char *_vk2dCopyBuffer(void *buffer, int size);
+unsigned char *_vk2dCopyBuffer(const void *buffer, int size);
 
 /// \brief Worker thread for off-thread loading
 int _vk2dWorkerThread(void *data);

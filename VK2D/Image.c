@@ -12,6 +12,9 @@
 #include "VK2D/Renderer.h"
 #include <malloc.h>
 
+#define VMA_VULKAN_VERSION 1002000
+#include <VulkanMemoryAllocator/src/VmaUsage.h>
+
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 Uint32 rmask = 0xff000000;
 Uint32 gmask = 0x00ff0000;

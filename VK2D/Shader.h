@@ -37,7 +37,7 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 /// Check the shaders shaders/tex.vert and shaders/tex.frag for information on how
 /// the shaders should be set up. You may choose to not include a uniform buffer if
 /// you specify a uniform buffer size of 0.
-VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize);
+VK2DShader vk2dShaderFrom(const uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, const uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize);
 
 /// \brief Frees a shader from memory
 /// \param shader Shader to free

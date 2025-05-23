@@ -7,6 +7,10 @@
 #include "VK2D/nuklear_defs.h"
 #include "VK2D/Structs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Returns the internal nuklear context for nuklear calls
 /// \return Returns the internal nuklear context for nuklear calls
 struct nk_context *vk2dGuiContext();
@@ -25,3 +29,7 @@ void vk2dGuiProcessEvent(SDL_Event *e);
 
 /// \brief Call this at the end of your SDL event loop
 void vk2dGuiEndInput();
+
+#ifdef __cplusplus
+}
+#endif

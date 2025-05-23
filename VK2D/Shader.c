@@ -45,7 +45,7 @@ void _vk2dShaderBuildPipe(VK2DShader shader) {
             VK2D_PIPELINE_TYPE_USER_SHADER);
 }
 
-VK2DShader vk2dShaderFrom(uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize) {
+VK2DShader vk2dShaderFrom(const uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, const uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (vk2dStatusFatal() || gRenderer == NULL)
         return NULL;

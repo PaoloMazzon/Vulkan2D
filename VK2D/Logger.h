@@ -18,6 +18,9 @@
 
 #include "VK2D/Structs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /// \brief Initializes the global values for logging
@@ -72,8 +75,6 @@ void vk2dLogError(const char* fmt, ...);
 /// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_ERROR severity
 void vk2dLogErrorv(const char* fmt, va_list ap);
 
-
-
 /// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_FATAL severity
 VK2D_NORETURN void vk2dLogFatal(const char* fmt, ...);
 
@@ -85,3 +86,7 @@ void vk2dLogUnknown(const char* fmt, ...);
 
 /// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_UNKNOWN
 void vk2dLogUnknownv(const char* fmt, va_list ap);
+
+#ifdef __cplusplus
+}
+#endif
