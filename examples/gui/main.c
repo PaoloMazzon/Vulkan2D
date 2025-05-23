@@ -27,7 +27,7 @@ main(int argc, const char *argv[])
 	vec4 clear = { 0.0, 0.5, 1.0, 1.0 };
 	VK2DRendererConfig config = {
 	    .msaa = VK2D_MSAA_1X,
-	    .screenMode = VK2D_SCREEN_MODE_VSYNC,
+	    .screenMode = VK2D_SCREEN_MODE_TRIPLE_BUFFER,
 		.filterMode = VK2D_FILTER_TYPE_NEAREST
 	};
 	VK2DStartupOptions options = {
