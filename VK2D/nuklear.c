@@ -1519,6 +1519,7 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
 
     command_buffer = dev->command_buffers[buffer_index];
 
+    vkResetCommandBuffer(command_buffer, 0);
     result = vkBeginCommandBuffer(command_buffer, &begin_info);
     NK_ASSERT(result == VK_SUCCESS);
     vkCmdBeginRenderPass(command_buffer, &render_pass_begin_nfo,
@@ -1534,101 +1535,95 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
                       dev->pipeline);
     vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             dev->pipeline_layout, 0, 1, &dev->uniform_descriptor_sets[buffer_index], 0, NULL);
+    // convert from command queue into draw list and draw to screen
+    const struct nk_draw_command *cmd;
+    // load draw vertices & elements directly into vertex + element
+    // buffer
+    // fill convert configuration
+    struct nk_convert_config config;
+    static const struct nk_draw_vertex_layout_element
+            vertex_layout[]
+            = { { NK_VERTEX_POSITION, NK_FORMAT_FLOAT,
+                        NK_OFFSETOF(struct nk_sdl_vertex,
+                                    position) },
+                { NK_VERTEX_TEXCOORD, NK_FORMAT_FLOAT,
+                        NK_OFFSETOF(struct nk_sdl_vertex,
+                                    uv) },
+                { NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8,
+                        NK_OFFSETOF(struct nk_sdl_vertex,
+                                    col) },
+                { NK_VERTEX_LAYOUT_END } };
+    NK_MEMSET(&config, 0, sizeof(config));
+    config.vertex_layout = vertex_layout;
+    config.vertex_size = sizeof(struct nk_sdl_vertex);
+    config.vertex_alignment
+            = NK_ALIGNOF(struct nk_sdl_vertex);
+    config.tex_null = dev->tex_null;
+    config.circle_segment_count = 22;
+    config.curve_segment_count = 22;
+    config.arc_segment_count = 22;
+    config.global_alpha = 1.0f;
+    config.shape_AA = AA;
+    config.line_AA = AA;
+
+    // setup buffers to load vertices and elements
+
+    nk_buffer_init_fixed(&vbuf, dev->mapped_vertexs[buffer_index],
+                         (size_t)dev->max_vertex_buffer);
+    nk_buffer_init_fixed(&ebuf, dev->mapped_indexs[buffer_index],
+                         (size_t)dev->max_element_buffer);
+    nk_convert(&sdl.ctx, &dev->cmds, &vbuf, &ebuf, &config);
+
+    // iterate over and execute each draw command
+
+    vkCmdBindVertexBuffers(command_buffer, 0, 1,
+                           &dev->vertex_buffers[buffer_index], &doffset);
+    vkCmdBindIndexBuffer(command_buffer, dev->index_buffers[buffer_index], 0,
+                         VK_INDEX_TYPE_UINT16);
+
+    nk_draw_foreach(cmd, &sdl.ctx, &dev->cmds)
     {
-        /* convert from command queue into draw list and draw to screen
-         */
-        const struct nk_draw_command *cmd;
-        /* load draw vertices & elements directly into vertex + element
-         * buffer
-         */
-        {
-            /* fill convert configuration */
-            struct nk_convert_config config;
-            static const struct nk_draw_vertex_layout_element
-                    vertex_layout[]
-                    = { { NK_VERTEX_POSITION, NK_FORMAT_FLOAT,
-                                NK_OFFSETOF(struct nk_sdl_vertex,
-                                            position) },
-                        { NK_VERTEX_TEXCOORD, NK_FORMAT_FLOAT,
-                                NK_OFFSETOF(struct nk_sdl_vertex,
-                                            uv) },
-                        { NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8,
-                                NK_OFFSETOF(struct nk_sdl_vertex,
-                                            col) },
-                        { NK_VERTEX_LAYOUT_END } };
-            NK_MEMSET(&config, 0, sizeof(config));
-            config.vertex_layout = vertex_layout;
-            config.vertex_size = sizeof(struct nk_sdl_vertex);
-            config.vertex_alignment
-                    = NK_ALIGNOF(struct nk_sdl_vertex);
-            config.tex_null = dev->tex_null;
-            config.circle_segment_count = 22;
-            config.curve_segment_count = 22;
-            config.arc_segment_count = 22;
-            config.global_alpha = 1.0f;
-            config.shape_AA = AA;
-            config.line_AA = AA;
-
-            /* setup buffers to load vertices and elements */
-            nk_buffer_init_fixed(&vbuf, dev->mapped_vertexs[buffer_index],
-                                 (size_t)dev->max_vertex_buffer);
-            nk_buffer_init_fixed(&ebuf, dev->mapped_indexs[buffer_index],
-                                 (size_t)dev->max_element_buffer);
-            nk_convert(&sdl.ctx, &dev->cmds, &vbuf, &ebuf, &config);
-        }
-
-        /* iterate over and execute each draw command */
-
-        vkCmdBindVertexBuffers(command_buffer, 0, 1,
-                               &dev->vertex_buffers[buffer_index], &doffset);
-        vkCmdBindIndexBuffer(command_buffer, dev->index_buffers[buffer_index], 0,
-                             VK_INDEX_TYPE_UINT16);
-
-        nk_draw_foreach(cmd, &sdl.ctx, &dev->cmds)
-        {
-            if (!cmd->texture.ptr) { continue; }
-            if (cmd->texture.ptr
-                && cmd->texture.ptr != current_texture) {
-                int found = 0;
-                uint32_t i;
-                for (i = 0;
-                     i < dev->texture_descriptor_sets_len; i++) {
-                    if (dev->texture_descriptor_sets[i]
-                                .image_view
-                        == cmd->texture.ptr) {
-                        found = 1;
-                        break;
-                    }
+        if (!cmd->texture.ptr) { continue; }
+        if (cmd->texture.ptr
+            && cmd->texture.ptr != current_texture) {
+            int found = 0;
+            uint32_t i;
+            for (i = 0;
+                 i < dev->texture_descriptor_sets_len; i++) {
+                if (dev->texture_descriptor_sets[i]
+                            .image_view
+                    == cmd->texture.ptr) {
+                    found = 1;
+                    break;
                 }
-
-                if (!found) {
-                    update_texture_descriptor_set(dev,
-                                                  &dev->texture_descriptor_sets[i],
-                                                  (VkImageView)cmd->texture.ptr);
-                    dev->texture_descriptor_sets_len++;
-                }
-                vkCmdBindDescriptorSets(command_buffer,
-                                        VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                        dev->pipeline_layout, 1, 1,
-                                        &dev->texture_descriptor_sets[i]
-                                                .descriptor_set,
-                                        0, NULL);
             }
 
-            if (!cmd->elem_count) continue;
-
-            scissor.offset.x
-                    = (int32_t)(NK_MAX(cmd->clip_rect.x, 0.f));
-            scissor.offset.y
-                    = (int32_t)(NK_MAX(cmd->clip_rect.y, 0.f));
-            scissor.extent.width = (uint32_t)(cmd->clip_rect.w);
-            scissor.extent.height = (uint32_t)(cmd->clip_rect.h);
-            vkCmdSetScissor(command_buffer, 0, 1, &scissor);
-            vkCmdDrawIndexed(command_buffer, cmd->elem_count, 1,
-                             index_offset, 0, 0);
-            index_offset += cmd->elem_count;
+            if (!found) {
+                update_texture_descriptor_set(dev,
+                                              &dev->texture_descriptor_sets[i],
+                                              (VkImageView)cmd->texture.ptr);
+                dev->texture_descriptor_sets_len++;
+            }
+            vkCmdBindDescriptorSets(command_buffer,
+                                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    dev->pipeline_layout, 1, 1,
+                                    &dev->texture_descriptor_sets[i]
+                                            .descriptor_set,
+                                    0, NULL);
         }
-        nk_clear(&sdl.ctx);
+
+        if (!cmd->elem_count) continue;
+
+        scissor.offset.x
+                = (int32_t)(NK_MAX(cmd->clip_rect.x, 0.f));
+        scissor.offset.y
+                = (int32_t)(NK_MAX(cmd->clip_rect.y, 0.f));
+        scissor.extent.width = (uint32_t)(cmd->clip_rect.w);
+        scissor.extent.height = (uint32_t)(cmd->clip_rect.h);
+        vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+        vkCmdDrawIndexed(command_buffer, cmd->elem_count, 1,
+                         index_offset, 0, 0);
+        index_offset += cmd->elem_count;
     }
 
     vkCmdEndRenderPass(command_buffer);

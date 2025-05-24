@@ -138,8 +138,10 @@ main(int argc, const char *argv[])
         }
         nk_end(vk2dGuiContext());
 
+
 		debugRenderOverlay();
 		vk2dRendererEndFrame();
+        nk_clear(vk2dGuiContext());
 	}
 
 	// vk2dRendererWait must be called before freeing things
