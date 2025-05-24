@@ -61,6 +61,7 @@ void
 vk2dGuiStartInput()
 {
 	VK2DRenderer vk2d = vk2dRendererGetPointer();
+	if (!vk2d->options.enableNuklear) return;
 	nk_input_begin(vk2d->gui->context);
 }
 
@@ -68,10 +69,13 @@ void
 vk2dGuiEndInput()
 {
 	VK2DRenderer vk2d = vk2dRendererGetPointer();
+	if (!vk2d->options.enableNuklear) return;
 	nk_input_end(vk2d->gui->context);
 }
 
 void vk2dGuiProcessEvent(SDL_Event *e) {
+    VK2DRenderer vk2d = vk2dRendererGetPointer();
+    if (!vk2d->options.enableNuklear) return;
 	nk_sdl_handle_event(e);
 }
 

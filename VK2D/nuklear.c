@@ -1640,6 +1640,10 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
     result = vkQueueSubmit(graphics_queue, 1, &submit_info, NULL);
     NK_ASSERT(result == VK_SUCCESS);
 
+    nk_buffer_clear(&dev->cmds);
+    nk_buffer_clear(&vbuf);
+    nk_buffer_clear(&ebuf);
+
     return dev->render_completed;
 }
 
