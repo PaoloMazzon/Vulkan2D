@@ -1625,6 +1625,7 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
                          index_offset, 0, 0);
         index_offset += cmd->elem_count;
     }
+    nk_clear(&sdl.ctx);
 
     vkCmdEndRenderPass(command_buffer);
     result = vkEndCommandBuffer(command_buffer);

@@ -141,7 +141,6 @@ main(int argc, const char *argv[])
 
 		debugRenderOverlay();
 		vk2dRendererEndFrame();
-        nk_clear(vk2dGuiContext());
 	}
 
 	// vk2dRendererWait must be called before freeing things
