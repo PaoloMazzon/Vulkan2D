@@ -539,9 +539,6 @@ VK2DResult vk2dRendererEndFrame() {
 
             // Draw nuklear
 			if (gRenderer->options.enableNuklear) {
-				vkWaitForFences(gRenderer->ld->dev, 1,
-				    &gRenderer->inFlightFences[gRenderer->currentFrame],
-				    VK_TRUE, UINT64_MAX);
 				VkSemaphore nkSemaphore = nk_sdl_render(
 				    gRenderer->ld->queue, gRenderer->scImageIndex,
 				    gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],

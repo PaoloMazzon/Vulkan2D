@@ -47,6 +47,7 @@ struct nk_sdl_device {
     uint32_t framebuffers_len;
     VkCommandBuffer *command_buffers;
     uint32_t command_buffers_len;
+    VkFence *frameStartFences; // one per sc image
     VkSampler sampler;
     VkCommandPool command_pool;
     VkSemaphore render_completed;
@@ -406,6 +407,14 @@ nk_sdl_create_command_buffers(struct nk_sdl_device *dev)
     result = vkAllocateCommandBuffers(dev->logical_device, &allocate_info,
                                       dev->command_buffers);
     NK_ASSERT(result == VK_SUCCESS);
+
+    // create fences
+    VkFenceCreateInfo fenceCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+            .flags = VK_FENCE_CREATE_SIGNALED_BIT
+    };
+    for (int i = 0; i < dev->image_views_len; i++)
+        vkCreateFence(dev->logical_device, &fenceCreateInfo, VK_NULL_HANDLE, &dev->frameStartFences[i]);
 }
 
 NK_INTERN void
@@ -918,6 +927,7 @@ nk_sdl_device_create(VkDevice logical_device, VkPhysicalDevice physical_device,
     dev->uniform_memorys = malloc(image_views_len * sizeof(VkDeviceMemory));
     dev->mapped_uniforms = malloc(image_views_len * sizeof(void*));
     dev->uniform_descriptor_sets = malloc(image_views_len * sizeof(VkDescriptorSet));
+    dev->frameStartFences = malloc(image_views_len * sizeof(VkFence));
 
     nk_sdl_create_sampler(dev);
     nk_sdl_create_command_pool(dev, graphics_queue_family_index);
@@ -1201,6 +1211,8 @@ nk_sdl_device_destroy(void)
                          dev->command_buffers_len, dev->command_buffers);
     vkDestroyCommandPool(dev->logical_device, dev->command_pool, NULL);
     vkDestroySemaphore(dev->logical_device, dev->render_completed, NULL);
+    for (int i = 0; i < dev->image_views_len; i++)
+        vkDestroyFence(dev->logical_device, dev->frameStartFences[i], VK_NULL_HANDLE);
 
     for (int i = 0; i < dev->image_views_len; i++) {
         vkUnmapMemory(dev->logical_device, dev->vertex_memorys[i]);
@@ -1235,6 +1247,7 @@ nk_sdl_device_destroy(void)
     free(dev->uniform_memorys);
     free(dev->mapped_uniforms);
     free(dev->uniform_descriptor_sets);
+    free(dev->frameStartFences);
 }
 
 NK_API
@@ -1459,6 +1472,9 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
                     -1.0f, 0.0f, -1.0f, 1.0f, 0.0f, 1.0f },
     };
 
+    vkWaitForFences(dev->logical_device, 1, &dev->frameStartFences[buffer_index], VK_TRUE, UINT64_MAX);
+    vkResetFences(dev->logical_device, 1, &dev->frameStartFences[buffer_index]);
+
     VkCommandBufferBeginInfo begin_info;
     //VkClearValue clear_value = { { { 0.0f, 0.0f, 0.0f, 0.0f } } };
     VkRenderPassBeginInfo render_pass_begin_nfo;
@@ -1637,7 +1653,7 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
     submit_info.signalSemaphoreCount = 1;
     submit_info.pSignalSemaphores = &dev->render_completed;
 
-    result = vkQueueSubmit(graphics_queue, 1, &submit_info, NULL);
+    result = vkQueueSubmit(graphics_queue, 1, &submit_info, dev->frameStartFences[buffer_index]);
     NK_ASSERT(result == VK_SUCCESS);
 
     nk_buffer_clear(&dev->cmds);
