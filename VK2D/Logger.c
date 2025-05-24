@@ -198,6 +198,7 @@ defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
 void
 vk2dSetLogger(VK2DLogger *logger)
 {
+	vk2dLoggerInit();
 	SDL_LockMutex(gLoggerMutex);
 	destroyLogger(false);
 	gLogger = logger;
