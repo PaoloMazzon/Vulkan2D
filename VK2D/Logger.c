@@ -218,7 +218,9 @@ vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap)
 {
 	COERCE_SEVERITY(severity);
 	// avoid allocation if possible
-	char msgBuf[128];
+	char msgBuf[128] = { 0 };
+	va_list ap2;
+	va_copy(ap2, ap);
 	const size_t len = vsnprintf(NULL, 0, fmt, ap);
 	size_t bufLen = sizeof(msgBuf) / sizeof(char);
 	char *buf = msgBuf;
@@ -231,7 +233,8 @@ vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap)
 			return;
 		}
 	}
-	vsnprintf(buf, len + 1, fmt, ap);
+	vsnprintf(buf, bufLen, fmt, ap2);
+	va_end(ap2);
 	vk2dLoggerLog(severity, buf);
 	if (buf != msgBuf) free(buf);
 }
