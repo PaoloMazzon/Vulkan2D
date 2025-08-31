@@ -1,6 +1,11 @@
 var searchData=
 [
-  ['data_0',['data',['../structVK2DAssetLoad.html#a598f25b0f50d53bb8f601cb688d02845',1,'VK2DAssetLoad::data'],['../structVK2DAssetLoad.html#a2eaf6b9973fa1e22870d4efce3d40ba0',1,'VK2DAssetLoad::Data']]],
-  ['destroy_1',['destroy',['../structVK2DLogger.html#a23e30de6e30f61747f0a8600d3ce4733',1,'VK2DLogger']]],
-  ['drawcount_2',['drawCount',['../structVK2DComputePushBuffer.html#a6c15a248d0d24744d54df05568a1ad30',1,'VK2DComputePushBuffer']]]
+  ['calls_0',['calls',['../structnk__buffer.html#acd962a6e042a8ffabac679768e4851bb',1,'nk_buffer']]],
+  ['cameraindex_1',['cameraindex',['../structVK2DShaderPushBuffer.html#a29a85bd86d3f3af573e3321f1e1d41a2',1,'VK2DShaderPushBuffer::cameraIndex'],['../structVK2DPushBuffer.html#a48bbb128f63c400c49daafaee29bdb2f',1,'VK2DPushBuffer::cameraIndex'],['../structVK2D3DPushBuffer.html#a103e702d54b7a65b058e4dccf05570f8',1,'VK2D3DPushBuffer::cameraIndex'],['../structVK2DShadowsPushBuffer.html#a2a1ea9814e54f082b9d436f3d84c441a',1,'VK2DShadowsPushBuffer::cameraIndex'],['../structVK2DInstancedPushBuffer.html#ad6163db5dc28be109f1feef7de135f11',1,'VK2DInstancedPushBuffer::cameraIndex']]],
+  ['centre_2',['centre',['../structVK2DCameraSpec.html#aa92b19576e2fc91b2ab26c1e5c14c403',1,'VK2DCameraSpec']]],
+  ['circle_5fsegment_5fcount_3',['circle_segment_count',['../structnk__convert__config.html#ae62d641bf9c5bc6b3e66c6071f4a8267',1,'nk_convert_config']]],
+  ['colour_4',['colour',['../structVK2DVertexColour.html#a796e7ff5dd5481e84322b2e11cc1ce4c',1,'VK2DVertexColour::colour'],['../structVK2DDrawCommand.html#a3653ba799422692963e99ba9c78afb4c',1,'VK2DDrawCommand::colour'],['../structVK2DDrawInstance.html#a1d03ab8dc3fe8a0e085f42ac1ce6e8c8',1,'VK2DDrawInstance::colour'],['../structVK2DShadowsPushBuffer.html#a1b23dea7fbaf07a7d6890d8b269bdcd8',1,'VK2DShadowsPushBuffer::colour'],['../structVK2DShaderPushBuffer.html#a05e8dd506439441ea152c0f2098a48bc',1,'VK2DShaderPushBuffer::colour']]],
+  ['colourmod_5',['colourmod',['../structVK2DPushBuffer.html#a5dc66390a6f42eb6b74d3d9035249bea',1,'VK2DPushBuffer::colourMod'],['../structVK2D3DPushBuffer.html#a5b06ea3fff4478a7724f100bb7b1588c',1,'VK2D3DPushBuffer::colourMod']]],
+  ['context_6',['context',['../structVK2DLogger.html#a2835f4ee8f991b92a04aa578786f1d35',1,'VK2DLogger']]],
+  ['curve_5fsegment_5fcount_7',['curve_segment_count',['../structnk__convert__config.html#afcf45f3fc6e3f043b572b59cb04424c5',1,'nk_convert_config']]]
 ];

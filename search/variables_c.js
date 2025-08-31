@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['rot_0',['rot',['../structVK2DCameraSpec.html#a26446dda888b405c7828303c3373d802',1,'VK2DCameraSpec']]],
-  ['rotation_1',['rotation',['../structVK2DDrawCommand.html#ab207aa17d35c5b74b98670981b431268',1,'VK2DDrawCommand']]]
+  ['origin_0',['origin',['../structVK2DDrawCommand.html#ad77dfe66ef1a559ab361be87b17c0106',1,'VK2DDrawCommand']]],
+  ['output_1',['Output',['../structVK2DAssetLoad.html#a1f6be135d42dfb5452650ef2b1bfca9b',1,'VK2DAssetLoad']]],
+  ['overlay_2',['overlay',['../structnk__context.html#ae51cac633c54b94a63c8fe77b9558f4a',1,'nk_context']]]
 ];

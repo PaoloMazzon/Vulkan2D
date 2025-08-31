@@ -1,6 +1,5 @@
 var searchData=
 [
-  ['uniformbuffersize_0',['uniformBufferSize',['../structVK2DAssetLoad.html#a837863676efdb8f2f05e89c4467ca478',1,'VK2DAssetLoad']]],
-  ['up_1',['up',['../structVK2DCameraSpec.html#a04f9abd0591c6e6c941eb29283fb26e5',1,'VK2DCameraSpec']]],
-  ['uv_2',['uv',['../structVK2DVertex3D.html#a686eda41b50d07c4c12a99e807b8114a',1,'VK2DVertex3D']]]
+  ['rot_0',['rot',['../structVK2DCameraSpec.html#a26446dda888b405c7828303c3373d802',1,'VK2DCameraSpec']]],
+  ['rotation_1',['rotation',['../structVK2DDrawCommand.html#ab207aa17d35c5b74b98670981b431268',1,'VK2DDrawCommand']]]
 ];

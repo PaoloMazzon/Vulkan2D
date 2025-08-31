@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['lightsource_0',['lightSource',['../structVK2DShadowsPushBuffer.html#acb031a9801b83bbab96aff0c644c5048',1,'VK2DShadowsPushBuffer']]],
-  ['load_1',['Load',['../structVK2DAssetLoad.html#a01d9b0b98a6b918c1096d932d7cd63bd',1,'VK2DAssetLoad']]],
-  ['locking_20cameras_2',['Locking Cameras',['../md_docs_2Cameras.html#autotoc_md3',1,'']]],
-  ['log_3',['log',['../structVK2DLogger.html#a618469c92db195ef01a626fee1fc9222',1,'VK2DLogger']]]
+  ['h_0',['h',['../structVK2DCameraSpec.html#a8f539d9ec5da01199aa4765e181d96ae',1,'VK2DCameraSpec']]],
+  ['height_1',['height',['../structnk__user__font.html#ab98ed37df408e0c2febfe448897ccf82',1,'nk_user_font']]],
+  ['honscreen_2',['hOnScreen',['../structVK2DCameraSpec.html#a0467278e94cfeaaadb9f5d8ba35a2e90',1,'VK2DCameraSpec']]]
 ];

@@ -1,0 +1,9 @@
+<map id="VK2D/nuklear.h" name="VK2D/nuklear.h">
+<area shape="rect" id="Node000001" title="main API and documentation file" alt="" coords="23,5,146,31"/>
+<area shape="rect" id="Node000002" href="$nuklear__defs_8h_source.html" title=" " alt="" coords="5,79,164,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,44,87,79,82,79,82,44"/>
+<area shape="rect" id="Node000003" href="$Gui_8h.html" title="GUI code for Vulkan2D." alt="" coords="37,152,133,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="87,118,87,152,82,152,82,118"/>
+<area shape="rect" id="Node000004" href="$VK2D_8h.html" title="Includes all the relevant things you need." alt="" coords="29,225,140,251"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="87,191,87,225,82,225,82,191"/>
+</map>

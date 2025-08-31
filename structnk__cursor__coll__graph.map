@@ -1,0 +1,9 @@
+<map id="nk_cursor" name="nk_cursor">
+<area shape="rect" id="Node000001" title=" " alt="" coords="82,181,167,207"/>
+<area shape="rect" id="Node000002" href="$structnk__image.html" title=" " alt="" coords="7,93,93,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="71,127,116,179,112,183,67,131"/>
+<area shape="rect" id="Node000003" href="$unionnk__handle.html" title=" " alt="" coords="5,5,95,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="53,45,53,93,47,93,47,45"/>
+<area shape="rect" id="Node000004" href="$structnk__vec2.html" title=" " alt="" coords="117,93,193,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="149,132,131,182,126,180,144,131"/>
+</map>

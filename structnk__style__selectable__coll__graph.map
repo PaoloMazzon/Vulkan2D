@@ -1,0 +1,20 @@
+<map id="nk_style_selectable" name="nk_style_selectable">
+<area shape="rect" id="Node000001" title=" " alt="" coords="77,607,228,632"/>
+<area shape="rect" id="Node000002" href="$structnk__style__item.html" title=" " alt="" coords="147,445,262,471"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,485,159,607,154,605,194,483"/>
+<area shape="rect" id="Node000003" href="$unionnk__style__item__data.html" title=" " alt="" coords="172,269,323,295"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="255,308,258,362,255,393,246,422,236,436,225,447,221,443,232,433,241,420,250,392,253,362,250,308"/>
+<area shape="rect" id="Node000004" href="$structnk__color.html" title=" " alt="" coords="78,181,155,207"/>
+<area shape="poly" id="edge8_Node000001_Node000004" title=" " alt="" coords="117,221,109,319,106,370,109,421,118,476,130,529,152,606,146,607,125,530,112,477,103,422,101,370,103,318,111,220"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="133,217,157,243,180,257,205,267,203,272,178,262,154,247,129,220"/>
+<area shape="rect" id="Node000005" href="$structnk__image.html" title=" " alt="" coords="168,93,255,119"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="216,132,227,206,246,269,241,270,222,207,211,133"/>
+<area shape="rect" id="Node000007" href="$structnk__nine__slice.html" title=" " alt="" coords="281,181,392,207"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="241,124,321,179,318,183,238,129"/>
+<area shape="rect" id="Node000006" href="$unionnk__handle.html" title=" " alt="" coords="5,5,95,31"/>
+<area shape="poly" id="edge10_Node000001_Node000006" title=" " alt="" coords="43,44,35,73,31,105,31,459,34,484,43,506,71,548,105,581,136,604,133,609,102,585,67,551,38,509,29,485,26,460,26,105,30,72,38,43"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="85,35,191,91,188,95,83,40"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="317,218,262,271,258,267,313,214"/>
+<area shape="rect" id="Node000008" href="$structnk__vec2.html" title=" " alt="" coords="287,445,363,471"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="329,484,323,535,313,561,297,585,265,606,229,617,227,612,263,601,293,581,309,559,318,533,323,484"/>
+</map>

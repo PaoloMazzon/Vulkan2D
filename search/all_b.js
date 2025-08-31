@@ -1,7 +1,15 @@
 var searchData=
 [
-  ['padding_0',['padding',['../structVK2DDrawInstance.html#aa51bf130300eb5337fb304ebe888aa06',1,'VK2DDrawInstance']]],
-  ['polygon_2eh_1',['Polygon.h',['../Polygon_8h.html',1,'']]],
-  ['polygons_2',['Polygons',['../md_docs_2QuickStart.html#autotoc_md9',1,'']]],
-  ['pos_3',['pos',['../structVK2DVertexColour.html#a9a6fdbd43e97d52bc65f196459b43035',1,'VK2DVertexColour::pos'],['../structVK2DVertex3D.html#a47f5660f3d90834f3a79ff622477de03',1,'VK2DVertex3D::pos'],['../structVK2DDrawCommand.html#a6eb16b1f53762cb42a6bd0a5938914ef',1,'VK2DDrawCommand::pos']]]
+  ['mat4_0',['mat4',['../Structs_8h.html#ab6e436b53a47afd9c980d7de503b9090',1,'Structs.h']]],
+  ['maxgeometryvertices_1',['maxGeometryVertices',['../structVK2DRendererLimits.html#a0e7d0def9ca08e4f1c4cc137721a7dd1',1,'VK2DRendererLimits']]],
+  ['maxinstanceddraws_2',['maxInstancedDraws',['../structVK2DRendererLimits.html#a2b7e0cd58bc015b01ed5156b30be1fae',1,'VK2DRendererLimits']]],
+  ['maxlinewidth_3',['maxLineWidth',['../structVK2DRendererLimits.html#acb8071dd27aa2378f65671d2b0c18db5',1,'VK2DRendererLimits']]],
+  ['maxmsaa_4',['maxMSAA',['../structVK2DRendererLimits.html#a97d87bbee90d6012d444007611fda335',1,'VK2DRendererLimits']]],
+  ['maxshaderbuffersize_5',['maxShaderBufferSize',['../structVK2DRendererLimits.html#ad75f11fa32dd8f188aef2273777af59a',1,'VK2DRendererLimits']]],
+  ['maxtextures_6',['maxTextures',['../structVK2DStartupOptions.html#a097e23a05e6cfb9a9fcc7c3fb06a0f22',1,'VK2DStartupOptions']]],
+  ['memory_7',['memory',['../structnk__buffer.html#a228b585debec1d328859fb52080ca3fd',1,'nk_buffer']]],
+  ['model_8',['model',['../structVK2DPushBuffer.html#ad6228beebfe1078aa28f29ee524817ac',1,'VK2DPushBuffer::model'],['../structVK2DAssetLoad.html#a780f1d790d0951752f13140927524790',1,'VK2DAssetLoad::Model'],['../structVK2DAssetLoad.html#ac834d5d69961e797daffece5c215481d',1,'VK2DAssetLoad::model'],['../structVK2DShadowObjectInfo.html#aee09f1dcdbfb254d5d85e66a3ef51a2d',1,'VK2DShadowObjectInfo::model'],['../structVK2DDrawInstance.html#a85d23c0bc4ade3507b5d16624b5caa7f',1,'VK2DDrawInstance::model'],['../structVK2DShadowsPushBuffer.html#ad940785abdb88eb4be7e7ad64fc2965b',1,'VK2DShadowsPushBuffer::model'],['../structVK2D3DPushBuffer.html#a1c3114c7efbe82a8b7f788bec95ceea8',1,'VK2D3DPushBuffer::model'],['../structVK2DShaderPushBuffer.html#a3c0f6e322d3af1bbfe7cbd8edef21c07',1,'VK2DShaderPushBuffer::model']]],
+  ['model_2eh_9',['Model.h',['../Model_8h.html',1,'']]],
+  ['models_10',['Models',['../md_docs_2QuickStart.html#autotoc_md106',1,'']]],
+  ['msaa_11',['msaa',['../structVK2DRendererConfig.html#a74482eb56a497d47e96b8291e7c25c6f',1,'VK2DRendererConfig']]]
 ];
