@@ -47,18 +47,14 @@ static VK2DDefaultLogger gDefaultLogger = {
         .severity = VK2D_LOG_SEVERITY_INFO,
 };
 
-static bool
-usingDefaultLogger()
-{
+static bool usingDefaultLogger() {
     return gLogger == (VK2DLogger *)&gDefaultLogger;
 }
 
 // We use arrays in some places for severity data, this should be called on any
 // user-supplied severity level to make sure we don't have an out of bounds
 // issue.
-static VK2DLogSeverity
-coerceSeverity(const VK2DLogSeverity severity)
-{
+static VK2DLogSeverity coerceSeverity(const VK2DLogSeverity severity) {
     // ensure we've been passed a valid severity level
     switch (severity) {
         case VK2D_LOG_SEVERITY_DEBUG: return VK2D_LOG_SEVERITY_DEBUG;
@@ -72,9 +68,7 @@ coerceSeverity(const VK2DLogSeverity severity)
     }
 }
 
-static const char *
-severityLabel(const VK2DLogSeverity severity, size_t *length)
-{
+static const char * severityLabel(const VK2DLogSeverity severity, size_t *length) {
     static const char *LABELS[] = {
             [VK2D_LOG_SEVERITY_DEBUG] = "debug",
             [VK2D_LOG_SEVERITY_INFO] = "info",
@@ -95,9 +89,7 @@ severityLabel(const VK2DLogSeverity severity, size_t *length)
     return LABELS[severity];
 }
 
-static FILE *
-defaultLogOutput(const VK2DDefaultLogger *log, const VK2DLogSeverity severity)
-{
+static FILE * defaultLogOutput(const VK2DDefaultLogger *log, const VK2DLogSeverity severity) {
     switch (severity) {
         case VK2D_LOG_SEVERITY_WARN:
         case VK2D_LOG_SEVERITY_ERROR: // fallthrough
@@ -107,9 +99,7 @@ defaultLogOutput(const VK2DDefaultLogger *log, const VK2DLogSeverity severity)
     }
 }
 
-static VK2DLogSeverity
-defaultSeverity(void *ptr)
-{
+static VK2DLogSeverity defaultSeverity(void *ptr) {
     const VK2DDefaultLogger *log = ptr;
     SDL_LockMutex(log->mutex);
     const VK2DLogSeverity severity = log->severity;
@@ -117,9 +107,7 @@ defaultSeverity(void *ptr)
     return severity;
 }
 
-static bool
-shouldLog(const VK2DLogSeverity severity)
-{
+static bool shouldLog(const VK2DLogSeverity severity) {
     if (severity == VK2D_LOG_SEVERITY_UNKNOWN
         || severity == VK2D_LOG_SEVERITY_FATAL)
         return true;
@@ -130,9 +118,7 @@ shouldLog(const VK2DLogSeverity severity)
     return severity >= current;
 }
 
-static void
-writeTimeString(char *buf)
-{
+static void writeTimeString(char *buf) {
     static const char *WEEK_DAYS[]
             = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
     static const char *MONTHS[] = { "Jan", "Feb", "Mar", "Apr", "May",
@@ -151,9 +137,7 @@ writeTimeString(char *buf)
              dt.minute, dt.second, dt.year);
 }
 
-static void
-destroyLogger(const bool lock)
-{
+static void destroyLogger(const bool lock) {
     if (lock) SDL_LockMutex(gLoggerMutex);
     if (gLogger != NULL) {
         if (gLogger->destroy != NULL)
@@ -163,9 +147,7 @@ destroyLogger(const bool lock)
     if (lock) SDL_UnlockMutex(gLoggerMutex);
 }
 
-static void
-defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
-{
+static void defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     const VK2DDefaultLogger *log = (VK2DDefaultLogger *)ptr;
     assert(usingDefaultLogger());
@@ -188,27 +170,21 @@ defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg)
     if (severity == VK2D_LOG_SEVERITY_FATAL) abort();
 }
 
-void
-vk2dSetLogger(VK2DLogger *logger)
-{
+void vk2dSetLogger(VK2DLogger *logger) {
     SDL_LockMutex(gLoggerMutex);
     destroyLogger(false);
     gLogger = logger;
     SDL_UnlockMutex(gLoggerMutex);
 }
 
-void
-vk2dLoggerLogf(const VK2DLogSeverity severity, const char *fmt, ...)
-{
+void vk2dLoggerLogf(const VK2DLogSeverity severity, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
     vk2dLoggerLogv(severity, fmt, args);
     va_end(args);
 }
 
-void
-vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap)
-{
+void vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap) {
     COERCE_SEVERITY(severity);
     // avoid allocation if possible
     char msgBuf[128];
@@ -229,9 +205,7 @@ vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap)
     if (buf != msgBuf) free(buf);
 }
 
-void
-vk2dLoggerLog(const VK2DLogSeverity severity, const char *msg)
-{
+void vk2dLoggerLog(const VK2DLogSeverity severity, const char *msg) {
     gLogger->log(gLogger->context, severity, msg);
     assert(severity != VK2D_LOG_SEVERITY_FATAL);
 #ifdef NDEBUG
@@ -239,17 +213,13 @@ vk2dLoggerLog(const VK2DLogSeverity severity, const char *msg)
 #endif
 }
 
-void
-vk2dLoggerDestroy()
-{
+void vk2dLoggerDestroy() {
     destroyLogger(true);
     SDL_DestroyMutex(gLoggerMutex);
     SDL_DestroyMutex(gDefaultLogger.mutex);
 }
 
-void
-vk2dLoggerInit()
-{
+void vk2dLoggerInit() {
     if (gInitialized) return;
     gDefaultLogger.errorOutput = stderr;
     gDefaultLogger.standardOutput = stdout;
@@ -259,25 +229,19 @@ vk2dLoggerInit()
     gInitialized = true;
 }
 
-void
-vk2dDefaultLoggerSetStandardOutput(FILE *out)
-{
+void vk2dDefaultLoggerSetStandardOutput(FILE *out) {
     SDL_LockMutex(gDefaultLogger.mutex);
     gDefaultLogger.standardOutput = out;
     SDL_UnlockMutex(gDefaultLogger.mutex);
 }
 
-void
-vk2dDefaultLoggerSetErrorOutput(FILE *out)
-{
+void vk2dDefaultLoggerSetErrorOutput(FILE *out) {
     SDL_LockMutex(gDefaultLogger.mutex);
     gDefaultLogger.errorOutput = out;
     SDL_UnlockMutex(gDefaultLogger.mutex);
 }
 
-void
-vk2dDefaultLoggerSetSeverity(const VK2DLogSeverity severity)
-{
+void vk2dDefaultLoggerSetSeverity(const VK2DLogSeverity severity) {
     SDL_LockMutex(gDefaultLogger.mutex);
     gDefaultLogger.severity = severity;
     SDL_UnlockMutex(gDefaultLogger.mutex);
