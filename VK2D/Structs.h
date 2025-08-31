@@ -434,22 +434,6 @@ struct VK2DLogger {
 	void *context;
 };
 
-/// \brief Info needed to load a font for the gui system
-struct VK2DGuiFont {
-	union {
-		struct {
-			void *data;  ///< Binary data of the font
-			size_t size; ///< Size of the binary data in bytes
-		};
-		const char *filename; ///< Filename to the ttf
-	};
-	struct nk_font_config *config; ///< Nuklear font config
-	const char *name;              ///< Name of the font
-	float height;                  ///< Height of the font
-	bool inMemory;                 ///< Set to true if the data is provided
-	                               ///< instead of the filename
-};
-
 VK2D_USER_STRUCT(VK2DVertexColour)
 VK2D_USER_STRUCT(VK2DVertex3D)
 VK2D_USER_STRUCT(VK2DUniformBufferObject)
@@ -469,7 +453,6 @@ VK2D_USER_STRUCT(VK2DShadowObjectInfo)
 VK2D_USER_STRUCT(VK2DInstancedPushBuffer)
 VK2D_USER_STRUCT(VK2DComputePushBuffer)
 VK2D_USER_STRUCT(VK2DLogger)
-VK2D_USER_STRUCT(VK2DGuiFont)
 
 #ifdef __cplusplus
 }

@@ -15,11 +15,6 @@ extern "C" {
 /// \return Returns the internal nuklear context for nuklear calls
 struct nk_context *vk2dGuiContext();
 
-/// \brief Loads a number of fonts
-/// \param fonts List of fonts to load
-/// \param count Number of fonts in the list
-void vk2dGuiLoadFonts(const VK2DGuiFont *fonts, size_t count);
-
 /// \brief Call this at the beginning of your SDL event loop
 void vk2dGuiStartInput();
 

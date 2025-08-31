@@ -39,16 +39,7 @@ main(int argc, const char *argv[])
 	vk2dRendererInit(window, config, &options);
 
 	debugInit(window);
-	static const struct VK2DGuiFont fonts[] = {
-		{
-			.filename = "assets/spleen.otf",
-			.config = NULL,
-			.name = "Spleen 32x64",
-			.height = 12,
-			.inMemory = false,
-		},
-	};
-	//vk2dGuiLoadFonts(fonts, 1);
+
 	float value = 0;
 	int op = 0;
 
