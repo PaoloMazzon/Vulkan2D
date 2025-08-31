@@ -23,38 +23,38 @@ static FILE *gErrorFile;
 static bool gQuitOnError;      // Same as above
 
 void vk2dValidationBegin(const char *errorFile, bool quitOnError) {
-	vk2dLoggerInit();
-	gLogMutex = SDL_CreateMutex();
-	if (errorFile != NULL) {
-		FILE *file = fopen(errorFile, "a");
-		if (file != NULL) {
-			vk2dDefaultLoggerAddErrorOutput(file);
-			gErrorFile = file;
-		}
-	}
-	gQuitOnError = quitOnError;
-	gStatus = 0;
+    vk2dLoggerInit();
+    gLogMutex = SDL_CreateMutex();
+    if (errorFile != NULL) {
+        FILE *file = fopen(errorFile, "a");
+        if (file != NULL) {
+            vk2dDefaultLoggerSetErrorOutput(file);
+            gErrorFile = file;
+        }
+    }
+    gQuitOnError = quitOnError;
+    gStatus = 0;
 }
 
 void vk2dValidationEnd() {
-	vk2dLoggerLog(VK2D_LOG_SEVERITY_INFO, "------END------");
-	vk2dLoggerDestroy();
-	SDL_DestroyMutex(gLogMutex);
-	if (gErrorFile != NULL) fclose(gErrorFile);
+    vk2dLoggerLog(VK2D_LOG_SEVERITY_INFO, "------END------");
+    vk2dLoggerDestroy();
+    SDL_DestroyMutex(gLogMutex);
+    if (gErrorFile != NULL) fclose(gErrorFile);
 }
 
 static int32_t stringLength(const char *str, int32_t size) {
-	int32_t len = 0;
-	for (int32_t i = 0; str[i] != 0 && i < size; i++) {
-		len++;
-	}
-	return len;
+    int32_t len = 0;
+    for (int32_t i = 0; str[i] != 0 && i < size; i++) {
+        len++;
+    }
+    return len;
 }
 
 void vk2dValidationWriteHeader() {
-	time_t t = time(NULL);
-	vk2dLoggerLog(VK2D_LOG_SEVERITY_INFO, "------START------");
-	vk2dLoggerLog(VK2D_LOG_SEVERITY_INFO, vk2dHostInformation());
+    time_t t = time(NULL);
+    vk2dLoggerLog(VK2D_LOG_SEVERITY_INFO, "------START------");
+    vk2dLoggerLog(VK2D_LOG_SEVERITY_INFO, vk2dHostInformation());
 }
 
 void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
@@ -62,17 +62,17 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
     if (result == VK2D_STATUS_RENDERER_NOT_INITIALIZED && (gStatus & VK2D_STATUS_RENDERER_NOT_INITIALIZED) != 0)
         return;
     if (gResetLog) {
-	    gResetLog = false;
-    	gStatus = 0;
-    	gLogBuffer[0] = 0;
+        gResetLog = false;
+        gStatus = 0;
+        gLogBuffer[0] = 0;
     }
     const VK2DLogSeverity severity = (gQuitOnError && vk2dStatusFatal()) ?
-    	VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
+                                     VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
     va_list ap;
     va_start(ap, fmt);
-	int32_t start = stringLength(gLogBuffer, gLogBufferSize);
-	int32_t length = gLogBufferSize - start;
-	vsnprintf(gLogBuffer + start, length, fmt, ap);
+    int32_t start = stringLength(gLogBuffer, gLogBufferSize);
+    int32_t length = gLogBufferSize - start;
+    vsnprintf(gLogBuffer + start, length, fmt, ap);
     vk2dLoggerLogv(severity, fmt, ap);
     va_end(ap);
 }
@@ -87,23 +87,24 @@ bool vk2dStatusFatal() {
 }
 
 const char *vk2dStatusMessage() {
-	gResetLog = true;
-	return gLogBuffer;
+    gResetLog = true;
+    return gLogBuffer;
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	char firstHalf[1000];
-	const bool isError = flags & VK_DEBUG_REPORT_ERROR_BIT_EXT;
-	const VK2DLogSeverity severity = isError
-	    ? gRenderer->options.quitOnError
-	    ? VK2D_LOG_SEVERITY_FATAL
-	    : VK2D_LOG_SEVERITY_ERROR
-	    : VK2D_LOG_SEVERITY_INFO;
-	// const VK2DLogSeverity severity = VK2D_LOG_SEVERITY_INFO;
-	vk2dLoggerLogf(severity, "%s: %s", layerPrefix, message);
-	if (gRenderer->options.quitOnError)
-		if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
-			abort();
-	return false;
+    VK2DRenderer gRenderer = vk2dRendererGetPointer();
+    char firstHalf[1000];
+    const bool isError = flags & VK_DEBUG_REPORT_ERROR_BIT_EXT;
+    const VK2DLogSeverity severity = isError
+                                     ? gRenderer->options.quitOnError
+                                       ? VK2D_LOG_SEVERITY_FATAL
+                                       : VK2D_LOG_SEVERITY_ERROR
+                                     : VK2D_LOG_SEVERITY_INFO;
+    snprintf(firstHalf, 999, "%s", layerPrefix);
+    vk2dLoggerLog(severity, firstHalf);
+    vk2dLoggerLog(severity, message);
+    if (gRenderer->options.quitOnError)
+        if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+            abort();
+    return false;
 }
