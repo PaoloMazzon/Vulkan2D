@@ -118,6 +118,14 @@ VK2DRenderer vk2dRendererGetPointer();
 /// up to 8x msaa, this function will return a configuration with 8x msaa.
 VK2DRendererConfig vk2dRendererGetConfig();
 
+/// \brief Checks if the renderer is set to log to stdout.
+/// \return true if stdout is enabled in the config or the renderer is NULL.
+///
+/// This is necessary because if the renderer is NULL when something tries to
+/// access it and the default log function is used, it will recurse until it
+/// blows the stack.
+bool vk2dRendererHasStdoutLogging();
+
 /// \brief Resets the renderer with a new configuration
 /// \param config New render user configuration to use
 ///

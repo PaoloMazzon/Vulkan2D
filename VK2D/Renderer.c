@@ -341,6 +341,10 @@ VK2DRendererConfig vk2dRendererGetConfig() {
 	return c;
 }
 
+bool vk2dRendererHasStdoutLogging() {
+	return gRenderer == NULL || gRenderer->options.stdoutLogging;
+}
+
 void vk2dRendererSetConfig(VK2DRendererConfig config) {
 	if (vk2dRendererGetPointer() != NULL) {
 		gRenderer->newConfig = config;

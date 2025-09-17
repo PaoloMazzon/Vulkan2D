@@ -148,7 +148,6 @@ static void destroyLogger(const bool lock) {
 }
 
 static void defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg) {
-    VK2DRenderer gRenderer = vk2dRendererGetPointer();
     const VK2DDefaultLogger *log = (VK2DDefaultLogger *)ptr;
     assert(usingDefaultLogger());
     COERCE_SEVERITY(severity);
@@ -163,7 +162,7 @@ static void defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg) {
     writeTimeString(timeString);
     // asctime() adds an extra \n at the end
     timeString[MAX_TIME_STRING_SIZE - 2] = '\0';
-    if (gRenderer->options.stdoutLogging) {
+    if (vk2dRendererHasStdoutLogging()) {
         fprintf(out, "[%s] [%s]%s %s\n", timeString, label, padding, msg);
         fflush(out);
     }
