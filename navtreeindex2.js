@@ -1,5 +1,6 @@
 var NAVTREEINDEX2 =
 {
+"structVK2DCameraSpec.html#a04f9abd0591c6e6c941eb29283fb26e5":[21,0,90,7],
 "structVK2DCameraSpec.html#a062484c25a8a4847537d743906451011":[21,0,90,11],
 "structVK2DCameraSpec.html#a0b0357a9bd2cda0f969fa44dfb8783e5":[21,0,90,13],
 "structVK2DCameraSpec.html#a168de3bf3faf8b47517c321c20270f80":[21,0,90,12],

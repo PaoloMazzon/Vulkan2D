@@ -214,6 +214,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>vk2dRendererQuit</b> 
 <tr class="memitem:aebfb698a734a5b22a4ad32041fa2a9a5" id="r_aebfb698a734a5b22a4ad32041fa2a9a5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structVK2DRendererConfig.html">VK2DRendererConfig</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#aebfb698a734a5b22a4ad32041fa2a9a5">vk2dRendererGetConfig</a> ()</td></tr>
 <tr class="memdesc:aebfb698a734a5b22a4ad32041fa2a9a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the current user configuration of the renderer.  <br /></td></tr>
 <tr class="separator:aebfb698a734a5b22a4ad32041fa2a9a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6bc1603bb4e2b0b69f00105d3d48347d" id="r_a6bc1603bb4e2b0b69f00105d3d48347d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a6bc1603bb4e2b0b69f00105d3d48347d">vk2dRendererHasStdoutLogging</a> ()</td></tr>
+<tr class="memdesc:a6bc1603bb4e2b0b69f00105d3d48347d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the renderer is set to log to stdout.  <br /></td></tr>
+<tr class="separator:a6bc1603bb4e2b0b69f00105d3d48347d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab34d140dc2f8827eca8ce0159d226372" id="r_ab34d140dc2f8827eca8ce0159d226372"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#ab34d140dc2f8827eca8ce0159d226372">vk2dRendererSetConfig</a> (<a class="el" href="structVK2DRendererConfig.html">VK2DRendererConfig</a> config)</td></tr>
 <tr class="memdesc:ab34d140dc2f8827eca8ce0159d226372"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the renderer with a new configuration.  <br /></td></tr>
 <tr class="separator:ab34d140dc2f8827eca8ce0159d226372"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -2416,6 +2419,27 @@ The wireframe may not look as you expect because models are triangulated </dd></
 <dd>
 These are estimates even if <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.supportsVRAMUsage is true. Do not assume that you will be able to allocate memory up to total without issue.</dd></dl>
 <p>This is mostly for debug purposes. If <a class="el" href="Renderer_8h.html#ae3e400550294f166e78f4f587f95b328" title="Returns the limits of the renderer on the current host.">vk2dRendererGetLimits()</a>.supportsVRAMUsage is false, this number is significantly less accurate. This number also may not be exactly as you expect because, for example, if you loaded a couple images and shader and expected them to only total to ~50MiB, it may show as more because this number may be including Vulkan objects that also live in VRAM like pipelines or render passes. </p>
+
+</div>
+</div>
+<a id="a6bc1603bb4e2b0b69f00105d3d48347d" name="a6bc1603bb4e2b0b69f00105d3d48347d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6bc1603bb4e2b0b69f00105d3d48347d">&#9670;&#160;</a></span>vk2dRendererHasStdoutLogging()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vk2dRendererHasStdoutLogging </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Checks if the renderer is set to log to stdout. </p>
+<dl class="section return"><dt>Returns</dt><dd>true if stdout is enabled in the config or the renderer is NULL.</dd></dl>
+<p>This is necessary because if the renderer is NULL when something tries to access it and the default log function is used, it will recurse until it blows the stack. </p>
 
 </div>
 </div>

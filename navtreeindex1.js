@@ -1,5 +1,6 @@
 var NAVTREEINDEX1 =
 {
+"Texture_8h.html":[22,0,0,13],
 "Texture_8h.html#a0b267952ecd2419e0d6161605d932710":[22,0,0,13,7],
 "Texture_8h.html#a0ba8c615ffe2208f0efaab0b1eae29aa":[22,0,0,13,1],
 "Texture_8h.html#a5412de117ae8a104eef2a6de341804fc":[22,0,0,13,2],
@@ -108,8 +109,8 @@ var NAVTREEINDEX1 =
 "nuklear_8h.html#a35eb1ef534da74f5b1a6cfd873aad40e":[22,0,0,5,169],
 "nuklear_8h.html#a369a7855c556b4f77c23a7114c70b9d1":[22,0,0,5,88],
 "nuklear_8h.html#a3bf8ed829f20eeee39b9fb6f734ff9ce":[22,0,0,5,150],
-"nuklear_8h.html#a3d052e6e91b71a1837356c6f8bebb1a6":[22,0,0,5,91],
 "nuklear_8h.html#a3d052e6e91b71a1837356c6f8bebb1a6":[22,0,0,5,92],
+"nuklear_8h.html#a3d052e6e91b71a1837356c6f8bebb1a6":[22,0,0,5,91],
 "nuklear_8h.html#a3d22f7496565fb07532fa0c473894915":[22,0,0,5,85],
 "nuklear_8h.html#a3f69488ed64807aac9ba3a699b056a36":[22,0,0,5,172],
 "nuklear_8h.html#a4122ba85b642a16b61268932b1fed694":[22,0,0,5,117],
@@ -248,6 +249,5 @@ var NAVTREEINDEX1 =
 "structVK2DAssetLoad.html#af9ce9a359c9a8df39e241a0232d2970f":[21,0,89,6],
 "structVK2DAssetLoad.html#affc2ac6e4f5b6ca5933007f0205cf189":[21,0,89,5],
 "structVK2DCameraSpec.html":[21,0,90],
-"structVK2DCameraSpec.html#a0467278e94cfeaaadb9f5d8ba35a2e90":[21,0,90,4],
-"structVK2DCameraSpec.html#a04f9abd0591c6e6c941eb29283fb26e5":[21,0,90,7]
+"structVK2DCameraSpec.html#a0467278e94cfeaaadb9f5d8ba35a2e90":[21,0,90,4]
 };
