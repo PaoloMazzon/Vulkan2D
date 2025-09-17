@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL3/SDL_vulkan.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "VK2D/VK2D.h"
 #include "VK2D/Validation.h"
 #include <stdio.h>
