@@ -69,10 +69,12 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
     const VK2DLogSeverity severity = (gQuitOnError && vk2dStatusFatal()) ?
                                      VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
     va_list ap;
-    va_start(ap, fmt);
     int32_t start = stringLength(gLogBuffer, gLogBufferSize);
     int32_t length = gLogBufferSize - start;
+    va_start(ap, fmt);
     vsnprintf(gLogBuffer + start, length, fmt, ap);
+    va_end(ap);
+    va_start(ap, fmt);
     vk2dLoggerLogv(severity, fmt, ap);
     va_end(ap);
 }
