@@ -95,7 +95,7 @@ extern "C" {
 /// `vramPageSize` defaults to `256 * 1000`, setting this to 0 also uses `256 * 1000`
 /// `maxTextures` defaults to 10000, setting this to 0 also uses 10000.
 ///
-VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options);
+VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const VK2DStartupOptions *options);
 
 /// \brief Waits until current GPU tasks are done before moving on
 ///

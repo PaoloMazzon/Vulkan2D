@@ -19,9 +19,15 @@
 #define NK_KEYSTATE_BASED_INPUT
 
 #if __STDC_VERSION__ >= 202311L || defined(__cplusplus)
-#define NK_STATIC_ASSERT(...) static_assert(__VA_ARGS__)
+#define NK_STATIC_ASSERT(...) static_assert(__VA_ARGS__, #__VA_ARGS__)
 #elif __STDC_VERSION__ >= 201112L
-#define NK_STATIC_ASSERT(...) _Static_assert(__VA_ARGS__)
+#define NK_STATIC_ASSERT(...) _Static_assert(__VA_ARGS__, #__VA_ARGS__)
+#else
+#ifndef __cplusplus
+#error "C11 or greater is required"
+#else
+#define NK_ALIGNOF
+#endif
 #endif
 #define NK_ASSERT(expr) assert(expr)
 #define NK_MEMSET(ptr, val, size) memset(ptr, val, size)

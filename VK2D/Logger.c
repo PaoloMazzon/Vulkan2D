@@ -170,9 +170,12 @@ static void defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg) {
 }
 
 void vk2dSetLogger(VK2DLogger *logger) {
+    // this could be called before initialization by an external library
+    vk2dLoggerInit();
     SDL_LockMutex(gLoggerMutex);
     destroyLogger(false);
-    gLogger = logger;
+    if (logger != NULL) gLogger = logger;
+    else gLogger = (VK2DLogger *)&gDefaultLogger;
     SDL_UnlockMutex(gLoggerMutex);
 }
 
@@ -187,19 +190,24 @@ void vk2dLoggerLogv(VK2DLogSeverity severity, const char *fmt, va_list ap) {
     COERCE_SEVERITY(severity);
     // avoid allocation if possible
     char msgBuf[128];
+    va_list apDup;
+    va_copy(apDup, ap);
     const size_t len = vsnprintf(NULL, 0, fmt, ap);
     size_t bufLen = sizeof(msgBuf) / sizeof(char);
+
     char *buf = msgBuf;
     if (len + 1 > bufLen) {
         bufLen = len + 1;
         buf = calloc(bufLen, sizeof(char));
         if (buf == NULL) {
+            va_end(apDup);
             vk2dRaise(VK2D_STATUS_OUT_OF_RAM,
                       "Failed to allocate memory for error message");
             return;
         }
     }
-    vsnprintf(buf, len + 1, fmt, ap);
+    vsnprintf(buf, len + 1, fmt, apDup);
+    va_end(apDup);
     vk2dLoggerLog(severity, buf);
     if (buf != msgBuf) free(buf);
 }
@@ -216,6 +224,8 @@ void vk2dLoggerDestroy() {
     destroyLogger(true);
     SDL_DestroyMutex(gLoggerMutex);
     SDL_DestroyMutex(gDefaultLogger.mutex);
+    gLogger = NULL;
+    gInitialized = false;
 }
 
 void vk2dLoggerInit() {
