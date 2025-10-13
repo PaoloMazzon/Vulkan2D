@@ -50,7 +50,7 @@ struct nk_sdl_device {
     VkFence *frameStartFences; // one per sc image
     VkSampler sampler;
     VkCommandPool command_pool;
-    VkSemaphore render_completed;
+    VkSemaphore *render_completed_semaphores;
     VkBuffer *vertex_buffers; // TODO: Change these to 1 per swapchain image as these are causing sync issues
     VkDeviceMemory *vertex_memorys;
     void **mapped_vertexs;
@@ -425,9 +425,13 @@ nk_sdl_create_semaphore(struct nk_sdl_device *dev)
     memset(&semaphore_info, 0, sizeof(VkSemaphoreCreateInfo));
 
     semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    result = (vkCreateSemaphore(dev->logical_device, &semaphore_info, NULL,
-                                &dev->render_completed));
-    NK_ASSERT(result == VK_SUCCESS);
+    dev->render_completed_semaphores = malloc(sizeof(VkSemaphore) * dev->image_views_len);
+    NK_ASSERT(dev->render_completed_semaphores);
+    for (int i = 0; i < dev->image_views_len; i++) {
+        result = vkCreateSemaphore(dev->logical_device, &semaphore_info, NULL,
+                                   &dev->render_completed_semaphores[i]);
+        NK_ASSERT(result == VK_SUCCESS);
+    }
 }
 
 NK_INTERN void
@@ -1210,9 +1214,10 @@ nk_sdl_device_destroy(void)
     vkFreeCommandBuffers(dev->logical_device, dev->command_pool,
                          dev->command_buffers_len, dev->command_buffers);
     vkDestroyCommandPool(dev->logical_device, dev->command_pool, NULL);
-    vkDestroySemaphore(dev->logical_device, dev->render_completed, NULL);
-    for (int i = 0; i < dev->image_views_len; i++)
+    for (int i = 0; i < dev->image_views_len; i++) {
         vkDestroyFence(dev->logical_device, dev->frameStartFences[i], VK_NULL_HANDLE);
+        vkDestroySemaphore(dev->logical_device, dev->render_completed_semaphores[i], NULL);
+    }
 
     for (int i = 0; i < dev->image_views_len; i++) {
         vkUnmapMemory(dev->logical_device, dev->vertex_memorys[i]);
@@ -1647,7 +1652,7 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
     submit_info.waitSemaphoreCount = wait_semaphore_count;
     submit_info.pWaitSemaphores = wait_semaphores;
     submit_info.signalSemaphoreCount = 1;
-    submit_info.pSignalSemaphores = &dev->render_completed;
+    submit_info.pSignalSemaphores = &dev->render_completed_semaphores[buffer_index];
 
     result = vkQueueSubmit(graphics_queue, 1, &submit_info, dev->frameStartFences[buffer_index]);
     NK_ASSERT(result == VK_SUCCESS);
@@ -1656,7 +1661,7 @@ nk_sdl_render(VkQueue graphics_queue, uint32_t buffer_index,
     nk_buffer_clear(&vbuf);
     nk_buffer_clear(&ebuf);
 
-    return dev->render_completed;
+    return dev->render_completed_semaphores[buffer_index];
 }
 
 NK_INTERN void

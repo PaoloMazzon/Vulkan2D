@@ -40,7 +40,9 @@ EXCLUDE                = VulkanMemoryAllocator/ \
                          VK2D/BlendModes.h \
                          VK2D/RendererMeta.h \
                          VK2D/Validation.h \
-                         VK2D/Util.h
+                         VK2D/Util.h \
+                         VK2D/nuklear.c \
+                         VK2D/nuklear_sdl_vulkan.h
 
 #HTML_HEADER           = header.html
 HTML_EXTRA_STYLESHEET  = doxygen-awesome-css/doxygen-awesome.css \
