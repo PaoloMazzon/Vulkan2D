@@ -1,26 +1,20 @@
 <map id="VK2D/Gui.h" name="VK2D/Gui.h">
-<area shape="rect" id="Node000001" title="GUI code for Vulkan2D." alt="" coords="400,5,496,31"/>
-<area shape="rect" id="Node000002" href="$nuklear__defs_8h_source.html" title=" " alt="" coords="287,79,446,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="437,33,392,72,388,68,433,29"/>
-<area shape="rect" id="Node000010" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="470,79,589,104"/>
-<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="463,29,508,68,504,72,459,33"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="257,225,332,251"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="367,105,359,139,344,179,317,217,313,214,339,176,354,137,362,104"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="374,225,445,251"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="373,103,388,151,405,211,400,213,383,153,368,105"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="455,152,579,177"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="392,102,481,144,479,148,390,106"/>
-<area shape="rect" id="Node000006" href="$nuklear_8h.html" title="main API and documentation file" alt="" coords="247,152,329,177"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="356,106,313,145,309,141,352,102"/>
-<area shape="rect" id="Node000007" href="$nuklear__sdl__vulkan_8h_source.html" title=" " alt="" coords="63,152,222,177"/>
-<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="331,107,193,150,191,145,330,101"/>
-<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="168,175,259,217,257,222,166,180"/>
-<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="186,175,361,221,360,226,185,180"/>
-<area shape="rect" id="Node000008" title=" " alt="" coords="5,225,80,251"/>
-<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="128,180,72,219,69,215,125,175"/>
-<area shape="rect" id="Node000009" title=" " alt="" coords="104,225,200,251"/>
-<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="147,177,151,211,146,212,142,178"/>
-<area shape="poly" id="edge12_Node000010_Node000005" title=" " alt="" coords="530,105,524,139,519,138,525,104"/>
-<area shape="rect" id="Node000011" title=" " alt="" coords="604,152,687,177"/>
-<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="549,102,616,142,613,147,547,106"/>
+<area shape="rect" id="Node000001" title="GUI code for Vulkan2D." alt="" coords="349,5,445,31"/>
+<area shape="rect" id="Node000002" href="$nuklear__defs_8h_source.html" title=" " alt="" coords="235,79,394,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="386,33,340,72,337,67,382,29"/>
+<area shape="rect" id="Node000008" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="493,79,611,104"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="423,28,515,70,513,75,421,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,80,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="272,107,94,153,92,148,270,101"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="105,152,175,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="288,106,182,149,180,144,286,102"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="490,152,614,177"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="354,101,501,145,500,151,352,107"/>
+<area shape="rect" id="Node000006" href="$nuklear_8h.html" title="main API and documentation file" alt="" coords="200,152,283,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="304,106,265,144,261,140,301,102"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="307,152,466,177"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="328,102,367,140,363,144,325,106"/>
+<area shape="poly" id="edge8_Node000008_Node000005" title=" " alt="" coords="555,104,555,138,549,138,549,104"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="639,152,721,177"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="574,102,648,143,646,147,571,106"/>
 </map>

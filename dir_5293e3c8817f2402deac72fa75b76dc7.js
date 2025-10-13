@@ -7,7 +7,6 @@ var dir_5293e3c8817f2402deac72fa75b76dc7 =
     [ "Model.h", "Model_8h.html", "Model_8h" ],
     [ "nuklear.h", "nuklear_8h.html", "nuklear_8h" ],
     [ "nuklear_defs.h", "nuklear__defs_8h_source.html", null ],
-    [ "nuklear_sdl_vulkan.h", "nuklear__sdl__vulkan_8h_source.html", null ],
     [ "Polygon.h", "Polygon_8h.html", "Polygon_8h" ],
     [ "Renderer.h", "Renderer_8h.html", "Renderer_8h" ],
     [ "Shader.h", "Shader_8h.html", "Shader_8h" ],

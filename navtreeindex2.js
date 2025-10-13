@@ -1,6 +1,5 @@
 var NAVTREEINDEX2 =
 {
-"structVK2DCameraSpec.html#a04f9abd0591c6e6c941eb29283fb26e5":[21,0,90,7],
 "structVK2DCameraSpec.html#a062484c25a8a4847537d743906451011":[21,0,90,11],
 "structVK2DCameraSpec.html#a0b0357a9bd2cda0f969fa44dfb8783e5":[21,0,90,13],
 "structVK2DCameraSpec.html#a168de3bf3faf8b47517c321c20270f80":[21,0,90,12],
@@ -204,5 +203,5 @@ var NAVTREEINDEX2 =
 "unionnk__handle.html":[21,0,34],
 "unionnk__page__data.html":[21,0,47],
 "unionnk__style__item__data.html":[21,0,65],
-"uthash_8h_source.html":[22,0,0,14]
+"uthash_8h_source.html":[22,0,0,13]
 };

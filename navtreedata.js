@@ -121,7 +121,7 @@ var NAVTREEINDEX =
 [
 "Camera_8h.html",
 "Texture_8h.html",
-"structVK2DCameraSpec.html#a04f9abd0591c6e6c941eb29283fb26e5"
+"structVK2DCameraSpec.html#a062484c25a8a4847537d743906451011"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
