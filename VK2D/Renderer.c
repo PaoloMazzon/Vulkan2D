@@ -48,7 +48,7 @@ static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
 
 /******************************* User-visible functions *******************************/
 
-VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, VK2DStartupOptions *options) {
+VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const VK2DStartupOptions *options) {
 	gRenderer = calloc(1, sizeof(struct VK2DRenderer_t));
 	VK2DResult errorCode = VK2D_SUCCESS;
 	uint32_t i, sdlExtensionsCount;

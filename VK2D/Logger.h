@@ -6,6 +6,10 @@
 
 #include "VK2D/Structs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// \brief Initializes the global values for logging
 void vk2dLoggerInit();
 
@@ -13,6 +17,8 @@ void vk2dLoggerInit();
 void vk2dLoggerDestroy();
 
 /// \brief Supply user context and callbacks for logger
+/// \note NULL may be passed to reset to the default logger.
+/// \note The current logger will be destroyed if it has a destroy() callback.
 void vk2dSetLogger(VK2DLogger *logger);
 
 /// \brief Log a message with a printf() style string
@@ -41,31 +47,37 @@ void vk2dLogDebug(const char *fmt, ...);
 void vk2dLogDebugv(const char *fmt, va_list ap);
 
 /// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_INFO severity
-void vk2dLogInfo(const char* fmt, ...);
+void vk2dLogInfo(const char *fmt, ...);
 
 /// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_INFO severity
-void vk2dLogInfov(const char* fmt, va_list ap);
+void vk2dLogInfov(const char *fmt, va_list ap);
 
 /// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_WARN severity
-void vk2dLogWarn(const char* fmt, ...);
+void vk2dLogWarn(const char *fmt, ...);
 
 /// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_WARN severity
-void vk2dLogWarnv(const char* fmt, va_list ap);
+void vk2dLogWarnv(const char *fmt, va_list ap);
 
 /// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_ERROR severity
-void vk2dLogError(const char* fmt, ...);
+void vk2dLogError(const char *fmt, ...);
 
-/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_ERROR severity
-void vk2dLogErrorv(const char* fmt, va_list ap);
+/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_ERROR
+/// severity
+void vk2dLogErrorv(const char *fmt, va_list ap);
 
 /// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_FATAL severity
-void vk2dLogFatal(const char* fmt, ...);
+void vk2dLogFatal(const char *fmt, ...);
 
-/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_FATAL severity
-void vk2dLogFatalv(const char* fmt, va_list ap);
+/// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_FATAL
+/// severity
+void vk2dLogFatalv(const char *fmt, va_list ap);
 
 /// \brief Prints a printf() style message with VK2D_LOG_SEVERITY_UNKNOWN
-void vk2dLogUnknown(const char* fmt, ...);
+void vk2dLogUnknown(const char *fmt, ...);
 
 /// \brief Prints a vprintf() style message with VK2D_LOG_SEVERITY_UNKNOWN
-void vk2dLogUnknownv(const char* fmt, va_list ap);
+void vk2dLogUnknownv(const char *fmt, va_list ap);
+
+#ifdef __cplusplus
+}
+#endif
