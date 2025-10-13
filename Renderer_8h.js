@@ -58,7 +58,7 @@ var Renderer_8h =
     [ "vk2dRendererGetPointer", "Renderer_8h.html#aa4ab5c37514f89151b8ed4d3bac1c79a", null ],
     [ "vk2dRendererGetVRAMUsage", "Renderer_8h.html#adf3e046a2be4e814c17b502d17e10c36", null ],
     [ "vk2dRendererHasStdoutLogging", "Renderer_8h.html#a6bc1603bb4e2b0b69f00105d3d48347d", null ],
-    [ "vk2dRendererInit", "Renderer_8h.html#a217c49f31fe2b9a7babdca3b907673cd", null ],
+    [ "vk2dRendererInit", "Renderer_8h.html#afca7052c3bb3542a5350510a1997005d", null ],
     [ "vk2dRendererLockCameras", "Renderer_8h.html#a14c7ecf0c27cc9f42e9ac554c8a6c618", null ],
     [ "vk2dRendererQuit", "Renderer_8h.html#ac7e4810cf1f892c9f2b0a95a200a2ec4", null ],
     [ "vk2dRendererResetSwapchain", "Renderer_8h.html#a72ed2a4b6ddec99dd3254883c654f63b", null ],
