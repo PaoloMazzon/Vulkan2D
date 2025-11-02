@@ -1182,7 +1182,7 @@ void _vk2dRendererCreateSynchronization() {
 	VkSemaphoreCreateInfo semaphoreCreateInfo = vk2dInitSemaphoreCreateInfo(0);
 	VkFenceCreateInfo fenceCreateInfo = vk2dInitFenceCreateInfo(VK_FENCE_CREATE_SIGNALED_BIT);
 	gRenderer->imageAvailableSemaphores = calloc(1, sizeof(VkSemaphore) * VK2D_MAX_FRAMES_IN_FLIGHT);
-	gRenderer->renderFinishedSemaphores = calloc(1, sizeof(VkSemaphore) * VK2D_MAX_FRAMES_IN_FLIGHT);
+	gRenderer->renderFinishedSemaphores = calloc(1, sizeof(VkSemaphore) * gRenderer->swapchainImageCount);
 	gRenderer->inFlightFences = calloc(1, sizeof(VkFence) * VK2D_MAX_FRAMES_IN_FLIGHT);
 	gRenderer->imagesInFlight = calloc(1, sizeof(VkFence) * gRenderer->swapchainImageCount);
 	gRenderer->commandBuffer = calloc(1, sizeof(VkCommandBuffer) * gRenderer->swapchainImageCount);
@@ -1192,12 +1192,16 @@ void _vk2dRendererCreateSynchronization() {
     if (gRenderer->imageAvailableSemaphores != NULL && gRenderer->renderFinishedSemaphores != NULL
 		&& gRenderer->inFlightFences != NULL && gRenderer->imagesInFlight != NULL) {
 		for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
-			VkResult r1 = vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->imageAvailableSemaphores[i]);
-			VkResult r2 = vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->renderFinishedSemaphores[i]);
 			VkResult r3 = vkCreateFence(gRenderer->ld->dev, &fenceCreateInfo, VK_NULL_HANDLE, &gRenderer->inFlightFences[i]);
-			if (r1 != VK_SUCCESS || r2 != VK_SUCCESS || r3 != VK_SUCCESS)
-			    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create synchronization objects, Vulkan error %i/%i/%i.", r1, r2, r3);
+            VkResult r1 = vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->imageAvailableSemaphores[i]);
+			if (r3 != VK_SUCCESS || r1 != VK_SUCCESS)
+			    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create synchronization objects, Vulkan error %i/%i.", r1, r3);
 		}
+        for (i = 0; i < gRenderer->swapchainImageCount; i++) {
+            VkResult r2 = vkCreateSemaphore(gRenderer->ld->dev, &semaphoreCreateInfo, VK_NULL_HANDLE, &gRenderer->renderFinishedSemaphores[i]);
+            if (r2 != VK_SUCCESS)
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create synchronization objects, Vulkan error %i.", r2);
+        }
 	} else {
 	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate synchronization objects.");
 	}
@@ -1222,9 +1226,12 @@ void _vk2dRendererDestroySynchronization() {
 
 	if (gRenderer->renderFinishedSemaphores != NULL && gRenderer->imageAvailableSemaphores != NULL && gRenderer->inFlightFences != NULL) {
         for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(gRenderer->ld->dev, gRenderer->renderFinishedSemaphores[i], VK_NULL_HANDLE);
             vkDestroySemaphore(gRenderer->ld->dev, gRenderer->imageAvailableSemaphores[i], VK_NULL_HANDLE);
             vkDestroyFence(gRenderer->ld->dev, gRenderer->inFlightFences[i], VK_NULL_HANDLE);
+        }
+
+        for (i = 0; i < gRenderer->swapchainImageCount; i++) {
+            vkDestroySemaphore(gRenderer->ld->dev, gRenderer->renderFinishedSemaphores[i], VK_NULL_HANDLE);
         }
     }
 	free(gRenderer->imagesInFlight);

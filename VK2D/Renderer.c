@@ -515,7 +515,7 @@ VK2DResult vk2dRendererEndFrame() {
 			VkSubmitInfo submitInfo = vk2dInitSubmitInfo(
 					bufs,
 					3,
-					&gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
+					&gRenderer->renderFinishedSemaphores[gRenderer->scImageIndex],
 					1,
 					&gRenderer->imageAvailableSemaphores[gRenderer->currentFrame],
 					1,
@@ -539,13 +539,13 @@ VK2DResult vk2dRendererEndFrame() {
 			}
 
 			// Synchronization depends on if nuklear is enabled
-            VkSemaphore presentWaitSemaphores[1] = {gRenderer->renderFinishedSemaphores[gRenderer->currentFrame]};
+            VkSemaphore presentWaitSemaphores[1] = {gRenderer->renderFinishedSemaphores[gRenderer->scImageIndex]};
 
             // Draw nuklear
 			if (gRenderer->options.enableNuklear) {
 				VkSemaphore nkSemaphore = nk_sdl_render(
 				    gRenderer->ld->queue, gRenderer->scImageIndex,
-				    gRenderer->renderFinishedSemaphores[gRenderer->currentFrame],
+				    gRenderer->renderFinishedSemaphores[gRenderer->scImageIndex],
 				    NK_ANTI_ALIASING_ON);
                 presentWaitSemaphores[0] = nkSemaphore;
 			}
