@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Vulkan REQUIRED)
 if(VK2D_BUILD_SDL)
     add_subdirectory(extern/SDL)
+    set(EXTRA_INCLUDE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/SDL/include>)
 endif()
 
 # Vulkan2D
@@ -48,6 +49,7 @@ target_include_directories(Vulkan2D
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/VK2D/include>
         $<INSTALL_INTERFACE:include>
+        ${EXTRA_INCLUDE}
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/extern/VulkanMemoryAllocator/include
 )
@@ -66,7 +68,6 @@ if(VK2D_BUILD_EXAMPLES)
     add_subdirectory(examples/main)
     add_subdirectory(examples/gui)
     add_subdirectory(examples/retrolook)
-    add_subdirectory(examples/shadows)
     add_subdirectory(examples/shadowsglsl)
     add_subdirectory(examples/splitscreen)
     add_subdirectory(examples/testing)

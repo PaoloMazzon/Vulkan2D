@@ -42,9 +42,12 @@ git submodule add --recursive https://github.com/PaoloMazzon/Vulkan2D.git
 
 ```cmake
 add_subdirectory(Vulkan2D/)
-# your cmake script
-target_link_libraries(my-game PRIVATE Vulkan2D SDL3::SDL3)
+add_executable(my-game main.c)
+target_link_libraries(my-game PRIVATE Vulkan2D)
 ```
+
+There is an option to prevent Vulkan2D from using its own SDL3 so you may provide your own specific
+version if need be.
 
 Example
 =======

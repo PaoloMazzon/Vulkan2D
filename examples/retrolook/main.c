@@ -11,8 +11,8 @@
 /************************ Constants ************************/
 const float LOGICAL_WIDTH = 256;
 const float LOGICAL_HEIGHT = 224;
-const int WINDOW_WIDTH  = (int)LOGICAL_WIDTH * 3;
-const int WINDOW_HEIGHT = (int)LOGICAL_HEIGHT * 3;
+const int WINDOW_WIDTH  = 256 * 3;
+const int WINDOW_HEIGHT = 224 * 3;
 
 static inline float min(float x, float y) {
 	if (x < y)
