@@ -32,34 +32,22 @@ Check out the [documentation website](https://paolomazzon.github.io/Vulkan2D/ind
 
 Usage
 =====
-Using VK2D is fairly simple, make sure you include all the C source files and include `Vulkan2D/` (and access the files
-via `VK2D/VK2D.h`). You also need to build VMA & SDL3 with it, check one of the CMake files in `examples/` for a detailed
-example. You will end up having something like the following:
+The only officially supported way to use VK2D is via `add_subdirectory`. For the least painful
+and most out-of-the-box way to use VK2D, include as a Git submodule and use `add_subdirectory`
+in your CMakeLists.txt file.
 
-    find_package(Vulkan)
-    # ...
-    file(GLOB C_FILES Vulkan2D/VK2D/*.c)
-    set(VMA_FILES Vulkan2D/VulkanMemoryAllocator/src/VmaUsage.cpp)
-    # ...
-    include_directories(Vulkan2D/ ...)
-    add_executable(${PROJECT_NAME} main.c ${VMA_FILES} ${C_FILES})
+```bash
+git submodule add --recursive https://github.com/PaoloMazzon/Vulkan2D.git
+```
 
-Vulkan2D requires the following external dependencies:
-
-    SDL3, 3.2.0+
-    Vulkan 1.2+
-    C11 + C standard library
-    C++17 (VMA uses C++17)
-
-Vulkan2D uses SDL3 under the hood for many things, but earlier versions used SDL2 if for whatever reason you are unable
-to upgrade to SDL3. Vulkan2D only requires you to init `SDL_INIT_EVENTS`.
+```cmake
+add_subdirectory(Vulkan2D/)
+# your cmake script
+target_link_libraries(my-game PRIVATE Vulkan2D SDL3::SDL3)
+```
 
 Example
 =======
-
-By default the program automatically crashes on fatal errors, but you may specify Vulkan2D to not do
-that and check for errors on your own. The following example uses default settings meaning that if there
-is an error in VK2D, it will print the status to `vk2derror.txt` and quit. 
 
 ```c
 SDL_Init(SDL_INIT_EVENTS);
@@ -100,12 +88,6 @@ SDL_DestroyWindow(window);
 SDL_Quit();
 ```
 
-If you don't want VK2D to crash on errors you may specify that in the struct `VK2DStartupOptions` passed to
-`vk2dRendererInit` and check for errors yourself with `vk2dStatus`, `vk2dStatusMessage`, and
-`vk2dStatusFatal`. Any VK2D function can raise fatal errors but unless you pass bad pointers
-to VK2D functions, they will not crash if there is a fatal error and will instead simply do
-nothing.
-
 Running the Examples
 ====================
 All examples are tested to work on Windows and Ubuntu. The `CMakeLists.txt` at the root
@@ -115,17 +97,10 @@ shader before running the `examples/main/` example with:
     glslc assets/test.frag -o assets/test.frag.spv
     glslc assets/test.vert -o assets/test.vert.spv
 
-If you don't trust binary blobs you may also compile the binary shader blobs with the command
-
-    genblobs.py colour.vert colour.frag instanced.vert instanced.frag model.vert model.frag shadows.vert shadows.frag spritebatch.comp
-
-run from the `shaders/` folder (requires Python).
-
 Roadmap
 =======
 
- + Asynchronous loading
- + Ability to disable 3D resources
- + Better pipelines/shader support
- + GPU readback
- + Soft shadows
+ + Stability improvements
+ + Custom allocator support
+ + Better shader support
+ + GPU readback/screenshots
