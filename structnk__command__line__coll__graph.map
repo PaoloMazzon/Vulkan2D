@@ -1,9 +1,0 @@
-<map id="nk_command_line" name="nk_command_line">
-<area shape="rect" id="Node000001" title=" " alt="" coords="110,108,251,133"/>
-<area shape="rect" id="Node000002" href="$structnk__command.html" title=" " alt="" coords="5,5,116,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,39,128,82,162,106,159,110,124,86,79,43"/>
-<area shape="rect" id="Node000003" href="$structnk__vec2i.html" title=" " alt="" coords="141,5,221,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="183,45,183,108,178,108,178,45"/>
-<area shape="rect" id="Node000004" href="$structnk__color.html" title=" " alt="" coords="245,5,322,31"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="268,44,229,86,199,110,196,106,226,82,264,40"/>
-</map>

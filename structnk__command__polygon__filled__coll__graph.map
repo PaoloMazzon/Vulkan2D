@@ -1,9 +1,0 @@
-<map id="nk_command_polygon_filled" name="nk_command_polygon_filled">
-<area shape="rect" id="Node000001" title=" " alt="" coords="95,93,264,133"/>
-<area shape="rect" id="Node000002" href="$structnk__command.html" title=" " alt="" coords="5,5,116,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,37,157,91,154,95,85,41"/>
-<area shape="rect" id="Node000003" href="$structnk__color.html" title=" " alt="" coords="141,5,218,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="182,44,182,93,177,93,177,44"/>
-<area shape="rect" id="Node000004" href="$structnk__vec2i.html" title=" " alt="" coords="242,5,322,31"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="261,42,202,95,198,91,258,38"/>
-</map>
