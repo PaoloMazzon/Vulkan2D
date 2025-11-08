@@ -135,7 +135,7 @@ like mini-maps or split-screen (see the split-screen example in `examples/` for 
 may also use `vk2dRendererLockCameras` to force the renderer to only render to a specific camera.
 
 The first camera is always reserved for the renderer, you may refer to it as `VK2D_DEFAULT_CAMERA` and while you
-may update it, its recommended to leave it for UI drawing because it will be changed by the renderer without
+may update it, it's recommended to leave it for UI drawing because it will be changed by the renderer without
 warning whenever the window is resized.
 
 To create and use a camera, you need a camera specification (`VK2DCameraSpec`) and camera index (`VK2DCameraIndex`).

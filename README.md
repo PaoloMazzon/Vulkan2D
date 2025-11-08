@@ -6,32 +6,29 @@
 
 ![example](https://github.com/user-attachments/assets/9a43483b-0bdd-4511-98a3-9ca839b070d5)
 
-Vulkan2D
-========
+# Vulkan2D
 [Vulkan2D](https://github.com/PaoloMazzon/Vulkan2D) is a 2D renderer using Vulkan and SDL3 primarily for C games. VK2D 
-aims for an extremely simple API, requiring no Vulkan experience to use. [Astro](https://github.com/PaoloMazzon/Astro) 
-and more recently [Sea of Clouds](https://devplo.itch.io/sea-of-clouds) internally use Vulkan2D for rendering. My other 
-projects [Bedlam](https://github.com/PaoloMazzon/Bedlam), [Spacelink](https://github.com/PaoloMazzon/Spacelink), and 
-[Peace & Liberty](https://github.com/PaoloMazzon/PeacenLiberty) also used Vulkan2D, although a much older version of it.
-Check out the [quick-start](docs/QuickStart.md) guide.
+aims for an extremely simple API, requiring no Vulkan experience to use. This project
+initially started out aiming to be a more feature complete drop-in replacement for
+the SDL renderer, but since then has grown in scope. 
 
-Features
-========
+## Features
 
- + Simple, fast, and intuitive API built on top of SDL3
- + Draw shapes/textures/3D models/arbitrary polygons to the screen or to other textures
- + Fast, built with Vulkan 1.2 and doesn't require any device features (but it can make use of some)
- + Simple and fully-featured cameras, allowing for multiple concurrent cameras
- + Powerful and very simple shader interface
- + Simple access to the Vulkan implementation through `VK2D/VulkanInterface.h`
+ + Intuitive API built on top of SDL3
+ + Very fine-grained camera control
+ + Direct access to Vulkan (at your own risk)
  + Hardware-accelerated 2D light and shadows
+ + High-performance sprite batching
+ + Only requires Vulkan 1.2
 
-Documentation
-=============
+## Documentation
 Check out the [documentation website](https://paolomazzon.github.io/Vulkan2D/index.html).
 
-Usage
-=====
+Vulkan2D headers are all Doxygen commented and the documentation website is automatically
+generated from them (this also means the documentation will likely show up in your editor
+of choice!).
+
+## Usage
 The only officially supported way to use VK2D is via `add_subdirectory`. For the least painful
 and most out-of-the-box way to use VK2D, include as a Git submodule and use `add_subdirectory`
 in your CMakeLists.txt file.
@@ -46,18 +43,22 @@ add_executable(my-game main.c)
 target_link_libraries(my-game PRIVATE Vulkan2D)
 ```
 
-There is an option to prevent Vulkan2D from using its own SDL3 so you may provide your own specific
-version if need be.
+If you want to use your own SDL version instead of whatever's latest (which VK2D defaults to)
+then you can do so with
 
-Example
-=======
+```cmake
+set(VK2D_BUILD_SDL OFF)
+add_subdirectory(Vulkan2D/)
+```
+
+## Example
 
 ```c
 SDL_Init(SDL_INIT_EVENTS);
-SDL_Window *window = SDL_CreateWindow("VK2D", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);
+SDL_Window *window = SDL_CreateWindow("VK2D", 800, 600, SDL_WINDOW_VULKAN);
 SDL_Event e;
 VK2DRendererConfig config = {
-    .msaa = VK2D_MSAA_32X, 
+    .msaa = VK2D_MSAA_8X, 
     .screenMode = VK2D_SCREEN_MODE_IMMEDIATE, 
     .filterMode = VK2D_FILTER_TYPE_NEAREST
 };
@@ -91,19 +92,17 @@ SDL_DestroyWindow(window);
 SDL_Quit();
 ```
 
-Running the Examples
-====================
-All examples are tested to work on Windows and Ubuntu. The `CMakeLists.txt` at the root
-directory will generate build systems for each example. Be sure to compile the test 
-shader before running the `examples/main/` example with:
+## Running the Examples
+Be sure to compile the test shader before running the `examples/main/` example with:
 
     glslc assets/test.frag -o assets/test.frag.spv
     glslc assets/test.vert -o assets/test.vert.spv
 
-Roadmap
-=======
+Then build the `CMakeLists.txt` file with the flag `-DVK2D_BUILD_EXAMPLES:BOOL=ON`.
+
+## Roadmap
 
  + Stability improvements
  + Custom allocator support
  + Better shader support
- + GPU readback/screenshots
+ + Texture readback
