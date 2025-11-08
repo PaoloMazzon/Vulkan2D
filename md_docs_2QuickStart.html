@@ -188,7 +188,7 @@ Polygons</h1>
 <h1><a class="anchor" id="autotoc_md10"></a>
 Cameras</h1>
 <p>Cameras are a way to look into the game world with lots of powerful features. You may create up to a certain number of cameras yourself, and by default the renderer will render to all of them at once to allow for things like mini-maps or split-screen (see the split-screen example in <code>examples/</code> for implementation details). You may also use <code>vk2dRendererLockCameras</code> to force the renderer to only render to a specific camera.</p>
-<p>The first camera is always reserved for the renderer, you may refer to it as <code>VK2D_DEFAULT_CAMERA</code> and while you may update it, its recommended to leave it for UI drawing because it will be changed by the renderer without warning whenever the window is resized.</p>
+<p>The first camera is always reserved for the renderer, you may refer to it as <code>VK2D_DEFAULT_CAMERA</code> and while you may update it, it's recommended to leave it for UI drawing because it will be changed by the renderer without warning whenever the window is resized.</p>
 <p>To create and use a camera, you need a camera specification (<code>VK2DCameraSpec</code>) and camera index (<code>VK2DCameraIndex</code>). The spec is how you provide the renderer with the data it needs to render your world, and the index is how you keep track of the cameras you make. Most of the spec parameters are simple and well documented, we will use some examples will be used.</p>
 <p>In the images below the black border represents what part of the game world the camera is viewing.</p>
 <div class="image">

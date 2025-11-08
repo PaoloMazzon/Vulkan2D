@@ -25,13 +25,14 @@
 var NAVTREE =
 [
   [ "Vulkan2D", "index.html", [
-    [ "Vulkan2D", "index.html#autotoc_md13", null ],
-    [ "Features", "index.html#autotoc_md14", null ],
-    [ "Documentation", "index.html#autotoc_md15", null ],
-    [ "Usage", "index.html#autotoc_md16", null ],
-    [ "Example", "index.html#autotoc_md17", null ],
-    [ "Running the Examples", "index.html#autotoc_md18", null ],
-    [ "Roadmap", "index.html#autotoc_md19", null ],
+    [ "Vulkan2D", "index.html#autotoc_md13", [
+      [ "Features", "index.html#autotoc_md14", null ],
+      [ "Documentation", "index.html#autotoc_md15", null ],
+      [ "Usage", "index.html#autotoc_md16", null ],
+      [ "Example", "index.html#autotoc_md17", null ],
+      [ "Running the Examples", "index.html#autotoc_md18", null ],
+      [ "Roadmap", "index.html#autotoc_md19", null ]
+    ] ],
     [ "Cameras", "md_docs_2Cameras.html", [
       [ "Creating Cameras", "md_docs_2Cameras.html#autotoc_md0", null ],
       [ "Updating Cameras", "md_docs_2Cameras.html#autotoc_md1", null ],

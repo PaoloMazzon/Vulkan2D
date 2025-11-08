@@ -102,36 +102,38 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <p><img src="https://github.com/user-attachments/assets/9a43483b-0bdd-4511-98a3-9ca839b070d5" alt="example" class="inline"/></p>
 <h1><a class="anchor" id="autotoc_md13"></a>
 Vulkan2D</h1>
-<p><a href="https://github.com/PaoloMazzon/Vulkan2D">Vulkan2D</a> is a 2D renderer using Vulkan and SDL3 primarily for C games. VK2D aims for an extremely simple API, requiring no Vulkan experience to use. <a href="https://github.com/PaoloMazzon/Astro">Astro</a> and more recently <a href="https://devplo.itch.io/sea-of-clouds">Sea of Clouds</a> internally use Vulkan2D for rendering. My other projects <a href="https://github.com/PaoloMazzon/Bedlam">Bedlam</a>, <a href="https://github.com/PaoloMazzon/Spacelink">Spacelink</a>, and <a href="https://github.com/PaoloMazzon/PeacenLiberty">Peace &amp; Liberty</a> also used Vulkan2D, although a much older version of it. Check out the <a class="el" href="md_docs_2QuickStart.html">quick-start</a> guide.</p>
-<h1><a class="anchor" id="autotoc_md14"></a>
-Features</h1>
+<p><a href="https://github.com/PaoloMazzon/Vulkan2D">Vulkan2D</a> is a 2D renderer using Vulkan and SDL3 primarily for C games. VK2D aims for an extremely simple API, requiring no Vulkan experience to use. This project initially started out aiming to be a more feature complete drop-in replacement for the SDL renderer, but since then has grown in scope.</p>
+<h2><a class="anchor" id="autotoc_md14"></a>
+Features</h2>
 <ul>
-<li>Simple, fast, and intuitive API built on top of SDL3</li>
-<li>Draw shapes/textures/3D models/arbitrary polygons to the screen or to other textures</li>
-<li>Fast, built with Vulkan 1.2 and doesn't require any device features (but it can make use of some)</li>
-<li>Simple and fully-featured cameras, allowing for multiple concurrent cameras</li>
-<li>Powerful and very simple shader interface</li>
-<li>Simple access to the Vulkan implementation through <code>VK2D/VulkanInterface.h</code></li>
+<li>Intuitive API built on top of SDL3</li>
+<li>Very fine-grained camera control</li>
+<li>Direct access to Vulkan (at your own risk)</li>
 <li>Hardware-accelerated 2D light and shadows</li>
+<li>High-performance sprite batching</li>
+<li>Only requires Vulkan 1.2</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md15"></a>
-Documentation</h1>
+<h2><a class="anchor" id="autotoc_md15"></a>
+Documentation</h2>
 <p>Check out the <a href="https://paolomazzon.github.io/Vulkan2D/index.html">documentation website</a>.</p>
-<h1><a class="anchor" id="autotoc_md16"></a>
-Usage</h1>
+<p>Vulkan2D headers are all Doxygen commented and the documentation website is automatically generated from them (this also means the documentation will likely show up in your editor of choice!).</p>
+<h2><a class="anchor" id="autotoc_md16"></a>
+Usage</h2>
 <p>The only officially supported way to use VK2D is via <code>add_subdirectory</code>. For the least painful and most out-of-the-box way to use VK2D, include as a Git submodule and use <code>add_subdirectory</code> in your CMakeLists.txt file.</p>
 <div class="fragment"><div class="line">git submodule add --recursive https://github.com/PaoloMazzon/Vulkan2D.git</div>
 </div><!-- fragment --><div class="fragment"><div class="line">add_subdirectory(Vulkan2D/)</div>
 <div class="line">add_executable(my-game main.c)</div>
 <div class="line">target_link_libraries(my-game PRIVATE Vulkan2D)</div>
-</div><!-- fragment --><p>There is an option to prevent Vulkan2D from using its own SDL3 so you may provide your own specific version if need be.</p>
-<h1><a class="anchor" id="autotoc_md17"></a>
-Example</h1>
+</div><!-- fragment --><p>If you want to use your own SDL version instead of whatever's latest (which VK2D defaults to) then you can do so with</p>
+<div class="fragment"><div class="line">set(VK2D_BUILD_SDL OFF)</div>
+<div class="line">add_subdirectory(Vulkan2D/)</div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md17"></a>
+Example</h2>
 <div class="fragment"><div class="line">SDL_Init(SDL_INIT_EVENTS);</div>
-<div class="line">SDL_Window *window = SDL_CreateWindow(<span class="stringliteral">&quot;VK2D&quot;</span>, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN);</div>
+<div class="line">SDL_Window *window = SDL_CreateWindow(<span class="stringliteral">&quot;VK2D&quot;</span>, 800, 600, SDL_WINDOW_VULKAN);</div>
 <div class="line">SDL_Event e;</div>
 <div class="line">VK2DRendererConfig config = {</div>
-<div class="line">    .msaa = VK2D_MSAA_32X, </div>
+<div class="line">    .msaa = VK2D_MSAA_8X, </div>
 <div class="line">    .screenMode = VK2D_SCREEN_MODE_IMMEDIATE, </div>
 <div class="line">    .filterMode = VK2D_FILTER_TYPE_NEAREST</div>
 <div class="line">};</div>
@@ -163,17 +165,18 @@ Example</h1>
 <div class="line">vk2dRendererQuit();</div>
 <div class="line">SDL_DestroyWindow(window);</div>
 <div class="line">SDL_Quit();</div>
-</div><!-- fragment --><h1><a class="anchor" id="autotoc_md18"></a>
-Running the Examples</h1>
-<p>All examples are tested to work on Windows and Ubuntu. The <code>CMakeLists.txt</code> at the root directory will generate build systems for each example. Be sure to compile the test shader before running the <code>examples/main/</code> example with: </p><pre class="fragment">glslc assets/test.frag -o assets/test.frag.spv
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md18"></a>
+Running the Examples</h2>
+<p>Be sure to compile the test shader before running the <code>examples/main/</code> example with: </p><pre class="fragment">glslc assets/test.frag -o assets/test.frag.spv
 glslc assets/test.vert -o assets/test.vert.spv
-</pre> <h1><a class="anchor" id="autotoc_md19"></a>
-Roadmap</h1>
+</pre><p> Then build the <code>CMakeLists.txt</code> file with the flag <code>-DVK2D_BUILD_EXAMPLES:BOOL=ON</code>.</p>
+<h2><a class="anchor" id="autotoc_md19"></a>
+Roadmap</h2>
 <ul>
 <li>Stability improvements</li>
 <li>Custom allocator support</li>
 <li>Better shader support</li>
-<li>GPU readback/screenshots </li>
+<li>Texture readback </li>
 </ul>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
