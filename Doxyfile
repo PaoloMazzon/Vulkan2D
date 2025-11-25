@@ -23,26 +23,30 @@ FILE_PATTERNS          = *.h \
 RECURSIVE              = NO
 EXCLUDE                = VulkanMemoryAllocator/ \
                          *.c \
-                         VK2D/tinyobj_loader_c.h \
-                         VK2D/stb_image.h \
-                         VK2D/Blobs.h \
-                         VK2D/Buffer.h \
-                         VK2D/Constants.h \
-                         VK2D/DescriptorBuffer.h \
-                         VK2D/DescripterControl.h \
-                         VK2D/Image.h \
-                         VK2D/Initializers.h \
-                         VK2D/LogicalDevice.h \
-                         VK2D/Math.h \
-                         VK2D/Opaque.h \
-                         VK2D/PhysicalDevice.h \
-                         VK2D/Pipeline.h \
-                         VK2D/BlendModes.h \
-                         VK2D/RendererMeta.h \
-                         VK2D/Validation.h \
-                         VK2D/Util.h \
-                         VK2D/nuklear.c \
-                         VK2D/nuklear_sdl_vulkan.h
+                         VK2D/include/VK2D/tinyobj_loader_c.h \
+                         VK2D/include/VK2D/stb_image.h \
+                         VK2D/include/VK2D/Blobs.h \
+                         VK2D/include/VK2D/Buffer.h \
+                         VK2D/include/VK2D/Constants.h \
+                         VK2D/include/VK2D/DescriptorBuffer.h \
+                         VK2D/include/VK2D/DescripterControl.h \
+                         VK2D/include/VK2D/Image.h \
+                         VK2D/include/VK2D/Initializers.h \
+                         VK2D/include/VK2D/LogicalDevice.h \
+                         VK2D/include/VK2D/Math.h \
+                         VK2D/include/VK2D/Opaque.h \
+                         VK2D/include/VK2D/PhysicalDevice.h \
+                         VK2D/include/VK2D/Pipeline.h \
+                         VK2D/include/VK2D/BlendModes.h \
+                         VK2D/include/VK2D/RendererMeta.h \
+                         VK2D/include/VK2D/Validation.h \
+                         VK2D/include/VK2D/Util.h \
+                         VK2D/include/VK2D/nuklear.c \
+                         VK2D/include/VK2D/nuklear.h \
+                         VK2D/include/VK2D/nuklear_defs.h \
+                         VK2D/include/VK2D/Logger.h \
+                         VK2D/include/VK2D/uthash.h \
+                         VK2D/include/VK2D/nuklear_sdl_vulkan.h
 
 #HTML_HEADER           = header.html
 HTML_EXTRA_STYLESHEET  = doxygen-awesome-css/doxygen-awesome.css \
