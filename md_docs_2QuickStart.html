@@ -96,7 +96,7 @@ $(document).ready(function(){initNavTree('md_docs_2QuickStart.html',''); initRes
   <div class="headertitle"><div class="title">Vulkan2D Quickstart</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="autotoc_md4"></a>Vulkan2D (VK2D) is a 2D/3D renderer written in C with Vulkan for small 2D games. It is simple enough to use, but of course there is this guide to help with some of the details.</p>
+<div class="textblock"><p><a class="anchor" id="autotoc_md99"></a>Vulkan2D (VK2D) is a 2D/3D renderer written in C with Vulkan for small 2D games. It is simple enough to use, but of course there is this guide to help with some of the details.</p>
 <ul>
 <li>The Basics</li>
 <li>Drawing</li>
@@ -106,7 +106,7 @@ $(document).ready(function(){initNavTree('md_docs_2QuickStart.html',''); initRes
 <li>Models</li>
 <li>Shaders</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md5"></a>
+<h1><a class="anchor" id="autotoc_md100"></a>
 The Basics</h1>
 <p>Everything that will be mentioned in this guide is mentioned in greater detail in the documentation for any given function. Feel free to generate the doxygen docs or simply read the header file containing the function for more information. The functions of interest to the average user will be <code>vk2dRenderer*</code>, <code>vk2dTexture*</code>, <code>vk2dPolygon*</code>, <code>vk2dCamera*</code>, <code>vk2dModel*</code>, and <code>vk2dShader*</code>.</p>
 <p>Controlling the renderer is quite simple and only requires a few things:</p>
@@ -124,7 +124,7 @@ The Basics</h1>
 <li><code>vk2dRendererGetAverageFrameTime</code> returns the average amount of time taken between start and end of each frame</li>
 <li><code>vk2dRendererGetLimits</code> returns a structure containing information on what the user's machine is capable of</li>
 </ul>
-<h1><a class="anchor" id="autotoc_md6"></a>
+<h1><a class="anchor" id="autotoc_md101"></a>
 Drawing</h1>
 <p>Drawing in VK2D is done through the renderer, the draw functions at the time of writing are</p>
 <ul>
@@ -170,7 +170,7 @@ image</div></div>
 image</div></div>
     <p>Notice how it rotated in place instead of moving to the side.</p>
 <p>By default, circle's origins are at their center, however. 3D models play by completely different rules defined by your models and however your 3D cameras are set up.</p>
-<h1><a class="anchor" id="autotoc_md7"></a>
+<h1><a class="anchor" id="autotoc_md102"></a>
 Textures</h1>
 <p>Textures are the primary way of drawing images to the screen. You can load textures with <code>vk2dTextureLoad</code> and <code>vk2dTextureFrom</code>, then draw them however you want. More interestingly, you can create textures to render to with <code>vk2dTextureCreate</code>. Textures created this way can be rendered to in the same way you would draw to the screen, just call <code>vk2dRendererSetTarget</code> on it then you can render whatever you want to the texture. This is useful when you want to render a lot of something once, then just display that instead of rendering a lot of it every frame. Some common pitfalls to avoid here are:</p>
 <ul>
@@ -179,17 +179,17 @@ Textures</h1>
 <li>You may only render textures created this way when they are not the current render target (switch back to <code>VK2D_TARGET_SCREEN</code> before drawing a target texture)</li>
 </ul>
 <p>Additionally, texture targets have a coordinate space identical to that of the screen by default - the origin is the top-left and the y-axis goes down. You may use <code>vk2dRendererSetTextureCamera</code> to use user-defined cameras on texture targets instead of their default texture space. This still has the side effect of ignoring the cameras' <code>xOnScreen</code>, <code>yOnScreen</code>, <code>wOnScreen</code>, and <code>hOnScreen</code> parameters because the viewport will simply be set to the texture's dimensions.</p>
-<h2><a class="anchor" id="autotoc_md8"></a>
+<h2><a class="anchor" id="autotoc_md103"></a>
 Sprite Batching</h2>
-<p>Strongly related to drawing textures is sprite-batching. As of right now, only textures are batched automatically, meaning drawing textures is heavily hardware-accelerated to be as fast as possible since that's probably what 90% of your drawing will be in a game. To better make use of this feature, try to keep as much texture drawing together as possible, since everytime you use a draw command other than <code>vk2dRendererDrawTexture</code> the current batch is flushed. Alternatively, you may just build your own list of <code>VK2DDrawCommand</code>s and submit them with <code>vk2dRendererAddBatch</code> as to give yourself complete control over when your sprite batch is submitted. This, however, is a very minor optimization and in general even blatantly disregarding this feature will still result in good performance as most of the heavy lifting will be done on the GPU all the same.</p>
-<h1><a class="anchor" id="autotoc_md9"></a>
+<p>Strongly related to drawing textures is sprite-batching. As of right now, only textures are batched automatically, meaning drawing textures is heavily hardware-accelerated to be as fast as possible since that's probably what 90% of your drawing will be in a game. To better make use of this feature, try to keep as much texture drawing together as possible, since everytime you use a draw command other than <code>vk2dRendererDrawTexture</code> the current batch is flushed. Alternatively, you may just build your own list of <code><a class="el" href="structVK2DDrawCommand.html" title="Represents a user&#39;s draw command which will later be processed into an instance.">VK2DDrawCommand</a></code>s and submit them with <code>vk2dRendererAddBatch</code> as to give yourself complete control over when your sprite batch is submitted. This, however, is a very minor optimization and in general even blatantly disregarding this feature will still result in good performance as most of the heavy lifting will be done on the GPU all the same.</p>
+<h1><a class="anchor" id="autotoc_md104"></a>
 Polygons</h1>
 <p>VK2D provides a few drawing primitives, but if you want more detailed shapes, you may load your own with <code>vk2dPolygonShapeCreateRaw</code> and <code>vk2dPolygonCreate</code>. <code>vk2dPolygonShapeCreateRaw</code> lets you specify your own vertices with specified colours, but the input must be triangulated; the example in <code>examples/main</code> does this. <code>vk2dPolygonCreate</code> lets you create arbitrary polygons with just a list of <code>vec2</code>'s, and will automatically triangulate the input. Polygons created with <code>vk2dPolygonCreate</code> will be solid white and their colour can be modified by changing the renderer's colour modifier.</p>
-<h1><a class="anchor" id="autotoc_md10"></a>
+<h1><a class="anchor" id="autotoc_md105"></a>
 Cameras</h1>
 <p>Cameras are a way to look into the game world with lots of powerful features. You may create up to a certain number of cameras yourself, and by default the renderer will render to all of them at once to allow for things like mini-maps or split-screen (see the split-screen example in <code>examples/</code> for implementation details). You may also use <code>vk2dRendererLockCameras</code> to force the renderer to only render to a specific camera.</p>
 <p>The first camera is always reserved for the renderer, you may refer to it as <code>VK2D_DEFAULT_CAMERA</code> and while you may update it, it's recommended to leave it for UI drawing because it will be changed by the renderer without warning whenever the window is resized.</p>
-<p>To create and use a camera, you need a camera specification (<code>VK2DCameraSpec</code>) and camera index (<code>VK2DCameraIndex</code>). The spec is how you provide the renderer with the data it needs to render your world, and the index is how you keep track of the cameras you make. Most of the spec parameters are simple and well documented, we will use some examples will be used.</p>
+<p>To create and use a camera, you need a camera specification (<code><a class="el" href="structVK2DCameraSpec.html" title="Camera information.">VK2DCameraSpec</a></code>) and camera index (<code>VK2DCameraIndex</code>). The spec is how you provide the renderer with the data it needs to render your world, and the index is how you keep track of the cameras you make. Most of the spec parameters are simple and well documented, we will use some examples will be used.</p>
 <p>In the images below the black border represents what part of the game world the camera is viewing.</p>
 <div class="image">
 <img src="cameraexample-1.png" alt=""/>
@@ -205,7 +205,7 @@ image</div></div>
 <img src="cameraexample-3.png" alt=""/>
 <div class="caption">
 image</div></div>
-    <h1><a class="anchor" id="autotoc_md11"></a>
+    <h1><a class="anchor" id="autotoc_md106"></a>
 Models</h1>
 <p>Models are a way of drawing 3D models, and they are loaded in similar fashion to Polygons. You may load a model from vertices using <code>vk2dModelCreate</code>, which also expects that the input be triangulated. You may load models from a .obj file using <code>vk2dModelLoad</code> or <code>vk2dModelFrom</code>. All models are expected to be UV mapped and you must provide the texture yourself.</p>
 <p>To actually draw the 3D models, you need a 3D camera. Cameras in general were described above but some specifics for 3D will be discussed here</p>
@@ -215,7 +215,7 @@ Models</h1>
 <li>The camera spec parameters <code>x</code>, <code>y</code>, <code>w</code>, <code>h</code>, <code>zoom</code>, and <code>rot</code> are ignored for 3D cameras in favour of the parameters in <code>VK2DCameraSpec.Perspective.*</code></li>
 </ul>
 <p>The example <code>examples/retrolook</code> shows a very simple setup and usage of a 3D camera, and the example <code>examples/main</code> has a 3D camera moving with the mouse.</p>
-<h1><a class="anchor" id="autotoc_md12"></a>
+<h1><a class="anchor" id="autotoc_md107"></a>
 Shaders</h1>
 <p>You may provide your own SPIR-V compiled shaders to render textures with. For a detailed example check <code>examples/main</code>.</p>
 <p>Shaders may be loaded with <code>vk2dShaderLoad</code> and <code>vk2dShaderFrom</code>, and if you specify a buffer size other than 0 you must provide <code>vk2dRendererDrawShader</code> with a data buffer of at least that size. For some specifics,</p>

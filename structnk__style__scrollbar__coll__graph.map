@@ -1,0 +1,26 @@
+<map id="nk_style_scrollbar" name="nk_style_scrollbar">
+<area shape="rect" id="Node000001" title=" " alt="" coords="374,703,514,728"/>
+<area shape="rect" id="Node000002" href="$structnk__style__item.html" title=" " alt="" coords="255,418,369,443"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="300,456,283,491,268,535,264,581,268,603,277,624,300,652,330,673,363,689,394,700,393,705,361,694,327,678,297,656,272,627,263,605,259,581,263,534,278,489,295,454"/>
+<area shape="rect" id="Node000009" href="$structnk__style__button.html" title=" " alt="" coords="381,569,507,594"/>
+<area shape="poly" id="edge11_Node000009_Node000002" title=" " alt="" coords="324,455,339,483,358,512,392,543,426,566,423,571,389,547,354,515,334,486,319,457"/>
+<area shape="rect" id="Node000003" href="$unionnk__style__item__data.html" title=" " alt="" coords="221,269,371,295"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="301,308,313,418,308,418,296,308"/>
+<area shape="rect" id="Node000004" href="$structnk__color.html" title=" " alt="" coords="77,181,155,207"/>
+<area shape="poly" id="edge8_Node000001_Node000004" title=" " alt="" coords="67,214,46,226,27,241,13,259,8,281,8,582,11,595,18,608,47,630,90,650,144,666,264,691,374,705,373,710,263,696,142,671,88,655,44,635,14,611,6,597,3,583,3,280,8,257,23,237,43,222,65,210"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="153,210,221,243,272,267,270,272,219,248,151,215"/>
+<area shape="poly" id="edge12_Node000009_Node000004" title=" " alt="" coords="124,219,146,299,165,346,189,391,219,432,248,460,325,511,349,524,375,535,427,566,424,571,372,540,347,528,323,516,245,464,215,435,184,393,160,348,141,301,118,221"/>
+<area shape="rect" id="Node000005" href="$structnk__image.html" title=" " alt="" coords="295,93,382,119"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="337,133,312,246,303,270,298,268,307,245,332,132"/>
+<area shape="rect" id="Node000007" href="$structnk__nine__slice.html" title=" " alt="" coords="179,181,290,207"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="313,129,292,145,249,183,245,179,289,141,310,125"/>
+<area shape="rect" id="Node000006" href="$unionnk__handle.html" title=" " alt="" coords="377,5,466,31"/>
+<area shape="poly" id="edge15_Node000001_Node000006" title=" " alt="" coords="480,24,545,34,612,51,666,74,682,88,688,104,688,583,683,611,671,635,652,655,628,671,572,695,515,708,514,703,570,690,625,667,648,651,666,632,678,609,683,582,683,105,677,91,663,78,611,56,544,40,479,29"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="377,39,355,56,346,75,342,94,337,93,341,73,351,53,373,35"/>
+<area shape="poly" id="edge14_Node000009_Node000006" title=" " alt="" coords="424,45,424,105,424,432,432,510,444,568,438,569,426,511,419,432,419,105,419,45"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="253,217,290,267,285,270,249,220"/>
+<area shape="rect" id="Node000008" href="$structnk__vec2.html" title=" " alt="" coords="506,418,582,443"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="567,454,575,469,578,491,575,514,567,603,556,640,529,680,511,695,491,705,489,700,508,691,525,677,551,638,562,602,569,513,573,491,569,470,562,456"/>
+<area shape="poly" id="edge13_Node000009_Node000008" title=" " alt="" coords="495,450,481,459,469,471,456,495,449,522,446,568,441,568,443,521,451,493,465,468,477,455,492,446"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="447,608,447,703,441,703,441,608"/>
+</map>

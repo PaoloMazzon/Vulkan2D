@@ -1,0 +1,5 @@
+<map id="VK2DLogicalDevice_t" name="VK2DLogicalDevice_t">
+<area shape="rect" id="Node000001" title="Logical device that is essentially a wrapper of VkDevice." alt="" coords="5,93,167,119"/>
+<area shape="rect" id="Node000002" href="$structVK2DAssetLoad.html" title="Information needed to queue an asset loading off&#45;thread." alt="" coords="23,5,149,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,45,89,93,83,93,83,45"/>
+</map>

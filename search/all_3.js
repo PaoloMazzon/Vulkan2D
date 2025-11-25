@@ -1,5 +1,28 @@
 var searchData=
 [
-  ['example_0',['Example',['../index.html#autotoc_md17',1,'']]],
-  ['examples_1',['Running the Examples',['../index.html#autotoc_md18',1,'']]]
+  ['calls_0',['calls',['../structnk__buffer.html#acd962a6e042a8ffabac679768e4851bb',1,'nk_buffer']]],
+  ['camera_1',['The Default Camera',['../md_docs_2Cameras.html#autotoc_md97',1,'']]],
+  ['camera_2eh_2',['Camera.h',['../Camera_8h.html',1,'']]],
+  ['cameraindex_3',['cameraindex',['../structVK2DShaderPushBuffer.html#a29a85bd86d3f3af573e3321f1e1d41a2',1,'VK2DShaderPushBuffer::cameraIndex'],['../structVK2DPushBuffer.html#a48bbb128f63c400c49daafaee29bdb2f',1,'VK2DPushBuffer::cameraIndex'],['../structVK2D3DPushBuffer.html#a103e702d54b7a65b058e4dccf05570f8',1,'VK2D3DPushBuffer::cameraIndex'],['../structVK2DShadowsPushBuffer.html#a2a1ea9814e54f082b9d436f3d84c441a',1,'VK2DShadowsPushBuffer::cameraIndex'],['../structVK2DInstancedPushBuffer.html#ad6163db5dc28be109f1feef7de135f11',1,'VK2DInstancedPushBuffer::cameraIndex']]],
+  ['cameralocked_4',['cameraLocked',['../structVK2DRenderer__t.html#a1f6ac27211261f15c325d84b6f91644f',1,'VK2DRenderer_t']]],
+  ['cameras_5',['cameras',['../md_docs_2QuickStart.html#autotoc_md105',1,'Cameras'],['../md_docs_2Cameras.html',1,'Cameras'],['../structVK2DRenderer__t.html#ac411d9cf993c01e5342eeb9272d8f067',1,'VK2DRenderer_t::cameras'],['../md_docs_2Cameras.html#autotoc_md95',1,'Creating Cameras'],['../md_docs_2Cameras.html#autotoc_md98',1,'Locking Cameras'],['../md_docs_2Cameras.html#autotoc_md96',1,'Updating Cameras']]],
+  ['centre_6',['centre',['../structVK2DCameraSpec.html#aa92b19576e2fc91b2ab26c1e5c14c403',1,'VK2DCameraSpec']]],
+  ['circle_5fsegment_5fcount_7',['circle_segment_count',['../structnk__convert__config.html#ae62d641bf9c5bc6b3e66c6071f4a8267',1,'nk_convert_config']]],
+  ['clearvalue_8',['clearValue',['../structVK2DPipeline__t.html#a9d41b6bc3fbcdd55360617b777d50408',1,'VK2DPipeline_t']]],
+  ['colour_9',['colour',['../structVK2DVertexColour.html#a796e7ff5dd5481e84322b2e11cc1ce4c',1,'VK2DVertexColour::colour'],['../structVK2DShaderPushBuffer.html#a05e8dd506439441ea152c0f2098a48bc',1,'VK2DShaderPushBuffer::colour'],['../structVK2DShadowsPushBuffer.html#a1b23dea7fbaf07a7d6890d8b269bdcd8',1,'VK2DShadowsPushBuffer::colour'],['../structVK2DDrawInstance.html#a1d03ab8dc3fe8a0e085f42ac1ce6e8c8',1,'VK2DDrawInstance::colour'],['../structVK2DDrawCommand.html#a3653ba799422692963e99ba9c78afb4c',1,'VK2DDrawCommand::colour']]],
+  ['colourblend_10',['colourBlend',['../structVK2DRenderer__t.html#ac3d499f8b4d14d97c14c14cbebff7445',1,'VK2DRenderer_t']]],
+  ['colourmod_11',['colourmod',['../structVK2D3DPushBuffer.html#a5b06ea3fff4478a7724f100bb7b1588c',1,'VK2D3DPushBuffer::colourMod'],['../structVK2DPushBuffer.html#a5dc66390a6f42eb6b74d3d9035249bea',1,'VK2DPushBuffer::colourMod']]],
+  ['commandbuffer_12',['commandBuffer',['../structVK2DRenderer__t.html#a9b942d2735ee696e17d0d2feee3dd8f5',1,'VK2DRenderer_t']]],
+  ['computecommandbuffer_13',['computeCommandBuffer',['../structVK2DRenderer__t.html#afe84f662c31174c183a8a9281ceca4f5',1,'VK2DRenderer_t']]],
+  ['computefamily_14',['computeFamily',['../structVK2DPhysicalDevice__t.html#a9f506e462b62f2b5c796607274b6d847',1,'VK2DPhysicalDevice_t']]],
+  ['config_15',['config',['../structVK2DRenderer__t.html#a4b4fb46b181ea5733cd876204a885330',1,'VK2DRenderer_t']]],
+  ['constants_2eh_16',['Constants.h',['../Constants_8h.html',1,'']]],
+  ['context_17',['context',['../structVK2DLogger.html#a2835f4ee8f991b92a04aa578786f1d35',1,'VK2DLogger::context'],['../Context.html',1,'Context']]],
+  ['copycommandbuffer_18',['copyCommandBuffer',['../structVK2DDescriptorBuffer__t.html#ae868f6a79f0b3892b3eea5979d2a4149',1,'VK2DDescriptorBuffer_t']]],
+  ['creating_20cameras_19',['Creating Cameras',['../md_docs_2Cameras.html#autotoc_md95',1,'']]],
+  ['currentbatchpipeline_20',['currentBatchPipeline',['../structVK2DRenderer__t.html#adc868576d991856a4339409b5124bdf0',1,'VK2DRenderer_t']]],
+  ['currentbatchpipelineid_21',['currentBatchPipelineID',['../structVK2DRenderer__t.html#afde3c33070668e983621b6dfa002fb21',1,'VK2DRenderer_t']]],
+  ['currentframe_22',['currentFrame',['../structVK2DRenderer__t.html#aea0744d5bcf97851210459121724fde9',1,'VK2DRenderer_t']]],
+  ['curve_5fsegment_5fcount_23',['curve_segment_count',['../structnk__convert__config.html#afcf45f3fc6e3f043b572b59cb04424c5',1,'nk_convert_config']]],
+  ['customshaders_24',['customShaders',['../structVK2DRenderer__t.html#ae68e3548aa5c3b78fd0737e820205a2f',1,'VK2DRenderer_t']]]
 ];

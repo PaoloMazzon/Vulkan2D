@@ -1,0 +1,13 @@
+<map id="VK2D/include/VK2D/Util.h" name="VK2D/include/VK2D/Util.h">
+<area shape="rect" id="Node000001" title="Utilities for in&#45;engine use only." alt="" coords="81,5,269,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,152,129,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,33,78,51,61,64,47,80,42,94,42,109,54,139,49,141,37,110,37,93,42,77,57,60,75,46,116,28"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="209,152,291,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="216,28,252,47,269,60,282,77,287,94,285,111,270,142,265,140,280,110,281,94,277,80,265,64,249,51,213,33"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="201,79,267,104"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="187,29,218,67,214,70,183,33"/>
+<area shape="rect" id="Node000005" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="57,79,176,104"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="168,33,137,70,133,67,164,29"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="111,106,85,142,81,139,106,103"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="139,102,217,143,215,148,137,106"/>
+</map>

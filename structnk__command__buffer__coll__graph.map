@@ -1,0 +1,16 @@
+<map id="nk_command_buffer" name="nk_command_buffer">
+<area shape="rect" id="Node000001" title=" " alt="" coords="119,299,274,324"/>
+<area shape="rect" id="Node000002" href="$structnk__buffer.html" title=" " alt="" coords="155,211,238,236"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,250,199,298,194,298,194,250"/>
+<area shape="rect" id="Node000003" href="$structnk__buffer__marker.html" title=" " alt="" coords="317,123,453,148"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="353,157,288,189,229,213,227,208,286,184,351,152"/>
+<area shape="rect" id="Node000004" href="$structnk__allocator.html" title=" " alt="" coords="67,123,169,148"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="140,156,188,208,184,212,136,160"/>
+<area shape="rect" id="Node000005" href="$unionnk__handle.html" title=" " alt="" coords="5,5,95,31"/>
+<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="49,44,47,93,50,121,56,147,82,196,117,238,153,272,182,296,179,301,149,276,113,242,78,198,52,149,44,122,41,93,43,44"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="66,41,114,121,109,124,62,44"/>
+<area shape="rect" id="Node000006" href="$structnk__memory.html" title=" " alt="" coords="193,123,293,148"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="233,161,205,211,201,209,228,159"/>
+<area shape="rect" id="Node000007" href="$structnk__rect.html" title=" " alt="" coords="263,211,333,236"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="275,247,212,300,209,296,272,243"/>
+</map>

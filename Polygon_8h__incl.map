@@ -1,0 +1,9 @@
+<map id="VK2D/include/VK2D/Polygon.h" name="VK2D/include/VK2D/Polygon.h">
+<area shape="rect" id="Node000001" title="Abstraction of VK2DBuffer for shapes." alt="" coords="23,5,240,31"/>
+<area shape="rect" id="Node000002" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="72,79,191,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,31,134,65,129,65,129,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,129,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="123,106,89,144,85,140,119,103"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="154,152,237,177"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="144,103,178,140,174,144,140,106"/>
+</map>

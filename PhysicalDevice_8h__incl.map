@@ -1,0 +1,10 @@
+<map id="VK2D/include/VK2D/PhysicalDevice.h" name="VK2D/include/VK2D/PhysicalDevice.h">
+<area shape="rect" id="Node000001" title="Tools for managing VkPhysicalDevice." alt="" coords="12,5,219,45"/>
+<area shape="rect" id="Node000002" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="105,93,224,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,44,152,80,148,83,125,47"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,129,192"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="112,46,97,94,78,154,73,153,91,93,107,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="151,121,96,160,93,156,147,117"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="154,167,237,192"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="172,118,187,153,183,155,167,120"/>
+</map>

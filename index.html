@@ -100,10 +100,10 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <p><img src="https://github.com/user-attachments/assets/ae0f05fd-7679-4061-ac89-dce66e163232" alt="gif" class="inline"/></p>
 <p><img src="https://github.com/user-attachments/assets/186de874-6f2f-47c4-8a58-52c14148bb46" alt="example" class="inline"/></p>
 <p><img src="https://github.com/user-attachments/assets/9a43483b-0bdd-4511-98a3-9ca839b070d5" alt="example" class="inline"/></p>
-<h1><a class="anchor" id="autotoc_md13"></a>
+<h1><a class="anchor" id="autotoc_md108"></a>
 Vulkan2D</h1>
 <p><a href="https://github.com/PaoloMazzon/Vulkan2D">Vulkan2D</a> is a 2D renderer using Vulkan and SDL3 primarily for C games. VK2D aims for an extremely simple API, requiring no Vulkan experience to use. This project initially started out aiming to be a more feature complete drop-in replacement for the SDL renderer, but since then has grown in scope.</p>
-<h2><a class="anchor" id="autotoc_md14"></a>
+<h2><a class="anchor" id="autotoc_md109"></a>
 Features</h2>
 <ul>
 <li>Intuitive API built on top of SDL3</li>
@@ -113,11 +113,11 @@ Features</h2>
 <li>High-performance sprite batching</li>
 <li>Only requires Vulkan 1.2</li>
 </ul>
-<h2><a class="anchor" id="autotoc_md15"></a>
+<h2><a class="anchor" id="autotoc_md110"></a>
 Documentation</h2>
 <p>Check out the <a href="https://paolomazzon.github.io/Vulkan2D/index.html">documentation website</a>.</p>
 <p>Vulkan2D headers are all Doxygen commented and the documentation website is automatically generated from them (this also means the documentation will likely show up in your editor of choice!).</p>
-<h2><a class="anchor" id="autotoc_md16"></a>
+<h2><a class="anchor" id="autotoc_md111"></a>
 Usage</h2>
 <p>The only officially supported way to use VK2D is via <code>add_subdirectory</code>. For the least painful and most out-of-the-box way to use VK2D, include as a Git submodule and use <code>add_subdirectory</code> in your CMakeLists.txt file.</p>
 <div class="fragment"><div class="line">git submodule add --recursive https://github.com/PaoloMazzon/Vulkan2D.git</div>
@@ -127,19 +127,19 @@ Usage</h2>
 </div><!-- fragment --><p>If you want to use your own SDL version instead of whatever's latest (which VK2D defaults to) then you can do so with</p>
 <div class="fragment"><div class="line">set(VK2D_BUILD_SDL OFF)</div>
 <div class="line">add_subdirectory(Vulkan2D/)</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md17"></a>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md112"></a>
 Example</h2>
 <div class="fragment"><div class="line">SDL_Init(SDL_INIT_EVENTS);</div>
 <div class="line">SDL_Window *window = SDL_CreateWindow(<span class="stringliteral">&quot;VK2D&quot;</span>, 800, 600, SDL_WINDOW_VULKAN);</div>
 <div class="line">SDL_Event e;</div>
-<div class="line">VK2DRendererConfig config = {</div>
-<div class="line">    .msaa = VK2D_MSAA_8X, </div>
-<div class="line">    .screenMode = VK2D_SCREEN_MODE_IMMEDIATE, </div>
-<div class="line">    .filterMode = VK2D_FILTER_TYPE_NEAREST</div>
+<div class="line"><a class="code hl_struct" href="structVK2DRendererConfig.html">VK2DRendererConfig</a> config = {</div>
+<div class="line">    .<a class="code hl_variable" href="structVK2DRendererConfig.html#a74482eb56a497d47e96b8291e7c25c6f">msaa</a> = <a class="code hl_enumvalue" href="Structs_8h.html#a919fd931caf982dcbafbb990822c1080aba5768c083bec70192cfa57a5ea7b671">VK2D_MSAA_8X</a>, </div>
+<div class="line">    .screenMode = <a class="code hl_enumvalue" href="Structs_8h.html#ae23085668becdf6f1d35fa76d8b9f66baa4526c5ec08606f06d38c57cb9b2399d">VK2D_SCREEN_MODE_IMMEDIATE</a>, </div>
+<div class="line">    .filterMode = <a class="code hl_enumvalue" href="Structs_8h.html#a281994ae2e0e24cd27f4678ec0def3fda05149beef54dd6b6b81e34f06dda6738">VK2D_FILTER_TYPE_NEAREST</a></div>
 <div class="line">};</div>
-<div class="line">vk2dRendererInit(window, config, NULL);</div>
-<div class="line">vec4 clearColour;</div>
-<div class="line">vk2dColourHex(clearColour, <span class="stringliteral">&quot;#59d9d7&quot;</span>);</div>
+<div class="line"><a class="code hl_function" href="Renderer_8h.html#afca7052c3bb3542a5350510a1997005d">vk2dRendererInit</a>(window, config, NULL);</div>
+<div class="line"><a class="code hl_typedef" href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a> clearColour;</div>
+<div class="line"><a class="code hl_function" href="Renderer_8h.html#a178031ff753290cdfe596ab0e8df8704">vk2dColourHex</a>(clearColour, <span class="stringliteral">&quot;#59d9d7&quot;</span>);</div>
 <div class="line"><span class="keywordtype">bool</span> stopRunning = <span class="keyword">false</span>;</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Load your resources</span></div>
@@ -151,26 +151,38 @@ Example</h2>
 <div class="line">        }</div>
 <div class="line">    }</div>
 <div class="line"> </div>
-<div class="line">    vk2dRendererStartFrame(clearColour);</div>
+<div class="line">    <a class="code hl_function" href="Renderer_8h.html#acd9e5db6b796040b3537c70b86f36dce">vk2dRendererStartFrame</a>(clearColour);</div>
 <div class="line"> </div>
 <div class="line">    <span class="comment">// Draw your things</span></div>
 <div class="line"> </div>
-<div class="line">    vk2dRendererEndFrame();</div>
+<div class="line">    <a class="code hl_function" href="Renderer_8h.html#a9a351ce486971704a19e77f4e2cc1e45">vk2dRendererEndFrame</a>();</div>
 <div class="line">}</div>
 <div class="line"> </div>
-<div class="line">vk2dRendererWait();</div>
+<div class="line"><a class="code hl_function" href="Renderer_8h.html#ad315ba5589fb95590e131ffe6ce890ed">vk2dRendererWait</a>();</div>
 <div class="line"> </div>
 <div class="line"><span class="comment">// Free your resources</span></div>
 <div class="line"> </div>
-<div class="line">vk2dRendererQuit();</div>
+<div class="line"><a class="code hl_function" href="Renderer_8h.html#ac7e4810cf1f892c9f2b0a95a200a2ec4">vk2dRendererQuit</a>();</div>
 <div class="line">SDL_DestroyWindow(window);</div>
 <div class="line">SDL_Quit();</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md18"></a>
+<div class="ttc" id="aRenderer_8h_html_a178031ff753290cdfe596ab0e8df8704"><div class="ttname"><a href="Renderer_8h.html#a178031ff753290cdfe596ab0e8df8704">vk2dColourHex</a></div><div class="ttdeci">void vk2dColourHex(vec4 dst, const char *hex)</div><div class="ttdoc">Converts a Hex colour into a vec4 normalized colour.</div></div>
+<div class="ttc" id="aRenderer_8h_html_a9a351ce486971704a19e77f4e2cc1e45"><div class="ttname"><a href="Renderer_8h.html#a9a351ce486971704a19e77f4e2cc1e45">vk2dRendererEndFrame</a></div><div class="ttdeci">VK2DResult vk2dRendererEndFrame()</div><div class="ttdoc">Completes the end-of-frame drawing tasks.</div></div>
+<div class="ttc" id="aRenderer_8h_html_ac7e4810cf1f892c9f2b0a95a200a2ec4"><div class="ttname"><a href="Renderer_8h.html#ac7e4810cf1f892c9f2b0a95a200a2ec4">vk2dRendererQuit</a></div><div class="ttdeci">void vk2dRendererQuit()</div><div class="ttdoc">Frees resources used by the renderer.</div></div>
+<div class="ttc" id="aRenderer_8h_html_acd9e5db6b796040b3537c70b86f36dce"><div class="ttname"><a href="Renderer_8h.html#acd9e5db6b796040b3537c70b86f36dce">vk2dRendererStartFrame</a></div><div class="ttdeci">void vk2dRendererStartFrame(const vec4 clearColour)</div><div class="ttdoc">Sets up the renderer to prepare for drawing.</div></div>
+<div class="ttc" id="aRenderer_8h_html_ad315ba5589fb95590e131ffe6ce890ed"><div class="ttname"><a href="Renderer_8h.html#ad315ba5589fb95590e131ffe6ce890ed">vk2dRendererWait</a></div><div class="ttdeci">void vk2dRendererWait()</div><div class="ttdoc">Waits until current GPU tasks are done before moving on.</div></div>
+<div class="ttc" id="aRenderer_8h_html_afca7052c3bb3542a5350510a1997005d"><div class="ttname"><a href="Renderer_8h.html#afca7052c3bb3542a5350510a1997005d">vk2dRendererInit</a></div><div class="ttdeci">VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const VK2DStartupOptions *options)</div><div class="ttdoc">Initializes VK2D's renderer.</div></div>
+<div class="ttc" id="aStructs_8h_html_a281994ae2e0e24cd27f4678ec0def3fda05149beef54dd6b6b81e34f06dda6738"><div class="ttname"><a href="Structs_8h.html#a281994ae2e0e24cd27f4678ec0def3fda05149beef54dd6b6b81e34f06dda6738">VK2D_FILTER_TYPE_NEAREST</a></div><div class="ttdeci">@ VK2D_FILTER_TYPE_NEAREST</div><div class="ttdoc">Nearest neighbor filter, good for pixel art.</div><div class="ttdef"><b>Definition</b> Structs.h:78</div></div>
+<div class="ttc" id="aStructs_8h_html_a919fd931caf982dcbafbb990822c1080aba5768c083bec70192cfa57a5ea7b671"><div class="ttname"><a href="Structs_8h.html#a919fd931caf982dcbafbb990822c1080aba5768c083bec70192cfa57a5ea7b671">VK2D_MSAA_8X</a></div><div class="ttdeci">@ VK2D_MSAA_8X</div><div class="ttdoc">8 samples per pixel</div><div class="ttdef"><b>Definition</b> Structs.h:57</div></div>
+<div class="ttc" id="aStructs_8h_html_ae23085668becdf6f1d35fa76d8b9f66baa4526c5ec08606f06d38c57cb9b2399d"><div class="ttname"><a href="Structs_8h.html#ae23085668becdf6f1d35fa76d8b9f66baa4526c5ec08606f06d38c57cb9b2399d">VK2D_SCREEN_MODE_IMMEDIATE</a></div><div class="ttdeci">@ VK2D_SCREEN_MODE_IMMEDIATE</div><div class="ttdoc">Quickest mode, just plop to screen but may have screen tearing.</div><div class="ttdef"><b>Definition</b> Structs.h:70</div></div>
+<div class="ttc" id="aStructs_8h_html_afc55c9af3f7597c47e740938df257ec4"><div class="ttname"><a href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a></div><div class="ttdeci">float vec4[4]</div><div class="ttdoc">4D vector of floats</div><div class="ttdef"><b>Definition</b> Structs.h:196</div></div>
+<div class="ttc" id="astructVK2DRendererConfig_html"><div class="ttname"><a href="structVK2DRendererConfig.html">VK2DRendererConfig</a></div><div class="ttdoc">User configurable settings.</div><div class="ttdef"><b>Definition</b> Structs.h:285</div></div>
+<div class="ttc" id="astructVK2DRendererConfig_html_a74482eb56a497d47e96b8291e7c25c6f"><div class="ttname"><a href="structVK2DRendererConfig.html#a74482eb56a497d47e96b8291e7c25c6f">VK2DRendererConfig::msaa</a></div><div class="ttdeci">VK2DMSAA msaa</div><div class="ttdoc">Current MSAA.</div><div class="ttdef"><b>Definition</b> Structs.h:286</div></div>
+</div><!-- fragment --><h2><a class="anchor" id="autotoc_md113"></a>
 Running the Examples</h2>
 <p>Be sure to compile the test shader before running the <code>examples/main/</code> example with: </p><pre class="fragment">glslc assets/test.frag -o assets/test.frag.spv
 glslc assets/test.vert -o assets/test.vert.spv
 </pre><p> Then build the <code>CMakeLists.txt</code> file with the flag <code>-DVK2D_BUILD_EXAMPLES:BOOL=ON</code>.</p>
-<h2><a class="anchor" id="autotoc_md19"></a>
+<h2><a class="anchor" id="autotoc_md114"></a>
 Roadmap</h2>
 <ul>
 <li>Stability improvements</li>

@@ -1,0 +1,12 @@
+<map id="VK2DFontHandle" name="VK2DFontHandle">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,97,137,123"/>
+<area shape="rect" id="Node000002" href="$structUT__hash__handle.html" title=" " alt="" coords="160,7,289,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,41,147,61,88,99,85,95,145,56,185,36"/>
+<area shape="poly" id="edge6_Node000002_Node000002" title=" " alt="" coords="305,11,316,20,308,28,290,31,289,26,306,23,311,20,302,16"/>
+<area shape="rect" id="Node000003" href="$structUT__hash__table.html" title=" " alt="" coords="240,185,359,211"/>
+<area shape="poly" id="edge5_Node000003_Node000002" title=" " alt="" coords="212,46,197,83,195,103,200,122,215,142,233,159,273,183,270,188,230,163,211,145,196,124,190,103,192,82,207,44"/>
+<area shape="rect" id="Node000004" href="$structUT__hash__bucket.html" title=" " alt="" coords="235,97,363,123"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="245,41,291,95,287,99,241,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="337,176,357,159,369,144,376,130,378,116,373,98,358,76,337,58,312,45,286,35,288,30,314,40,340,53,362,72,378,96,383,115,381,132,374,147,361,163,341,180"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="302,137,302,185,297,185,297,137"/>
+</map>

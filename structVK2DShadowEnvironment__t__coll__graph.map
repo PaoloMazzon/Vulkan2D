@@ -1,0 +1,5 @@
+<map id="VK2DShadowEnvironment_t" name="VK2DShadowEnvironment_t">
+<area shape="rect" id="Node000001" title="Information for hardware accelerated shadows." alt="" coords="5,93,209,119"/>
+<area shape="rect" id="Node000002" href="$structVK2DShadowObjectInfo.html" title="Info for the shadow environment to keep track of." alt="" coords="19,5,195,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,45,110,93,105,93,105,45"/>
+</map>

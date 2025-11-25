@@ -1,0 +1,11 @@
+<map id="VK2D/include/VK2D/VulkanInterface.h" name="VK2D/include/VK2D/VulkanInterface.h">
+<area shape="rect" id="Node000001" title="Tools to allow the user to mess with vulkan themselves." alt="" coords="107,5,303,45"/>
+<area shape="rect" id="Node000002" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="72,93,191,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,47,154,85,150,81,185,44"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="215,93,344,119"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="225,44,261,81,257,85,221,47"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,129,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="123,121,89,158,85,155,119,117"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="154,167,237,192"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="144,117,178,155,174,158,140,121"/>
+</map>

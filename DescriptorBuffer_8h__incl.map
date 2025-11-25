@@ -1,0 +1,9 @@
+<map id="VK2D/include/VK2D/DescriptorBuffer.h" name="VK2D/include/VK2D/DescriptorBuffer.h">
+<area shape="rect" id="Node000001" title="Tool to automate memory for uniform buffers and such." alt="" coords="21,5,241,45"/>
+<area shape="rect" id="Node000002" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="72,93,191,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,46,134,79,129,79,129,46"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,129,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="123,121,89,158,85,155,119,117"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="154,167,237,192"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="144,117,178,155,174,158,140,121"/>
+</map>
