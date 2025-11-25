@@ -1,7 +1,0 @@
-<map id="nk_command_rect_multi_color" name="nk_command_rect_multi_color">
-<area shape="rect" id="Node000001" title=" " alt="" coords="28,137,211,177"/>
-<area shape="rect" id="Node000002" href="$structnk__command.html" title=" " alt="" coords="5,5,116,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="73,43,103,112,114,136,109,138,98,114,69,45"/>
-<area shape="rect" id="Node000003" href="$structnk__color.html" title=" " alt="" coords="141,5,218,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="177,45,167,78,152,115,137,139,133,136,148,112,162,77,171,43"/>
-</map>

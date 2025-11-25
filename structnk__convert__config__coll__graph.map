@@ -1,9 +1,0 @@
-<map id="nk_convert_config" name="nk_convert_config">
-<area shape="rect" id="Node000001" title=" " alt="" coords="33,181,173,207"/>
-<area shape="rect" id="Node000002" href="$structnk__draw__null__texture.html" title=" " alt="" coords="22,93,185,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,133,106,181,101,181,101,133"/>
-<area shape="rect" id="Node000003" href="$unionnk__handle.html" title=" " alt="" coords="5,5,95,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="63,42,78,68,96,92,91,95,73,71,58,44"/>
-<area shape="rect" id="Node000004" href="$structnk__vec2.html" title=" " alt="" coords="119,5,195,31"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="146,44,130,71,114,94,109,92,125,68,141,42"/>
-</map>

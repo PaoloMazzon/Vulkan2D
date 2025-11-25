@@ -1,19 +1,4 @@
 var searchData=
 [
-  ['maxgeometryvertices_0',['maxGeometryVertices',['../structVK2DRendererLimits.html#a0e7d0def9ca08e4f1c4cc137721a7dd1',1,'VK2DRendererLimits']]],
-  ['maxinstanceddraws_1',['maxInstancedDraws',['../structVK2DRendererLimits.html#a2b7e0cd58bc015b01ed5156b30be1fae',1,'VK2DRendererLimits']]],
-  ['maxlinewidth_2',['maxLineWidth',['../structVK2DRendererLimits.html#acb8071dd27aa2378f65671d2b0c18db5',1,'VK2DRendererLimits']]],
-  ['maxmsaa_3',['maxMSAA',['../structVK2DRendererLimits.html#a97d87bbee90d6012d444007611fda335',1,'VK2DRendererLimits']]],
-  ['maxshaderbuffersize_4',['maxShaderBufferSize',['../structVK2DRendererLimits.html#ad75f11fa32dd8f188aef2273777af59a',1,'VK2DRendererLimits']]],
-  ['maxtextures_5',['maxTextures',['../structVK2DStartupOptions.html#a097e23a05e6cfb9a9fcc7c3fb06a0f22',1,'VK2DStartupOptions']]],
-  ['mem_6',['mem',['../structVK2DPhysicalDevice__t.html#a475684134393240437cc1ee21077fcaa',1,'VK2DPhysicalDevice_t::mem'],['../structVK2DBuffer__t.html#a41627cfa61c0f85242bd516d017b2193',1,'VK2DBuffer_t::mem'],['../structVK2DImage__t.html#a7b8cb6ca952ef783895aa303c9dea834',1,'VK2DImage_t::mem']]],
-  ['memory_7',['memory',['../structnk__buffer.html#a228b585debec1d328859fb52080ca3fd',1,'nk_buffer']]],
-  ['memorybarriers_8',['memoryBarriers',['../structVK2DDescriptorBuffer__t.html#a5757a83a42421cc4a5c094ab3f8fa7c6',1,'VK2DDescriptorBuffer_t']]],
-  ['midframeswaprenderpass_9',['midFrameSwapRenderPass',['../structVK2DRenderer__t.html#a30251bb6035dcf89622d68cfbf9fb358',1,'VK2DRenderer_t']]],
-  ['model_10',['model',['../structVK2DShaderPushBuffer.html#a3c0f6e322d3af1bbfe7cbd8edef21c07',1,'VK2DShaderPushBuffer::model'],['../structVK2DAssetLoad.html#af33988e064994296ec9c9481f4be1e2c',1,'VK2DAssetLoad::Model'],['../structVK2DAssetLoad.html#ac834d5d69961e797daffece5c215481d',1,'VK2DAssetLoad::model'],['../structVK2DShadowObjectInfo.html#aee09f1dcdbfb254d5d85e66a3ef51a2d',1,'VK2DShadowObjectInfo::model'],['../structVK2DDrawInstance.html#a85d23c0bc4ade3507b5d16624b5caa7f',1,'VK2DDrawInstance::model'],['../structVK2DShadowsPushBuffer.html#ad940785abdb88eb4be7e7ad64fc2965b',1,'VK2DShadowsPushBuffer::model'],['../structVK2D3DPushBuffer.html#a1c3114c7efbe82a8b7f788bec95ceea8',1,'VK2D3DPushBuffer::model'],['../structVK2DPushBuffer.html#ad6228beebfe1078aa28f29ee524817ac',1,'VK2DPushBuffer::model']]],
-  ['modelpipe_11',['modelPipe',['../structVK2DRenderer__t.html#a50215e7603251b1d48846a5266fcda62',1,'VK2DRenderer_t']]],
-  ['modelsampler_12',['modelSampler',['../structVK2DRenderer__t.html#a0cf8a70e8c6efc0bf11613754e594fb9',1,'VK2DRenderer_t']]],
-  ['modelsamplerset_13',['modelSamplerSet',['../structVK2DRenderer__t.html#a40f2d7b7593048a84aa6bc1f48036ea8',1,'VK2DRenderer_t']]],
-  ['msaa_14',['msaa',['../structVK2DRendererConfig.html#a74482eb56a497d47e96b8291e7c25c6f',1,'VK2DRendererConfig']]],
-  ['msaaimage_15',['msaaImage',['../structVK2DRenderer__t.html#a463ca2ebea45952e631cc33c9680d670',1,'VK2DRenderer_t']]]
+  ['quitonerror_0',['quitOnError',['../structVK2DStartupOptions.html#a872cce9098c27c733189490c6400f65a',1,'VK2DStartupOptions']]]
 ];

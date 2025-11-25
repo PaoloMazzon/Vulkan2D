@@ -1,5 +1,0 @@
-<map id="VK2DDescriptorBuffer_t" name="VK2DDescriptorBuffer_t">
-<area shape="rect" id="Node000001" title="Automates memory management for uniform buffers and the lot." alt="" coords="28,93,204,119"/>
-<area shape="rect" id="Node000002" href="$struct__VK2DDescriptorBufferInternal.html" title="To make descriptor buffers simpler internally." alt="" coords="5,5,227,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="119,45,119,93,113,93,113,45"/>
-</map>

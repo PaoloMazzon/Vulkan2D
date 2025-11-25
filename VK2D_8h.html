@@ -102,7 +102,7 @@ $(document).ready(function(){initNavTree('VK2D_8h.html',''); initResizable(); })
 <div class="textblock"><code>#include &quot;<a class="el" href="Renderer_8h_source.html">VK2D/Renderer.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Polygon_8h_source.html">VK2D/Polygon.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Texture_8h_source.html">VK2D/Texture.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="Image_8h_source.html">VK2D/Image.h</a>&quot;</code><br />
+<code>#include &quot;VK2D/Image.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="Shader_8h_source.html">VK2D/Shader.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Model_8h_source.html">VK2D/Model.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="Camera_8h_source.html">VK2D/Camera.h</a>&quot;</code><br />
@@ -113,66 +113,46 @@ Include dependency graph for VK2D.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="VK2D_8h__incl.png" border="0" usemap="#aVK2D_2include_2VK2D_2VK2D_8h" alt=""/></div>
 <map name="aVK2D_2include_2VK2D_2VK2D_8h" id="aVK2D_2include_2VK2D_2VK2D_8h">
-<area shape="rect" title="Includes all the relevant things you need." alt="" coords="457,5,658,31"/>
-<area shape="rect" href="Renderer_8h.html" title="The main renderer that handles all rendering." alt="" coords="145,152,277,177"/>
-<area shape="poly" title=" " alt="" coords="531,33,251,149,249,144,529,28"/>
-<area shape="rect" href="Polygon_8h.html" title="Abstraction of VK2DBuffer for shapes." alt="" coords="494,79,621,104"/>
-<area shape="poly" title=" " alt="" coords="560,31,560,65,555,65,555,31"/>
-<area shape="rect" href="Texture_8h.html" title="Makes managing textures samplers and off&#45;screen rendering simpler." alt="" coords="533,152,656,177"/>
-<area shape="poly" title=" " alt="" coords="535,33,512,47,492,64,481,83,480,93,484,103,507,127,537,145,535,149,504,132,479,105,475,93,475,82,488,60,509,42,532,28"/>
-<area shape="rect" href="Image_8h.html" title="Abstraction of VkImage to make managing them easier." alt="" coords="5,152,120,177"/>
-<area shape="poly" title=" " alt="" coords="519,33,116,151,114,145,517,28"/>
-<area shape="rect" href="Shader_8h.html" title="Makes shaders possible in VK2D." alt="" coords="934,79,1053,104"/>
-<area shape="poly" title=" " alt="" coords="628,28,921,76,920,81,627,33"/>
-<area shape="rect" href="Model_8h.html" title="Declares things related to loading and managing models." alt="" coords="645,79,760,104"/>
-<area shape="poly" title=" " alt="" coords="582,28,668,70,666,75,580,33"/>
-<area shape="rect" href="Camera_8h.html" title="User&#45;level camera things." alt="" coords="784,79,909,104"/>
-<area shape="poly" title=" " alt="" coords="604,28,787,73,786,78,603,33"/>
-<area shape="rect" href="ShadowEnvironment_8h.html" title="Information needed to use hardware&#45;accelerated shadows." alt="" coords="301,152,509,177"/>
-<area shape="poly" title=" " alt="" coords="539,33,507,54,474,81,446,112,423,142,418,139,441,108,470,77,504,50,536,29"/>
-<area shape="rect" href="Gui_8h.html" title="GUI code for Vulkan2D." alt="" coords="1077,79,1173,104"/>
-<area shape="poly" title=" " alt="" coords="659,26,843,46,1064,76,1063,81,842,52,658,32"/>
-<area shape="rect" href="Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="663,225,782,251"/>
-<area shape="poly" title=" " alt="" coords="277,173,290,175,650,224,649,229,289,180,276,178"/>
-<area shape="rect" title=" " alt="" coords="243,299,339,324"/>
-<area shape="poly" title=" " alt="" coords="220,176,280,285,275,288,215,179"/>
-<area shape="rect" title=" " alt="" coords="661,299,785,324"/>
-<area shape="poly" title=" " alt="" coords="725,251,725,285,720,285,720,251"/>
-<area shape="rect" title=" " alt="" coords="845,299,928,324"/>
-<area shape="poly" title=" " alt="" coords="750,248,849,291,846,296,748,253"/>
-<area shape="poly" title=" " alt="" coords="589,102,630,121,670,150,695,181,714,212,709,214,691,184,666,154,627,126,587,107"/>
-<area shape="poly" title=" " alt="" coords="617,175,691,216,688,221,614,180"/>
-<area shape="poly" title=" " alt="" coords="603,176,624,210,654,249,697,288,694,292,650,252,620,213,599,179"/>
-<area shape="poly" title=" " alt="" coords="121,173,132,175,419,207,650,228,649,233,418,212,132,180,120,178"/>
-<area shape="poly" title=" " alt="" coords="116,175,658,293,656,298,114,180"/>
-<area shape="poly" title=" " alt="" coords="82,175,262,289,259,293,80,180"/>
-<area shape="poly" title=" " alt="" coords="972,106,879,154,756,221,754,216,876,150,969,102"/>
-<area shape="rect" href="Constants_8h.html" title="Defines some constants." alt="" coords="933,152,1072,177"/>
-<area shape="poly" title=" " alt="" coords="998,104,1002,138,997,139,992,105"/>
-<area shape="poly" title=" " alt="" coords="958,180,782,224,781,219,957,175"/>
-<area shape="poly" title=" " alt="" coords="969,180,914,200,853,228,797,261,750,293,747,288,795,256,851,223,911,196,967,175"/>
-<area shape="poly" title=" " alt="" coords="993,179,949,227,904,288,900,285,945,224,989,176"/>
-<area shape="poly" title=" " alt="" coords="707,104,715,152,722,211,717,212,709,152,702,104"/>
-<area shape="poly" title=" " alt="" coords="839,106,743,217,739,213,834,103"/>
-<area shape="poly" title=" " alt="" coords="457,175,659,220,658,225,456,180"/>
-<area shape="poly" title=" " alt="" coords="398,179,310,290,306,286,394,176"/>
-<area shape="poly" title=" " alt="" coords="1078,107,1004,127,922,154,873,180,768,223,765,218,871,175,920,150,1002,122,1076,101"/>
-<area shape="rect" href="nuklear__defs_8h_source.html" title=" " alt="" coords="1097,152,1255,177"/>
-<area shape="poly" title=" " alt="" coords="1136,103,1162,139,1158,142,1132,106"/>
-<area shape="poly" title=" " alt="" coords="1126,180,1042,201,947,228,848,263,764,296,762,291,846,258,946,223,1041,196,1125,175"/>
-<area shape="rect" title=" " alt="" coords="1267,299,1341,324"/>
-<area shape="poly" title=" " alt="" coords="1217,175,1256,194,1275,207,1290,224,1303,254,1307,284,1302,285,1298,255,1286,227,1271,211,1253,198,1215,180"/>
-<area shape="rect" title=" " alt="" coords="1053,299,1123,324"/>
-<area shape="poly" title=" " alt="" coords="1158,180,1131,200,1108,227,1096,256,1091,285,1086,284,1091,254,1103,224,1127,196,1154,175"/>
-<area shape="rect" href="nuklear_8h.html" title="main API and documentation file" alt="" coords="959,225,1041,251"/>
-<area shape="poly" title=" " alt="" coords="1149,180,1043,222,1041,218,1147,175"/>
-<area shape="rect" href="nuklear__sdl__vulkan_8h_source.html" title=" " alt="" coords="1117,225,1275,251"/>
-<area shape="poly" title=" " alt="" coords="1182,177,1192,211,1187,213,1177,178"/>
-<area shape="poly" title=" " alt="" coords="1117,248,1054,253,353,308,352,303,1053,248,1116,243"/>
-<area shape="poly" title=" " alt="" coords="1215,248,1276,289,1273,293,1212,253"/>
-<area shape="poly" title=" " alt="" coords="1180,253,1119,293,1116,289,1177,248"/>
-<area shape="rect" title=" " alt="" coords="1159,299,1233,324"/>
-<area shape="poly" title=" " alt="" coords="1199,251,1199,285,1193,285,1193,251"/>
+<area shape="rect" title="Includes all the relevant things you need." alt="" coords="547,5,749,31"/>
+<area shape="rect" href="Renderer_8h.html" title="The main renderer that handles all rendering." alt="" coords="967,79,1099,104"/>
+<area shape="poly" title=" " alt="" coords="710,28,958,73,957,79,709,33"/>
+<area shape="rect" href="Polygon_8h.html" title="Abstraction of VK2DBuffer for shapes." alt="" coords="295,79,422,104"/>
+<area shape="poly" title=" " alt="" coords="602,33,419,78,418,73,601,28"/>
+<area shape="rect" href="Texture_8h.html" title="Makes managing textures samplers and off&#45;screen rendering simpler." alt="" coords="5,79,128,104"/>
+<area shape="poly" title=" " alt="" coords="547,33,142,81,141,76,547,27"/>
+<area shape="rect" title=" " alt="" coords="1244,79,1359,104"/>
+<area shape="poly" title=" " alt="" coords="749,25,966,46,1231,76,1230,81,966,51,749,30"/>
+<area shape="rect" href="Shader_8h.html" title="Makes shaders possible in VK2D." alt="" coords="153,79,271,104"/>
+<area shape="poly" title=" " alt="" coords="578,33,285,81,285,76,578,28"/>
+<area shape="rect" href="Model_8h.html" title="Declares things related to loading and managing models." alt="" coords="447,79,561,104"/>
+<area shape="poly" title=" " alt="" coords="626,33,541,75,539,70,624,28"/>
+<area shape="rect" href="Camera_8h.html" title="User&#45;level camera things." alt="" coords="585,79,711,104"/>
+<area shape="poly" title=" " alt="" coords="651,31,651,65,645,65,645,31"/>
+<area shape="rect" href="ShadowEnvironment_8h.html" title="Information needed to use hardware&#45;accelerated shadows." alt="" coords="735,79,943,104"/>
+<area shape="poly" title=" " alt="" coords="680,28,796,71,794,76,678,33"/>
+<area shape="rect" href="Gui_8h.html" title="GUI code for Vulkan2D." alt="" coords="1124,79,1220,104"/>
+<area shape="poly" title=" " alt="" coords="749,28,914,48,1111,76,1110,81,914,53,748,33"/>
+<area shape="rect" href="Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="445,152,563,177"/>
+<area shape="poly" title=" " alt="" coords="968,105,955,107,578,157,577,151,954,101,967,100"/>
+<area shape="rect" title=" " alt="" coords="881,152,977,177"/>
+<area shape="poly" title=" " alt="" coords="1018,106,959,146,956,142,1015,102"/>
+<area shape="rect" title=" " alt="" coords="179,225,303,251"/>
+<area shape="poly" title=" " alt="" coords="462,180,298,224,296,219,461,175"/>
+<area shape="rect" title=" " alt="" coords="463,225,545,251"/>
+<area shape="poly" title=" " alt="" coords="507,178,507,212,501,212,501,178"/>
+<area shape="poly" title=" " alt="" coords="383,102,469,144,467,148,381,106"/>
+<area shape="poly" title=" " alt="" coords="129,100,431,149,430,154,128,105"/>
+<area shape="poly" title=" " alt="" coords="75,103,98,138,132,175,166,199,201,217,199,222,163,204,129,179,94,141,71,106"/>
+<area shape="poly" title=" " alt="" coords="260,101,444,146,443,151,258,107"/>
+<area shape="rect" title=" " alt="" coords="143,152,281,177"/>
+<area shape="poly" title=" " alt="" coords="215,104,215,138,209,138,209,104"/>
+<area shape="poly" title=" " alt="" coords="507,104,507,138,501,138,501,104"/>
+<area shape="poly" title=" " alt="" coords="626,106,541,148,539,143,624,102"/>
+<area shape="poly" title=" " alt="" coords="785,107,572,152,571,146,784,101"/>
+<area shape="poly" title=" " alt="" coords="855,102,905,141,902,145,852,106"/>
+<area shape="poly" title=" " alt="" coords="1124,105,1112,107,816,141,577,161,577,156,815,136,1112,101,1123,100"/>
+<area shape="rect" title=" " alt="" coords="1093,152,1251,177"/>
+<area shape="poly" title=" " alt="" coords="1175,104,1175,138,1169,138,1169,104"/>
 </map>
 </div>
 </div>

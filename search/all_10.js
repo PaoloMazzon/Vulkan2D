@@ -1,14 +1,13 @@
 var searchData=
 [
-  ['rect_0',['rect',['../structVK2DPipeline__t.html#aedb7fd21cb3f6afcf01a0c8d8a18299f',1,'VK2DPipeline_t']]],
-  ['reference_1',['reference',['../Properties.html#autotoc_md84',1,'Reference'],['../Tree.html#autotoc_md71',1,'Reference'],['../Groups.html#autotoc_md63',1,'Reference'],['../Layouting.html#autotoc_md47',1,'Reference'],['../Window.html#autotoc_md9',1,'Reference'],['../Drawing.html#autotoc_md7',1,'Reference'],['../Context.html#autotoc_md1',1,'Reference'],['../Input.html#autotoc_md5',1,'Reference']]],
-  ['renderer_2eh_2',['Renderer.h',['../Renderer_8h.html',1,'']]],
-  ['renderermeta_2eh_3',['RendererMeta.h',['../RendererMeta_8h.html',1,'']]],
-  ['renderfinishedsemaphores_4',['renderFinishedSemaphores',['../structVK2DRenderer__t.html#a0448b79e0f2559b4e8022e7ae0dece53',1,'VK2DRenderer_t']]],
-  ['renderpass_5',['renderpass',['../structVK2DRenderer__t.html#ac0b8ba95db9dd26ca9195b417f1817f0',1,'VK2DRenderer_t::renderPass'],['../structVK2DPipeline__t.html#ac2bc856b40cba35278e0514f130167c9',1,'VK2DPipeline_t::renderPass']]],
-  ['resetswapchain_6',['resetSwapchain',['../structVK2DRenderer__t.html#a232a06e8f8f619d1518615e7ac44a8f4',1,'VK2DRenderer_t']]],
-  ['roadmap_7',['Roadmap',['../index.html#autotoc_md114',1,'']]],
-  ['rot_8',['rot',['../structVK2DCameraSpec.html#a26446dda888b405c7828303c3373d802',1,'VK2DCameraSpec']]],
-  ['rotation_9',['rotation',['../structVK2DDrawCommand.html#ab207aa17d35c5b74b98670981b431268',1,'VK2DDrawCommand']]],
-  ['running_20the_20examples_10',['Running the Examples',['../index.html#autotoc_md113',1,'']]]
+  ['tex_0',['tex',['../structVK2DAssetLoad.html#aa409fdc8972fce0a7ae464ddb3d0bb5c',1,'VK2DAssetLoad']]],
+  ['texture_1',['texture',['../structVK2DAssetLoad.html#ad2f4204aa098faf952a3b447e8246384',1,'VK2DAssetLoad']]],
+  ['texture_2eh_2',['Texture.h',['../Texture_8h.html',1,'']]],
+  ['textureindex_3',['textureindex',['../structVK2DShaderPushBuffer.html#aff046bfc02cdc8a7e66ccf61b3bae66d',1,'VK2DShaderPushBuffer::textureIndex'],['../structVK2D3DPushBuffer.html#a4a083372f329ddcdeb4e6574a75f8027',1,'VK2D3DPushBuffer::textureIndex'],['../structVK2DDrawInstance.html#a9236192fa2eefc5f1e12c664a1ca1572',1,'VK2DDrawInstance::textureIndex'],['../structVK2DDrawCommand.html#a4aa3f3f7ea47e58f61d4478cc9fe3d95',1,'VK2DDrawCommand::textureIndex']]],
+  ['texturepos_4',['texturepos',['../structVK2DShaderPushBuffer.html#aaa522ea6c15bc708b0c7f799b998e4df',1,'VK2DShaderPushBuffer::texturePos'],['../structVK2DDrawInstance.html#a630fd4800b17d9bd8bda7b44a9e1e684',1,'VK2DDrawInstance::texturePos'],['../structVK2DDrawCommand.html#a84b2541bc2f45c004396d8c900d9e567',1,'VK2DDrawCommand::texturePos']]],
+  ['textures_5',['Textures',['../md_docs_2QuickStart.html#autotoc_md7',1,'']]],
+  ['the_20basics_6',['The Basics',['../md_docs_2QuickStart.html#autotoc_md5',1,'']]],
+  ['the_20default_20camera_7',['The Default Camera',['../md_docs_2Cameras.html#autotoc_md2',1,'']]],
+  ['the_20examples_8',['Running the Examples',['../index.html#autotoc_md18',1,'']]],
+  ['type_9',['type',['../structVK2DCameraSpec.html#a1d888de4cc61a7450c5d1c6fbab268e5',1,'VK2DCameraSpec::type'],['../structVK2DAssetLoad.html#acccae62238110e8d3a64c9440b900eb7',1,'VK2DAssetLoad::type']]]
 ];

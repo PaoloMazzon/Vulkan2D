@@ -1,5 +1,0 @@
-<map id="VK2DCamera" name="VK2DCamera">
-<area shape="rect" id="Node000001" title="An internal representation of a camera (the user deals with VK2DCameraIndex, the renderer uses this s..." alt="" coords="21,93,130,119"/>
-<area shape="rect" id="Node000002" href="$structVK2DCameraSpec.html" title="Camera information." alt="" coords="5,5,145,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,45,78,93,73,93,73,45"/>
-</map>

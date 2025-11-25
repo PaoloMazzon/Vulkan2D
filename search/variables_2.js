@@ -1,10 +1,8 @@
 var searchData=
 [
-  ['blendmode_0',['blendMode',['../structVK2DRenderer__t.html#a537d702382c7b48974087be353342660',1,'VK2DRenderer_t']]],
-  ['buf_1',['buf',['../structVK2DBuffer__t.html#a69b1e7bfdcd6158f8cb11565363e8b59',1,'VK2DBuffer_t']]],
-  ['buffer_2',['buffer',['../structVK2DDescCon__t.html#a41159982a3d57c5fc164c5c4aa51f592',1,'VK2DDescCon_t']]],
-  ['buffercount_3',['bufferCount',['../structVK2DDescriptorBuffer__t.html#a83ab0f7c4887e6210c5978a96814a3b8',1,'VK2DDescriptorBuffer_t']]],
-  ['bufferlistsize_4',['bufferListSize',['../structVK2DDescriptorBuffer__t.html#a4c97f4838c6f5162eeb75aac9a77225a',1,'VK2DDescriptorBuffer_t']]],
-  ['buffers_5',['buffers',['../structVK2DDescriptorBuffer__t.html#a2f08f6a0d902b76288bdea8036517806',1,'VK2DDescriptorBuffer_t']]],
-  ['build_6',['build',['../structnk__context.html#a0d0f953ef2b6c56b046e4e5488d074e6',1,'nk_context']]]
+  ['cameraindex_0',['cameraindex',['../structVK2DShaderPushBuffer.html#a29a85bd86d3f3af573e3321f1e1d41a2',1,'VK2DShaderPushBuffer::cameraIndex'],['../structVK2DPushBuffer.html#a48bbb128f63c400c49daafaee29bdb2f',1,'VK2DPushBuffer::cameraIndex'],['../structVK2D3DPushBuffer.html#a103e702d54b7a65b058e4dccf05570f8',1,'VK2D3DPushBuffer::cameraIndex'],['../structVK2DShadowsPushBuffer.html#a2a1ea9814e54f082b9d436f3d84c441a',1,'VK2DShadowsPushBuffer::cameraIndex'],['../structVK2DInstancedPushBuffer.html#ad6163db5dc28be109f1feef7de135f11',1,'VK2DInstancedPushBuffer::cameraIndex']]],
+  ['centre_1',['centre',['../structVK2DCameraSpec.html#aa92b19576e2fc91b2ab26c1e5c14c403',1,'VK2DCameraSpec']]],
+  ['colour_2',['colour',['../structVK2DVertexColour.html#a796e7ff5dd5481e84322b2e11cc1ce4c',1,'VK2DVertexColour::colour'],['../structVK2DShaderPushBuffer.html#a05e8dd506439441ea152c0f2098a48bc',1,'VK2DShaderPushBuffer::colour'],['../structVK2DShadowsPushBuffer.html#a1b23dea7fbaf07a7d6890d8b269bdcd8',1,'VK2DShadowsPushBuffer::colour'],['../structVK2DDrawInstance.html#a1d03ab8dc3fe8a0e085f42ac1ce6e8c8',1,'VK2DDrawInstance::colour'],['../structVK2DDrawCommand.html#a3653ba799422692963e99ba9c78afb4c',1,'VK2DDrawCommand::colour']]],
+  ['colourmod_3',['colourmod',['../structVK2DPushBuffer.html#a5dc66390a6f42eb6b74d3d9035249bea',1,'VK2DPushBuffer::colourMod'],['../structVK2D3DPushBuffer.html#a5b06ea3fff4478a7724f100bb7b1588c',1,'VK2D3DPushBuffer::colourMod']]],
+  ['context_4',['context',['../structVK2DLogger.html#a2835f4ee8f991b92a04aa578786f1d35',1,'VK2DLogger']]]
 ];

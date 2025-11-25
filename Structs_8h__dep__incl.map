@@ -1,63 +1,32 @@
 <map id="VK2D/include/VK2D/Structs.h" name="VK2D/include/VK2D/Structs.h">
-<area shape="rect" id="Node000001" title="Forward declares struct typedefs." alt="" coords="1368,5,1579,31"/>
-<area shape="rect" id="Node000002" href="$Buffer_8h.html" title="Abstraction of VkBuffer to make handling them a little simpler." alt="" coords="5,86,208,111"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1354,23,1143,28,862,38,546,55,227,81,172,89,171,83,226,76,546,50,862,33,1142,23,1354,18"/>
-<area shape="rect" id="Node000003" href="$Camera_8h.html" title="User&#45;level camera things." alt="" coords="283,86,499,111"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1354,28,998,49,559,81,486,89,486,83,558,76,998,43,1354,23"/>
-<area shape="rect" id="Node000004" href="$Opaque_8h.html" title="Defines opaque headers for source files that need them." alt="" coords="133,174,347,199"/>
-<area shape="poly" id="edge21_Node000001_Node000004" title=" " alt="" coords="1354,24,1066,31,717,42,416,59,318,70,287,75,272,81,256,101,246,127,242,174,237,173,241,126,251,99,269,77,286,70,317,64,416,54,717,37,1066,26,1354,19"/>
-<area shape="rect" id="Node000006" href="$Constants_8h.html" title="Defines some constants." alt="" coords="571,86,802,111"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1355,33,863,81,793,89,792,83,862,76,1354,28"/>
-<area shape="rect" id="Node000007" href="$LogicalDevice_8h.html" title="Declares functionality as it pertains to VkDevice." alt="" coords="422,167,621,207"/>
-<area shape="poly" id="edge18_Node000001_Node000007" title=" " alt="" coords="1354,29,1162,48,1054,62,947,81,880,100,814,121,611,169,610,164,813,116,879,95,946,76,1053,57,1162,42,1354,24"/>
-<area shape="rect" id="Node000008" href="$Shader_8h.html" title="Makes shaders possible in VK2D." alt="" coords="645,174,854,199"/>
-<area shape="poly" id="edge29_Node000001_Node000008" title=" " alt="" coords="1364,35,1235,54,1097,81,1006,105,918,131,782,176,780,171,916,126,1005,99,1095,76,1234,49,1363,30"/>
-<area shape="rect" id="Node000009" href="$DescriptorBuffer_8h.html" title="Tool to automate memory for uniform buffers and such." alt="" coords="1637,79,1857,119"/>
-<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="1527,32,1682,76,1680,81,1525,37"/>
-<area shape="rect" id="Node000010" href="$DescriptorControl_8h.html" title="Makes dynamic descriptor control simpler." alt="" coords="1881,79,2101,119"/>
-<area shape="poly" id="edge11_Node000001_Node000010" title=" " alt="" coords="1564,30,1870,76,1881,78,1880,83,1869,81,1563,35"/>
-<area shape="rect" id="Node000011" href="$Gui_8h.html" title="GUI code for Vulkan2D." alt="" coords="879,174,1065,199"/>
-<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="1384,36,1292,54,1196,81,1136,104,1079,131,993,176,990,172,1077,126,1134,99,1194,76,1291,49,1382,30"/>
-<area shape="rect" id="Node000012" href="$Image_8h.html" title="Abstraction of VkImage to make managing them easier." alt="" coords="1090,174,1297,199"/>
-<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="1368,35,1280,54,1245,66,1222,81,1207,102,1199,128,1195,174,1190,173,1194,127,1202,100,1218,77,1242,62,1279,49,1367,30"/>
-<area shape="rect" id="Node000013" href="$Initializers_8h.html" title="Initializes Vulkan structs." alt="" coords="2125,86,2358,111"/>
-<area shape="poly" id="edge16_Node000001_Node000013" title=" " alt="" coords="1592,26,1833,47,2114,76,2168,83,2168,89,2113,81,1833,52,1592,31"/>
-<area shape="rect" id="Node000014" href="$Logger_8h_source.html" title=" " alt="" coords="2383,86,2591,111"/>
-<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="1593,21,1942,39,2156,55,2371,76,2423,83,2423,89,2370,81,2156,60,1942,45,1592,26"/>
-<area shape="rect" id="Node000015" href="$Model_8h.html" title="Declares things related to loading and managing models." alt="" coords="1321,174,1527,199"/>
-<area shape="poly" id="edge19_Node000001_Node000015" title=" " alt="" coords="1366,35,1286,54,1255,66,1235,80,1227,97,1229,112,1239,125,1256,137,1304,157,1359,171,1357,177,1303,162,1254,142,1235,129,1224,114,1222,96,1231,77,1252,61,1284,49,1365,30"/>
-<area shape="rect" id="Node000016" href="$PhysicalDevice_8h.html" title="Tools for managing VkPhysicalDevice." alt="" coords="2615,79,2822,119"/>
-<area shape="poly" id="edge22_Node000001_Node000016" title=" " alt="" coords="1593,19,2038,34,2319,51,2603,76,2615,77,2615,83,2602,81,2319,57,2037,40,1592,24"/>
-<area shape="rect" id="Node000017" href="$Pipeline_8h.html" title="Simple abstraction over VkPipeline objects." alt="" coords="2846,86,3063,111"/>
-<area shape="poly" id="edge23_Node000001_Node000017" title=" " alt="" coords="1593,17,1822,21,2131,31,2481,48,2835,76,2890,83,2890,89,2834,81,2481,53,2131,36,1822,27,1593,23"/>
-<area shape="rect" id="Node000018" href="$Polygon_8h.html" title="Abstraction of VK2DBuffer for shapes." alt="" coords="1551,174,1769,199"/>
-<area shape="poly" id="edge24_Node000001_Node000018" title=" " alt="" coords="1384,36,1334,49,1292,67,1279,78,1271,89,1271,102,1279,117,1394,139,1588,171,1587,177,1393,145,1276,121,1266,104,1266,88,1275,74,1290,63,1332,44,1383,31"/>
-<area shape="rect" id="Node000019" href="$Renderer_8h.html" title="The main renderer that handles all rendering." alt="" coords="1289,86,1511,111"/>
-<area shape="poly" id="edge26_Node000001_Node000019" title=" " alt="" coords="1455,43,1413,88,1409,84,1451,39"/>
-<area shape="rect" id="Node000021" href="$ShadowEnvironment_8h.html" title="Information needed to use hardware&#45;accelerated shadows." alt="" coords="2079,167,2283,207"/>
-<area shape="poly" id="edge30_Node000001_Node000021" title=" " alt="" coords="1492,40,1530,81,1554,101,1581,116,1650,143,1710,157,1765,163,1817,163,1928,157,1993,157,2068,164,2079,166,2078,171,2068,169,1993,163,1929,162,1818,168,1765,168,1709,163,1648,148,1579,121,1551,105,1526,85,1488,44"/>
-<area shape="rect" id="Node000022" href="$Texture_8h.html" title="Makes managing textures samplers and off&#45;screen rendering simpler." alt="" coords="2308,174,2521,199"/>
-<area shape="poly" id="edge32_Node000001_Node000022" title=" " alt="" coords="1506,35,1572,77,1598,99,1610,108,1626,116,1689,132,1769,143,1958,153,2148,157,2296,164,2349,171,2349,177,2296,169,2148,162,1958,158,1768,148,1688,137,1624,121,1607,113,1595,103,1569,81,1503,40"/>
-<area shape="rect" id="Node000023" href="$Util_8h.html" title="Utilities for in&#45;engine use only." alt="" coords="3087,86,3275,111"/>
-<area shape="poly" id="edge34_Node000001_Node000023" title=" " alt="" coords="1593,19,2347,38,2768,55,2943,65,3076,76,3126,83,3125,89,3076,81,2943,70,2768,60,2347,44,1592,24"/>
-<area shape="rect" id="Node000024" href="$Validation_8h.html" title="Some tools for managing errors." alt="" coords="3299,86,3530,111"/>
-<area shape="poly" id="edge35_Node000001_Node000024" title=" " alt="" coords="1592,16,1890,17,2310,24,2795,42,3044,57,3288,76,3347,83,3347,89,3288,81,3044,62,2795,48,2310,29,1890,22,1592,21"/>
-<area shape="rect" id="Node000025" href="$VulkanInterface_8h.html" title="Tools to allow the user to mess with vulkan themselves." alt="" coords="3554,79,3750,119"/>
-<area shape="poly" id="edge36_Node000001_Node000025" title=" " alt="" coords="1593,18,2567,34,3130,52,3365,63,3543,76,3554,77,3553,83,3542,81,3365,68,3130,57,2567,40,1593,23"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="360,121,262,176,259,171,357,116"/>
-<area shape="rect" id="Node000005" href="$VK2D_8h.html" title="Includes all the relevant things you need." alt="" coords="1323,255,1525,280"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="390,125,392,167,398,188,411,204,449,215,531,225,785,241,1323,261,1323,266,785,246,531,230,448,220,408,209,394,190,386,168,384,125"/>
-<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="614,117,300,177,299,171,613,111"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="653,120,559,169,557,164,651,115"/>
-<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="705,121,743,172,738,175,701,124"/>
-<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="831,199,867,204,1113,233,1323,254,1323,259,1112,238,866,209,830,204"/>
-<area shape="poly" id="edge13_Node000011_Node000005" title=" " alt="" coords="1050,199,1078,204,1357,252,1356,257,1077,209,1049,204"/>
-<area shape="poly" id="edge15_Node000012_Node000005" title=" " alt="" coords="1241,201,1391,252,1390,257,1239,206"/>
-<area shape="poly" id="edge20_Node000015_Node000005" title=" " alt="" coords="1427,213,1427,254,1421,254,1421,213"/>
-<area shape="poly" id="edge25_Node000018_Node000005" title=" " alt="" coords="1614,206,1459,257,1458,252,1612,201"/>
-<area shape="poly" id="edge28_Node000019_Node000005" title=" " alt="" coords="1486,111,1674,142,1783,165,1793,187,1783,208,1766,222,1742,233,1677,250,1600,260,1525,266,1525,261,1600,255,1676,245,1740,228,1763,218,1779,205,1787,187,1780,169,1673,147,1485,116"/>
-<area shape="rect" id="Node000020" href="$RendererMeta_8h.html" title="Declares functions only the internal renderer needs." alt="" coords="1843,167,2055,207"/>
-<area shape="poly" id="edge27_Node000019_Node000020" title=" " alt="" coords="1487,111,1844,166,1843,171,1486,116"/>
-<area shape="poly" id="edge31_Node000021_Node000005" title=" " alt="" coords="2065,210,1768,242,1525,262,1525,256,1767,236,2065,204"/>
-<area shape="poly" id="edge33_Node000022_Node000005" title=" " alt="" coords="2336,204,2296,209,2081,230,1867,246,1525,265,1525,259,1867,241,2081,225,2296,204,2335,199"/>
+<area shape="rect" id="Node000001" title="Forward declares struct typedefs." alt="" coords="1056,5,1267,31"/>
+<area shape="rect" id="Node000002" href="$Camera_8h.html" title="User&#45;level camera things." alt="" coords="5,86,221,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1043,26,680,44,457,60,234,81,180,89,179,83,233,76,457,55,680,39,1042,21"/>
+<area shape="rect" id="Node000004" href="$DescriptorControl_8h.html" title="Makes dynamic descriptor control simpler." alt="" coords="246,79,466,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="1043,30,784,50,479,81,467,83,466,78,478,76,783,45,1042,25"/>
+<area shape="rect" id="Node000005" href="$Gui_8h.html" title="GUI code for Vulkan2D." alt="" coords="491,86,677,111"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="1045,35,690,81,646,89,645,83,689,76,1045,30"/>
+<area shape="rect" id="Node000006" href="$Model_8h.html" title="Declares things related to loading and managing models." alt="" coords="701,86,907,111"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="1097,36,857,89,855,83,1096,31"/>
+<area shape="rect" id="Node000007" href="$Polygon_8h.html" title="Abstraction of VK2DBuffer for shapes." alt="" coords="931,86,1149,111"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="1133,41,1059,88,1057,84,1130,36"/>
+<area shape="rect" id="Node000008" href="$Renderer_8h.html" title="The main renderer that handles all rendering." alt="" coords="1173,86,1395,111"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="1192,36,1267,84,1264,88,1189,40"/>
+<area shape="rect" id="Node000009" href="$Shader_8h.html" title="Makes shaders possible in VK2D." alt="" coords="1419,86,1629,111"/>
+<area shape="poly" id="edge12_Node000001_Node000009" title=" " alt="" coords="1228,31,1472,83,1471,89,1227,36"/>
+<area shape="rect" id="Node000010" href="$ShadowEnvironment_8h.html" title="Information needed to use hardware&#45;accelerated shadows." alt="" coords="1653,79,1857,119"/>
+<area shape="poly" id="edge14_Node000001_Node000010" title=" " alt="" coords="1277,30,1642,76,1653,78,1652,83,1641,81,1276,35"/>
+<area shape="rect" id="Node000011" href="$Texture_8h.html" title="Makes managing textures samplers and off&#45;screen rendering simpler." alt="" coords="1881,86,2095,111"/>
+<area shape="poly" id="edge16_Node000001_Node000011" title=" " alt="" coords="1281,24,1551,44,1870,76,1921,83,1921,89,1869,81,1550,49,1280,29"/>
+<area shape="rect" id="Node000012" href="$VulkanInterface_8h.html" title="Tools to allow the user to mess with vulkan themselves." alt="" coords="2119,79,2315,119"/>
+<area shape="poly" id="edge18_Node000001_Node000012" title=" " alt="" coords="1281,20,1650,38,1878,54,2107,76,2119,78,2119,83,2106,81,1878,59,1650,43,1280,25"/>
+<area shape="rect" id="Node000003" href="$VK2D_8h.html" title="Includes all the relevant things you need." alt="" coords="1061,167,1262,192"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="193,111,234,116,465,138,696,154,1061,172,1060,177,695,159,465,143,233,121,192,116"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="659,111,690,116,887,143,1061,164,1060,169,886,149,689,121,658,116"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="870,112,1110,164,1109,169,869,117"/>
+<area shape="poly" id="edge9_Node000007_Node000003" title=" " alt="" coords="1071,117,1145,164,1142,169,1068,121"/>
+<area shape="poly" id="edge11_Node000008_Node000003" title=" " alt="" coords="1256,121,1181,169,1178,164,1253,116"/>
+<area shape="poly" id="edge13_Node000009_Node000003" title=" " alt="" coords="1458,117,1215,169,1214,164,1457,112"/>
+<area shape="poly" id="edge15_Node000010_Node000003" title=" " alt="" coords="1639,122,1262,169,1262,164,1639,116"/>
+<area shape="poly" id="edge17_Node000011_Node000003" title=" " alt="" coords="1908,116,1870,121,1537,154,1263,175,1262,169,1536,149,1869,116,1907,111"/>
 </map>

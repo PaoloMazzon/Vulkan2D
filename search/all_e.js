@@ -1,28 +1,8 @@
 var searchData=
 [
-  ['padding_0',['padding',['../structVK2DDrawInstance.html#aa51bf130300eb5337fb304ebe888aa06',1,'VK2DDrawInstance']]],
-  ['pagesize_1',['pageSize',['../structVK2DDescriptorBuffer__t.html#a1af1b2ec81ea03687bc5c0b612d9de6a',1,'VK2DDescriptorBuffer_t']]],
-  ['pd_2',['pd',['../structVK2DLogicalDevice__t.html#aefca637649ee76263067d51bed3151b5',1,'VK2DLogicalDevice_t::pd'],['../structVK2DRenderer__t.html#a20ce77c1661bffc54dbb44e0bb32167c',1,'VK2DRenderer_t::pd']]],
-  ['physicaldevice_2eh_3',['PhysicalDevice.h',['../PhysicalDevice_8h.html',1,'']]],
-  ['pipe_4',['pipe',['../structVK2DShader__t.html#acaf84787cd2813eb729ffba65831581d',1,'VK2DShader_t']]],
-  ['pipeline_2eh_5',['Pipeline.h',['../Pipeline_8h.html',1,'']]],
-  ['pipes_6',['pipes',['../structVK2DPipeline__t.html#a081ef0063f1807df7f1a0e9f16be2ec1',1,'VK2DPipeline_t']]],
-  ['polygon_2eh_7',['Polygon.h',['../Polygon_8h.html',1,'']]],
-  ['polygons_8',['Polygons',['../md_docs_2QuickStart.html#autotoc_md104',1,'']]],
-  ['pool_9',['pool',['../structVK2DLogicalDevice__t.html#a71d879e34ffe69d58c51b446e4371c99',1,'VK2DLogicalDevice_t::pool'],['../structnk__buffer.html#a0cd2b90bb2994190fa1aa0e9ffbc1184',1,'nk_buffer::pool']]],
-  ['poollistsize_10',['poolListSize',['../structVK2DDescCon__t.html#aa8ba7af87e70e45eb588e21e2769f866',1,'VK2DDescCon_t']]],
-  ['pools_11',['pools',['../structVK2DDescCon__t.html#ab6c448d983c39488158dccf9a4dc45ef',1,'VK2DDescCon_t']]],
-  ['poolsinuse_12',['poolsInUse',['../structVK2DDescCon__t.html#a06c56589f210ec42984fbbd89d628a50',1,'VK2DDescCon_t']]],
-  ['pos_13',['pos',['../structVK2DVertexColour.html#a9a6fdbd43e97d52bc65f196459b43035',1,'VK2DVertexColour::pos'],['../structVK2DVertex3D.html#a47f5660f3d90834f3a79ff622477de03',1,'VK2DVertex3D::pos'],['../structVK2DDrawCommand.html#a6eb16b1f53762cb42a6bd0a5938914ef',1,'VK2DDrawCommand::pos']]],
-  ['presentmodecount_14',['presentModeCount',['../structVK2DRenderer__t.html#aaa74c8ae4e12b8517a7bcef7a4c8981f',1,'VK2DRenderer_t']]],
-  ['presentmodes_15',['presentModes',['../structVK2DRenderer__t.html#a4b46ed3c9d87f9d124e93bdba23d2718',1,'VK2DRenderer_t']]],
-  ['previoustime_16',['previousTime',['../structVK2DRenderer__t.html#a097fb9abc516098d791d916b52da3ddc',1,'VK2DRenderer_t']]],
-  ['prevpipe_17',['prevPipe',['../structVK2DRenderer__t.html#a464924fc2320cd7941ea6cddadb94399',1,'VK2DRenderer_t']]],
-  ['prevsethash_18',['prevSetHash',['../structVK2DRenderer__t.html#a7d2ac2264c8c4a87e2e9df285058ccd6',1,'VK2DRenderer_t']]],
-  ['prevvbo_19',['prevVBO',['../structVK2DRenderer__t.html#a655441f4024df2feadbf0892cf63707c',1,'VK2DRenderer_t']]],
-  ['primfillpipe_20',['primFillPipe',['../structVK2DRenderer__t.html#a2ec04f972e1a755300adafe32185b2be',1,'VK2DRenderer_t']]],
-  ['primlinepipe_21',['primLinePipe',['../structVK2DRenderer__t.html#abbb48ebd89a7c53ce28c5293560dcc9c',1,'VK2DRenderer_t']]],
-  ['procedstartframe_22',['procedStartFrame',['../structVK2DRenderer__t.html#a758cad3ea13690a157c04f2166abeeec',1,'VK2DRenderer_t']]],
-  ['properties_23',['Properties',['../Properties.html',1,'']]],
-  ['props_24',['props',['../structVK2DPhysicalDevice__t.html#a05bd86218aba8b769c48837dcc90f028',1,'VK2DPhysicalDevice_t']]]
+  ['renderer_2eh_0',['Renderer.h',['../Renderer_8h.html',1,'']]],
+  ['roadmap_1',['Roadmap',['../index.html#autotoc_md19',1,'']]],
+  ['rot_2',['rot',['../structVK2DCameraSpec.html#a26446dda888b405c7828303c3373d802',1,'VK2DCameraSpec']]],
+  ['rotation_3',['rotation',['../structVK2DDrawCommand.html#ab207aa17d35c5b74b98670981b431268',1,'VK2DDrawCommand']]],
+  ['running_20the_20examples_4',['Running the Examples',['../index.html#autotoc_md18',1,'']]]
 ];

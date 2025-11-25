@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_5fvk2ddescriptorbufferinternal_0',['_VK2DDescriptorBufferInternal',['../Opaque_8h.html#ac779e8fe07fb00abdbb6fb5087b602ad',1,'Opaque.h']]]
+  ['mat4_0',['mat4',['../Structs_8h.html#ab6e436b53a47afd9c980d7de503b9090',1,'Structs.h']]]
 ];

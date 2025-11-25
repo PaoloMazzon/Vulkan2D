@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['needed_0',['needed',['../structnk__buffer.html#a6b0ea49209eaba5285b715d902c5f446',1,'nk_buffer']]],
-  ['newconfig_1',['newConfig',['../structVK2DRenderer__t.html#a8bd56a217ca894552ca024a4186710b8',1,'VK2DRenderer_t']]]
+  ['rot_0',['rot',['../structVK2DCameraSpec.html#a26446dda888b405c7828303c3373d802',1,'VK2DCameraSpec']]],
+  ['rotation_1',['rotation',['../structVK2DDrawCommand.html#ab207aa17d35c5b74b98670981b431268',1,'VK2DDrawCommand']]]
 ];
