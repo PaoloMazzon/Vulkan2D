@@ -17,7 +17,7 @@ ABBREVIATE_BRIEF       = "The $name class" \
                          an \
                          the
 OPTIMIZE_OUTPUT_FOR_C  = YES
-INPUT                  = ./VK2D/include ./docs ./ ./assets/gif ./examples/retrolook/example.gif ./examples/shadowsglsl/example.gif
+INPUT                  = ./VK2D/include/VK2D ./docs ./ ./assets/gif ./examples/retrolook/example.gif ./examples/shadowsglsl/example.gif
 FILE_PATTERNS          = *.h \
                          *.md
 RECURSIVE              = NO
