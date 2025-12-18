@@ -3226,6 +3226,11 @@ static int stbi__process_frame_header(stbi__jpeg *z, int scan)
       if (z->img_comp[i].h > h_max) h_max = z->img_comp[i].h;
       if (z->img_comp[i].v > v_max) v_max = z->img_comp[i].v;
    }
+   
+   for (i=0; i < s->img_n; ++i) {
+      if (h_max % z->img_comp[i].h != 0) return stbi__err("bad H","Corrupt JPEG");
+      if (v_max % z->img_comp[i].v != 0) return stbi__err("bad V","Corrupt JPEG");
+   }
 
    // compute interleaved mcu info
    z->img_h_max = h_max;
