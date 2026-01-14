@@ -25,13 +25,13 @@
 var NAVTREE =
 [
   [ "Vulkan2D", "index.html", [
-    [ "Vulkan2D", "index.html#autotoc_md13", [
-      [ "Features", "index.html#autotoc_md14", null ],
-      [ "Documentation", "index.html#autotoc_md15", null ],
-      [ "Usage", "index.html#autotoc_md16", null ],
-      [ "Example", "index.html#autotoc_md17", null ],
-      [ "Running the Examples", "index.html#autotoc_md18", null ],
-      [ "Roadmap", "index.html#autotoc_md19", null ]
+    [ "Vulkan2D", "index.html#autotoc_md16", [
+      [ "Features", "index.html#autotoc_md17", null ],
+      [ "Documentation", "index.html#autotoc_md18", null ],
+      [ "Usage", "index.html#autotoc_md19", null ],
+      [ "Example", "index.html#autotoc_md20", null ],
+      [ "Running the Examples", "index.html#autotoc_md21", null ],
+      [ "Roadmap", "index.html#autotoc_md22", null ]
     ] ],
     [ "Cameras", "md_docs_2Cameras.html", [
       [ "Creating Cameras", "md_docs_2Cameras.html#autotoc_md0", null ],
@@ -49,6 +49,10 @@ var NAVTREE =
       [ "Cameras", "md_docs_2QuickStart.html#autotoc_md10", null ],
       [ "Models", "md_docs_2QuickStart.html#autotoc_md11", null ],
       [ "Shaders", "md_docs_2QuickStart.html#autotoc_md12", null ]
+    ] ],
+    [ "Shaders", "md_docs_2Shaders.html", [
+      [ "User input data", "md_docs_2Shaders.html#autotoc_md14", null ],
+      [ "Example Shader", "md_docs_2Shaders.html#autotoc_md15", null ]
     ] ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
@@ -75,7 +79,7 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "Camera_8h.html",
-"VulkanInterface_8h.html#ab8c05abdd96ac32fb20431fcf7ba2ecc"
+"functions.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

@@ -15,17 +15,6 @@ var Renderer_8h =
     [ "vk2dDrawTexturePart", "Renderer_8h.html#aecbbc9e6c309f494b6c5b4035f053bf7", null ],
     [ "vk2dDrawWireframe", "Renderer_8h.html#af5b28e287d31ac7e7880faf3a18ebf70", null ],
     [ "vk2dDrawWireframeExt", "Renderer_8h.html#a3f114fe5f632d48ab656a0106fd1cd65", null ],
-    [ "vk2dAssetsFree", "Renderer_8h.html#ae5bb48e354826ee519ecef3e341acdac", null ],
-    [ "vk2dAssetsLoad", "Renderer_8h.html#a49b0d8a64af097696691e1dad5f61529", null ],
-    [ "vk2dAssetsLoadComplete", "Renderer_8h.html#a968fec06d8d1620cebde3766a24e3871", null ],
-    [ "vk2dAssetsLoadStatus", "Renderer_8h.html#a0891ea2d8f826365d6679b5923967ec5", null ],
-    [ "vk2dAssetsSetModelFile", "Renderer_8h.html#a4e658bab762c7e17f2ba69a886a8b7d6", null ],
-    [ "vk2dAssetsSetModelMemory", "Renderer_8h.html#ad5d2684b1f89d2daf57224158adb15bf", null ],
-    [ "vk2dAssetsSetShaderFile", "Renderer_8h.html#a8243c2532c22996f6cbbf5273623acca", null ],
-    [ "vk2dAssetsSetShaderMemory", "Renderer_8h.html#a51f8374869842fe795806cfacc76df07", null ],
-    [ "vk2dAssetsSetTextureFile", "Renderer_8h.html#a9f743e7526c79dab9bc5de9e89031c86", null ],
-    [ "vk2dAssetsSetTextureMemory", "Renderer_8h.html#a1bcfd87c49ba4f15214e7ddef6305e1a", null ],
-    [ "vk2dAssetsWait", "Renderer_8h.html#a93f66965839cf6d2ee9dcc6ab6a8cdb0", null ],
     [ "vk2dColourHex", "Renderer_8h.html#a178031ff753290cdfe596ab0e8df8704", null ],
     [ "vk2dColourInt", "Renderer_8h.html#abfcde7cb2ff128172d69feb2800db90a", null ],
     [ "vk2dColourRGBA", "Renderer_8h.html#aee3e036fb150542075841732f0403459", null ],
@@ -74,5 +63,6 @@ var Renderer_8h =
     [ "vk2dSleep", "Renderer_8h.html#a58fd89a3f92e6edb6865ae4932d56a10", null ],
     [ "vk2dStatus", "Renderer_8h.html#ae6182d5644eaa0985ccbeccfc7849063", null ],
     [ "vk2dStatusFatal", "Renderer_8h.html#a4ce46cb99871a73f14142f38383b5a79", null ],
-    [ "vk2dStatusMessage", "Renderer_8h.html#a39852130e687257b620b4532346a91b6", null ]
+    [ "vk2dStatusMessage", "Renderer_8h.html#a39852130e687257b620b4532346a91b6", null ],
+    [ "vk2dTime", "Renderer_8h.html#a278e9be4d6052927b005b2be541c8e41", null ]
 ];

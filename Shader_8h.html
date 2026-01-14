@@ -134,12 +134,12 @@ This graph shows which files directly or indirectly include this file:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a850f2a560fb9cc3db9f637eab5a27585" id="r_a850f2a560fb9cc3db9f637eab5a27585"><td class="memItemLeft" align="right" valign="top">VK2DShader&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Shader_8h.html#a850f2a560fb9cc3db9f637eab5a27585">vk2dShaderLoad</a> (const char *vertexShader, const char *fragmentShader, uint32_t uniformBufferSize)</td></tr>
-<tr class="memdesc:a850f2a560fb9cc3db9f637eab5a27585"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a shader you can use to render textures.  <br /></td></tr>
-<tr class="separator:a850f2a560fb9cc3db9f637eab5a27585"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b6c44006df18e7e1d71659ea374226a" id="r_a1b6c44006df18e7e1d71659ea374226a"><td class="memItemLeft" align="right" valign="top">VK2DShader&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Shader_8h.html#a1b6c44006df18e7e1d71659ea374226a">vk2dShaderFrom</a> (const uint8_t *vertexShaderBuffer, int vertexShaderBufferSize, const uint8_t *fragmentShaderBuffer, int fragmentShaderBufferSize, uint32_t uniformBufferSize)</td></tr>
-<tr class="memdesc:a1b6c44006df18e7e1d71659ea374226a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a shader you can use to render textures from an in-memory buffer.  <br /></td></tr>
-<tr class="separator:a1b6c44006df18e7e1d71659ea374226a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5c8cbd14f4c410bf4af7816274090cb" id="r_ab5c8cbd14f4c410bf4af7816274090cb"><td class="memItemLeft" align="right" valign="top">VK2DShader&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Shader_8h.html#ab5c8cbd14f4c410bf4af7816274090cb">vk2dSlangLoad</a> (const char *slangFile)</td></tr>
+<tr class="memdesc:ab5c8cbd14f4c410bf4af7816274090cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a shader from a slang shader file.  <br /></td></tr>
+<tr class="separator:ab5c8cbd14f4c410bf4af7816274090cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a607fb1e89ed4b121646c122fefdaf06e" id="r_a607fb1e89ed4b121646c122fefdaf06e"><td class="memItemLeft" align="right" valign="top">VK2DShader&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Shader_8h.html#a607fb1e89ed4b121646c122fefdaf06e">vk2dSlangFrom</a> (const char *slangFile, int slangFileSize)</td></tr>
+<tr class="memdesc:a607fb1e89ed4b121646c122fefdaf06e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a shader from a slang shader file in memory.  <br /></td></tr>
+<tr class="separator:a607fb1e89ed4b121646c122fefdaf06e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11e942fa87a418b3368c2575fc67a112" id="r_a11e942fa87a418b3368c2575fc67a112"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Shader_8h.html#a11e942fa87a418b3368c2575fc67a112">vk2dShaderFree</a> (VK2DShader shader)</td></tr>
 <tr class="memdesc:a11e942fa87a418b3368c2575fc67a112"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees a shader from memory.  <br /></td></tr>
 <tr class="separator:a11e942fa87a418b3368c2575fc67a112"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,41 +174,23 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a1b6c44006df18e7e1d71659ea374226a" name="a1b6c44006df18e7e1d71659ea374226a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1b6c44006df18e7e1d71659ea374226a">&#9670;&#160;</a></span>vk2dShaderFrom()</h2>
+<a id="a607fb1e89ed4b121646c122fefdaf06e" name="a607fb1e89ed4b121646c122fefdaf06e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a607fb1e89ed4b121646c122fefdaf06e">&#9670;&#160;</a></span>vk2dSlangFrom()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">VK2DShader vk2dShaderFrom </td>
+          <td class="memname">VK2DShader vk2dSlangFrom </td>
           <td>(</td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>vertexShaderBuffer</em>, </td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>slangFile</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>vertexShaderBufferSize</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const uint8_t *&#160;</td>
-          <td class="paramname"><em>fragmentShaderBuffer</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>fragmentShaderBufferSize</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>uniformBufferSize</em>&#160;</td>
+          <td class="paramname"><em>slangFileSize</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -218,75 +200,44 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p>Creates a shader you can use to render textures from an in-memory buffer. </p>
+<p>Creates a shader from a slang shader file in memory. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">vertexShaderBuffer</td><td>Buffer containing compiled SPIR-V shader code </td></tr>
-    <tr><td class="paramname">vertexShaderBufferSize</td><td>Size of the vertexShaderBuffer buffer in bytes </td></tr>
-    <tr><td class="paramname">fragmentShaderBuffer</td><td>File containing the compiled SPIR-V fragment shader </td></tr>
-    <tr><td class="paramname">fragmentShaderBufferSize</td><td>Size of the fragmentShaderBuffer buffer in bytes </td></tr>
-    <tr><td class="paramname">uniformBufferSize</td><td>Size of the shader's expected uniform buffer (0 is valid) </td></tr>
+    <tr><td class="paramname">slangFile</td><td>Slang file as a string (not null-terminated) </td></tr>
+    <tr><td class="paramname">slangFileSize</td><td>Size of the slang file in bytes </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns a new shader or NULL </dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>There are strict requirements for how the shader should be constructed </dd>
-<dd>
-uniformBufferSize must be less than the <code>maxShaderBufferSize</code> field of <code>vk2dRendererGetLimits</code> </dd>
-<dd>
-uniformBufferSize must be a multiple of 4</dd></dl>
-<p>Check the shaders shaders/tex.vert and shaders/tex.frag for information on how the shaders should be set up. You may choose to not include a uniform buffer if you specify a uniform buffer size of 0. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns a shader or NULL if it fails</dd></dl>
+<p>Check <a href="https://paolomazzon.github.io/Vulkan2D/md_docs_2QuickStart.html">https://paolomazzon.github.io/Vulkan2D/md_docs_2QuickStart.html</a> for information on how to properly create a slang shader for VK2D. </p>
 
 </div>
 </div>
-<a id="a850f2a560fb9cc3db9f637eab5a27585" name="a850f2a560fb9cc3db9f637eab5a27585"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a850f2a560fb9cc3db9f637eab5a27585">&#9670;&#160;</a></span>vk2dShaderLoad()</h2>
+<a id="ab5c8cbd14f4c410bf4af7816274090cb" name="ab5c8cbd14f4c410bf4af7816274090cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5c8cbd14f4c410bf4af7816274090cb">&#9670;&#160;</a></span>vk2dSlangLoad()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">VK2DShader vk2dShaderLoad </td>
+          <td class="memname">VK2DShader vk2dSlangLoad </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>vertexShader</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
+          <td class="paramname"><em>slangFile</em></td><td>)</td>
           <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>fragmentShader</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint32_t&#160;</td>
-          <td class="paramname"><em>uniformBufferSize</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Creates a shader you can use to render textures. </p>
+<p>Creates a shader from a slang shader file. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">vertexShader</td><td>File containing the compiled SPIR-V vertex shader </td></tr>
-    <tr><td class="paramname">fragmentShader</td><td>File containing the compiled SPIR-V fragment shader </td></tr>
-    <tr><td class="paramname">uniformBufferSize</td><td>Size of the shader's expected uniform buffer (0 is valid) </td></tr>
+    <tr><td class="paramname">slangFile</td><td>Path to the slang source file </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Returns a new shader or NULL </dd></dl>
-<dl class="section warning"><dt>Warning</dt><dd>There are strict requirements for how the shader should be constructed </dd>
-<dd>
-uniformBufferSize must be less than the <code>maxShaderBufferSize</code> field of <code>vk2dRendererGetLimits</code> </dd>
-<dd>
-uniformBufferSize must be a multiple of 4</dd></dl>
-<p>Check the shaders shaders/tex.vert and shaders/tex.frag for information on how the shaders should be set up. You may choose to not include a uniform buffer if you specify a uniform buffer size of 0. </p>
+<dl class="section return"><dt>Returns</dt><dd>Returns a shader or NULL if it fails</dd></dl>
+<p>Check <a href="https://paolomazzon.github.io/Vulkan2D/md_docs_2QuickStart.html">https://paolomazzon.github.io/Vulkan2D/md_docs_2QuickStart.html</a> for information on how to properly create a slang shader for VK2D. </p>
 
 </div>
 </div>
