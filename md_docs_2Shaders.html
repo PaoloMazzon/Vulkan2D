@@ -110,8 +110,7 @@ User input data</h1>
 <div class="fragment"><div class="line">[[vk::binding(3,3)]] ConstantBuffer&lt;UserData&gt; userData;</div>
 </div><!-- fragment --><p>If you do set one of these, be aware they are aligned as std430, basically meaning they are vec4 (16-byte) aligned. When you are using a user data block, you are expected to give a buffer identically structured from the C side when calling <code>vk2dRendererDrawShader</code>.</p>
 <p>For example, if you had in your shader</p>
-<div class="fragment"><div class="line"> ++</div>
-<div class="line"><span class="keyword">struct </span>UserData {</div>
+<div class="fragment"><div class="line"><span class="keyword">struct </span>UserData {</div>
 <div class="line">    <span class="keywordtype">float</span> time;</div>
 <div class="line">    <a class="code hl_typedef" href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a> colour;</div>
 <div class="line">};</div>
