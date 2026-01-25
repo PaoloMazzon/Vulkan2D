@@ -226,12 +226,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>vk2dRendererQuit</b> 
 <tr class="memitem:a72ed2a4b6ddec99dd3254883c654f63b" id="r_a72ed2a4b6ddec99dd3254883c654f63b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a72ed2a4b6ddec99dd3254883c654f63b">vk2dRendererResetSwapchain</a> ()</td></tr>
 <tr class="memdesc:a72ed2a4b6ddec99dd3254883c654f63b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forces the renderer to rebuild itself (VK2D does this automatically)  <br /></td></tr>
 <tr class="separator:a72ed2a4b6ddec99dd3254883c654f63b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd9e5db6b796040b3537c70b86f36dce" id="r_acd9e5db6b796040b3537c70b86f36dce"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#acd9e5db6b796040b3537c70b86f36dce">vk2dRendererStartFrame</a> (const <a class="el" href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a> clearColour)</td></tr>
-<tr class="memdesc:acd9e5db6b796040b3537c70b86f36dce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the renderer to prepare for drawing.  <br /></td></tr>
-<tr class="separator:acd9e5db6b796040b3537c70b86f36dce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a351ce486971704a19e77f4e2cc1e45" id="r_a9a351ce486971704a19e77f4e2cc1e45"><td class="memItemLeft" align="right" valign="top"><a class="el" href="Structs_8h.html#ab348e0269ab2d86be36a8f2524b042f7">VK2DResult</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a9a351ce486971704a19e77f4e2cc1e45">vk2dRendererEndFrame</a> ()</td></tr>
-<tr class="memdesc:a9a351ce486971704a19e77f4e2cc1e45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Completes the end-of-frame drawing tasks.  <br /></td></tr>
-<tr class="separator:a9a351ce486971704a19e77f4e2cc1e45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa280225e04bb587e6790f125adb40338" id="r_aa280225e04bb587e6790f125adb40338"><td class="memItemLeft" align="right" valign="top"><a id="aa280225e04bb587e6790f125adb40338" name="aa280225e04bb587e6790f125adb40338"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>vk2dRendererPresent</b> ()</td></tr>
+<tr class="memdesc:aa280225e04bb587e6790f125adb40338"><td class="mdescLeft">&#160;</td><td class="mdescRight">Presents the frame Call this at the end of every frame to draw to the screen. <br /></td></tr>
+<tr class="separator:aa280225e04bb587e6790f125adb40338"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93c7561aef0caeaadd6d3f12f2667f68" id="r_a93c7561aef0caeaadd6d3f12f2667f68"><td class="memItemLeft" align="right" valign="top">VK2DLogicalDevice&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Renderer_8h.html#a93c7561aef0caeaadd6d3f12f2667f68">vk2dRendererGetDevice</a> ()</td></tr>
 <tr class="memdesc:a93c7561aef0caeaadd6d3f12f2667f68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the logical device being used by the renderer.  <br /></td></tr>
 <tr class="separator:a93c7561aef0caeaadd6d3f12f2667f68"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1615,26 +1613,6 @@ The wireframe may not look as you expect because models are triangulated </dd></
 
 </div>
 </div>
-<a id="a9a351ce486971704a19e77f4e2cc1e45" name="a9a351ce486971704a19e77f4e2cc1e45"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9a351ce486971704a19e77f4e2cc1e45">&#9670;&#160;</a></span>vk2dRendererEndFrame()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="Structs_8h.html#ab348e0269ab2d86be36a8f2524b042f7">VK2DResult</a> vk2dRendererEndFrame </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Completes the end-of-frame drawing tasks. </p>
-<dl class="section return"><dt>Returns</dt><dd>Generally returns VK2D_SUCCESS, will return VK2D_RESET_SWAPCHAIN when the swapchain is reset </dd></dl>
-
-</div>
-</div>
 <a id="ac2dbbb092ec4d043410f97203fd1f595" name="ac2dbbb092ec4d043410f97203fd1f595"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac2dbbb092ec4d043410f97203fd1f595">&#9670;&#160;</a></span>vk2dRendererFlushSpriteBatch()</h2>
 
@@ -2147,33 +2125,6 @@ These are estimates even if <a class="el" href="Renderer_8h.html#ae3e400550294f1
   </dd>
 </dl>
 <p>If enabled, your cameras will be used when rendering to textures. If disabled, all drawing to the texture will be done in texture space; ie, drawing at pos (20, 20) means 20 pixels to the right in the texture and 20 pixels down in the texture from the origin which is the top-left corner just like the screen. You will often want to enable this so you may draw your game to a texture. </p>
-
-</div>
-</div>
-<a id="acd9e5db6b796040b3537c70b86f36dce" name="acd9e5db6b796040b3537c70b86f36dce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acd9e5db6b796040b3537c70b86f36dce">&#9670;&#160;</a></span>vk2dRendererStartFrame()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void vk2dRendererStartFrame </td>
-          <td>(</td>
-          <td class="paramtype">const <a class="el" href="Structs_8h.html#afc55c9af3f7597c47e740938df257ec4">vec4</a>&#160;</td>
-          <td class="paramname"><em>clearColour</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Sets up the renderer to prepare for drawing. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">clearColour</td><td>Colour to clear the screen to </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section warning"><dt>Warning</dt><dd>Camera updates are applied in this function and any camera updates called after this function will not be applied until the next time this function is called. </dd></dl>
 
 </div>
 </div>

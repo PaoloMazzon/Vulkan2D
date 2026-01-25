@@ -124,6 +124,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a29a7d9e0e9d61fa73ece879549aee64e" id="r_a29a7d9e0e9d61fa73ece879549aee64e"><td class="memItemLeft" align="right" valign="top">VK2DDescCon&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DescriptorControl_8h.html#a29a7d9e0e9d61fa73ece879549aee64e">vk2dDescConCreate</a> (VK2DLogicalDevice dev, VkDescriptorSetLayout layout, uint32_t buffer, uint32_t sampler, uint32_t storageBuffer)</td></tr>
 <tr class="memdesc:a29a7d9e0e9d61fa73ece879549aee64e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an empty descriptor controller.  <br /></td></tr>
 <tr class="separator:a29a7d9e0e9d61fa73ece879549aee64e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3276ed166e02f91e291c1c37a3e841f1" id="r_a3276ed166e02f91e291c1c37a3e841f1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DescriptorControl_8h.html#a3276ed166e02f91e291c1c37a3e841f1">vk2dDescConUpdateAfterBind</a> (VK2DDescCon descCon)</td></tr>
+<tr class="memdesc:a3276ed166e02f91e291c1c37a3e841f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tells the desc con to allocate pools with update after bind.  <br /></td></tr>
+<tr class="separator:a3276ed166e02f91e291c1c37a3e841f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae235fbb49c63dac7e11cd67cbb4c22b" id="r_aae235fbb49c63dac7e11cd67cbb4c22b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="DescriptorControl_8h.html#aae235fbb49c63dac7e11cd67cbb4c22b">vk2dDescConFree</a> (VK2DDescCon descCon)</td></tr>
 <tr class="memdesc:aae235fbb49c63dac7e11cd67cbb4c22b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees a descriptor controller from memory.  <br /></td></tr>
 <tr class="separator:aae235fbb49c63dac7e11cd67cbb4c22b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -401,6 +404,33 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a3276ed166e02f91e291c1c37a3e841f1" name="a3276ed166e02f91e291c1c37a3e841f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3276ed166e02f91e291c1c37a3e841f1">&#9670;&#160;</a></span>vk2dDescConUpdateAfterBind()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void vk2dDescConUpdateAfterBind </td>
+          <td>(</td>
+          <td class="paramtype">VK2DDescCon&#160;</td>
+          <td class="paramname"><em>descCon</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Tells the desc con to allocate pools with update after bind. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">descCon</td><td>Desc con to enable this one </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section warning"><dt>Warning</dt><dd>Make sure the DSL for this desc con had update after bind specified </dd></dl>
 
 </div>
 </div>
