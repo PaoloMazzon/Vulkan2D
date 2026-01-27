@@ -17,7 +17,6 @@ var NAVTREEINDEX1 =
 "index.html#autotoc_md19":[0,2],
 "index.html#autotoc_md20":[0,3],
 "index.html#autotoc_md21":[0,4],
-"index.html#autotoc_md22":[0,5],
 "md_docs_2Cameras.html":[1],
 "md_docs_2Cameras.html#autotoc_md0":[1,0],
 "md_docs_2Cameras.html#autotoc_md1":[1,1],

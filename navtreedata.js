@@ -30,8 +30,7 @@ var NAVTREE =
       [ "Documentation", "index.html#autotoc_md18", null ],
       [ "Usage", "index.html#autotoc_md19", null ],
       [ "Example", "index.html#autotoc_md20", null ],
-      [ "Running the Examples", "index.html#autotoc_md21", null ],
-      [ "Roadmap", "index.html#autotoc_md22", null ]
+      [ "Roadmap", "index.html#autotoc_md21", null ]
     ] ],
     [ "Cameras", "md_docs_2Cameras.html", [
       [ "Creating Cameras", "md_docs_2Cameras.html#autotoc_md0", null ],

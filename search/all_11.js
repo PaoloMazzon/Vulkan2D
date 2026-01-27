@@ -8,6 +8,5 @@ var searchData=
   ['textures_5',['Textures',['../md_docs_2QuickStart.html#autotoc_md7',1,'']]],
   ['the_20basics_6',['The Basics',['../md_docs_2QuickStart.html#autotoc_md5',1,'']]],
   ['the_20default_20camera_7',['The Default Camera',['../md_docs_2Cameras.html#autotoc_md2',1,'']]],
-  ['the_20examples_8',['Running the Examples',['../index.html#autotoc_md21',1,'']]],
-  ['type_9',['type',['../structVK2DCameraSpec.html#a1d888de4cc61a7450c5d1c6fbab268e5',1,'VK2DCameraSpec::type'],['../structVK2DAssetLoad.html#acccae62238110e8d3a64c9440b900eb7',1,'VK2DAssetLoad::type']]]
+  ['type_8',['type',['../structVK2DCameraSpec.html#a1d888de4cc61a7450c5d1c6fbab268e5',1,'VK2DCameraSpec::type'],['../structVK2DAssetLoad.html#acccae62238110e8d3a64c9440b900eb7',1,'VK2DAssetLoad::type']]]
 ];

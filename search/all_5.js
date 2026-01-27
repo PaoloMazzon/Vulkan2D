@@ -8,6 +8,5 @@ var searchData=
   ['errorfile_5',['errorFile',['../structVK2DStartupOptions.html#ace5e52e6cdb475598cb34a5c891346e5',1,'VK2DStartupOptions']]],
   ['example_6',['Example',['../index.html#autotoc_md20',1,'']]],
   ['example_20shader_7',['Example Shader',['../md_docs_2Shaders.html#autotoc_md15',1,'']]],
-  ['examples_8',['Running the Examples',['../index.html#autotoc_md21',1,'']]],
-  ['eyes_9',['eyes',['../structVK2DCameraSpec.html#aeee82648d9e7c7805bd6d759d54ea999',1,'VK2DCameraSpec']]]
+  ['eyes_8',['eyes',['../structVK2DCameraSpec.html#aeee82648d9e7c7805bd6d759d54ea999',1,'VK2DCameraSpec']]]
 ];
