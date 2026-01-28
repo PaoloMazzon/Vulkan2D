@@ -99,7 +99,7 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <div class="textblock"><p><a class="anchor" id="md_README"></a> <img src="https://i.imgur.com/InP0Sou.gif" alt="basic demo" class="inline"/></p>
 <p><img src="https://github.com/user-attachments/assets/ae0f05fd-7679-4061-ac89-dce66e163232" alt="gif" class="inline"/></p>
 <p><img src="https://github.com/user-attachments/assets/186de874-6f2f-47c4-8a58-52c14148bb46" alt="example" class="inline"/></p>
-<p><img src="https://github.com/user-attachments/assets/9a43483b-0bdd-4511-98a3-9ca839b070d5" alt="example" class="inline"/></p>
+<p><img src="https://github.com/user-attachments/assets/499ce5ce-5783-4bfe-a16c-e694df15944c" alt="example" class="inline"/></p>
 <h1><a class="anchor" id="autotoc_md16"></a>
 Vulkan2D</h1>
 <p><a href="https://github.com/PaoloMazzon/Vulkan2D">Vulkan2D</a> is a 2D renderer using Vulkan and SDL3 primarily for C games. VK2D aims for an extremely simple API, requiring no Vulkan experience to use. This project initially started out aiming to be a more feature complete drop-in replacement for the SDL renderer, but since then has grown in scope. Vulkan2D requires C++20, C11, and Vulkan 1.2+.</p>
@@ -128,7 +128,11 @@ Usage</h2>
 </div><!-- fragment --><p>If you want to use your own SDL version instead of whatever's latest (which VK2D defaults to) then you can do so with</p>
 <div class="fragment"><div class="line">set(VK2D_BUILD_SDL OFF)</div>
 <div class="line">add_subdirectory(Vulkan2D/)</div>
-</div><!-- fragment --><h2><a class="anchor" id="autotoc_md20"></a>
+</div><!-- fragment --><p>You may also disable shader support entirely by supplying</p>
+<div class="fragment"><div class="line">set(VK2D_DISABLE_SHADERS ON)</div>
+<div class="line">add_subdirectory(Vulkan2D/)</div>
+</div><!-- fragment --><p>This is an option because compiling Slang is a lengthy process and for projects that don't require them this can save users a significant amount of time.</p>
+<h2><a class="anchor" id="autotoc_md20"></a>
 Example</h2>
 <div class="fragment"><div class="line">SDL_Init(SDL_INIT_EVENTS);</div>
 <div class="line">SDL_Window *window = SDL_CreateWindow(<span class="stringliteral">&quot;VK2D&quot;</span>, 800, 600, SDL_WINDOW_VULKAN);</div>
