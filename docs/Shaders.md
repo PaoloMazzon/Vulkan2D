@@ -31,7 +31,7 @@ For example, if you had in your shader
 ```c
 struct UserData {
     float time;
-    vec4 colour;
+    VK2DVec4 colour;
 };
 [[vk::binding(3,3)]] ConstantBuffer<UserData> userData;
 ```
@@ -41,8 +41,8 @@ the C-equivalent struct would be
 ```c
 struct UserData {
     float time;
-    vec3 _padding0;
-    vec4 colour;
+    VK2DVec3 _padding0;
+    VK2DVec4 colour;
 };
 ```
 

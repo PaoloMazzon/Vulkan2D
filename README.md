@@ -75,7 +75,7 @@ VK2DRendererConfig config = {
     .filterMode = VK2D_FILTER_TYPE_NEAREST
 };
 vk2dRendererInit(window, config, NULL);
-vec4 clearColour;
+VK2DVec4 clearColour;
 vk2dColourHex(clearColour, "#59d9d7");
 bool stopRunning = false;
 

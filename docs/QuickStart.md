@@ -17,6 +17,10 @@ read the header file containing the function for more information. The functions
 interest to the average user will be `vk2dRenderer*`, `vk2dTexture*`, `vk2dPolygon*`,
 `vk2dCamera*`, `vk2dModel*`, and `vk2dShader*`.
 
+VK2D uses the following canonical math types in the public API: `VK2DVec2`, `VK2DVec3`,
+`VK2DVec4`, and `VK2DMat4`. Legacy aliases (`vec2`, `vec3`, `vec4`, `mat4`) are available
+through `VK2D/Compat.h` for backwards compatibility.
+
 Controlling the renderer is quite simple and only requires a few things:
 
  + Initialize it at the start of your program with `vk2dRendererInit`
@@ -124,7 +128,7 @@ lifting will be done on the GPU all the same.
 VK2D provides a few drawing primitives, but if you want more detailed shapes, you may load your own with
 `vk2dPolygonShapeCreateRaw` and `vk2dPolygonCreate`. `vk2dPolygonShapeCreateRaw` lets you specify your own vertices
 with specified colours, but the input must be triangulated; the example in `examples/main` does this. `vk2dPolygonCreate`
-lets you create arbitrary polygons with just a list of `vec2`'s, and will automatically triangulate the input. Polygons
+lets you create arbitrary polygons with just a list of `VK2DVec2` values, and will automatically triangulate the input. Polygons
 created with `vk2dPolygonCreate` will be solid white and their colour can be modified by changing the renderer's
 colour modifier.
 

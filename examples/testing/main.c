@@ -1,86 +1,88 @@
 #define SDL_MAIN_HANDLED
-#include <SDL3/SDL_vulkan.h>
-#include <stdbool.h>
+#include "../debug.c"
 #include "VK2D/VK2D.h"
 #include "VK2D/Validation.h"
+#include <SDL3/SDL_vulkan.h>
+#include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
-#include <math.h>
-#include "../debug.c"
+
 
 /************************ Constants ************************/
 
-const int WINDOW_WIDTH  = 800;
+const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
 
-unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
-bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, void *compiledShaders);
+unsigned char *_vk2dLoadFile(const char *filename, uint32_t *size);
+bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize,
+                        void *compiledShaders);
 int main(int argc, const char *argv[]) {
-	// Basic SDL setup
-    SDL_Init(SDL_INIT_EVENTS);
-	SDL_Window *window = SDL_CreateWindow("VK2D", WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
-	SDL_Event e;
-	bool quit = false;
-	int keyboardSize;
-	const bool *keyboard = SDL_GetKeyboardState(&keyboardSize);
-	if (window == NULL)
-		return -1;
+  // Basic SDL setup
+  SDL_Init(SDL_INIT_EVENTS);
+  SDL_Window *window =
+      SDL_CreateWindow("VK2D", WINDOW_WIDTH, WINDOW_HEIGHT,
+                       SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+  SDL_Event e;
+  bool quit = false;
+  int keyboardSize;
+  const bool *keyboard = SDL_GetKeyboardState(&keyboardSize);
+  if (window == NULL)
+    return -1;
 
-	// Initialize vk2d
-	VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_IMMEDIATE, VK2D_FILTER_TYPE_NEAREST};
-	vec4 clear = {0.0, 0.5, 1.0, 1.0};
-	VK2DStartupOptions options = {
-	        .quitOnError = true,
-	        .enableDebug = false,
-	        .stdoutLogging = true,
-	        .vramPageSize = sizeof(VK2DDrawInstance) * 2000010,
-	};
-	vk2dRendererInit(window, config, &options);
-    debugInit(window);
+  // Initialize vk2d
+  VK2DRendererConfig config = {VK2D_MSAA_1X, VK2D_SCREEN_MODE_IMMEDIATE,
+                               VK2D_FILTER_TYPE_NEAREST};
+  VK2DVec4 clear = {0.0, 0.5, 1.0, 1.0};
+  VK2DStartupOptions options = {
+      .quitOnError = true,
+      .enableDebug = false,
+      .stdoutLogging = true,
+      .vramPageSize = sizeof(VK2DDrawInstance) * 2000010,
+  };
+  vk2dRendererInit(window, config, &options);
+  debugInit(window);
 
-	// Load Some test assets
-	VK2DTexture texCaveguy = vk2dTextureLoad("assets/caveguy.png");
+  // Load Some test assets
+  VK2DTexture texCaveguy = vk2dTextureLoad("assets/caveguy.png");
 
-	// Delta and fps
-	const double startTime = SDL_GetPerformanceCounter();
+  // Delta and fps
+  const double startTime = SDL_GetPerformanceCounter();
 
-    VK2DShader testShader = vk2dSlangLoad("assets/shader.slang");
-    if (!testShader) {
-        abort();
+  VK2DShader testShader = vk2dSlangLoad("assets/shader.slang");
+  if (!testShader) {
+    abort();
+  }
+
+  while (!quit && !vk2dStatusFatal()) {
+    const double time = (double)(SDL_GetPerformanceCounter() - startTime) /
+                        (double)SDL_GetPerformanceFrequency();
+
+    while (SDL_PollEvent(&e)) {
+      if (e.type == SDL_EVENT_QUIT) {
+        quit = true;
+      }
     }
+    SDL_PumpEvents();
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
-	while (!quit && !vk2dStatusFatal()) {
-		const double time = (double)(SDL_GetPerformanceCounter() - startTime) / (double)SDL_GetPerformanceFrequency();
+    // Test shader
+    float val = vk2dTime() * 5;
+    vk2dRendererDrawShader(testShader, &val, texCaveguy, 150, 150, 10, 10, 0, 0,
+                           0, 0, 0, 16, 16);
 
-		while (SDL_PollEvent(&e)) {
-			if (e.type == SDL_EVENT_QUIT) {
-				quit = true;
-			}
-		}
-		SDL_PumpEvents();
-		int windowWidth, windowHeight;
-		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+    debugRenderOverlay();
 
-        // Test shader
-        float val = vk2dTime() * 5;
-        vk2dRendererDrawShader(testShader, &val,
-                               texCaveguy,
-                               150, 150,
-                               10, 10,
-                               0, 0, 0,
-                               0, 0, 16, 16);
+    vk2dRendererPresent();
+  }
 
-		debugRenderOverlay();
-
-        vk2dRendererPresent();
-	}
-
-	// vk2dRendererWait must be called before freeing things
-	vk2dRendererWait();
-    vk2dShaderFree(testShader);
-	vk2dTextureFree(texCaveguy);
-	debugCleanup();
-    vk2dRendererQuit();
-	SDL_DestroyWindow(window);
-	return 0;
+  // vk2dRendererWait must be called before freeing things
+  vk2dRendererWait();
+  vk2dShaderFree(testShader);
+  vk2dTextureFree(texCaveguy);
+  debugCleanup();
+  vk2dRendererQuit();
+  SDL_DestroyWindow(window);
+  return 0;
 }

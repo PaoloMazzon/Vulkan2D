@@ -10,25 +10,32 @@ extern "C" {
 
 /****************************** Helper Functions ******************************/
 
-// This is called when a render-target texture is created to make the renderer aware of it
+// This is called when a render-target texture is created to make the renderer
+// aware of it
 void _vk2dRendererAddTarget(VK2DTexture tex);
 
-// Called when a render-target texture is destroyed so the renderer can remove it from its list
+// Called when a render-target texture is destroyed so the renderer can remove
+// it from its list
 void _vk2dRendererRemoveTarget(VK2DTexture tex);
 
-// This is used when changing the render target to make sure the texture is either ready to be drawn itself or rendered to
-void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old, VkImageLayout new);
+// This is used when changing the render target to make sure the texture is
+// either ready to be drawn itself or rendered to
+void _vk2dTransitionImageLayout(VkImage img, VkImageLayout old,
+                                VkImageLayout new);
 
 // Rebuilds the matrices for a given buffer and camera
-void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera, int index);
+void _vk2dCameraUpdateUBO(VK2DUniformBufferObject *ubo, VK2DCameraSpec *camera,
+                          int index);
 
-// Flushes the data from a ubo to its respective buffer, frame being the swapchain buffer to flush
+// Flushes the data from a ubo to its respective buffer, frame being the
+// swapchain buffer to flush
 void _vk2dRendererFlushUBOBuffers();
 
 // Grabs a preferred present mode if available returning FIFO if its unavailable
 VkPresentModeKHR _vk2dRendererGetPresentMode(VkPresentModeKHR mode);
 
-// Keeps track of a user shader in case the swapchain is reset, returns VK2D_ERROR if error
+// Keeps track of a user shader in case the swapchain is reset, returns
+// VK2D_ERROR if error
 VK2DResult _vk2dRendererAddShader(VK2DShader shader);
 
 // Stops tracking a user-created shader
@@ -46,7 +53,8 @@ void _vk2dRendererGetSurfaceSize();
 // Returns SPIR-V of the user shader and its size
 const uint8_t *_vk2dRendererGetUserShader(uint32_t *size);
 
-/****************************** Renderer Initialization/Destruction ******************************/
+/****************************** Renderer Initialization/Destruction
+ * ******************************/
 
 void _vk2dRendererCreateDebug();
 void _vk2dRendererDestroyDebug();
@@ -95,20 +103,53 @@ void _vk2dRendererAddDrawCommand(VK2DDrawCommand *command);
 // Resets current batch information
 void _vk2dRendererResetBatch();
 
-// Flushes the current batch if its necessary, pipe is the pipeline of the current draw command
+// Flushes the current batch if its necessary, pipe is the pipeline of the
+// current draw command
 void _vk2dRendererFlushBatchIfNeeded(VK2DPipeline pipe);
 
-void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam);
-void _vk2dRendererDrawRawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTexture tex, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight, VK2DCameraIndex cam);
+void _vk2dRendererDrawRaw(VkDescriptorSet *sets, uint32_t setCount,
+                          VK2DPolygon poly, VK2DPipeline pipe, float x, float y,
+                          float xscale, float yscale, float rot, float originX,
+                          float originY, float lineWidth, float xInTex,
+                          float yInTex, float texWidth, float texHeight,
+                          VK2DCameraIndex cam);
+void _vk2dRendererDrawRawShader(VkDescriptorSet *sets, uint32_t setCount,
+                                VK2DTexture tex, VK2DPipeline pipe, float x,
+                                float y, float xscale, float yscale, float rot,
+                                float originX, float originY, float lineWidth,
+                                float xInTex, float yInTex, float texWidth,
+                                float texHeight, VK2DCameraIndex cam);
 void _vk2dRendererDrawRawShadows(VkDescriptorSet set,
-    VK2DShadowEnvironment shadowEnvironment, VK2DShadowObject object,
-    vec4 colour, vec2 lightSource, VK2DCameraIndex cam);
-void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount, VK2DDrawInstance *instances, int count, VK2DCameraIndex cam);
-void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount, VK2DPolygon poly, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight);
-void _vk2dRendererDrawShader(VkDescriptorSet *sets, uint32_t setCount, VK2DTexture tex, VK2DPipeline pipe, float x, float y, float xscale, float yscale, float rot, float originX, float originY, float lineWidth, float xInTex, float yInTex, float texWidth, float texHeight);
-void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment, vec4 colour, vec2 lightSource);
-void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, VK2DCameraIndex cam, float lineWidth);
-void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount, VK2DModel model, VK2DPipeline pipe, float x, float y, float z, float xscale, float yscale, float zscale, float rot, vec3 axis, float originX, float originY, float originZ, float lineWidth);
+                                 VK2DShadowEnvironment shadowEnvironment,
+                                 VK2DShadowObject object, VK2DVec4 colour,
+                                 VK2DVec2 lightSource, VK2DCameraIndex cam);
+void _vk2dRendererDrawRawInstanced(VkDescriptorSet *sets, uint32_t setCount,
+                                   VK2DDrawInstance *instances, int count,
+                                   VK2DCameraIndex cam);
+void _vk2dRendererDraw(VkDescriptorSet *sets, uint32_t setCount,
+                       VK2DPolygon poly, VK2DPipeline pipe, float x, float y,
+                       float xscale, float yscale, float rot, float originX,
+                       float originY, float lineWidth, float xInTex,
+                       float yInTex, float texWidth, float texHeight);
+void _vk2dRendererDrawShader(VkDescriptorSet *sets, uint32_t setCount,
+                             VK2DTexture tex, VK2DPipeline pipe, float x,
+                             float y, float xscale, float yscale, float rot,
+                             float originX, float originY, float lineWidth,
+                             float xInTex, float yInTex, float texWidth,
+                             float texHeight);
+void _vk2dRendererDrawShadows(VK2DShadowEnvironment shadowEnvironment,
+                              VK2DVec4 colour, VK2DVec2 lightSource);
+void _vk2dRendererDrawRaw3D(VkDescriptorSet *sets, uint32_t setCount,
+                            VK2DModel model, VK2DPipeline pipe, float x,
+                            float y, float z, float xscale, float yscale,
+                            float zscale, float rot, VK2DVec3 axis,
+                            float originX, float originY, float originZ,
+                            VK2DCameraIndex cam, float lineWidth);
+void _vk2dRendererDraw3D(VkDescriptorSet *sets, uint32_t setCount,
+                         VK2DModel model, VK2DPipeline pipe, float x, float y,
+                         float z, float xscale, float yscale, float zscale,
+                         float rot, VK2DVec3 axis, float originX, float originY,
+                         float originZ, float lineWidth);
 
 #ifdef __cplusplus
 }

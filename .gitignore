@@ -18,3 +18,5 @@ doxygen_sqlite3.db
 vk2derror.txt
 latex/
 .clang-format
+build
+.cache
