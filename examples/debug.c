@@ -3,6 +3,7 @@
 /// \brief This is meant to be included once in each example project for the overlay
 #include <VK2D/VK2D.h>
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
