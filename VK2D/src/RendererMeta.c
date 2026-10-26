@@ -1996,7 +1996,7 @@ void _vk2dRendererFlushBatchIfNeeded(VK2DPipeline pipe) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dPipelineGetID(pipe, gRenderer->blendMode) != gRenderer->currentBatchPipelineID || gRenderer->drawCommandCount >= gRenderer->limits.maxInstancedDraws) {
         vk2dRendererFlushSpriteBatch();
-        gRenderer->currentBatchPipelineID = vk2dPipelineGetID(pipe, 0);
+        gRenderer->currentBatchPipelineID = vk2dPipelineGetID(pipe, gRenderer->blendMode);
         gRenderer->currentBatchPipeline = pipe;
     }
 }
