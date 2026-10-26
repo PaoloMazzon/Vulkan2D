@@ -1,9 +1,9 @@
 <map id="VK2D/include/VK2D/DescriptorControl.h" name="VK2D/include/VK2D/DescriptorControl.h">
-<area shape="rect" id="Node000001" title="Makes dynamic descriptor control simpler." alt="" coords="21,5,241,45"/>
-<area shape="rect" id="Node000002" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="72,93,191,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,46,134,79,129,79,129,46"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="5,167,129,192"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="123,121,89,158,85,155,119,117"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="154,167,237,192"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="144,117,178,155,174,158,140,121"/>
+<area shape="rect" id="Node000001" title="Makes dynamic descriptor control simpler." alt="" coords="20,5,239,50"/>
+<area shape="rect" id="Node000002" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="70,98,189,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,48,132,83,127,82,128,53"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,174,129,201"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="121,125,90,164,86,160,116,127"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="153,174,234,201"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="142,124,175,162,170,162,140,129"/>
 </map>

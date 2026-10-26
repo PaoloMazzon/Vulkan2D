@@ -1,11 +1,11 @@
 <map id="VK2D/include/VK2D/Gui.h" name="VK2D/include/VK2D/Gui.h">
-<area shape="rect" id="Node000001" title="GUI code for Vulkan2D." alt="" coords="73,5,259,31"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,164,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,33,110,72,106,68,151,29"/>
-<area shape="rect" id="Node000003" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="188,79,307,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="181,29,226,68,222,72,177,33"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="121,152,245,177"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="239,106,205,144,201,140,235,103"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="270,152,353,177"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="260,103,294,140,290,144,256,106"/>
+<area shape="rect" id="Node000001" title="GUI code for Vulkan2D." alt="" coords="71,5,257,33"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,163,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,35,111,72,108,68,152,32"/>
+<area shape="rect" id="Node000003" href="$Structs_8h.html" title="Forward declares struct typedefs." alt="" coords="186,81,304,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="179,31,222,70,217,71,178,36"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="120,157,243,184"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="236,108,204,147,201,143,231,110"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="267,157,349,184"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="258,107,290,145,284,144,255,112"/>
 </map>
