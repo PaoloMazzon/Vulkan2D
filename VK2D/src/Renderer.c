@@ -139,8 +139,10 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
         }
 
         // Append SDL extensions to extension list
+        bool portability = false;
         for (i = 0; i < sdlExtensionsCount; i++) {
             extensions[extensionCount++] = sdlExtensions[i];
+            portability |= strcmp(sdlExtensions[i], VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0;
         }
 
 		// Log all used extensions
@@ -165,6 +167,8 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
                 extensions,
                 extensionCount
         );
+        if (portability)
+            instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 		result = vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
 
         if (result != VK_SUCCESS) {

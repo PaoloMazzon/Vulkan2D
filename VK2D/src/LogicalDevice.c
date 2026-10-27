@@ -26,9 +26,11 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
     vkEnumerateDeviceExtensionProperties(dev->dev, VK_NULL_HANDLE, &extensionCount, props);
     const bool instanceExtensionSupported = gRenderer->limits.supportsVRAMUsage;
     gRenderer->limits.supportsVRAMUsage = false;
+    bool portabilitySubset = false;
 	for (int i = 0; i < extensionCount; i++) {
 	    if (strcmp(props[i].extensionName, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME) == 0 && instanceExtensionSupported)
 	        gRenderer->limits.supportsVRAMUsage = true;
+	    portabilitySubset |= strcmp(props[i].extensionName, "VK_KHR_portability_subset") == 0;
 	}
     free(props);
 
@@ -89,6 +91,9 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
         }
         if (gRenderer->limits.supportsVRAMUsage) {
             deviceExtensions[deviceExtensionCount++] = VK_EXT_MEMORY_BUDGET_EXTENSION_NAME;
+        }
+        if (portabilitySubset) {
+            deviceExtensions[deviceExtensionCount++] = "VK_KHR_portability_subset";
         }
         deviceCreateInfo.enabledExtensionCount = deviceExtensionCount;
         deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
