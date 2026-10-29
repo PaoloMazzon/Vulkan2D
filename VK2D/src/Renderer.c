@@ -108,7 +108,9 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
         for (i = 0; i < instanceExtensionCount; i++) {
             if (strcmp(instanceExtensions[i].extensionName, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0)
                 gRenderer->limits.supportsVRAMUsage = true;
+#ifdef __APPLE__
             portability |= strcmp(instanceExtensions[i].extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0;
+#endif
         }
         free(instanceExtensions);
 
@@ -147,12 +149,10 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
         }
 
         // Append SDL extensions to extension list
-        bool sdlPortability = false;
-        for (i = 0; i < sdlExtensionsCount; i++) {
-            extensions[extensionCount++] = sdlExtensions[i];
-            sdlPortability |= strcmp(sdlExtensions[i], VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0;
-        }
-        if (portability && !sdlPortability)
+        for (i = 0; i < sdlExtensionsCount; i++)
+            if (strcmp(sdlExtensions[i], VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) != 0)
+                extensions[extensionCount++] = sdlExtensions[i];
+        if (portability)
             extensions[extensionCount++] = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
 
 		// Log all used extensions
