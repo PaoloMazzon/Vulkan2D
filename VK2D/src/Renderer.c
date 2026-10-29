@@ -180,6 +180,13 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
         if (portability)
             instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 		result = vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
+        if (result == VK_ERROR_LAYER_NOT_PRESENT && layerCount > 0) {
+            vk2dLogInfo("VK_LAYER_KHRONOS_validation failed to load, continuing without validation.");
+            instanceCreateInfo.enabledLayerCount = 0;
+            instanceCreateInfo.ppEnabledExtensionNames = extensions + 1;
+            instanceCreateInfo.enabledExtensionCount = extensionCount - 1;
+            result = vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
+        }
 
         if (result != VK_SUCCESS) {
 		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create Vulkan instance, Vulkan error %i.", result);
