@@ -5,7 +5,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/Opaque.h"
-#include <malloc.h>
+#include <stdlib.h>
 
 VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size, VK2DVertexType type) {
 	VK2DPolygon poly = malloc(sizeof(struct VK2DPolygon_t));

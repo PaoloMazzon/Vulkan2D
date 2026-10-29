@@ -1,6 +1,6 @@
 /// \file Texture.c
 /// \author Paolo Mazzon
-#include <malloc.h>
+#include <stdlib.h>
 #include "VK2D/Texture.h"
 #include "VK2D/Buffer.h"
 #include "VK2D/DescriptorControl.h"

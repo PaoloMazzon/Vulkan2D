@@ -8,7 +8,7 @@
 #include "VK2D/Util.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/Logger.h"
-#include <malloc.h>
+#include <stdlib.h>
 
 VK2DLogicalDevice gDeviceFromMainThread;
 
@@ -62,6 +62,25 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		}
 
 		// For dynamic descriptor arrays
+        VkPhysicalDeviceDescriptorIndexingFeatures supported = {.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES};
+        VkPhysicalDeviceFeatures2 feats2 = {.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, .pNext = &supported};
+        vkGetPhysicalDeviceFeatures2(dev->dev, &feats2);
+        const struct {const char *name; VkBool32 have;} required[] = {
+                {"shaderSampledImageArrayNonUniformIndexing", supported.shaderSampledImageArrayNonUniformIndexing},
+                {"runtimeDescriptorArray", supported.runtimeDescriptorArray},
+                {"descriptorBindingVariableDescriptorCount", supported.descriptorBindingVariableDescriptorCount},
+                {"descriptorBindingPartiallyBound", supported.descriptorBindingPartiallyBound},
+                {"descriptorBindingUpdateUnusedWhilePending", supported.descriptorBindingUpdateUnusedWhilePending},
+                {"descriptorBindingSampledImageUpdateAfterBind", supported.descriptorBindingSampledImageUpdateAfterBind},
+                {"descriptorBindingUniformBufferUpdateAfterBind", supported.descriptorBindingUniformBufferUpdateAfterBind},
+        };
+        for (int i = 0; i < (int)(sizeof(required) / sizeof(required[0])); i++) {
+            if (!required[i].have) {
+                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Device does not support required descriptor indexing feature %s.", required[i].name);
+                free(ldev);
+                return NULL;
+            }
+        }
         VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures = {
                 .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES,
                 .shaderSampledImageArrayNonUniformIndexing = VK_TRUE,
@@ -72,6 +91,19 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
                 .descriptorBindingSampledImageUpdateAfterBind = VK_TRUE,
 				.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE,
 		};
+
+        // Clamp the texture array to what the device can bind
+        VkPhysicalDeviceDescriptorIndexingProperties indexingProps = {.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES};
+        VkPhysicalDeviceProperties2 props2 = {.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2, .pNext = &indexingProps};
+        vkGetPhysicalDeviceProperties2(dev->dev, &props2);
+        uint32_t maxTextures = indexingProps.maxDescriptorSetUpdateAfterBindSampledImages;
+        if (indexingProps.maxPerStageDescriptorUpdateAfterBindSampledImages < maxTextures)
+            maxTextures = indexingProps.maxPerStageDescriptorUpdateAfterBindSampledImages;
+        if (gRenderer->options.maxTextures > maxTextures) {
+            vk2dLogInfo("Clamping max textures from %u to device limit %u.", gRenderer->options.maxTextures, maxTextures);
+            gRenderer->options.maxTextures = maxTextures;
+        }
+        vk2dLogInfo("Texture descriptor limit: %u", gRenderer->options.maxTextures);
 
 		// Basic device create info
 		float priority[] = {1, 1};
@@ -84,11 +116,6 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
         // Device layers and extensions
         const char *deviceExtensions[10] = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
         int deviceExtensionCount = 1;
-        const char *deviceLayers[10] = {0};
-        int deviceLayerCount = 0;
-        if (debug) {
-            deviceLayers[deviceLayerCount++] = "VK_LAYER_LUNARG_standard_validation";
-        }
         if (gRenderer->limits.supportsVRAMUsage) {
             deviceExtensions[deviceExtensionCount++] = VK_EXT_MEMORY_BUDGET_EXTENSION_NAME;
         }
@@ -97,8 +124,13 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
         }
         deviceCreateInfo.enabledExtensionCount = deviceExtensionCount;
         deviceCreateInfo.ppEnabledExtensionNames = deviceExtensions;
-        deviceCreateInfo.enabledLayerCount = deviceLayerCount;
-        deviceCreateInfo.ppEnabledLayerNames = deviceLayers;
+        deviceCreateInfo.enabledLayerCount = 0;
+        deviceCreateInfo.ppEnabledLayerNames = VK_NULL_HANDLE;
+
+        vk2dLogInfo("Vulkan Enabled Device Extensions: ");
+        for (int i = 0; i < deviceExtensionCount; i++)
+            vk2dLogInfo(" - %s", deviceExtensions[i]);
+        vk2dLogInfo("");
 
         // Create device
 		VkResult result = vkCreateDevice(dev->dev, &deviceCreateInfo, VK_NULL_HANDLE, &ldev->dev);

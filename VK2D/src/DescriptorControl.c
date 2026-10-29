@@ -5,7 +5,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/Initializers.h"
 #include "VK2D/Opaque.h"
-#include <malloc.h>
+#include <stdlib.h>
 
 // Places another descriptor pool at the end of a given desc con's list, extending the list if need be
 static void _vk2dDescConAppendList(VK2DDescCon descCon) {

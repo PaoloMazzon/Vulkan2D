@@ -10,7 +10,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "VK2D/stb_image.h"
 #include "VK2D/Renderer.h"
-#include <malloc.h>
+#include <stdlib.h>
 
 #include <vk_mem_alloc.h>
 

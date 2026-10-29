@@ -1,6 +1,6 @@
 /// \file Shader.c
 /// \author Paolo Mazzon
-#include <malloc.h>
+#include <stdlib.h>
 
 #include "VK2D/Opaque.h"
 #include "VK2D/Shader.h"
