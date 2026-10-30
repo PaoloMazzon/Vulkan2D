@@ -50,7 +50,7 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
 
     // Load user shader module
     Slang::ComPtr<IBlob> diagnostics;
-    Slang::ComPtr<ISlangBlob> blob(slang_createBlob(shader, shaderSize));
+    Slang::ComPtr<ISlangBlob> blob(Slang::INIT_ATTACH, slang_createBlob(shader, shaderSize));
     Slang::ComPtr<IModule> module(session->loadModuleFromSource("user_shader", "user_shader", blob, diagnostics.writeRef()));
     if (diagnostics) {
         vk2dLogInfo("%s", (const char*) diagnostics->getBufferPointer());

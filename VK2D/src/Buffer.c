@@ -4,7 +4,7 @@
 #include "VK2D/LogicalDevice.h"
 #include "VK2D/Validation.h"
 #include "VK2D/Initializers.h"
-#include <malloc.h>
+#include <stdlib.h>
 #include "VK2D/Renderer.h"
 #include "VK2D/Opaque.h"
 

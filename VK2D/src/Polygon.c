@@ -5,7 +5,7 @@
 #include "VK2D/Validation.h"
 #include "VK2D/Renderer.h"
 #include "VK2D/Opaque.h"
-#include <malloc.h>
+#include <stdlib.h>
 
 VK2DPolygon _vk2dPolygonCreate(VK2DLogicalDevice dev, void *data, uint32_t size, VK2DVertexType type) {
 	VK2DPolygon poly = malloc(sizeof(struct VK2DPolygon_t));
@@ -87,6 +87,7 @@ VK2DPolygon vk2dPolygonCreateOutline(const vec2 *vertices, uint32_t vertexCount)
 		defVert.pos[1] = vertices[0][1];
 		colourVertices[vertexCount] = defVert;
 		out = vk2dPolygonShapeCreateRaw(colourVertices, vertexCount + 1);
+		free(colourVertices);
 	} else {
 	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate polygon outline.");
 	}
