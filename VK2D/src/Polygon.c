@@ -87,6 +87,7 @@ VK2DPolygon vk2dPolygonCreateOutline(const vec2 *vertices, uint32_t vertexCount)
 		defVert.pos[1] = vertices[0][1];
 		colourVertices[vertexCount] = defVert;
 		out = vk2dPolygonShapeCreateRaw(colourVertices, vertexCount + 1);
+		free(colourVertices);
 	} else {
 	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate polygon outline.");
 	}

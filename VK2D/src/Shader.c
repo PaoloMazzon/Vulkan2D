@@ -141,5 +141,6 @@ void vk2dShaderFree(VK2DShader shader) {
 		vk2dPipelineFree(shader->pipe);
 		free(shader->spvVert);
 		free(shader->spvFrag);
+		free(shader);
 	}
 }
