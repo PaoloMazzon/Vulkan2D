@@ -30,7 +30,8 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 	for (int i = 0; i < extensionCount; i++) {
 	    if (strcmp(props[i].extensionName, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME) == 0 && instanceExtensionSupported)
 	        gRenderer->limits.supportsVRAMUsage = true;
-	    portabilitySubset |= strcmp(props[i].extensionName, "VK_KHR_portability_subset") == 0;
+	    if (strcmp(props[i].extensionName, "VK_KHR_portability_subset") == 0)
+	        portabilitySubset = true;
 	}
     free(props);
 
