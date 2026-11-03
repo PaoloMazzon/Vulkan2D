@@ -748,6 +748,27 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
             .pBindings = &descriptorSetLayoutBindingTexArray,
             .bindingCount = 1
     };
+    // Some devices (MoltenVK) support far fewer variable-count descriptors in one set than the descriptor indexing limits
+    VkDescriptorSetVariableDescriptorCountLayoutSupport variableSupport = {.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_LAYOUT_SUPPORT};
+    VkDescriptorSetLayoutSupport layoutSupport = {.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_SUPPORT, .pNext = &variableSupport};
+    vkGetDescriptorSetLayoutSupport(gRenderer->ld->dev, &texArraySetLayoutCreateInfo, &layoutSupport);
+    if (!layoutSupport.supported) {
+        const uint32_t requested = gRenderer->options.maxTextures;
+        while (!layoutSupport.supported && descriptorSetLayoutBindingTexArray.descriptorCount > 1) {
+            descriptorSetLayoutBindingTexArray.descriptorCount /= 2;
+            vkGetDescriptorSetLayoutSupport(gRenderer->ld->dev, &texArraySetLayoutCreateInfo, &layoutSupport);
+        }
+        if (layoutSupport.supported && variableSupport.maxVariableDescriptorCount > descriptorSetLayoutBindingTexArray.descriptorCount) {
+            descriptorSetLayoutBindingTexArray.descriptorCount = variableSupport.maxVariableDescriptorCount < requested ? variableSupport.maxVariableDescriptorCount : requested;
+            vkGetDescriptorSetLayoutSupport(gRenderer->ld->dev, &texArraySetLayoutCreateInfo, &layoutSupport);
+        }
+        if (layoutSupport.supported) {
+            gRenderer->options.maxTextures = descriptorSetLayoutBindingTexArray.descriptorCount;
+            vk2dLogInfo("Clamping max textures from %u to texture array layout limit %u.", requested, gRenderer->options.maxTextures);
+        } else {
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Device does not support the texture array descriptor set layout.");
+        }
+    }
     r5 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &texArraySetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslTextureArray);
 
     // DSL for compute
@@ -1310,6 +1331,7 @@ void _vk2dRendererCreateUnits() {
 	}
 	gRenderer->unitCircle = vk2dPolygonCreate(circleVertices, VK2D_CIRCLE_VERTICES);
 	gRenderer->unitCircleOutline = vk2dPolygonCreateOutline(circleVertices, VK2D_CIRCLE_VERTICES);
+	free(circleVertices);
 	gRenderer->unitLine = vk2dPolygonCreateOutline((void*)LINE_VERTICES, LINE_VERTEX_COUNT);
     if (!vk2dStatusFatal())
         vk2dLogInfo("Created unit polygons...");

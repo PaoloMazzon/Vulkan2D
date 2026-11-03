@@ -104,9 +104,13 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
         vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &instanceExtensionCount, VK_NULL_HANDLE);
         instanceExtensions = malloc(instanceExtensionCount * sizeof(VkExtensionProperties));
         vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &instanceExtensionCount, instanceExtensions);
+        bool portability = false;
         for (i = 0; i < instanceExtensionCount; i++) {
             if (strcmp(instanceExtensions[i].extensionName, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0)
                 gRenderer->limits.supportsVRAMUsage = true;
+#ifdef __APPLE__
+            portability |= strcmp(instanceExtensions[i].extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0;
+#endif
         }
         free(instanceExtensions);
 
@@ -117,8 +121,14 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
         int layerCount = 0;
 
         if (userOptions.enableDebug) {
-            extensions[extensionCount++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
-            layers[layerCount++] = "VK_LAYER_KHRONOS_validation";
+            bool validation = false;
+            for (i = 0; i < systemLayerCount; i++)
+                validation |= strcmp(systemLayers[i].layerName, "VK_LAYER_KHRONOS_validation") == 0;
+            if (validation) {
+                extensions[extensionCount++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
+                layers[layerCount++] = "VK_LAYER_KHRONOS_validation";
+            } else
+                vk2dLogInfo("Debug requested but VK_LAYER_KHRONOS_validation is not installed, continuing without validation.");
         }
         if (gRenderer->limits.supportsVRAMUsage) {
             extensions[extensionCount++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
@@ -139,9 +149,11 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
         }
 
         // Append SDL extensions to extension list
-        for (i = 0; i < sdlExtensionsCount; i++) {
-            extensions[extensionCount++] = sdlExtensions[i];
-        }
+        for (i = 0; i < sdlExtensionsCount; i++)
+            if (strcmp(sdlExtensions[i], VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) != 0)
+                extensions[extensionCount++] = sdlExtensions[i];
+        if (portability)
+            extensions[extensionCount++] = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
 
 		// Log all used extensions
         vk2dLogInfo("Vulkan Enabled Instance Extensions: ");
@@ -165,7 +177,16 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
                 extensions,
                 extensionCount
         );
+        if (portability)
+            instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 		result = vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
+        if (result == VK_ERROR_LAYER_NOT_PRESENT && layerCount > 0) {
+            vk2dLogInfo("VK_LAYER_KHRONOS_validation failed to load, continuing without validation.");
+            instanceCreateInfo.enabledLayerCount = 0;
+            instanceCreateInfo.ppEnabledExtensionNames = extensions + 1;
+            instanceCreateInfo.enabledExtensionCount = extensionCount - 1;
+            result = vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
+        }
 
         if (result != VK_SUCCESS) {
 		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create Vulkan instance, Vulkan error %i.", result);

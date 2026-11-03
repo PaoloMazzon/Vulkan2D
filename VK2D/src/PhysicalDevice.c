@@ -8,7 +8,7 @@
 #include "VK2D/Renderer.h"
 #include "VK2D/Logger.h"
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 static VkPhysicalDevice* _vk2dPhysicalDeviceGetPhysicalDevices(VkInstance instance, uint32_t *size) {
 	VkPhysicalDevice *devices;

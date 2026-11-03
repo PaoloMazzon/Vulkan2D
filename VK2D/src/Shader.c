@@ -1,6 +1,6 @@
 /// \file Shader.c
 /// \author Paolo Mazzon
-#include <malloc.h>
+#include <stdlib.h>
 
 #include "VK2D/Opaque.h"
 #include "VK2D/Shader.h"
@@ -141,5 +141,6 @@ void vk2dShaderFree(VK2DShader shader) {
 		vk2dPipelineFree(shader->pipe);
 		free(shader->spvVert);
 		free(shader->spvFrag);
+		free(shader);
 	}
 }

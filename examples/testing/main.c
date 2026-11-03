@@ -4,6 +4,7 @@
 #include "VK2D/VK2D.h"
 #include "VK2D/Validation.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include <math.h>
 #include "../debug.c"
