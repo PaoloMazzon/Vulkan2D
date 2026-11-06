@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VULKAN_VERSION: 1.4.363.0
+
+jobs:
+  build:
+    name: ${{ matrix.os.name }}, shaders ${{ matrix.shaders }}
+    runs-on: ${{ matrix.os.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - { name: Windows x64, runner: windows-2025, id: windows }
+          - { name: Linux x64, runner: ubuntu-24.04, id: linux }
+          - { name: macOS Apple Silicon, runner: macos-15, id: macos }
+        shaders: [on, off]
+    env:
+      EXAMPLES: ${{ matrix.shaders == 'on' && 'ON' || 'OFF' }}
+      NO_SHADERS: ${{ matrix.shaders == 'on' && 'OFF' || 'ON' }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Submodules
+        shell: bash
+        run: |
+          git config --global core.longpaths true
+          git submodule update --init --depth 1 extern/SDL extern/VulkanMemoryAllocator
+          if [ "${{ matrix.shaders }}" = on ]; then
+            git submodule update --init --recursive --depth 1 extern/slang
+          fi
+
+      - name: Cache Vulkan SDK (Windows)
+        if: matrix.os.id == 'windows'
+        id: vulkan-cache-windows
+        uses: actions/cache@v6
+        with:
+          path: C:\VulkanSDK\${{ env.VULKAN_VERSION }}
+          key: vulkan-sdk-windows-${{ env.VULKAN_VERSION }}
+
+      - name: Install Vulkan SDK (Windows)
+        if: matrix.os.id == 'windows' && steps.vulkan-cache-windows.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          $v = $env:VULKAN_VERSION
+          Invoke-WebRequest -Uri "https://sdk.lunarg.com/sdk/download/$v/windows/vulkansdk-windows-X64-$v.exe" -OutFile vulkansdk.exe
+          Start-Process -FilePath .\vulkansdk.exe -Wait -ArgumentList '--root', "C:\VulkanSDK\$v", '--accept-licenses', '--default-answer', '--confirm-command', 'install'
+
+      - name: Point at Vulkan SDK (Windows)
+        if: matrix.os.id == 'windows'
+        shell: pwsh
+        run: |
+          "VULKAN_SDK=C:\VulkanSDK\$env:VULKAN_VERSION" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "C:\VulkanSDK\$env:VULKAN_VERSION\Bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Packages (Linux)
+        if: matrix.os.id == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build pkg-config libx11-dev libxext-dev libxrandr-dev libxcursor-dev \
+            libxi-dev libxss-dev libxtst-dev libwayland-dev libxkbcommon-dev wayland-protocols libegl-dev \
+            libasound2-dev libpulse-dev libpipewire-0.3-dev libdbus-1-dev libudev-dev
+
+      - name: Cache Vulkan SDK (Linux)
+        if: matrix.os.id == 'linux'
+        id: vulkan-cache-linux
+        uses: actions/cache@v6
+        with:
+          path: ~/vulkansdk/${{ env.VULKAN_VERSION }}
+          key: vulkan-sdk-linux-${{ env.VULKAN_VERSION }}
+
+      - name: Install Vulkan SDK (Linux)
+        if: matrix.os.id == 'linux' && steps.vulkan-cache-linux.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/vulkansdk
+          curl -sSfL "https://sdk.lunarg.com/sdk/download/$VULKAN_VERSION/linux/vulkansdk-linux-x86_64-$VULKAN_VERSION.tar.xz" \
+            | tar -xJ -C ~/vulkansdk
+
+      - name: Point at Vulkan SDK (Linux)
+        if: matrix.os.id == 'linux'
+        run: |
+          sdk=~/vulkansdk/$VULKAN_VERSION/x86_64
+          echo "VULKAN_SDK=$sdk" >> "$GITHUB_ENV"
+          echo "$sdk/bin" >> "$GITHUB_PATH"
+          echo "LD_LIBRARY_PATH=$sdk/lib" >> "$GITHUB_ENV"
+
+      - name: Packages (macOS)
+        if: matrix.os.id == 'macos'
+        run: |
+          brew install ninja vulkan-headers vulkan-loader molten-vk
+          echo "CMAKE_PREFIX_PATH=$(brew --prefix)" >> "$GITHUB_ENV"
+
+      - name: Configure (Windows)
+        if: matrix.os.id == 'windows'
+        run: cmake -S . -B build -DVK2D_BUILD_EXAMPLES=${{ env.EXAMPLES }} -DVK2D_DISABLE_SHADERS=${{ env.NO_SHADERS }}
+
+      - name: Configure (Linux, macOS)
+        if: matrix.os.id != 'windows'
+        run: >
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DVK2D_BUILD_EXAMPLES=${{ env.EXAMPLES }} -DVK2D_DISABLE_SHADERS=${{ env.NO_SHADERS }}
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
