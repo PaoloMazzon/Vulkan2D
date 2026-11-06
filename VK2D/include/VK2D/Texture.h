@@ -40,6 +40,11 @@ VK2DTexture vk2dTextureFrom(const void *data, int size);
 /// this texture it ***will*** cause crashes on certain hardware.
 VK2DTexture vk2dTextureCreate(float w, float h);
 
+/// \brief Replaces the pixels of a texture loaded from an image, file or pixels
+/// \param tex Texture to update, not a render target
+/// \param pixels RGBA pixels, exactly width * height * 4 bytes
+void vk2dTextureUpdate(VK2DTexture tex, const void *pixels);
+
 /// \brief Gets the width in pixels of a texture
 /// \param tex Texture to get the width from
 /// \return Returns the width in pixels

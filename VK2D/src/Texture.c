@@ -206,6 +206,11 @@ VK2DTexture vk2dTextureCreate(float w, float h) {
   return out;
 }
 
+void vk2dTextureUpdate(VK2DTexture tex, const void *pixels) {
+  if (tex != NULL && !vk2dTextureIsTarget(tex))
+    vk2dImageUpdate(tex->img, pixels);
+}
+
 float vk2dTextureWidth(VK2DTexture tex) { return tex->img->width; }
 
 float vk2dTextureHeight(VK2DTexture tex) { return tex->img->height; }

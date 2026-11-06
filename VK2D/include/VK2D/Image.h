@@ -37,6 +37,12 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename);
 /// \return Returns a new image or NULL if it failed
 VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, const void *pixels, int w, int h, bool mainThread);
 
+/// \brief Replaces the pixels of a sampled image created from pixels or a file
+/// \param img Image to update
+/// \param pixels RGBA pixels, exactly width * height * 4 bytes
+/// \warning Waits for the device queue to go idle, so it is meant for occasional uploads like video frames
+void vk2dImageUpdate(VK2DImage img, const void *pixels);
+
 /// \brief Frees an image from memory
 /// \param img Image to free
 void vk2dImageFree(VK2DImage img);

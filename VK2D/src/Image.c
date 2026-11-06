@@ -239,6 +239,61 @@ VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, const void *pixels, int w, 
 	return out;
 }
 
+void vk2dImageUpdate(VK2DImage img, const void *pixels) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (img == NULL || pixels == NULL)
+		return;
+	VkDeviceSize size = (VkDeviceSize)img->width * img->height * 4;
+	VK2DBuffer stage = vk2dBufferCreate(img->dev, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+										VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	if (stage == NULL)
+		return;
+	void *data;
+	VkResult result = vmaMapMemory(gRenderer->vma, stage->mem, &data);
+	if (result != VK_SUCCESS) {
+		vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to map memory, VMA error %i.", result);
+		vk2dBufferFree(stage);
+		return;
+	}
+	memcpy(data, pixels, (size_t)size);
+	vmaUnmapMemory(gRenderer->vma, stage->mem);
+
+	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(img->dev);
+	if (buffer != VK_NULL_HANDLE) {
+		VkImageMemoryBarrier barrier = {0};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image = img->img;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.layerCount = 1;
+		barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		vkCmdPipelineBarrier(buffer, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0,
+							 VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 1, &barrier);
+
+		VkBufferImageCopy region = {0};
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.layerCount = 1;
+		region.imageExtent.width = img->width;
+		region.imageExtent.height = img->height;
+		region.imageExtent.depth = 1;
+		vkCmdCopyBufferToImage(buffer, stage->buf, img->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+		barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		vkCmdPipelineBarrier(buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0,
+							 VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 1, &barrier);
+		vk2dLogicalDeviceSubmitSingleBuffer(img->dev, buffer);
+	}
+	vk2dBufferFree(stage);
+}
+
 void vk2dImageFree(VK2DImage img) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (img != NULL) {
