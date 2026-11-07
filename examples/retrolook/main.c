@@ -14,7 +14,7 @@ const float LOGICAL_HEIGHT = 224;
 const int WINDOW_WIDTH  = 256 * 3;
 const int WINDOW_HEIGHT = 224 * 3;
 
-static inline float min(float x, float y) {
+static inline float minf(float x, float y) {
 	if (x < y)
 		return x;
 	return y;
@@ -92,7 +92,7 @@ int main(int argc, const char *argv[]) {
 		SDL_GetWindowSize(window, &ww, &wh);
 		float w = (float)ww;
 		float h = (float)wh;
-		float scale = min(floorf(w / LOGICAL_WIDTH), floorf(h / LOGICAL_WIDTH)) + 1;
+		float scale = minf(floorf(w / LOGICAL_WIDTH), floorf(h / LOGICAL_WIDTH)) + 1;
 		float xOnWindow = (w - (LOGICAL_WIDTH * scale)) / 2;
 		float yOnWindow = (h - (LOGICAL_HEIGHT * scale)) / 2;
 		vk2dRendererLockCameras(VK2D_DEFAULT_CAMERA);
