@@ -68,6 +68,7 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
         gStatus = 0;
         gLogBuffer[0] = 0;
     }
+    gStatus |= result;
     const VK2DLogSeverity severity = (gQuitOnError && vk2dStatusFatal()) ?
                                      VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
     va_list ap;
@@ -87,7 +88,7 @@ VK2DStatus vk2dStatus() {
 }
 
 bool vk2dStatusFatal() {
-    return (gStatus & ~(VK2D_STATUS_NONE | VK2D_STATUS_SDL_ERROR | VK2D_STATUS_FILE_NOT_FOUND | VK2D_STATUS_BAD_ASSET | VK2D_STATUS_TOO_MANY_CAMERAS)) !=  0;
+    return (gStatus & ~(VK2D_STATUS_NONE | VK2D_STATUS_SDL_ERROR | VK2D_STATUS_FILE_NOT_FOUND | VK2D_STATUS_BAD_ASSET | VK2D_STATUS_TOO_MANY_CAMERAS | VK2D_STATUS_BEYOND_LIMIT)) !=  0;
 }
 
 const char *vk2dStatusMessage() {
