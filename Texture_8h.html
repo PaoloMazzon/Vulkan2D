@@ -138,6 +138,10 @@ Functions</h2></td></tr>
 <tr class="memdesc:a5412de117ae8a104eef2a6de341804fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as vk2dTextureLoad but it uses a byte buffer instead of pulling from a file.  <br /></td></tr>
 <tr class="memitem:a7ed4b227a5d37e8898efe88bbf3a05ea" id="r_a7ed4b227a5d37e8898efe88bbf3a05ea"><td class="memItemLeft" align="right" valign="top">VK2DTexture&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7ed4b227a5d37e8898efe88bbf3a05ea">vk2dTextureCreate</a> (float w, float h)</td></tr>
 <tr class="memdesc:a7ed4b227a5d37e8898efe88bbf3a05ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a texture meant as a drawing target - see <span class="tt"><a class="el" href="Renderer_8h.html#ab8911e8041d82b9ccf7be1752cb64a00" title="Changes the render target to a texture or the screen.">vk2dRendererSetTarget</a></span>.  <br /></td></tr>
+<tr class="memitem:a3fdae3607b35ef0cd760aa4dda4588c7" id="r_a3fdae3607b35ef0cd760aa4dda4588c7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3fdae3607b35ef0cd760aa4dda4588c7">vk2dTextureUpdate</a> (VK2DTexture tex, const void *pixels)</td></tr>
+<tr class="memdesc:a3fdae3607b35ef0cd760aa4dda4588c7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces all pixels of a texture.  <br /></td></tr>
+<tr class="memitem:ad9c0d586115bb0ba5e7d3c9b3485a3cf" id="r_ad9c0d586115bb0ba5e7d3c9b3485a3cf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad9c0d586115bb0ba5e7d3c9b3485a3cf">vk2dTextureUpdateRegion</a> (VK2DTexture tex, const void *pixels, int x, int y, int w, int h)</td></tr>
+<tr class="memdesc:ad9c0d586115bb0ba5e7d3c9b3485a3cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Replaces a rectangle of pixels in a texture.  <br /></td></tr>
 <tr class="memitem:ac90ad1dee629b1e9509ddc0159dccfc0" id="r_ac90ad1dee629b1e9509ddc0159dccfc0"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac90ad1dee629b1e9509ddc0159dccfc0">vk2dTextureWidth</a> (VK2DTexture tex)</td></tr>
 <tr class="memdesc:ac90ad1dee629b1e9509ddc0159dccfc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the width in pixels of a texture.  <br /></td></tr>
 <tr class="memitem:ae59aec48b12a0f634a85fbeb20e30de3" id="r_ae59aec48b12a0f634a85fbeb20e30de3"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae59aec48b12a0f634a85fbeb20e30de3">vk2dTextureHeight</a> (VK2DTexture tex)</td></tr>
@@ -150,11 +154,45 @@ Functions</h2></td></tr>
 <tr class="memdesc:a9724025064d391b843f9ae85be542818"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a unique ID for this texture.  <br /></td></tr>
 <tr class="memitem:a0ba8c615ffe2208f0efaab0b1eae29aa" id="r_a0ba8c615ffe2208f0efaab0b1eae29aa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ba8c615ffe2208f0efaab0b1eae29aa">vk2dTextureFree</a> (VK2DTexture tex)</td></tr>
 <tr class="memdesc:a0ba8c615ffe2208f0efaab0b1eae29aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees a texture from memory.  <br /></td></tr>
+<tr class="memitem:abe65f7c5a6e622e607babfde82ad6f20" id="r_abe65f7c5a6e622e607babfde82ad6f20"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abe65f7c5a6e622e607babfde82ad6f20">vk2dTextureCopyPixels</a> (VK2DTexture tex, void *outPixels)</td></tr>
+<tr class="memdesc:abe65f7c5a6e622e607babfde82ad6f20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a texture's pixels back from the GPU.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Makes managing textures samplers and off-screen rendering simpler. </p>
 <dl class="section author"><dt>Author</dt><dd>Paolo Mazzon </dd></dl>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="abe65f7c5a6e622e607babfde82ad6f20" name="abe65f7c5a6e622e607babfde82ad6f20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe65f7c5a6e622e607babfde82ad6f20">&#9670;&#160;</a></span>vk2dTextureCopyPixels()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vk2dTextureCopyPixels </td>
+          <td>(</td>
+          <td class="paramtype">VK2DTexture</td>          <td class="paramname"><span class="paramname"><em>tex</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>outPixels</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Reads a texture's pixels back from the GPU. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tex</td><td>Texture to read, either loaded or a render target </td></tr>
+    <tr><td class="paramname">outPixels</td><td>Buffer of at least width * height * 4 bytes that receives tightly packed 8-bit RGBA pixels </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns true if the pixels were read </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Not thread-safe, and waits for the device queue to go idle. </dd></dl>
+
+</div>
+</div>
 <a id="a7ed4b227a5d37e8898efe88bbf3a05ea" name="a7ed4b227a5d37e8898efe88bbf3a05ea"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7ed4b227a5d37e8898efe88bbf3a05ea">&#9670;&#160;</a></span>vk2dTextureCreate()</h2>
 
@@ -400,6 +438,94 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Returns a new texture or NULL if it failed </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Textures created with this function are NOT valid render targets </dd></dl>
+
+</div>
+</div>
+<a id="a3fdae3607b35ef0cd760aa4dda4588c7" name="a3fdae3607b35ef0cd760aa4dda4588c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3fdae3607b35ef0cd760aa4dda4588c7">&#9670;&#160;</a></span>vk2dTextureUpdate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vk2dTextureUpdate </td>
+          <td>(</td>
+          <td class="paramtype">VK2DTexture</td>          <td class="paramname"><span class="paramname"><em>tex</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const void *</td>          <td class="paramname"><span class="paramname"><em>pixels</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Replaces all pixels of a texture. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tex</td><td>Texture loaded from a file, memory or an image; render targets are refused </td></tr>
+    <tr><td class="paramname">pixels</td><td>Tightly packed 8-bit RGBA pixels, width * height * 4 bytes </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns true if the pixels were uploaded </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Same rules as vk2dImageUpdate: main thread only, waits for the device queue to go idle, and the new pixels apply to every draw of the frame being recorded. </dd></dl>
+
+</div>
+</div>
+<a id="ad9c0d586115bb0ba5e7d3c9b3485a3cf" name="ad9c0d586115bb0ba5e7d3c9b3485a3cf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9c0d586115bb0ba5e7d3c9b3485a3cf">&#9670;&#160;</a></span>vk2dTextureUpdateRegion()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool vk2dTextureUpdateRegion </td>
+          <td>(</td>
+          <td class="paramtype">VK2DTexture</td>          <td class="paramname"><span class="paramname"><em>tex</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const void *</td>          <td class="paramname"><span class="paramname"><em>pixels</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>y</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>w</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>h</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Replaces a rectangle of pixels in a texture. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tex</td><td>Texture loaded from a file, memory or an image; render targets are refused </td></tr>
+    <tr><td class="paramname">pixels</td><td>Tightly packed 8-bit RGBA pixels for the rectangle, w * h * 4 bytes </td></tr>
+    <tr><td class="paramname">x</td><td>Left edge of the rectangle in pixels </td></tr>
+    <tr><td class="paramname">y</td><td>Top edge of the rectangle in pixels </td></tr>
+    <tr><td class="paramname">w</td><td>Width of the rectangle in pixels </td></tr>
+    <tr><td class="paramname">h</td><td>Height of the rectangle in pixels </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Returns true if the pixels were uploaded, false if the texture is a render target or the rectangle does not fit inside it </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>Same rules as vk2dImageUpdate. </dd></dl>
 
 </div>
 </div>

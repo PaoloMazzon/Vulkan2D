@@ -1,5 +1,6 @@
 var Texture_8h =
 [
+    [ "vk2dTextureCopyPixels", "Texture_8h.html#abe65f7c5a6e622e607babfde82ad6f20", null ],
     [ "vk2dTextureCreate", "Texture_8h.html#a7ed4b227a5d37e8898efe88bbf3a05ea", null ],
     [ "vk2dTextureFree", "Texture_8h.html#a0ba8c615ffe2208f0efaab0b1eae29aa", null ],
     [ "vk2dTextureFrom", "Texture_8h.html#a5412de117ae8a104eef2a6de341804fc", null ],
@@ -9,5 +10,7 @@ var Texture_8h =
     [ "vk2dTextureIsTarget", "Texture_8h.html#ac93cba12fad384e36a89611dd8dcd339", null ],
     [ "vk2dTextureLoad", "Texture_8h.html#a0b267952ecd2419e0d6161605d932710", null ],
     [ "vk2dTextureLoadFromImage", "Texture_8h.html#ad3c8cd30071cbb7d4ac7da2db65e9b71", null ],
+    [ "vk2dTextureUpdate", "Texture_8h.html#a3fdae3607b35ef0cd760aa4dda4588c7", null ],
+    [ "vk2dTextureUpdateRegion", "Texture_8h.html#ad9c0d586115bb0ba5e7d3c9b3485a3cf", null ],
     [ "vk2dTextureWidth", "Texture_8h.html#ac90ad1dee629b1e9509ddc0159dccfc0", null ]
 ];
