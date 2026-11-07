@@ -27,7 +27,7 @@ VK2DShadowEnvironment vk2dShadowEnvironmentCreate() {
         se->objectInfos = NULL;
         vk2dShadowEnvironmentAddObject(se);
     } else {
-        vk2dLogInfo("Failed to create shadow environment.");
+        vk2dLogError("Failed to create shadow environment.");
     }
 
     return se;
@@ -63,7 +63,7 @@ VK2DShadowObject vk2dShadowEnvironmentAddObject(VK2DShadowEnvironment shadowEnvi
         memset(soi->model, 0, sizeof(mat4));
         identityMatrix(soi->model);
     } else {
-        vk2dLogInfo("Failed to create shadow object.");
+        vk2dLogError("Failed to create shadow object.");
     }
 
     return so;
@@ -118,7 +118,7 @@ void vk2dShadowEnvironmentAddEdge(VK2DShadowEnvironment shadowEnvironment, float
             shadowEnvironment->verticesSize += VK2D_DEFAULT_ARRAY_EXTENSION * 6;
         } else {
             failedToExtendList = true;
-            vk2dLogInfo("Failed to extend shadow list");
+            vk2dLogError("Failed to extend shadow list");
         }
     }
 

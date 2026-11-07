@@ -1360,15 +1360,18 @@ void _vk2dRendererRefreshTargets() {
 			// Sampled image
 			vk2dImageFree(gRenderer->targets[i]->sampledImg);
 			vk2dImageFree(gRenderer->targets[i]->depthBuffer);
-			gRenderer->targets[i]->sampledImg = vk2dImageCreate(
-					gRenderer->ld,
-					gRenderer->targets[i]->img->width,
-					gRenderer->targets[i]->img->height,
-					VK_FORMAT_B8G8R8A8_SRGB,
-					VK_IMAGE_ASPECT_COLOR_BIT,
-					VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-					(VkSampleCountFlagBits)gRenderer->config.msaa);
-			_vk2dImageTransitionImageLayout(gRenderer->ld, gRenderer->targets[i]->sampledImg->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			gRenderer->targets[i]->sampledImg = NULL;
+			if (gRenderer->config.msaa > 1) {
+				gRenderer->targets[i]->sampledImg = vk2dImageCreate(
+						gRenderer->ld,
+						gRenderer->targets[i]->img->width,
+						gRenderer->targets[i]->img->height,
+						VK_FORMAT_B8G8R8A8_SRGB,
+						VK_IMAGE_ASPECT_COLOR_BIT,
+						VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+						(VkSampleCountFlagBits)gRenderer->config.msaa);
+				_vk2dImageTransitionImageLayout(gRenderer->ld, gRenderer->targets[i]->sampledImg->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+			}
 			//_vk2dImageTransitionImageLayout(gRenderer->ld, gRenderer->targets[i]->depthBuffer->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 			gRenderer->targets[i]->depthBuffer = vk2dImageCreate(gRenderer->ld, gRenderer->targets[i]->img->width, gRenderer->targets[i]->img->height, gRenderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, (VkSampleCountFlagBits)gRenderer->config.msaa);
 

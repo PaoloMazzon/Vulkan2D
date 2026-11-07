@@ -25,6 +25,7 @@ typedef struct VK2DDefaultLogger {
     SDL_Mutex *mutex;
     FILE *errorOutput;
     FILE *standardOutput;
+    FILE *errorFile;
     VK2DLogSeverity severity;
 } VK2DDefaultLogger;
 
@@ -44,6 +45,7 @@ static VK2DDefaultLogger gDefaultLogger = {
         .mutex = NULL,
         .errorOutput = NULL,
         .standardOutput = NULL,
+        .errorFile = NULL,
         .severity = VK2D_LOG_SEVERITY_INFO,
 };
 
@@ -112,10 +114,10 @@ static bool shouldLog(const VK2DLogSeverity severity) {
         || severity == VK2D_LOG_SEVERITY_FATAL)
         return true;
     SDL_LockMutex(gLoggerMutex);
-    if (gLogger->severityFn == NULL) return true;
-    const VK2DLogSeverity current = gLogger->severityFn(gLogger->context);
+    const bool result = gLogger->severityFn == NULL
+                        || severity >= gLogger->severityFn(gLogger->context);
     SDL_UnlockMutex(gLoggerMutex);
-    return severity >= current;
+    return result;
 }
 
 static void writeTimeString(char *buf) {
@@ -162,10 +164,18 @@ static void defaultLog(void *ptr, VK2DLogSeverity severity, const char *msg) {
     writeTimeString(timeString);
     // asctime() adds an extra \n at the end
     timeString[MAX_TIME_STRING_SIZE - 2] = '\0';
-    if (vk2dRendererHasStdoutLogging()) {
+    if (vk2dRendererHasStdoutLogging() && out != NULL) {
         fprintf(out, "[%s] [%s]%s %s\n", timeString, label, padding, msg);
         fflush(out);
     }
+    // warnings and above are also kept in the error file, whatever the console does
+    SDL_LockMutex(log->mutex);
+    FILE *file = log->errorFile;
+    if (file != NULL && file != out && severity >= VK2D_LOG_SEVERITY_WARN) {
+        fprintf(file, "[%s] [%s]%s %s\n", timeString, label, padding, msg);
+        fflush(file);
+    }
+    SDL_UnlockMutex(log->mutex);
     if (severity == VK2D_LOG_SEVERITY_FATAL) abort();
 }
 
@@ -232,6 +242,7 @@ void vk2dLoggerInit() {
     if (gInitialized) return;
     gDefaultLogger.errorOutput = stderr;
     gDefaultLogger.standardOutput = stdout;
+    gDefaultLogger.errorFile = NULL;
     gDefaultLogger.mutex = SDL_CreateMutex();
     gLoggerMutex = SDL_CreateMutex();
     gLogger = (VK2DLogger *)&gDefaultLogger;
@@ -247,6 +258,12 @@ void vk2dDefaultLoggerSetStandardOutput(FILE *out) {
 void vk2dDefaultLoggerSetErrorOutput(FILE *out) {
     SDL_LockMutex(gDefaultLogger.mutex);
     gDefaultLogger.errorOutput = out;
+    SDL_UnlockMutex(gDefaultLogger.mutex);
+}
+
+void vk2dDefaultLoggerSetErrorFile(FILE *file) {
+    SDL_LockMutex(gDefaultLogger.mutex);
+    gDefaultLogger.errorFile = file;
     SDL_UnlockMutex(gDefaultLogger.mutex);
 }
 
@@ -275,3 +292,4 @@ LOG_WRAP_FN(Info, INFO)
 LOG_WRAP_FN(Warn, WARN)
 LOG_WRAP_FN(Error, ERROR)
 LOG_WRAP_FN(Fatal, FATAL)
+LOG_WRAP_FN(Unknown, UNKNOWN)

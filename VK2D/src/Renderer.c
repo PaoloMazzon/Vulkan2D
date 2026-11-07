@@ -128,7 +128,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
                 extensions[extensionCount++] = VK_EXT_DEBUG_REPORT_EXTENSION_NAME;
                 layers[layerCount++] = "VK_LAYER_KHRONOS_validation";
             } else
-                vk2dLogInfo("Debug requested but VK_LAYER_KHRONOS_validation is not installed, continuing without validation.");
+                vk2dLogWarn("Debug requested but VK_LAYER_KHRONOS_validation is not installed, continuing without validation.");
         }
         if (gRenderer->limits.supportsVRAMUsage) {
             extensions[extensionCount++] = VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME;
@@ -181,7 +181,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
             instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 		result = vkCreateInstance(&instanceCreateInfo, VK_NULL_HANDLE, &gRenderer->vk);
         if (result == VK_ERROR_LAYER_NOT_PRESENT && layerCount > 0) {
-            vk2dLogInfo("VK_LAYER_KHRONOS_validation failed to load, continuing without validation.");
+            vk2dLogWarn("VK_LAYER_KHRONOS_validation failed to load, continuing without validation.");
             instanceCreateInfo.enabledLayerCount = 0;
             instanceCreateInfo.ppEnabledExtensionNames = extensions + 1;
             instanceCreateInfo.enabledExtensionCount = extensionCount - 1;
@@ -638,7 +638,7 @@ void vk2dRendererSetTarget(VK2DTexture target) {
 
 			// Dont let the user bind textures that are not targets
 			if (target != VK2D_TARGET_SCREEN && !vk2dTextureIsTarget(target)) {
-                vk2dLogInfo("Texture cannot be used as a target.");
+                vk2dLogWarn("Texture cannot be used as a target.");
 				return;
 			}
 
