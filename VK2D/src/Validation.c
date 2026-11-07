@@ -28,7 +28,7 @@ void vk2dValidationBegin(const char *errorFile, bool quitOnError) {
     if (errorFile != NULL) {
         FILE *file = fopen(errorFile, "a");
         if (file != NULL) {
-            vk2dDefaultLoggerSetErrorOutput(file);
+            vk2dDefaultLoggerSetErrorFile(file);
             gErrorFile = file;
         }
     }
@@ -38,9 +38,11 @@ void vk2dValidationBegin(const char *errorFile, bool quitOnError) {
 
 void vk2dValidationEnd() {
     vk2dLoggerLog(VK2D_LOG_SEVERITY_INFO, "------END------");
+    vk2dDefaultLoggerSetErrorFile(NULL);
     vk2dLoggerDestroy();
     SDL_DestroyMutex(gLogMutex);
     if (gErrorFile != NULL) fclose(gErrorFile);
+    gErrorFile = NULL;
 }
 
 static int32_t stringLength(const char *str, int32_t size) {
@@ -66,9 +68,8 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
         gStatus = 0;
         gLogBuffer[0] = 0;
     }
-    //const VK2DLogSeverity severity = (gQuitOnError && vk2dStatusFatal()) ?
-    //                                 VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
-    const VK2DLogSeverity severity = VK2D_LOG_SEVERITY_INFO; // TODO: Fix error severity not displaying
+    const VK2DLogSeverity severity = (gQuitOnError && vk2dStatusFatal()) ?
+                                     VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
     va_list ap;
     int32_t start = stringLength(gLogBuffer, gLogBufferSize);
     int32_t length = gLogBufferSize - start;
@@ -118,12 +119,13 @@ static const char* vk2dDebugObjectTypeToString(VkDebugReportObjectTypeEXT type) 
 
 VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    const bool isError = flags & VK_DEBUG_REPORT_ERROR_BIT_EXT;
-    const VK2DLogSeverity severity = isError
-                                     ? gRenderer->options.quitOnError
-                                       ? VK2D_LOG_SEVERITY_INFO // TODO: Fix this
-                                       : VK2D_LOG_SEVERITY_INFO
-                                     : VK2D_LOG_SEVERITY_INFO;
+    VK2DLogSeverity severity = VK2D_LOG_SEVERITY_DEBUG;
+    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+        severity = gRenderer->options.quitOnError ? VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
+    else if (flags & (VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT))
+        severity = VK2D_LOG_SEVERITY_WARN;
+    else if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
+        severity = VK2D_LOG_SEVERITY_INFO;
     vk2dLoggerLogf(
             severity,
             "[VULKAN %s]\n"
