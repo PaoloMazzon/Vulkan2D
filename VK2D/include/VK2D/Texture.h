@@ -36,6 +36,26 @@ VK2DTexture vk2dTextureFrom(const void *data, int size);
 /// `vk2dRendererClear`) before you draw this texture it ***will*** cause crashes on certain hardware.
 VK2DTexture vk2dTextureCreate(float w, float h);
 
+/// \brief Replaces all pixels of a texture
+/// \param tex Texture loaded from a file, memory or an image; render targets are refused
+/// \param pixels Tightly packed 8-bit RGBA pixels, width * height * 4 bytes
+/// \return Returns true if the pixels were uploaded
+/// \warning Same rules as vk2dImageUpdate: main thread only, waits for the device queue to go idle, and the new
+/// pixels apply to every draw of the frame being recorded.
+bool vk2dTextureUpdate(VK2DTexture tex, const void *pixels);
+
+/// \brief Replaces a rectangle of pixels in a texture
+/// \param tex Texture loaded from a file, memory or an image; render targets are refused
+/// \param pixels Tightly packed 8-bit RGBA pixels for the rectangle, w * h * 4 bytes
+/// \param x Left edge of the rectangle in pixels
+/// \param y Top edge of the rectangle in pixels
+/// \param w Width of the rectangle in pixels
+/// \param h Height of the rectangle in pixels
+/// \return Returns true if the pixels were uploaded, false if the texture is a render target or the rectangle does
+/// not fit inside it
+/// \warning Same rules as vk2dImageUpdate.
+bool vk2dTextureUpdateRegion(VK2DTexture tex, const void *pixels, int x, int y, int w, int h);
+
 /// \brief Gets the width in pixels of a texture
 /// \param tex Texture to get the width from
 /// \return Returns the width in pixels
@@ -66,6 +86,13 @@ uint32_t vk2dTextureGetID(VK2DTexture tex);
 /// \brief Frees a texture from memory
 /// \param tex Texture to free
 void vk2dTextureFree(VK2DTexture tex);
+
+/// \brief Reads a texture's pixels back from the GPU
+/// \param tex Texture to read, either loaded or a render target
+/// \param outPixels Buffer of at least width * height * 4 bytes that receives tightly packed 8-bit RGBA pixels
+/// \return Returns true if the pixels were read
+/// \warning Not thread-safe, and waits for the device queue to go idle.
+bool vk2dTextureCopyPixels(VK2DTexture tex, void *outPixels);
 
 #ifdef __cplusplus
 };

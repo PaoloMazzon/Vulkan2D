@@ -37,6 +37,22 @@ VK2DImage vk2dImageLoad(VK2DLogicalDevice dev, const char *filename);
 /// \return Returns a new image or NULL if it failed
 VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, const void *pixels, int w, int h, bool mainThread);
 
+/// \brief Replaces a rectangle of pixels in a sampled RGBA image
+/// \param img Image to update; it must have been created with transfer-destination and sampled usage, as images
+/// from vk2dImageFromPixels and vk2dImageLoad are, and must be in the shader-read-only layout
+/// \param pixels Tightly packed 8-bit RGBA pixels for the rectangle, w * h * 4 bytes, in the image's format
+/// (sRGB for images from vk2dImageFromPixels and vk2dImageLoad)
+/// \param x Left edge of the rectangle in pixels
+/// \param y Top edge of the rectangle in pixels
+/// \param w Width of the rectangle in pixels
+/// \param h Height of the rectangle in pixels
+/// \return Returns true if the pixels were uploaded, false if an argument was invalid or a resource could not be
+/// created (the reason is raised as a status)
+/// \warning Not thread-safe: call it from the thread that owns the renderer. It submits its own command buffer and
+/// waits for the device queue to go idle, so it suits occasional uploads such as video frames, not per-draw use.
+/// \warning The new pixels apply to every draw of the frame being recorded, including draws recorded before the call.
+bool vk2dImageUpdate(VK2DImage img, const void *pixels, int x, int y, int w, int h);
+
 /// \brief Frees an image from memory
 /// \param img Image to free
 void vk2dImageFree(VK2DImage img);

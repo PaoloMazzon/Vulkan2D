@@ -12,7 +12,7 @@
 const float WINDOW_WIDTH  = 800;
 const float WINDOW_HEIGHT = 600;
 
-static inline float min(float x, float y) {
+static inline float minf(float x, float y) {
 	if (x < y)
 		return x;
 	return y;

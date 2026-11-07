@@ -239,6 +239,84 @@ VK2DImage vk2dImageFromPixels(VK2DLogicalDevice dev, const void *pixels, int w, 
 	return out;
 }
 
+bool vk2dImageUpdate(VK2DImage img, const void *pixels, int x, int y, int w, int h) {
+	VK2DRenderer gRenderer = vk2dRendererGetPointer();
+	if (gRenderer == NULL) {
+		vk2dRaise(VK2D_STATUS_RENDERER_NOT_INITIALIZED, "Renderer is not initialized.");
+		return false;
+	}
+	if (img == NULL || pixels == NULL) {
+		vk2dRaise(VK2D_STATUS_BAD_ASSET, "Cannot update a NULL image or from NULL pixels.");
+		return false;
+	}
+	if (w <= 0 || h <= 0 || x < 0 || y < 0 || (uint64_t)x + (uint64_t)w > img->width ||
+		(uint64_t)y + (uint64_t)h > img->height) {
+		vk2dRaise(VK2D_STATUS_BEYOND_LIMIT, "Region (%i, %i, %i, %i) does not fit the %ux%u image.", x, y, w, h,
+				  img->width, img->height);
+		return false;
+	}
+
+	VkDeviceSize size = (VkDeviceSize)w * (VkDeviceSize)h * 4;
+	VK2DBuffer stage = vk2dBufferCreate(img->dev, size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+										VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	if (stage == NULL)
+		return false;
+	void *data;
+	VkResult result = vmaMapMemory(gRenderer->vma, stage->mem, &data);
+	if (result != VK_SUCCESS) {
+		vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to map memory, VMA error %i.", result);
+		vk2dBufferFree(stage);
+		return false;
+	}
+	memcpy(data, pixels, (size_t)size);
+	vmaUnmapMemory(gRenderer->vma, stage->mem);
+
+	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(img->dev);
+	if (buffer == VK_NULL_HANDLE) {
+		vk2dBufferFree(stage);
+		return false;
+	}
+
+	VkImageMemoryBarrier barrier = {0};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = img->img;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	vkCmdPipelineBarrier(buffer, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0,
+						 VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 1, &barrier);
+
+	VkBufferImageCopy region = {0};
+	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	region.imageSubresource.mipLevel = 0;
+	region.imageSubresource.baseArrayLayer = 0;
+	region.imageSubresource.layerCount = 1;
+	region.imageOffset.x = x;
+	region.imageOffset.y = y;
+	region.imageExtent.width = (uint32_t)w;
+	region.imageExtent.height = (uint32_t)h;
+	region.imageExtent.depth = 1;
+	vkCmdCopyBufferToImage(buffer, stage->buf, img->img, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+	barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	vkCmdPipelineBarrier(buffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0,
+						 VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 1, &barrier);
+	vk2dLogicalDeviceSubmitSingleBuffer(img->dev, buffer);
+	vk2dBufferFree(stage);
+	return true;
+}
+
 void vk2dImageFree(VK2DImage img) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (img != NULL) {
