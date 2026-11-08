@@ -367,7 +367,7 @@ void vk2dRendererResetSwapchain() {
 
 VK2DRendererConfig vk2dRendererGetConfig() {
 	if (vk2dRendererGetPointer() != NULL)
-		return gRenderer->config;
+		return gRenderer->newConfig;
 	VK2DRendererConfig c = {0};
 	return c;
 }

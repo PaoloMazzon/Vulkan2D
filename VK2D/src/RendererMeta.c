@@ -1284,8 +1284,12 @@ void _vk2dRendererCreateSampler() {
     if (vk2dStatusFatal())
         return;
 
-	// 2D sampler
-	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(gRenderer->config.filterMode == VK2D_FILTER_TYPE_LINEAR, gRenderer->config.filterMode == VK2D_FILTER_TYPE_LINEAR ? gRenderer->config.msaa : 1, 1);
+	// 2D sampler, unnormalized coordinates rule out anisotropy
+	bool linear = gRenderer->config.filterMode == VK2D_FILTER_TYPE_LINEAR;
+	float anisotropy = linear ? (float)gRenderer->config.msaa : 1;
+	if (anisotropy > gRenderer->pd->props.limits.maxSamplerAnisotropy)
+		anisotropy = gRenderer->pd->props.limits.maxSamplerAnisotropy;
+	VkSamplerCreateInfo samplerCreateInfo = vk2dInitSamplerCreateInfo(linear, 1, 1);
 	VkResult r1 = vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->textureSampler);
 	VkDescriptorImageInfo imageInfo = {0};
 	imageInfo.sampler = gRenderer->textureSampler;
@@ -1297,6 +1301,8 @@ void _vk2dRendererCreateSampler() {
 	samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerCreateInfo.anisotropyEnable = anisotropy > 1 ? VK_TRUE : VK_FALSE;
+	samplerCreateInfo.maxAnisotropy = anisotropy;
 	VkResult r2 = vkCreateSampler(gRenderer->ld->dev, &samplerCreateInfo, VK_NULL_HANDLE, &gRenderer->modelSampler);
 	imageInfo.sampler = gRenderer->modelSampler;
 	write = vk2dInitWriteDescriptorSet(VK_DESCRIPTOR_TYPE_SAMPLER, 1, gRenderer->modelSamplerSet, VK_NULL_HANDLE, 1, &imageInfo);
@@ -1346,7 +1352,7 @@ void _vk2dRendererDestroyUnits() {
 	vk2dPolygonFree(gRenderer->unitLine);
 }
 
-void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout);
+void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, bool mainThread);
 void _vk2dRendererRefreshTargets() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
@@ -1370,7 +1376,7 @@ void _vk2dRendererRefreshTargets() {
 						VK_IMAGE_ASPECT_COLOR_BIT,
 						VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 						(VkSampleCountFlagBits)gRenderer->config.msaa);
-				_vk2dImageTransitionImageLayout(gRenderer->ld, gRenderer->targets[i]->sampledImg->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+				_vk2dImageTransitionImageLayout(gRenderer->ld, gRenderer->targets[i]->sampledImg->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, true);
 			}
 			//_vk2dImageTransitionImageLayout(gRenderer->ld, gRenderer->targets[i]->depthBuffer->img, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
 			gRenderer->targets[i]->depthBuffer = vk2dImageCreate(gRenderer->ld, gRenderer->targets[i]->img->width, gRenderer->targets[i]->img->height, gRenderer->depthBufferFormat, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, (VkSampleCountFlagBits)gRenderer->config.msaa);
@@ -1516,6 +1522,13 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererDestroyColourResources();
 	_vk2dRendererDestroySwapchain();
 
+	// The sample count is baked into the render passes, pipelines and render targets
+	bool msaaChanged = gRenderer->newConfig.msaa != gRenderer->config.msaa;
+	if (msaaChanged) {
+		_vk2dRendererDestroyPipelines(true);
+		_vk2dRendererDestroyRenderPass();
+	}
+
     vk2dLogInfo("Destroyed swapchain assets...");
 
 	// Swap out configs in case they were changed
@@ -1526,6 +1539,11 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateSwapchain();
 	_vk2dRendererCreateColourResources();
 	_vk2dRendererCreateDepthBuffer();
+	if (msaaChanged) {
+		_vk2dRendererCreateRenderPass();
+		_vk2dRendererCreatePipelines();
+		_vk2dRendererRefreshTargets();
+	}
 	_vk2dRendererCreateFrameBuffer();
 	_vk2dRendererCreateUniformBuffers(false);
 	_vk2dRendererCreateSampler();
