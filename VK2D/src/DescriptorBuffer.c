@@ -262,7 +262,7 @@ void vk2dDescriptorBufferRecordComputePipelineBarrier(VK2DDescriptorBuffer db, V
             db->memoryBarriers[i].sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
             db->memoryBarriers[i].pNext = VK_NULL_HANDLE;
             db->memoryBarriers[i].srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-            db->memoryBarriers[i].dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+            db->memoryBarriers[i].dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_SHADER_READ_BIT;
             db->memoryBarriers[i].srcQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily;
             db->memoryBarriers[i].dstQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily;
             db->memoryBarriers[i].buffer = db->buffers[i].deviceBuffer->buf;
@@ -277,7 +277,7 @@ void vk2dDescriptorBufferRecordComputePipelineBarrier(VK2DDescriptorBuffer db, V
     vkCmdPipelineBarrier(
             buf,
             VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-            VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+            VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
             0,
             0,
             VK_NULL_HANDLE,
