@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 static VkPhysicalDevice* _vk2dPhysicalDeviceGetPhysicalDevices(VkInstance instance, uint32_t *size) {
-	VkPhysicalDevice *devices;
+	VkPhysicalDevice *devices = NULL;
 
 	// Find out how many devices we have, allocate that amount, then fill in the blanks
 	VkResult result = vkEnumeratePhysicalDevices(instance, size, NULL);
@@ -132,7 +132,8 @@ VK2DPhysicalDevice vk2dPhysicalDeviceFind(VkInstance instance, int32_t preferred
 
 	if (out != NULL) {
 		choice = _vk2dPhysicalDeviceGetBestDevice(instance, out, preferredDevice, &foundPrimary);
-		vkGetPhysicalDeviceProperties(choice, &choiceProps);
+		if (choice != VK_NULL_HANDLE)
+			vkGetPhysicalDeviceProperties(choice, &choiceProps);
 
 		// Check if we found one and print if it was discrete (dedicated) or otherwise
 		if (choice != VK_NULL_HANDLE) {

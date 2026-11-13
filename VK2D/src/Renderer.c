@@ -53,6 +53,10 @@ void vk2dRendererStartFrame(const vec4 clearColour);
 VK2DResult vk2dRendererEndFrame();
 
 VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const VK2DStartupOptions *options) {
+	if (gRenderer != NULL) {
+		vk2dRaise(VK2D_STATUS_BAD_ASSET, "Renderer is already initialized.");
+		return VK2D_ERROR;
+	}
 	gRenderer = calloc(1, sizeof(struct VK2DRenderer_t));
 	VK2DResult errorCode = VK2D_SUCCESS;
 	uint32_t i, sdlExtensionsCount;
@@ -74,6 +78,11 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 
 	// Validation initialization needs to happen right away
 	vk2dValidationBegin(userOptions.errorFile, userOptions.quitOnError);
+	if (gRenderer == NULL) {
+		vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate renderer struct.");
+		vk2dValidationEnd();
+		return VK2D_ERROR;
+	}
 
     if (vk2dRendererGetPointer() != NULL) {
         // Print all available layers
@@ -82,28 +91,51 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
         VkResult result = vkEnumerateInstanceLayerProperties(&systemLayerCount, VK_NULL_HANDLE);
 
         if (result != VK_SUCCESS) {
-            free(gRenderer);
-            gRenderer = NULL;
             vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get layers, Vulkan error %i.", result);
+			vk2dRendererQuit();
             return VK2D_ERROR;
         }
 
         systemLayers = malloc(sizeof(VkLayerProperties) * systemLayerCount);
+		if (systemLayerCount != 0 && systemLayers == NULL) {
+			vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate Vulkan layer list.");
+			vk2dRendererQuit();
+			return VK2D_ERROR;
+		}
         result = vkEnumerateInstanceLayerProperties(&systemLayerCount, systemLayers);
 
         if (result != VK_SUCCESS) {
-            free(gRenderer);
-            gRenderer = NULL;
+			free(systemLayers);
             vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get layers, Vulkan error %i.", result);
+			vk2dRendererQuit();
             return VK2D_ERROR;
         }
 
         // Find if specific extensions are available
         uint32_t instanceExtensionCount = 0;
         VkExtensionProperties *instanceExtensions = VK_NULL_HANDLE;
-        vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &instanceExtensionCount, VK_NULL_HANDLE);
+		result = vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &instanceExtensionCount, VK_NULL_HANDLE);
+		if (result != VK_SUCCESS) {
+			free(systemLayers);
+			vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get instance extensions, Vulkan error %i.", result);
+			vk2dRendererQuit();
+			return VK2D_ERROR;
+		}
         instanceExtensions = malloc(instanceExtensionCount * sizeof(VkExtensionProperties));
-        vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &instanceExtensionCount, instanceExtensions);
+		if (instanceExtensionCount != 0 && instanceExtensions == NULL) {
+			free(systemLayers);
+			vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate Vulkan extension list.");
+			vk2dRendererQuit();
+			return VK2D_ERROR;
+		}
+		result = vkEnumerateInstanceExtensionProperties(VK_NULL_HANDLE, &instanceExtensionCount, instanceExtensions);
+		if (result != VK_SUCCESS) {
+			free(instanceExtensions);
+			free(systemLayers);
+			vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to enumerate instance extensions, Vulkan error %i.", result);
+			vk2dRendererQuit();
+			return VK2D_ERROR;
+		}
         bool portability = false;
         for (i = 0; i < instanceExtensionCount; i++) {
             if (strcmp(instanceExtensions[i].extensionName, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0)
@@ -142,13 +174,19 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 
 		// Load extensions
 		if (!sdlExtensions) {
-            free(gRenderer);
-            gRenderer = NULL;
             vk2dRaise(VK2D_STATUS_SDL_ERROR | VK2D_STATUS_VULKAN_ERROR, "Failed to get extensions, SDL error %s.", SDL_GetError());
+			free(systemLayers);
+			vk2dRendererQuit();
             return VK2D_ERROR;
         }
 
         // Append SDL extensions to extension list
+		if (extensionCount + sdlExtensionsCount + (portability ? 1 : 0) > 10) {
+			free(systemLayers);
+			vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Too many Vulkan instance extensions were requested.");
+			vk2dRendererQuit();
+			return VK2D_ERROR;
+		}
         for (i = 0; i < sdlExtensionsCount; i++)
             if (strcmp(sdlExtensions[i], VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) != 0)
                 extensions[extensionCount++] = sdlExtensions[i];
@@ -190,8 +228,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 
         if (result != VK_SUCCESS) {
 		    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create Vulkan instance, Vulkan error %i.", result);
-		    free(gRenderer);
-		    gRenderer = NULL;
+		    vk2dRendererQuit();
 		    return VK2D_ERROR;
 		}
 		gRenderer->pd = vk2dPhysicalDeviceFind(gRenderer->vk, VK2D_DEVICE_BEST_FIT);
@@ -254,32 +291,33 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 
         // Create budget list
         gRenderer->vmaBudgets = malloc(gRenderer->pd->mem.memoryHeapCount * sizeof(VmaBudget));
+		if (gRenderer->vmaBudgets == NULL) {
+			vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate VRAM budget list.");
+			vk2dRendererQuit();
+			return VK2D_ERROR;
+		}
 
-		// Initialize subsystems
-		_vk2dRendererCreateDebug();
-		_vk2dRendererCreateWindowSurface();
-		_vk2dRendererCreateSwapchain();
-		_vk2dRendererCreateColourResources();
-		_vk2dRendererCreateDepthBuffer();
-		_vk2dRendererCreateRenderPass();
-		_vk2dRendererCreateDescriptorSetLayouts();
-		_vk2dRendererCreatePipelines();
-		_vk2dRendererCreateFrameBuffer();
-		_vk2dRendererCreateDescriptorPool(false);
-		_vk2dRendererCreateDescriptorBuffers();
-		_vk2dRendererCreateUniformBuffers(true);
-		_vk2dRendererCreateSampler();
-		_vk2dRendererCreateUnits();
-		_vk2dRendererCreateSynchronization();
-		_vk2dRendererCreateSpriteBatching();
-		_vk2dRendererInitNuklear();
-        _vk2dInitShaderCompiler();
-
-		// Quit if something failed
-        if (vk2dStatusFatal()) {
-            vk2dRendererQuit();
-            return VK2D_ERROR;
-        }
+		// Stop at the failing subsystem so later initialization never uses an invalid handle.
+#define VK2D_INIT_STEP(step) do { step; if (vk2dStatusFatal()) { vk2dRendererQuit(); return VK2D_ERROR; } } while (0)
+		VK2D_INIT_STEP(_vk2dRendererCreateDebug());
+		VK2D_INIT_STEP(_vk2dRendererCreateWindowSurface());
+		VK2D_INIT_STEP(_vk2dRendererCreateSwapchain());
+		VK2D_INIT_STEP(_vk2dRendererCreateColourResources());
+		VK2D_INIT_STEP(_vk2dRendererCreateDepthBuffer());
+		VK2D_INIT_STEP(_vk2dRendererCreateRenderPass());
+		VK2D_INIT_STEP(_vk2dRendererCreateDescriptorSetLayouts());
+		VK2D_INIT_STEP(_vk2dRendererCreatePipelines());
+		VK2D_INIT_STEP(_vk2dRendererCreateFrameBuffer());
+		VK2D_INIT_STEP(_vk2dRendererCreateDescriptorPool(false));
+		VK2D_INIT_STEP(_vk2dRendererCreateDescriptorBuffers());
+		VK2D_INIT_STEP(_vk2dRendererCreateUniformBuffers(true));
+		VK2D_INIT_STEP(_vk2dRendererCreateSampler());
+		VK2D_INIT_STEP(_vk2dRendererCreateUnits());
+		VK2D_INIT_STEP(_vk2dRendererCreateSynchronization());
+		VK2D_INIT_STEP(_vk2dRendererCreateSpriteBatching());
+		VK2D_INIT_STEP(_vk2dRendererInitNuklear());
+		VK2D_INIT_STEP(_vk2dInitShaderCompiler());
+#undef VK2D_INIT_STEP
 
 		vk2dRendererSetColourMod((void*)VK2D_DEFAULT_COLOUR_MOD);
 		gRenderer->viewport.x = 0;
@@ -303,37 +341,41 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 }
 
 void vk2dRendererQuit() {
-	if (vk2dRendererGetPointer() != NULL) {
-		vk2dRendererEndFrame();
+	if (gRenderer != NULL) {
+		if (gRenderer->vma != NULL)
+			vk2dRendererEndFrame();
 	    if (gRenderer->ld != NULL && gRenderer->ld->queue != NULL)
 		    vkQueueWaitIdle(gRenderer->ld->queue);
 
 		// Destroy subsystems
         _vk2dQuitShaderCompiler();
-        _vk2dRendererQuitNuklear();
-        _vk2dRendererDestroySpriteBatching();
-		_vk2dRendererDestroySynchronization();
-		_vk2dRendererDestroyTargetsList();
-		_vk2dRendererDestroyUnits();
-		_vk2dRendererDestroySampler();
-		_vk2dRendererDestroyDescriptorPool(false);
-		_vk2dRendererDestroyDescriptorBuffers();
-		_vk2dRendererDestroyUniformBuffers();
-		_vk2dRendererDestroyFrameBuffer();
-		_vk2dRendererDestroyPipelines(false);
-		_vk2dRendererDestroyDescriptorSetLayout();
-		_vk2dRendererDestroyRenderPass();
-		_vk2dRendererDestroyDepthBuffer();
-		_vk2dRendererDestroyColourResources();
-		_vk2dRendererDestroySwapchain();
-		_vk2dRendererDestroyWindowSurface();
-		_vk2dRendererDestroyDebug();
-		vmaDestroyAllocator(gRenderer->vma);
+		if (gRenderer->vma != NULL) {
+			_vk2dRendererQuitNuklear();
+			_vk2dRendererDestroySpriteBatching();
+			_vk2dRendererDestroySynchronization();
+			_vk2dRendererDestroyTargetsList();
+			_vk2dRendererDestroyUnits();
+			_vk2dRendererDestroySampler();
+			_vk2dRendererDestroyDescriptorPool(false);
+			_vk2dRendererDestroyDescriptorBuffers();
+			_vk2dRendererDestroyFrameBuffer();
+			_vk2dRendererDestroyPipelines(false);
+			_vk2dRendererDestroyDescriptorSetLayout();
+			_vk2dRendererDestroyRenderPass();
+			_vk2dRendererDestroyDepthBuffer();
+			_vk2dRendererDestroyColourResources();
+			_vk2dRendererDestroySwapchain();
+			_vk2dRendererDestroyWindowSurface();
+			_vk2dRendererDestroyDebug();
+			vmaDestroyAllocator(gRenderer->vma);
+		}
 
 		// Destroy core bits
 		vk2dLogicalDeviceFree(gRenderer->ld);
 		vk2dPhysicalDeviceFree(gRenderer->pd);
 		free(gRenderer->vmaBudgets);
+		if (gRenderer->vk != VK_NULL_HANDLE)
+			vkDestroyInstance(gRenderer->vk, VK_NULL_HANDLE);
 
         vk2dLogInfo("VK2D has been uninitialized.");
 		vk2dValidationEnd();
@@ -411,11 +453,25 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 							UINT64_MAX);
 
 			// Acquire image
-			VkResult result = vkAcquireNextImageKHR(gRenderer->ld->dev, gRenderer->swapchain, UINT64_MAX,
+			VkResult result;
+			for (;;) {
+				result = vkAcquireNextImageKHR(gRenderer->ld->dev, gRenderer->swapchain, UINT64_MAX,
 								  gRenderer->imageAvailableSemaphores[gRenderer->currentFrame], VK_NULL_HANDLE,
 								  &gRenderer->scImageIndex);
+				if (result != VK_ERROR_OUT_OF_DATE_KHR)
+					break;
+				_vk2dRendererResetSwapchain();
+				if (vk2dStatusFatal()) {
+					gRenderer->procedStartFrame = false;
+					return;
+				}
+				gRenderer->resetSwapchain = false;
+			}
+			if (result == VK_SUBOPTIMAL_KHR)
+				gRenderer->resetSwapchain = true;
 
 			if (result < 0) {
+				gRenderer->procedStartFrame = false;
 			    if (result == VK_ERROR_DEVICE_LOST) {
                     vk2dRaise(VK2D_STATUS_DEVICE_LOST, "Vulkan device lost.");
 			    } else {
@@ -734,7 +790,7 @@ void vk2dRendererSetCamera(VK2DCameraSpec camera) {
 
 VK2DCameraSpec vk2dRendererGetCamera() {
 	if (vk2dRendererGetPointer() != NULL)
-		return gRenderer->defaultCameraSpec;
+		return gRenderer->cameras[VK2D_DEFAULT_CAMERA].spec;
 	VK2DCameraSpec c = {0};
 	return c;
 }

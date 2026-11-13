@@ -131,7 +131,7 @@ void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst, bool mainThread) {
 
 void vk2dBufferFree(VK2DBuffer buf) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    if (gRenderer == NULL || vk2dStatusFatal())
+    if (gRenderer == NULL)
         return;
 	if (buf != NULL) {
 		vmaDestroyBuffer(gRenderer->vma, buf->buf, buf->mem);
