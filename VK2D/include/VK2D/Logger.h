@@ -36,6 +36,11 @@ void vk2dDefaultLoggerSetStandardOutput(FILE *out);
 /// \brief Sets the error output for the default global logger
 void vk2dDefaultLoggerSetErrorOutput(FILE *out);
 
+/// \brief Sets a file that receives a copy of every warning, error and fatal
+///        message from the default global logger, or NULL for none
+/// \note Console output is unaffected and still follows `stdoutLogging`.
+void vk2dDefaultLoggerSetErrorFile(FILE *file);
+
 /// \brief Sets the minimum severity level for logging in the default logger.
 void vk2dDefaultLoggerSetSeverity(VK2DLogSeverity severity);
 
