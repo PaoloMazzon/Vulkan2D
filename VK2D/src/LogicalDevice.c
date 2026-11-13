@@ -149,13 +149,14 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 		result = vkCreateCommandPool(ldev->dev, &commandPoolCreateInfo, VK_NULL_HANDLE, &ldev->pool);
         if (result != VK_SUCCESS) {
             vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create command pool, Vulkan error %i.", result);
+			vkDestroyDevice(ldev->dev, VK_NULL_HANDLE);
             free(ldev);
             return NULL;
         }
 	} else {
 	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate logical device.");
 	}
-	
+
 	return ldev;
 }
 
@@ -177,10 +178,11 @@ void vk2dLogicalDeviceResetPool(VK2DLogicalDevice dev) {
 VkCommandBuffer vk2dLogicalDeviceGetCommandBuffer(VK2DLogicalDevice dev, bool primary) {
 	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool, 1);
 	allocInfo.level = primary ? VK_COMMAND_BUFFER_LEVEL_PRIMARY : VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-	VkCommandBuffer buffer;
+	VkCommandBuffer buffer = VK_NULL_HANDLE;
 	VkResult result = vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer);
     if (result != VK_SUCCESS) {
         vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to get command buffer, Vulkan error %i", result);
+		return VK_NULL_HANDLE;
     }
 	return buffer;
 }
