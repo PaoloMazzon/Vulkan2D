@@ -73,7 +73,7 @@ VK2DDescriptorBuffer vk2dDescriptorBufferCreate(VkDeviceSize vramPageSize) {
 }
 
 void vk2dDescriptorBufferFree(VK2DDescriptorBuffer db) {
-    if (vk2dStatusFatal() || vk2dRendererGetPointer() == NULL)
+    if (vk2dRendererGetPointer() == NULL)
         return;
 	if (db != NULL) {
 		for (int i = 0; i < db->bufferCount; i++) {
