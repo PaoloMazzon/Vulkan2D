@@ -53,7 +53,7 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
     Slang::ComPtr<ISlangBlob> blob(Slang::INIT_ATTACH, slang_createBlob(shader, shaderSize));
     Slang::ComPtr<IModule> module(session->loadModuleFromSource("user_shader", "user_shader", blob, diagnostics.writeRef()));
     if (diagnostics) {
-        vk2dLogInfo("%s", (const char*) diagnostics->getBufferPointer());
+        vk2dLogWarn("%s", (const char*) diagnostics->getBufferPointer());
     }
     if (module.get() == nullptr) {
         return false;
@@ -64,7 +64,7 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
     result = module->findEntryPointByName("PixelShader", fragEntryPoint.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogInfo("Failed to get entrypoint for pixel shader, %s", slang_getLastInternalErrorMessage());
+        vk2dLogError("Failed to get entrypoint for pixel shader, %s", slang_getLastInternalErrorMessage());
         return false;
     }
 
@@ -74,7 +74,7 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
     result = session->createCompositeComponentType(components, 2, program.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogInfo("Failed to compose Slang components, %s", slang_getLastInternalErrorMessage());
+        vk2dLogError("Failed to compose Slang components, %s", slang_getLastInternalErrorMessage());
         return false;
     }
 
@@ -103,7 +103,7 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
         // Check for extra user-provided data to the shader
         if (descriptorBinding == 3 && descriptorSet == 3) {
             if (strcmp("ConstantBuffer", fieldTypeLayout->getName()) != 0) {
-                vk2dLogInfo("User-provided data to shaders must be a ConstantBuffer, not \"%s\".", fieldTypeLayout->getName());
+                vk2dLogError("User-provided data to shaders must be a ConstantBuffer, not \"%s\".", fieldTypeLayout->getName());
                 return false;
             }
             userDataSize = size;
@@ -113,11 +113,11 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
         // Validate push constants range
         if (strcmp(fieldVarLayout->getName(), "push") == 0) {
             if (strcmp("ConstantBuffer<Push, DefaultPushConstantDataLayout>", typeFullName) != 0) {
-                vk2dLogInfo("Push constant is of incorrect type \"%s\", it should be \"[[vk::push_constant]] Push push;\"", typeFullName);
+                vk2dLogError("Push constant is of incorrect type \"%s\", it should be \"[[vk::push_constant]] Push push;\"", typeFullName);
                 return false;
             }
             if (size != 112) {
-                vk2dLogInfo("Push constant range is of incorrect size \"%i\", it should be 112 bytes. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.", size);
+                vk2dLogError("Push constant range is of incorrect size \"%i\", it should be 112 bytes. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.", size);
                 return false;
             }
             matchingPushConstants = true;
@@ -128,11 +128,11 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
         if (strcmp(fieldVarLayout->getName(), "sampler") == 0) {
             // "SamplerState" 1/1
             if (strcmp("SamplerState", typeFullName) != 0) {
-                vk2dLogInfo("Sampler is of incorrect type \"%s\", it should be \"[[vk::binding(1,1)]] SamplerState sampler;\"", typeFullName);
+                vk2dLogError("Sampler is of incorrect type \"%s\", it should be \"[[vk::binding(1,1)]] SamplerState sampler;\"", typeFullName);
                 return false;
             }
             if (descriptorSet != 1 || descriptorBinding != 1) {
-                vk2dLogInfo("Sampler is in the incorrect binding/set [%i/%i], it should be \"[[vk::binding(1,1)]] SamplerState sampler;\"", descriptorBinding, descriptorSet);
+                vk2dLogError("Sampler is in the incorrect binding/set [%i/%i], it should be \"[[vk::binding(1,1)]] SamplerState sampler;\"", descriptorBinding, descriptorSet);
                 return false;
             }
 
@@ -143,11 +143,11 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
         // Validate matching texture input
         if (strcmp(fieldVarLayout->getName(), "textures") == 0) {
             if (strcmp("Texture2D<vector<float,4>>[]", typeFullName) != 0) {
-                vk2dLogInfo("Texture array is of incorrect type \"%s\", it should be \"[[vk::binding(2,2)]] Texture2D<float4> textures[];\"", typeFullName);
+                vk2dLogError("Texture array is of incorrect type \"%s\", it should be \"[[vk::binding(2,2)]] Texture2D<float4> textures[];\"", typeFullName);
                 return false;
             }
             if (descriptorSet != 2 || descriptorBinding != 2) {
-                vk2dLogInfo("Texture array is in the incorrect binding/set [%i/%i]. It should be \"[[vk::binding(2,2)]] Texture2D<float4> textures[];\"", descriptorBinding, descriptorSet);
+                vk2dLogError("Texture array is in the incorrect binding/set [%i/%i]. It should be \"[[vk::binding(2,2)]] Texture2D<float4> textures[];\"", descriptorBinding, descriptorSet);
                 return false;
             }
 
@@ -156,18 +156,18 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
         }
 
         // Getting here means this field is invalid
-        vk2dLogInfo("Invalid field \"%s\" of type \"%s\" found in shader. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.", fieldVarLayout->getName(), typeFullName);
+        vk2dLogError("Invalid field \"%s\" of type \"%s\" found in shader. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.", fieldVarLayout->getName(), typeFullName);
         return false;
     }
 
     // Make sure everything was found
     if (!matchingTextures || !matchingSampler || !matchingPushConstants) {
         if (!matchingSampler)
-            vk2dLogInfo("Sampler state missing in shader. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.");
+            vk2dLogError("Sampler state missing in shader. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.");
         if (!matchingTextures)
-            vk2dLogInfo("Texture array missing in shader. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.");
+            vk2dLogError("Texture array missing in shader. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.");
         if (!matchingPushConstants)
-            vk2dLogInfo("Push constants missing in shader. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.");
+            vk2dLogError("Push constants missing in shader. Please check https://paolomazzon.github.io/Vulkan2D/md_docs_2Shaders.html for more information.");
 
         return false;
     }
@@ -178,7 +178,7 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
     result = program->link(linkedProgram.writeRef(), diagnosticBlob.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogInfo("Failed to link Slang components, %s", slang_getLastInternalErrorMessage());
+        vk2dLogError("Failed to link Slang components, %s", slang_getLastInternalErrorMessage());
         return false;
     }
 
@@ -191,7 +191,7 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
             diagnostics.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogInfo("Failed to get fragment SPIR-V, %s", (const char*) diagnostics->getBufferPointer());
+        vk2dLogError("Failed to get fragment SPIR-V, %s", (const char*) diagnostics->getBufferPointer());
         return false;
     }
 
@@ -203,6 +203,6 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
 
     return true;
 #endif // DISABLE_SHADER_COMPILATION
-    vk2dLogInfo("Shaders not enabled.");
+    vk2dLogError("Shaders not enabled.");
     return false;
 }
