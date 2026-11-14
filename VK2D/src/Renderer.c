@@ -458,26 +458,37 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 				result = vkAcquireNextImageKHR(gRenderer->ld->dev, gRenderer->swapchain, UINT64_MAX,
 								  gRenderer->imageAvailableSemaphores[gRenderer->currentFrame], VK_NULL_HANDLE,
 								  &gRenderer->scImageIndex);
-				if (result != VK_ERROR_OUT_OF_DATE_KHR)
+				switch (result) {
+				case VK_SUCCESS:
 					break;
-				_vk2dRendererResetSwapchain();
-				if (vk2dStatusFatal()) {
+				case VK_SUBOPTIMAL_KHR:
+					// The image is usable; recreate after presenting it.
+					gRenderer->resetSwapchain = true;
+					break;
+				case VK_ERROR_OUT_OF_DATE_KHR:
+					_vk2dRendererResetSwapchain();
+					if (vk2dStatusFatal()) {
+						gRenderer->procedStartFrame = false;
+						return;
+					}
+					gRenderer->resetSwapchain = false;
+					continue;
+				case VK_NOT_READY:
+				case VK_TIMEOUT:
+					// No image or acquire semaphore signal -> skip this frame.
 					gRenderer->procedStartFrame = false;
 					return;
+				case VK_ERROR_DEVICE_LOST:
+					gRenderer->procedStartFrame = false;
+					vk2dRaise(VK2D_STATUS_DEVICE_LOST, "Vulkan device lost during image acquisition.");
+					return;
+				default:
+					gRenderer->procedStartFrame = false;
+					vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to acquire next image, Vulkan error %i.", result);
+					return;
 				}
-				gRenderer->resetSwapchain = false;
-			}
-			if (result == VK_SUBOPTIMAL_KHR)
-				gRenderer->resetSwapchain = true;
-
-			if (result < 0) {
-				gRenderer->procedStartFrame = false;
-			    if (result == VK_ERROR_DEVICE_LOST) {
-                    vk2dRaise(VK2D_STATUS_DEVICE_LOST, "Vulkan device lost.");
-			    } else {
-                    vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to acquire next image, Vulkan error %i.", result);
-			    }
-			    return;
+				// Only success and suboptimal results reach the image-dependent work.
+				break;
 			}
 
 			if (gRenderer->imagesInFlight[gRenderer->scImageIndex] != VK_NULL_HANDLE) {

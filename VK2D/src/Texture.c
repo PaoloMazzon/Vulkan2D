@@ -60,6 +60,7 @@ VK2DTexture _vk2dTextureLoadFromImageInternal(VK2DImage image, bool mainThread) 
 
 	if (out != NULL) {
 		out->img = image;
+		// Register here once for all image-loading paths, including file and memory loads.
 		_vk2dTextureAddToTextureArray(out);
 	} else {
         vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate texture.");
