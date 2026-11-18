@@ -13,7 +13,7 @@ layout(location = 3) in flat uint instanceTextureIndex;
 layout(location = 0) out vec4 outColor;
 
 void main() {
-    vec4 colour = texture(sampler2D(tex[instanceTextureIndex], texSampler), fragTexCoord);
+    vec4 colour = texture(sampler2D(tex[nonuniformEXT(instanceTextureIndex)], texSampler), fragTexCoord);
     outColor = vec4(
             colour.r * fragColour.r,
             colour.g * fragColour.g,

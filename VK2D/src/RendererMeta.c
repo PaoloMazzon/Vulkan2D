@@ -123,6 +123,7 @@ void _vk2dRendererAddTarget(VK2DTexture tex) {
 		if (gRenderer->targets[i] == NULL) {
 			foundSpot = true;
 			gRenderer->targets[i] = tex;
+			break;
 		}
 	}
 
@@ -390,10 +391,18 @@ void _vk2dRendererCreateSwapchain() {
 			VK_NULL_HANDLE,
 			imageCount
 	);
-	VkBool32 supported;
-	vkGetPhysicalDeviceSurfaceSupportKHR(gRenderer->pd->dev, gRenderer->pd->QueueFamily.graphicsFamily, gRenderer->surface, &supported);
+	VkBool32 supported = VK_FALSE;
+	VkResult supportResult = vkGetPhysicalDeviceSurfaceSupportKHR(gRenderer->pd->dev, gRenderer->pd->QueueFamily.graphicsFamily, gRenderer->surface, &supported);
+	if (supportResult != VK_SUCCESS) {
+		vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to check swapchain support, Vulkan error %i.", supportResult);
+		return;
+	}
 	if (supported) {
-		vkCreateSwapchainKHR(gRenderer->ld->dev, &swapchainCreateInfoKHR, VK_NULL_HANDLE, &gRenderer->swapchain);
+		VkResult createResult = vkCreateSwapchainKHR(gRenderer->ld->dev, &swapchainCreateInfoKHR, VK_NULL_HANDLE, &gRenderer->swapchain);
+		if (createResult != VK_SUCCESS) {
+			vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create swapchain, Vulkan error %i.", createResult);
+			return;
+		}
 
         VkResult result = vkGetSwapchainImagesKHR(gRenderer->ld->dev, gRenderer->swapchain, &gRenderer->swapchainImageCount, VK_NULL_HANDLE);
         if (result >= 0) {
@@ -433,12 +442,17 @@ void _vk2dRendererCreateSwapchain() {
 void _vk2dRendererDestroySwapchain() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
-	for (i = 0; i < gRenderer->swapchainImageCount; i++)
-		vkDestroyImageView(gRenderer->ld->dev, gRenderer->swapchainImageViews[i], VK_NULL_HANDLE);
+	if (gRenderer->swapchainImageViews != NULL)
+		for (i = 0; i < gRenderer->swapchainImageCount; i++)
+			vkDestroyImageView(gRenderer->ld->dev, gRenderer->swapchainImageViews[i], VK_NULL_HANDLE);
 
 	vkDestroySwapchainKHR(gRenderer->ld->dev, gRenderer->swapchain, VK_NULL_HANDLE);
 	free(gRenderer->swapchainImageViews);
 	free(gRenderer->swapchainImages);
+	gRenderer->swapchainImageViews = NULL;
+	gRenderer->swapchainImages = NULL;
+	gRenderer->swapchain = VK_NULL_HANDLE;
+	gRenderer->swapchainImageCount = 0;
 }
 
 void _vk2dRendererCreateDepthBuffer() {
@@ -504,13 +518,18 @@ void _vk2dRendererCreateDescriptorBuffers() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
     if (vk2dStatusFatal())
         return;
-	gRenderer->descriptorBuffers = malloc(sizeof(VK2DDescriptorBuffer) * VK2D_MAX_FRAMES_IN_FLIGHT);
+	gRenderer->descriptorBuffers = calloc(VK2D_MAX_FRAMES_IN_FLIGHT, sizeof(VK2DDescriptorBuffer));
 	if (gRenderer->descriptorBuffers == NULL) {
 	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate descriptor buffers array.");
 	    return;
 	}
 	for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
 		gRenderer->descriptorBuffers[i] = vk2dDescriptorBufferCreate(gRenderer->options.vramPageSize);
+		if (gRenderer->descriptorBuffers[i] == NULL) {
+			if (!vk2dStatusFatal())
+				vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to create descriptor buffer.");
+			return;
+		}
 	}
 
 	// Calculate max instances
@@ -600,10 +619,10 @@ void _vk2dRendererCreateRenderPass() {
 	VkSubpassDependency subpassDependency = {0};
 	subpassDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 	subpassDependency.dstSubpass = 0;
-	subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	subpassDependency.srcAccessMask = 0;
-	subpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	subpassDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+	subpassDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+	subpassDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+	subpassDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
 	VkRenderPassCreateInfo renderPassCreateInfo = vk2dInitRenderPassCreateInfo(attachments, attachCount, subpasses, subpassCount, &subpassDependency, 1);
 	VkResult result = vkCreateRenderPass(gRenderer->ld->dev, &renderPassCreateInfo, VK_NULL_HANDLE, &gRenderer->renderPass);
@@ -678,6 +697,9 @@ void _vk2dRendererDestroyRenderPass() {
 	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->renderPass, VK_NULL_HANDLE);
 	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->externalTargetRenderPass, VK_NULL_HANDLE);
 	vkDestroyRenderPass(gRenderer->ld->dev, gRenderer->midFrameSwapRenderPass, VK_NULL_HANDLE);
+	gRenderer->renderPass = VK_NULL_HANDLE;
+	gRenderer->externalTargetRenderPass = VK_NULL_HANDLE;
+	gRenderer->midFrameSwapRenderPass = VK_NULL_HANDLE;
 }
 
 void _vk2dRendererCreateDescriptorSetLayouts() {
@@ -986,6 +1008,13 @@ void _vk2dRendererDestroyPipelines(bool preserveCustomPipes) {
     vk2dPipelineFree(gRenderer->instancedPipe);
     vk2dPipelineFree(gRenderer->shadowsPipe);
     vk2dPipelineFree(gRenderer->spriteBatchPipe);
+	gRenderer->primLinePipe = NULL;
+	gRenderer->primFillPipe = NULL;
+	gRenderer->modelPipe = NULL;
+	gRenderer->wireframePipe = NULL;
+	gRenderer->instancedPipe = NULL;
+	gRenderer->shadowsPipe = NULL;
+	gRenderer->spriteBatchPipe = NULL;
 
     if (!preserveCustomPipes)
 		free(gRenderer->customShaders);
@@ -996,7 +1025,7 @@ void _vk2dRendererCreateFrameBuffer() {
     if (vk2dStatusFatal())
         return;
 	uint32_t i;
-	gRenderer->framebuffers = malloc(sizeof(VkFramebuffer) * gRenderer->swapchainImageCount);
+	gRenderer->framebuffers = calloc(gRenderer->swapchainImageCount, sizeof(VkFramebuffer));
 
 	if (gRenderer->framebuffers) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
@@ -1022,8 +1051,8 @@ void _vk2dRendererCreateFrameBuffer() {
                 } else if (result == VK_ERROR_OUT_OF_DEVICE_MEMORY) {
                     vk2dRaise(VK2D_STATUS_OUT_OF_VRAM, "Failed to create framebuffer, out of video memory.");
                 }
-                free(gRenderer->framebuffers);
-                gRenderer->framebuffers = NULL;
+				if (result != VK_ERROR_OUT_OF_HOST_MEMORY && result != VK_ERROR_OUT_OF_DEVICE_MEMORY)
+					vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create framebuffer, Vulkan error %i.", result);
                 break;
 			}
 		}
@@ -1041,6 +1070,7 @@ void _vk2dRendererDestroyFrameBuffer() {
         for (i = 0; i < gRenderer->swapchainImageCount; i++)
             vkDestroyFramebuffer(gRenderer->ld->dev, gRenderer->framebuffers[i], VK_NULL_HANDLE);
         free(gRenderer->framebuffers);
+		gRenderer->framebuffers = NULL;
     }
 }
 
@@ -1241,12 +1271,16 @@ void _vk2dRendererCreateSynchronization() {
 	} else {
 	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate synchronization objects.");
 	}
+	if (vk2dStatusFatal())
+		return;
 
-	if (gRenderer->commandBuffer != NULL && gRenderer->dbCommandBuffer != NULL) {
+	if (gRenderer->commandBuffer != NULL && gRenderer->dbCommandBuffer != NULL && gRenderer->computeCommandBuffer != NULL) {
 		for (i = 0; i < gRenderer->swapchainImageCount; i++) {
 			gRenderer->commandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
             gRenderer->dbCommandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
             gRenderer->computeCommandBuffer[i] = vk2dLogicalDeviceGetCommandBuffer(gRenderer->ld, true);
+			if (vk2dStatusFatal())
+				return;
         }
 	} else {
         vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate synchronization objects.");
@@ -1260,16 +1294,22 @@ void _vk2dRendererDestroySynchronization() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
 
-	if (gRenderer->renderFinishedSemaphores != NULL && gRenderer->imageAvailableSemaphores != NULL && gRenderer->inFlightFences != NULL) {
-        for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(gRenderer->ld->dev, gRenderer->imageAvailableSemaphores[i], VK_NULL_HANDLE);
-            vkDestroyFence(gRenderer->ld->dev, gRenderer->inFlightFences[i], VK_NULL_HANDLE);
-        }
-
-        for (i = 0; i < gRenderer->swapchainImageCount; i++) {
-            vkDestroySemaphore(gRenderer->ld->dev, gRenderer->renderFinishedSemaphores[i], VK_NULL_HANDLE);
-        }
-    }
+	for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
+		if (gRenderer->imageAvailableSemaphores != NULL)
+			vkDestroySemaphore(gRenderer->ld->dev, gRenderer->imageAvailableSemaphores[i], VK_NULL_HANDLE);
+		if (gRenderer->inFlightFences != NULL)
+			vkDestroyFence(gRenderer->ld->dev, gRenderer->inFlightFences[i], VK_NULL_HANDLE);
+	}
+	for (i = 0; i < gRenderer->swapchainImageCount; i++) {
+		if (gRenderer->renderFinishedSemaphores != NULL)
+			vkDestroySemaphore(gRenderer->ld->dev, gRenderer->renderFinishedSemaphores[i], VK_NULL_HANDLE);
+		if (gRenderer->commandBuffer != NULL && gRenderer->commandBuffer[i] != VK_NULL_HANDLE)
+			vk2dLogicalDeviceFreeCommandBuffer(gRenderer->ld, gRenderer->commandBuffer[i]);
+		if (gRenderer->dbCommandBuffer != NULL && gRenderer->dbCommandBuffer[i] != VK_NULL_HANDLE)
+			vk2dLogicalDeviceFreeCommandBuffer(gRenderer->ld, gRenderer->dbCommandBuffer[i]);
+		if (gRenderer->computeCommandBuffer != NULL && gRenderer->computeCommandBuffer[i] != VK_NULL_HANDLE)
+			vk2dLogicalDeviceFreeCommandBuffer(gRenderer->ld, gRenderer->computeCommandBuffer[i]);
+	}
 	free(gRenderer->imagesInFlight);
 	free(gRenderer->inFlightFences);
 	free(gRenderer->imageAvailableSemaphores);
@@ -1277,6 +1317,13 @@ void _vk2dRendererDestroySynchronization() {
     free(gRenderer->commandBuffer);
     free(gRenderer->dbCommandBuffer);
     free(gRenderer->computeCommandBuffer);
+	gRenderer->imagesInFlight = NULL;
+	gRenderer->inFlightFences = NULL;
+	gRenderer->imageAvailableSemaphores = NULL;
+	gRenderer->renderFinishedSemaphores = NULL;
+	gRenderer->commandBuffer = NULL;
+	gRenderer->dbCommandBuffer = NULL;
+	gRenderer->computeCommandBuffer = NULL;
 }
 
 void _vk2dRendererCreateSampler() {
@@ -1318,6 +1365,8 @@ void _vk2dRendererDestroySampler() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	vkDestroySampler(gRenderer->ld->dev, gRenderer->textureSampler, VK_NULL_HANDLE);
 	vkDestroySampler(gRenderer->ld->dev, gRenderer->modelSampler, VK_NULL_HANDLE);
+	gRenderer->textureSampler = VK_NULL_HANDLE;
+	gRenderer->modelSampler = VK_NULL_HANDLE;
 }
 
 void _vk2dRendererCreateUnits() {
@@ -1439,7 +1488,16 @@ void _vk2dRendererInitNuklear() {
                                              physical_device, graphics_queue_family_index, image_views,
                                              image_views_len, COLOR_FORMAT, INIT_STATE, MAX_VERTEX_BUFFER,
                                              MAX_ELEMENT_BUFFER);
+		if (ctx == NULL) {
+			vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to initialize Nuklear.");
+			return;
+		}
         vk2d->gui = malloc(sizeof(*vk2d->gui));
+		if (vk2d->gui == NULL) {
+			nk_sdl_shutdown();
+			vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate Nuklear state.");
+			return;
+		}
         vk2d->gui->fonts = NULL;
         vk2d->gui->fontsCount = 0;
         vk2d->gui->context = ctx;
@@ -1461,9 +1519,8 @@ void _vk2dRendererInitNuklear() {
 
 void _vk2dRendererQuitNuklear() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	if (gRenderer->options.enableNuklear) {
+	if (gRenderer->options.enableNuklear && gRenderer->gui != NULL) {
         nk_sdl_shutdown();
-        assert(gRenderer->gui != NULL);
         struct VK2DFontHandle *tmp, *font;
         HASH_ITER(hh, gRenderer->gui->fonts, font, tmp) {
             HASH_DEL(gRenderer->gui->fonts, font);

@@ -60,6 +60,7 @@ VK2DTexture _vk2dTextureLoadFromImageInternal(VK2DImage image, bool mainThread) 
 
 	if (out != NULL) {
 		out->img = image;
+		// Register here once for all image-loading paths, including file and memory loads.
 		_vk2dTextureAddToTextureArray(out);
 	} else {
         vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate texture.");
@@ -102,8 +103,6 @@ VK2DTexture vk2dTextureFrom(const void *data, int size) {
 	VK2DTexture tex = _vk2dTextureFromInternal(data, size, true);
 	if (tex == NULL)
         vk2dLogError("Failed to load texture from data of size %i.", size);
-	else
-        _vk2dTextureAddToTextureArray(tex);
 	return tex;
 }
 
@@ -113,7 +112,6 @@ VK2DTexture vk2dTextureLoad(const char *filename) {
     void *data = _vk2dLoadFile(filename, &size);
 	if (data != NULL) {
         tex = _vk2dTextureFromInternal(data, size, true);
-        _vk2dTextureAddToTextureArray(tex);
         free(data);
     } else {
 

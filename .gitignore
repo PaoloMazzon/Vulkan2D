@@ -18,3 +18,4 @@ doxygen_sqlite3.db
 vk2derror.txt
 latex/
 .clang-format
+!VK2D/.clang-format
