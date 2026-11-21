@@ -2,7 +2,7 @@
 /// Slang only provides a C++ interface for compiling shaders, so we wrap the C++ code
 /// in an extern C interface the rest of the renderer can use.
 #ifndef DISABLE_SHADER_COMPILATION
-#include <slang-com-ptr.h>
+#include <slang-compiler/slang-com-ptr.h>
 #endif
 #include <string>
 #include "VK2D/ShaderCompiler.h"
