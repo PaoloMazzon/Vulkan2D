@@ -146,10 +146,11 @@ void vk2dDescriptorBufferCopyData(VK2DDescriptorBuffer db, void *data, VkDeviceS
 
         // We may only move size in accordance with minUniformBufferOffsetAlignment
         const VkDeviceSize alignment = maxTwo(gRenderer->pd->props.limits.minStorageBufferOffsetAlignment, gRenderer->pd->props.limits.minUniformBufferOffsetAlignment);
-        if (size % alignment != 0) {
-            spot->size += ((size / alignment) + 1) * alignment;
-        } else {
-            spot->size += size;
+        spot->size += size;
+        VkDeviceSize remainder = spot->size % alignment;
+        if (remainder != 0) {
+            VkDeviceSize padding = alignment - remainder;
+            spot->size += padding < db->pageSize - spot->size ? padding : db->pageSize - spot->size;
         }
     }
 }
@@ -191,10 +192,11 @@ void vk2dDescriptorBufferReserveSpace(VK2DDescriptorBuffer db, VkDeviceSize size
 
         // We may only move size in accordance with minUniformBufferOffsetAlignment
         const VkDeviceSize alignment = maxTwo(gRenderer->pd->props.limits.minStorageBufferOffsetAlignment, gRenderer->pd->props.limits.minUniformBufferOffsetAlignment);
-        if (size % alignment != 0) {
-            spot->size += ((size / alignment) + 1) * alignment;
-        } else {
-            spot->size += size;
+        spot->size += size;
+        VkDeviceSize remainder = spot->size % alignment;
+        if (remainder != 0) {
+            VkDeviceSize padding = alignment - remainder;
+            spot->size += padding < db->pageSize - spot->size ? padding : db->pageSize - spot->size;
         }
     }
 }
@@ -206,6 +208,12 @@ void vk2dDescriptorBufferEndFrame(VK2DDescriptorBuffer db, VkCommandBuffer copyB
 
 	// Unmap all of the buffers then queue a buffer copy if their size is greater than 0
 	for (int i = 0; i < db->bufferCount; i++) {
+		if (db->buffers[i].size > 0) {
+			VkResult result = vmaFlushAllocation(gRenderer->vma, db->buffers[i].stageBuffer->mem, 0, db->buffers[i].size);
+			if (result != VK_SUCCESS) {
+				vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to flush descriptor buffer, VMA error %i.", result);
+			}
+		}
 		vmaUnmapMemory(gRenderer->vma, db->buffers[i].stageBuffer->mem);
 		if (db->buffers[i].size > 0) {
 			VkBufferCopy bufferCopy = {0};
@@ -226,7 +234,8 @@ void vk2dDescriptorBufferRecordCopyPipelineBarrier(VK2DDescriptorBuffer db, VkCo
             db->memoryBarriers[i].sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
             db->memoryBarriers[i].pNext = VK_NULL_HANDLE;
             db->memoryBarriers[i].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-            db->memoryBarriers[i].dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+            db->memoryBarriers[i].dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT |
+                                                   VK_ACCESS_UNIFORM_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
             db->memoryBarriers[i].srcQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily;
             db->memoryBarriers[i].dstQueueFamilyIndex = gRenderer->pd->QueueFamily.graphicsFamily;
             db->memoryBarriers[i].buffer = db->buffers[i].deviceBuffer->buf;
@@ -241,7 +250,8 @@ void vk2dDescriptorBufferRecordCopyPipelineBarrier(VK2DDescriptorBuffer db, VkCo
     vkCmdPipelineBarrier(
             buf,
             VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_INPUT_BIT |
+                    VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
             0,
             0,
             VK_NULL_HANDLE,
