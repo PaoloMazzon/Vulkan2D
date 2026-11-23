@@ -654,6 +654,15 @@ VK2DResult vk2dRendererEndFrame() {
 																  presentWaitSemaphores,
 																  1);
 			VkResult queueRes = vkQueuePresentKHR(gRenderer->ld->queue, &presentInfo);
+
+			// Wayland doesn't mark resized swapchains as out of date (it just stretches the old frame), so poll the window size manually.
+			if (gRenderer->surfaceCapabilities.currentExtent.width == UINT32_MAX) {
+				int pw = 0, ph = 0;
+				if (SDL_GetWindowSizeInPixels(gRenderer->window, &pw, &ph) && pw > 0 && ph > 0 &&
+					((uint32_t)pw != gRenderer->surfaceWidth || (uint32_t)ph != gRenderer->surfaceHeight))
+					gRenderer->resetSwapchain = true;
+			}
+
 			if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || gRenderer->resetSwapchain ||
 				queueRes == VK_ERROR_OUT_OF_DATE_KHR) {
 				_vk2dRendererResetSwapchain();
