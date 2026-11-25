@@ -314,6 +314,9 @@ struct VK2DRenderer_t {
 	VkCommandBuffer *commandBuffer;        ///< Command buffers, recreated each frame
 	VkCommandBuffer *dbCommandBuffer;      ///< Command buffers for descriptor buffers
 	VkCommandBuffer *computeCommandBuffer; ///< Command buffers for compute passes
+	VkQueryPool gpuTimer;                  ///< Two timestamps per frame in flight, VK_NULL_HANDLE if unsupported
+	bool gpuTimed[VK2D_MAX_FRAMES_IN_FLIGHT]; ///< Whether that frame's timestamps were written
+	double gpuFrameMs;                     ///< Last measured GPU time of a frame in milliseconds, -1 if unknown
 
 	// Render targeting info
 	uint32_t targetSubPass;          ///< Current sub pass being rendered to

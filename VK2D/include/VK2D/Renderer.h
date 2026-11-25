@@ -182,6 +182,15 @@ void vk2dRendererSetConfig(VK2DRendererConfig config);
 /// or render passes.
 void vk2dRendererGetVRAMUsage(float *inUse, float *total);
 
+/// \brief GPU time of a recent frame, from timestamps around its command buffers
+/// \return Milliseconds, or -1 if the device cannot time or nothing was measured yet
+/// \note The value lags a frame or two behind: it is read once that frame's fence has signalled.
+double vk2dRendererGetGPUFrameTime();
+
+/// \brief Properties of the physical device in use (name, vendor, driver and API versions, limits)
+/// \return NULL if the renderer is not initialized
+const VkPhysicalDeviceProperties *vk2dRendererGetDeviceProperties();
+
 /// \brief Forces the renderer to rebuild itself (VK2D does this automatically)
 ///
 /// This is automatically done when Vulkan detects the window is no longer
