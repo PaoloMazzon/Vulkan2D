@@ -426,6 +426,14 @@ void vk2dRendererSetConfig(VK2DRendererConfig config) {
 	}
 }
 
+double vk2dRendererGetGPUFrameTime() {
+	return gRenderer != NULL ? gRenderer->gpuFrameMs : -1; // no raise: debug overlays ask before a renderer exists
+}
+
+const VkPhysicalDeviceProperties *vk2dRendererGetDeviceProperties() {
+	return gRenderer != NULL && gRenderer->pd != NULL ? &gRenderer->pd->props : NULL;
+}
+
 void vk2dRendererGetVRAMUsage(float *inUse, float *total) {
     *inUse = 0;
     *total = 0;
@@ -451,6 +459,16 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
 			// Wait for previous rendering to be finished
 			vkWaitForFences(gRenderer->ld->dev, 1, &gRenderer->inFlightFences[gRenderer->currentFrame], VK_TRUE,
 							UINT64_MAX);
+
+			// That frame is done on the GPU, so its timestamps are ready without waiting
+			if (gRenderer->gpuTimer != VK_NULL_HANDLE && gRenderer->gpuTimed[gRenderer->currentFrame]) {
+				uint64_t stamps[2];
+				if (vkGetQueryPoolResults(gRenderer->ld->dev, gRenderer->gpuTimer, gRenderer->currentFrame * 2, 2,
+										  sizeof(stamps), stamps, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT) == VK_SUCCESS
+					&& stamps[1] >= stamps[0])
+					gRenderer->gpuFrameMs = (double)(stamps[1] - stamps[0]) * gRenderer->pd->props.limits.timestampPeriod / 1e6;
+				gRenderer->gpuTimed[gRenderer->currentFrame] = false;
+			}
 
 			// Acquire image
 			VkResult result;
@@ -532,6 +550,13 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
                 vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to begin command buffer at start of frame, Vulkan error %i/%i/%i.", result, result2, result3);
                 return;
             }
+			if (gRenderer->gpuTimer != VK_NULL_HANDLE) {
+				// Reset in the descriptor buffer, which is submitted first and never inside a render pass; start the clock in
+				// the main buffer at colour output, which waits for the swapchain image, so vsync waits are not counted.
+				vkCmdResetQueryPool(gRenderer->dbCommandBuffer[gRenderer->scImageIndex], gRenderer->gpuTimer, gRenderer->currentFrame * 2, 2);
+				vkCmdWriteTimestamp(gRenderer->commandBuffer[gRenderer->scImageIndex], VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+									gRenderer->gpuTimer, gRenderer->currentFrame * 2);
+			}
 
 			// Begin descriptor buffer and sprite batching
             vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
@@ -598,6 +623,12 @@ VK2DResult vk2dRendererEndFrame() {
             vk2dDescriptorBufferRecordCopyPipelineBarrier(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
             vk2dDescriptorBufferRecordComputePipelineBarrier(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->computeCommandBuffer[gRenderer->scImageIndex]);
 
+            if (gRenderer->gpuTimer != VK_NULL_HANDLE) { // the main buffer is submitted last
+				vkCmdWriteTimestamp(gRenderer->commandBuffer[gRenderer->scImageIndex], VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+									gRenderer->gpuTimer, gRenderer->currentFrame * 2 + 1);
+				gRenderer->gpuTimed[gRenderer->currentFrame] = true;
+			}
+
             // PRESENT
             VkResult result = vkEndCommandBuffer(gRenderer->commandBuffer[gRenderer->scImageIndex]);
             VkResult result2 = vkEndCommandBuffer(gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
@@ -654,6 +685,15 @@ VK2DResult vk2dRendererEndFrame() {
 																  presentWaitSemaphores,
 																  1);
 			VkResult queueRes = vkQueuePresentKHR(gRenderer->ld->queue, &presentInfo);
+
+			// Wayland doesn't mark resized swapchains as out of date (it just stretches the old frame), so poll the window size manually.∏
+			if (gRenderer->surfaceCapabilities.currentExtent.width == UINT32_MAX) {
+				int pw = 0, ph = 0;
+				if (SDL_GetWindowSizeInPixels(gRenderer->window, &pw, &ph) && pw > 0 && ph > 0 &&
+					((uint32_t)pw != gRenderer->surfaceWidth || (uint32_t)ph != gRenderer->surfaceHeight))
+					gRenderer->resetSwapchain = true;
+			}
+
 			if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || gRenderer->resetSwapchain ||
 				queueRes == VK_ERROR_OUT_OF_DATE_KHR) {
 				_vk2dRendererResetSwapchain();

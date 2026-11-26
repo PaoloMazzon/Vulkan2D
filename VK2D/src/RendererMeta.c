@@ -1286,6 +1286,19 @@ void _vk2dRendererCreateSynchronization() {
         vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate synchronization objects.");
 	}
 
+	gRenderer->gpuTimer = VK_NULL_HANDLE;
+	gRenderer->gpuFrameMs = -1;
+	for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++)
+		gRenderer->gpuTimed[i] = false;
+	if (!vk2dStatusFatal() && gRenderer->pd->props.limits.timestampComputeAndGraphics) {
+		VkQueryPoolCreateInfo queryInfo = {0};
+		queryInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+		queryInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
+		queryInfo.queryCount = 2 * VK2D_MAX_FRAMES_IN_FLIGHT;
+		if (vkCreateQueryPool(gRenderer->ld->dev, &queryInfo, VK_NULL_HANDLE, &gRenderer->gpuTimer) != VK_SUCCESS)
+			gRenderer->gpuTimer = VK_NULL_HANDLE; // timing is optional
+	}
+
 	if (!vk2dStatusFatal())
         vk2dLogInfo("Synchronization initialized...");
 }
@@ -1293,6 +1306,10 @@ void _vk2dRendererCreateSynchronization() {
 void _vk2dRendererDestroySynchronization() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	uint32_t i;
+
+	if (gRenderer->gpuTimer != VK_NULL_HANDLE)
+		vkDestroyQueryPool(gRenderer->ld->dev, gRenderer->gpuTimer, VK_NULL_HANDLE);
+	gRenderer->gpuTimer = VK_NULL_HANDLE;
 
 	for (i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
 		if (gRenderer->imageAvailableSemaphores != NULL)
