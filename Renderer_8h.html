@@ -181,6 +181,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>vk2dRendererQuit</b> 
 <tr class="memdesc:ab34d140dc2f8827eca8ce0159d226372"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets the renderer with a new configuration.  <br /></td></tr>
 <tr class="memitem:adf3e046a2be4e814c17b502d17e10c36" id="r_adf3e046a2be4e814c17b502d17e10c36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adf3e046a2be4e814c17b502d17e10c36">vk2dRendererGetVRAMUsage</a> (float *inUse, float *total)</td></tr>
 <tr class="memdesc:adf3e046a2be4e814c17b502d17e10c36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the amount of VRAM currently in use and free.  <br /></td></tr>
+<tr class="memitem:a7132897cd8bfae00a894ec4a007147d7" id="r_a7132897cd8bfae00a894ec4a007147d7"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7132897cd8bfae00a894ec4a007147d7">vk2dRendererGetGPUFrameTime</a> ()</td></tr>
+<tr class="memdesc:a7132897cd8bfae00a894ec4a007147d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">GPU time of a recent frame, from timestamps around its command buffers.  <br /></td></tr>
+<tr class="memitem:abc4c9099e8f8380cddba5dc155b868a9" id="r_abc4c9099e8f8380cddba5dc155b868a9"><td class="memItemLeft" align="right" valign="top">const VkPhysicalDeviceProperties *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abc4c9099e8f8380cddba5dc155b868a9">vk2dRendererGetDeviceProperties</a> ()</td></tr>
+<tr class="memdesc:abc4c9099e8f8380cddba5dc155b868a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Properties of the physical device in use (name, vendor, driver and API versions, limits).  <br /></td></tr>
 <tr class="memitem:a72ed2a4b6ddec99dd3254883c654f63b" id="r_a72ed2a4b6ddec99dd3254883c654f63b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a72ed2a4b6ddec99dd3254883c654f63b">vk2dRendererResetSwapchain</a> ()</td></tr>
 <tr class="memdesc:a72ed2a4b6ddec99dd3254883c654f63b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forces the renderer to rebuild itself (VK2D does this automatically).  <br /></td></tr>
 <tr class="memitem:aa280225e04bb587e6790f125adb40338" id="r_aa280225e04bb587e6790f125adb40338"><td class="memItemLeft" align="right" valign="top"><a id="aa280225e04bb587e6790f125adb40338" name="aa280225e04bb587e6790f125adb40338"></a>
@@ -2078,6 +2082,47 @@ The wireframe may not look as you expect because models are triangulated </dd></
 
 <p>Returns the logical device being used by the renderer. </p>
 <dl class="section return"><dt>Returns</dt><dd>Returns the current logical device </dd></dl>
+
+</div>
+</div>
+<a id="abc4c9099e8f8380cddba5dc155b868a9" name="abc4c9099e8f8380cddba5dc155b868a9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc4c9099e8f8380cddba5dc155b868a9">&#9670;&#160;</a></span>vk2dRendererGetDeviceProperties()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const VkPhysicalDeviceProperties * vk2dRendererGetDeviceProperties </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Properties of the physical device in use (name, vendor, driver and API versions, limits). </p>
+<dl class="section return"><dt>Returns</dt><dd>NULL if the renderer is not initialized </dd></dl>
+
+</div>
+</div>
+<a id="a7132897cd8bfae00a894ec4a007147d7" name="a7132897cd8bfae00a894ec4a007147d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7132897cd8bfae00a894ec4a007147d7">&#9670;&#160;</a></span>vk2dRendererGetGPUFrameTime()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double vk2dRendererGetGPUFrameTime </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>GPU time of a recent frame, from timestamps around its command buffers. </p>
+<dl class="section return"><dt>Returns</dt><dd>Milliseconds, or -1 if the device cannot time or nothing was measured yet </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The value lags a frame or two behind: it is read once that frame's fence has signalled. </dd></dl>
 
 </div>
 </div>

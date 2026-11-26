@@ -42,6 +42,8 @@ var Renderer_8h =
     [ "vk2dRendererGetColourMod", "Renderer_8h.html#aa26cfe27db638d69b9bf007b14a1443a", null ],
     [ "vk2dRendererGetConfig", "Renderer_8h.html#aebfb698a734a5b22a4ad32041fa2a9a5", null ],
     [ "vk2dRendererGetDevice", "Renderer_8h.html#a93c7561aef0caeaadd6d3f12f2667f68", null ],
+    [ "vk2dRendererGetDeviceProperties", "Renderer_8h.html#abc4c9099e8f8380cddba5dc155b868a9", null ],
+    [ "vk2dRendererGetGPUFrameTime", "Renderer_8h.html#a7132897cd8bfae00a894ec4a007147d7", null ],
     [ "vk2dRendererGetLimits", "Renderer_8h.html#ae3e400550294f166e78f4f587f95b328", null ],
     [ "vk2dRendererGetPointer", "Renderer_8h.html#aa4ab5c37514f89151b8ed4d3bac1c79a", null ],
     [ "vk2dRendererGetVRAMUsage", "Renderer_8h.html#adf3e046a2be4e814c17b502d17e10c36", null ],
